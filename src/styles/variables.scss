@@ -1,0 +1,22 @@
+// 配置全局变量
+// 使用方法：
+/* 
+.class {
+    color: $color;
+  }
+*/
+// $color:red;
+// 左侧菜单宽度
+$base-menu-width: 260px;
+// 左侧菜单背景色
+$base-menu-background: #324157;
+$base-menu-min-width: 50px;
+
+// 顶部高度
+$base-tabbar-height:60px;
+// 顶部背景色
+$base-tabbar-background:yellow;
+
+
+// logo高度
+$base-logo-height: 50px;

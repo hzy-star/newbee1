@@ -1,0 +1,20 @@
+@use "./reset.scss";
+// 如果有其他的 @import 或样式规则，请放在 @use 之后
+
+// 滚动条样式
+::-webkit-scrollbar{
+    width: 6px;
+}
+// 滚动条滑块样式
+::-webkit-scrollbar-track{
+    background-color: rgb(255, 255, 255); // 浅灰色背景
+}
+// 滚动条滑块样式
+::-webkit-scrollbar-thumb{
+    background: rgb(204, 204, 204);
+    border-radius: 3px;
+}
+// 滚动条滑块悬停样式
+::-webkit-scrollbar-thumb:hover{
+    background: rgb(178, 178, 178);
+}

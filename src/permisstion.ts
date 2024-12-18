@@ -1,0 +1,57 @@
+// 路由权限
+import router from "./router";
+import setting from "./setting";
+import NProgress from "nprogress"
+// 引入进度条样式
+import "nprogress/nprogress.css"
+NProgress.configure({showSpinner:false})
+import pinia from "./store";
+import useCookie from "./store/modules/cookie";
+const useCookies = useCookie(pinia)
+// 全局前置守卫
+router.beforeEach( async (to:any, from:any, next:any) => {
+    // console.log(document.cookie);
+    
+    document.title = setting.title + '-' + to.meta.title
+    NProgress.start()
+    const cookie = useCookies.cookie
+    // const username = useCookies.username
+    if(from.path == ''){
+        next({path:'/'})
+    }
+    // next()
+    if(cookie){
+        if(to.path == '/login'){
+            next({path:'/'})
+        }else{
+            next()
+            return
+            // 登录成功访问其余路由
+            // if(username){
+            //     next()
+            // }else{
+            //     try{
+            //         // 获取用户信息
+            //         await useCookies.getUserInfo()
+            //         next({...to})
+            //     }catch(error){
+            //         // 退出登录
+            //         useCookies.userLogout()
+            //         next({path:'/login',query:{redirect:to.path}})
+            //     }
+            // }
+        }
+    }else{
+        if(to.path == '/login'){
+            next()
+        }else{
+            next({path:'/login',query:{redirect:to.path}})
+        }
+    }
+})
+
+// 全局后置守卫
+router.afterEach(() => {
+    
+    NProgress.done()
+})
