@@ -64,6 +64,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import listTaskCr from "@/store/common/listTaskCr"
 //获取用户相关的小仓库
 import useUserStore from '@/store/modules/user'
 //获取骨架的小仓库
@@ -77,8 +78,11 @@ let $route = useRoute()
 //收集开关的数据
 let dark = ref<boolean>(false)
 //刷新按钮点击回调
-const updateRefsh = () => {
+// 刷新页面的时候，重新获取cr数据
+const getTaskCr = listTaskCr()
+const updateRefsh = async () => {
   layoutSettingStore.refsh = !layoutSettingStore.refsh
+  await getTaskCr.setTaskCr(); // 重新加载数据
 }
 //全屏按钮点击的回调
 const fullScreen = () => {

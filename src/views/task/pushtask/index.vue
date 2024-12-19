@@ -102,10 +102,10 @@
       <el-row class="form-item-buttons">
         <!-- 左侧按钮 -->
         <el-col :span="12" class="form-item-left">
-          <el-button type="primary" @click="">BatchEdit</el-button>
+          <el-button type="primary" @click="BatchEdit">BatchEdit</el-button>
           <el-button type="success" @click="">BatchEnable</el-button>
           <el-button type="danger" @click="">BatchDisable</el-button>
-          <el-button type="primary" @click="">CreateTemplate</el-button>
+          <el-button type="primary" @click="CreateTemplate">CreateTemplate</el-button>
         </el-col>
 
         <!-- 右侧按钮 -->
@@ -120,8 +120,27 @@
     <div class="pushtask_table">
       <vxe-table border auto-resize height="auto" :loading="loading" :column-config="{ resizable: true }"
         :cell-config="{ verticalAlign: 'center' }" :row-config="{ isCurrent: true, isHover: true, }"
-        :data="tableDataList">
-        <vxe-column type="checkbox" title="" align="center" width="70"></vxe-column>
+        :data="tableDataList" ref="tableRef">
+        <vxe-column type="checkbox" title="" align="center" width="70">
+          <template #header="{ checked, indeterminate }">
+            <span class="custom-checkbox" @click.stop="toggleAllCheckboxEvent">
+              <i v-if="indeterminate" class="vxe-icon-square-minus-fill"></i>
+              <i v-else-if="checked" class="vxe-icon-square-checked-fill"></i>
+              <i v-else class="vxe-icon-checkbox-unchecked"></i>
+            </span>
+            #
+          </template>
+          <template #checkbox="{ row, checked, indeterminate }">
+            <span class="custom-checkbox" @click.stop="toggleCheckboxEvent(row)">
+              <i v-if="indeterminate" class="vxe-icon-square-minus-fill"></i>
+              <i v-else-if="checked" class="vxe-icon-square-checked-fill"></i>
+              <i v-else class="vxe-icon-checkbox-unchecked"></i>
+            </span>
+            <div @click="checkCharts(row)" class="icon-echarts">
+              <svg-icon name="echarts" width="15px" height="15px"></svg-icon>
+            </div>
+          </template>
+        </vxe-column>
         <vxe-column field="etype" title="event" align="center" width="70"></vxe-column>
         <vxe-column field="offers" title="offer" align="center" width="70"></vxe-column>
         <vxe-column field="appId" title="appid" align="center" width="70"></vxe-column>
@@ -193,7 +212,7 @@
             </div>
           </template>
           <template #default="scope">
-            <el-button size="small" type="primary">show</el-button>
+            <el-button size="small" type="primary" @click="showTask(scope.row)">show</el-button>
             <el-button size="small" type="warning">del</el-button>
             <el-button size="small" type="success" v-if="scope.row.bsclick == 'true'">enable</el-button>
             <el-button size="small" type="danger" v-else>disable</el-button>
@@ -210,7 +229,9 @@
         @page-change="pageChange">
       </vxe-pager>
     </div>
-
+    <!-- 添加在 template 最后 -->
+    <TaskModal v-model="showModal" :title="modalTitle" :selected-ids="selectedIds" :current-row-data="currentRowData"
+      :auto-bundle-key="autoBundleKey" @confirm="handleModalConfirm" @confirmNew="handleModalConfirmNew" />
   </div>
 </template>
 
@@ -219,9 +240,13 @@ import { ref, onMounted, reactive } from 'vue';
 import type { propFormInter } from '@/api/pushtask/type'
 import { ElMessage } from 'element-plus';
 import { getRelativeDates } from "@/utils/time";
-import { reqlistUrl, reqOngoing } from "@/api/pushtask/index"
-import setTaskCr from "@/store/common/listTaskCr"
-const listTaskCr = setTaskCr()
+import { reqlistUrl, reqOngoing, reqGetBundleKey, reqAudienceList } from "@/api/pushtask/index"
+import listTaskCr from "@/store/common/listTaskCr"
+import TaskModal from '@/components/task/TaskModal.vue'
+import { VxeTableInstance } from 'vxe-table'
+const getTaskCr = listTaskCr()
+// 页面初始化获取getAutoTopBundleKeyNames接口的值
+const autoBundleKey = ref<any>()
 // 获取最近3天的日期
 const date = ref(getRelativeDates(-3));
 // 初始化获取所有任务
@@ -239,11 +264,27 @@ const propFrom = ref<propFormInter>({
   taskdate: '',
   filtercontent: '',
 })
+const toggleAllCheckboxEvent = () => {
+  const $table = tableRef.value
+  if ($table) {
+    $table.toggleAllCheckboxRow()
+  }
+}
+const toggleCheckboxEvent = (row: any) => {
+  const $table = tableRef.value
+  if ($table) {
+    $table.toggleCheckboxRow(row)
+  }
+}
+// 查看图表
+const checkCharts = (row: any) => {
+  console.log(row);
 
+}
 // 表格数据
 const tableData = ref<any>([]);
 const result = ref([])
-// 查询功能
+// 查���功能
 const findAll = async () => {
   loading.value = true
   try {
@@ -257,7 +298,7 @@ const findAll = async () => {
         (ongoingItem: any) => ongoingItem.taskId === item.id
       );
       // 从 taskCr 中查找对应 taskId 的数据
-      const taskCrData = listTaskCr.taskCr[item.id];
+      const taskCrData = getTaskCr.taskCr[item.id];
       // 返回新的结构，将 matchedOngoing 嵌套到 ongoingData
       return {
         ...item, // 保留原来的字段
@@ -278,10 +319,6 @@ const findAll = async () => {
   }
 };
 
-// 添加任务
-const addTask = () => {
-  ElMessage.success('任务已添加');
-};
 // 分页
 const pageVO = reactive({
   total: 0,
@@ -302,7 +339,7 @@ const handlePageData = (num?: number) => {
         (ongoingItem: any) => ongoingItem.taskId === item.id
       );
       // 从 taskCr 中查找对应 taskId 的数据
-      const taskCrData = listTaskCr.taskCr[item.id];
+      const taskCrData = getTaskCr.taskCr[item.id];
       // 返回新的结构，将 matchedOngoing 嵌套到 ongoingData
       return {
         ...item, // 保留原来的字段
@@ -392,6 +429,83 @@ const shouldShowPopover = (row: any) => {
     ongoingData?.sendServerCount > 0 ||
     ongoingData?.statusDetail != null;
 };
+
+
+// 弹窗相关****
+// 添加状态管理
+const showModal = ref(false)
+const modalTitle = ref('')
+const selectedIds = ref<string[]>([])
+const currentRowData = ref<any>(null)
+interface RowVO {
+  id: number
+  name: string
+  role: string
+  sex: string
+  age: number
+  address: string
+}
+const tableRef = ref<VxeTableInstance<RowVO>>()
+// 批量编辑
+const BatchEdit = () => {
+  const $table = tableRef.value
+  if ($table) {
+    const selectRecords = $table.getCheckboxRecords()
+    if (selectRecords.length === 0) {
+      ElMessage.warning('请选择要编辑的任务')
+      return
+    }
+    selectedIds.value = selectRecords.map(row => row.id)
+    modalTitle.value = `TaskDetail [${selectedIds.value.join(', ')}]`
+    currentRowData.value = null // 清空当前行数据
+    showModal.value = true
+  }
+}
+
+// 创建模板
+const CreateTemplate = () => {
+  selectedIds.value = []
+  modalTitle.value = 'TaskDetail []'
+  currentRowData.value = null // 清空当前行数据
+  showModal.value = true
+}
+
+// 添加任务
+const addTask = () => {
+  selectedIds.value = []
+  modalTitle.value = 'TaskDetail []'
+  currentRowData.value = null // 清空当前行数据
+  showModal.value = true
+}
+
+// 显示任务详情
+const showTask = (row: any) => {
+  selectedIds.value = [row.id]
+  modalTitle.value = `TaskDetail [${row.id}]`
+  currentRowData.value = row // 设置当前行数据
+  showModal.value = true
+}
+
+// 处理弹窗确认
+const handleModalConfirm = (formData: any) => {
+  console.log('Form data:', formData)
+  showModal.value = false
+  // 处理表单提交逻辑
+}
+
+const handleModalConfirmNew = (formData: any) => {
+  console.log('handleModalConfirmNew:', formData)
+  showModal.value = false
+}
+
+
+
+
+// 弹窗结束*****
+
+
+
+
 onMounted(async () => {
   if (date.value.length > 0) {
     propFrom.value.taskdate = date.value[0];  // 设置默认选中第一个日期
@@ -400,12 +514,11 @@ onMounted(async () => {
     taskid: '',
     taskdate: propFrom.value.taskdate
   }
-  // 获取所有的任务
+  // 获取所有��任务
   ongoing.value = await reqOngoing(taskdate)
   // 页面初始化，获取一次cr数据
-  await listTaskCr.loadTaskCrIfNeeded()
-  // const taskCr = listTaskCr.taskCr
-  // console.log('taskCr', taskCr);
+  await getTaskCr.loadTaskCrIfNeeded()
+  autoBundleKey.value = await reqGetBundleKey()
 
 });
 </script>
@@ -454,7 +567,7 @@ onMounted(async () => {
   width: 100px;
 }
 
-/* 每一行输入框和下拉框的样式 */
+/* 每一行输入框和拉框的样式 */
 .form-item {
   display: flex;
   align-items: center;
@@ -481,5 +594,9 @@ onMounted(async () => {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
+}
+
+.icon-echarts {
+  cursor: $base-cursor
 }
 </style>

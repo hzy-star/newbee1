@@ -3,7 +3,6 @@ import { defineStore } from 'pinia'
 import { reqLogin, reqUserInfo } from '@/api/user'
 import { loginForm } from '@/api/user/type'
 import type { UserState } from './types/types'
-import { localCache } from '@/utils/cache'
 import { constantRoutes, asnycRoute, anyRoute } from '@/router/routes'
 import router from '@/router'
 import useCookie from "./cookie"
@@ -27,7 +26,6 @@ let useUserStore = defineStore('user', {
     state: (): UserState => {
         return {
             // 定义数据
-            cookie: localCache.getCache('cookie') || '',   // 用户的token
             menuRoutes: constantRoutes,  // 用户拥有的菜单权限
             username: '',
             avatar: '',
