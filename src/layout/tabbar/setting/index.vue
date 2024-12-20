@@ -42,13 +42,14 @@
     </template>
   </el-popover>
   <img
-    :src="userStore.avatar"
+    :src="cookieStore.avatar"
     style="width: 24px; height: 24px; margin: 0px 10px; border-radius: 50%"
   />
+  
   <!-- 下拉菜单 -->
   <el-dropdown>
     <span class="el-dropdown-link">
-      {{ userStore.username }}
+      {{ cookieStore.username }}
       <el-icon class="el-icon--right">
         <arrow-down />
       </el-icon>
@@ -67,9 +68,12 @@ import { useRouter, useRoute } from 'vue-router'
 import listTaskCr from "@/store/common/listTaskCr"
 //获取用户相关的小仓库
 import useUserStore from '@/store/modules/user'
+// 获取用户信息(新)
+import useCookie from '@/store/modules/cookie'
 //获取骨架的小仓库
 import useLayOutSettingStore from '@/store/modules/setting'
 let layoutSettingStore = useLayOutSettingStore()
+const cookieStore = useCookie()
 let userStore = useUserStore()
 //获取路由器对象
 let $router = useRouter()
@@ -153,4 +157,14 @@ export default {
   name: 'Setting',
 }
 </script>
-<style scoped></style>
+<style scoped>
+.el-dropdown-link{
+  /* color: #fff; */
+  font-size: larger;
+  font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  /* margin: 0px 10px; */
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+</style>

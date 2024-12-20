@@ -26,24 +26,24 @@ request.interceptors.response.use((response) =>{
 },(error)=>{
     //响应错误处理
     let message = error.message || '请求失败'
-    let status = error.response.status;
-    switch (status){
-        case 401:
-            message = '未授权，请登录'
-            break
-        case 403:
-            message = '拒绝访问'
-            break
-        case 404:
-            message = '请求资源不存在'
-            break
-        case 500:
-            message = '服务器错误'
-            break
-        default:
-            message = '网络出现问题'
-            break
-    }
+    // let status = error.response.status;
+    // switch (status){
+    //     case 401:
+    //         message = '未授权，请登录'
+    //         break
+    //     case 403:
+    //         message = '拒绝访问'
+    //         break
+    //     case 404:
+    //         message = '请求资源不存在'
+    //         break
+    //     case 500:
+    //         message = '服务器错误'
+    //         break
+    //     default:
+    //         message = '网络出现问题'
+    //         break
+    // }
     ElMessage({
         message,
         type:'error'

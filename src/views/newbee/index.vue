@@ -1,9 +1,9 @@
 <template>
   <el-card>
     <div class="box">
-      <img :src="userStore.avatar" alt="" class="avatar" />
+      <img :src="cookieStore.avatar" alt="" class="avatar" />
       <div>
-        <h3>{{ userStore.username }}{{ getTime() }}</h3>
+        <h3>{{ cookieStore.username }}{{ getTime() }}</h3>
       </div>
     </div>
   </el-card>
@@ -14,8 +14,8 @@
 
 <script setup lang="ts">
 import { getTime } from "@/utils/time";
-import useUserStore from "@/store/modules/user";
-const userStore = useUserStore();
+import useCookie from "@/store/modules/cookie";
+const cookieStore = useCookie();
 </script>
 
 <style scoped>

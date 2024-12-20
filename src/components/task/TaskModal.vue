@@ -90,12 +90,12 @@
             <el-row :gutter="20">
                 <el-col :span="8">
                     <div class="form-item">
-                        <div class="form-item-label">dupCheck</div>
-                        <el-select v-model="formData.dupCheck" placeholder="select" clearable>
+                        <div class="form-item-label">ifadupcheck</div>
+                        <el-select v-model="formData.ifadupcheck" placeholder="select" clearable>
                             <el-option label="true" value="true" />
                             <el-option label="false" value="false" />
                         </el-select>
-                        <el-select v-model="formData.ifadupcheck" placeholder="select" clearable>
+                        <el-select v-model="formData.checkservice" placeholder="select" clearable>
                             <el-option label="Primary" value="pri" />
                             <el-option label="Secondary" value="sec" />
                             <el-option label="ShortTime" value="less" />
@@ -400,8 +400,8 @@ const formData = ref({
     weight: '',
     gt: '',
     lt: '',
-    dupCheck: '',
     ifadupcheck: '',
+    checkservice: '',
     primary: '',
     sendPlan: '',
     crFilter: '',
@@ -448,8 +448,8 @@ const handleNew = () => {
         weight: '',
         gt: '',
         lt: '',
-        dupCheck: '',
         ifadupcheck: '',
+        checkservice: '',
         primary: '',
         sendPlan: '',
         crFilter: '',
@@ -478,6 +478,7 @@ const handleNew = () => {
 
 // 监听 currentRowData 变化
 watch(() => props.currentRowData, (newData) => {
+    debugger
     if (newData) {
         // 如果有当前行数据，填充表单
         formData.value = {
@@ -493,8 +494,8 @@ watch(() => props.currentRowData, (newData) => {
             weight: newData.weight || '',
             gt: newData.gt || '',
             lt: newData.lt || '',
-            dupCheck: newData.ifadupcheck.split(":")[0] || '',
-            ifadupcheck: newData.ifadupcheck.split(":")[1] || '',
+            ifadupcheck: newData.ifadupcheck.split(":")[0] || '',
+            checkservice: newData.ifadupcheck.split(":")[1] || '',
             primary: newData.primary || '',
             sendPlan: newData.sendPlan || '',
             crFilter: newData.crFilter || '',

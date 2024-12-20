@@ -240,7 +240,7 @@ import { ref, onMounted, reactive } from 'vue';
 import type { propFormInter } from '@/api/pushtask/type'
 import { ElMessage } from 'element-plus';
 import { getRelativeDates } from "@/utils/time";
-import { reqlistUrl, reqOngoing, reqGetBundleKey, reqAudienceList } from "@/api/pushtask/index"
+import { reqlistUrl, reqOngoing, reqGetBundleKey } from "@/api/pushtask/index"
 import listTaskCr from "@/store/common/listTaskCr"
 import TaskModal from '@/components/task/TaskModal.vue'
 import { VxeTableInstance } from 'vxe-table'

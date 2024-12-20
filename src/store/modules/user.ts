@@ -48,6 +48,8 @@ let useUserStore = defineStore('user', {
             }
 
         },
+
+        // 获取用户信息
         async getUserInfo() {
             // 获取用户信息
             let res = await reqUserInfo()
