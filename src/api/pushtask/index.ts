@@ -7,6 +7,7 @@ enum API{
     LISTTASKCR_URL = '/newbee/listTaskCr',
     GETBUNDLEKEY_URL = '/newbee/getAutoTopBundleKeyNames',
     AUDIENCELIST_URL = '/newbee/audience/list',
+    TASKGET_URL = '/newbee/task/get',
 }
 
 // 暴露接口
@@ -20,3 +21,5 @@ export const reqListTaskCr = () => request.get<any,any>(API.LISTTASKCR_URL)
 export const reqGetBundleKey = () => request.get<any,any>(API.GETBUNDLEKEY_URL)
 // 查询audience
 export const reqAudienceList = () => request.get<any,any>(API.AUDIENCELIST_URL)
+// 通过id查询task
+export const reqTaskget = (param:any) => request.get<any,any>(API.TASKGET_URL,{params:param})

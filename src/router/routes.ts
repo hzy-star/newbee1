@@ -51,7 +51,7 @@ export const constantRoutes = [
         meta: {
             title: 'TASK',
             hidden: false,
-            icon: "DataAnalysis"
+            icon: "DataBoard"
         },
         children: [
             {
@@ -60,7 +60,7 @@ export const constantRoutes = [
                 name: 'Pushtask',
                 meta: {
                     title: 'Pushtask',
-                    icon: 'Goods',
+                    icon: 'Monitor',
                     hidden: false
                 }
             },
@@ -70,7 +70,7 @@ export const constantRoutes = [
                 name: 'Pulltask',
                 meta: {
                     title: 'pulltask',
-                    icon: 'Goods',
+                    icon: 'DataLine',
                     hidden: false
                 }
             },
@@ -80,7 +80,7 @@ export const constantRoutes = [
                 name: 'Autotask',
                 meta: {
                     title: 'Autotask',
-                    icon: 'Goods',
+                    icon: 'Notification',
                     hidden: false
                 }
             },
@@ -103,7 +103,7 @@ export const constantRoutes = [
                 name: 'pushtaskchart',
                 meta: {
                     title: 'pushtaskchart',
-                    icon: 'Goods',
+                    icon: 'Connection',
                     hidden: false
                 }
             },
@@ -113,7 +113,7 @@ export const constantRoutes = [
                 name: 'Pulltaskchart',
                 meta: {
                     title: 'pulltaskchart',
-                    icon: 'Goods',
+                    icon: 'Discount',
                     hidden: false
                 }
             },

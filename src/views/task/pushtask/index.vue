@@ -203,7 +203,11 @@
           </template>
         </vxe-column>
         <vxe-column field="bsclick" title="bsclick" align="center" width="90"></vxe-column>
-        <vxe-column field="mdate" title="mdate" align="center" width="120"></vxe-column>
+        <vxe-column field="mdate" title="mdate" align="center" width="100">
+          <template #default="{ row }">
+            {{ formatDateToSimple(row?.mdate) }}
+          </template>
+        </vxe-column>
         <vxe-column align="center" fixed="right" width="240">
           <template #header>
             <div style="display: flex; align-items: center; justify-content: center;">
@@ -239,7 +243,7 @@
 import { ref, onMounted, reactive } from 'vue';
 import type { propFormInter } from '@/api/pushtask/type'
 import { ElMessage } from 'element-plus';
-import { getRelativeDates } from "@/utils/time";
+import { getRelativeDates,formatDateToSimple } from "@/utils/time";
 import { reqlistUrl, reqOngoing, reqGetBundleKey } from "@/api/pushtask/index"
 import listTaskCr from "@/store/common/listTaskCr"
 import TaskModal from '@/components/task/TaskModal.vue'
@@ -497,14 +501,7 @@ const handleModalConfirmNew = (formData: any) => {
   console.log('handleModalConfirmNew:', formData)
   showModal.value = false
 }
-
-
-
-
 // 弹窗结束*****
-
-
-
 
 onMounted(async () => {
   if (date.value.length > 0) {

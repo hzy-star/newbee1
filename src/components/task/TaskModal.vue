@@ -77,11 +77,11 @@
                 </el-col>
                 <el-col :span="8">
                     <div class="form-item">
-                        <el-input v-model="formData.weight" class="first-input"/>
+                        <el-input v-model="formData.weight" class="first-input" />
                         <div class="form-item-label no-radius">%</div>
-                        <el-input v-model="formData.gt" class="middle-input"/>
+                        <el-input v-model="formData.gt" class="middle-input" />
                         <div class="form-item-label no-radius">＜X＜</div>
-                        <el-input v-model="formData.lt" class="last-input"/>
+                        <el-input v-model="formData.lt" class="last-input" />
                     </div>
                 </el-col>
             </el-row>
@@ -110,8 +110,7 @@
                 </el-col>
                 <el-col :span="4">
                     <div class="form-item">
-                        <el-button 
-                            :type="formData.eraselfa ? 'primary' : 'default'"
+                        <el-button :type="formData.eraselfa ? 'primary' : 'default'"
                             @click="formData.eraselfa = !formData.eraselfa">
                             eraselfa
                         </el-button>
@@ -119,8 +118,7 @@
                 </el-col>
                 <el-col :span="4">
                     <div class="form-item">
-                        <el-button 
-                            :type="formData.nolpUaDup ? 'primary' : 'default'"
+                        <el-button :type="formData.nolpUaDup ? 'primary' : 'default'"
                             @click="formData.nolpUaDup = !formData.nolpUaDup">
                             nolpUaDup
                         </el-button>
@@ -183,7 +181,7 @@
                 <el-col :span="8">
                     <div class="form-item">
                         <div class="form-item-label">InvalidIfaOnly</div>
-                        <el-select v-model="formData.invalidIfaOnly" placeholder="select" clearable>
+                        <el-select v-model="formData.invalidIfa" placeholder="select" clearable>
                             <!-- 添加选项 -->
                             <el-option label="true" value="true"></el-option>
                             <el-option label="false" value="false"></el-option>
@@ -218,7 +216,7 @@
                 <el-col :span="4">
                     <div class="form-item">
                         <div class="form-item-label">cpaClick</div>
-                        <el-select v-model="formData.cpaClick" placeholder="select" clearable>
+                        <el-select v-model="formData.randomClick" placeholder="select" clearable>
                             <!-- 添加选项 -->
                             <el-option label="true" value="true"></el-option>
                             <el-option label="false" value="false"></el-option>
@@ -228,7 +226,7 @@
                 <el-col :span="4">
                     <div class="form-item">
                         <div class="form-item-label">delayClick</div>
-                        <el-select v-model="formData.delayClick" placeholder="select" clearable>
+                        <el-select v-model="resTask.clickTimeDelay" placeholder="select" clearable>
                             <!-- 添加选项 -->
                             <el-option label="短" value="A"></el-option>
                         </el-select>
@@ -237,7 +235,7 @@
                 <el-col :span="4">
                     <div class="form-item">
                         <div class="form-item-label">abTestV</div>
-                        <el-select v-model="formData.abTestV" placeholder="select" clearable>
+                        <el-select v-model="formData.abTestVersion" placeholder="select" clearable>
                             <!-- 添加选项 -->
                             <el-option label="v1" value="v1"></el-option>
                             <el-option label="v2" value="v2"></el-option>
@@ -255,7 +253,7 @@
                 <el-col :span="8">
                     <div class="form-item">
                         <div class="form-item-label">topLtBundle</div>
-                        <el-select v-model="formData.abTestV" :max-collapse-tags="4" multiple collapse-tags
+                        <el-select v-model="formData.topLtBundle" :max-collapse-tags="4" multiple collapse-tags
                             collapse-tags-tooltip placeholder="Select" style="width: 240px" clearable>
                             <el-option label="A" value="A"></el-option>
                             <el-option label="B" value="B"></el-option>
@@ -288,7 +286,7 @@
                 <el-col :span="8">
                     <div class="form-item">
                         <div class="form-item-label">autoTopVer</div>
-                        <el-select v-model="formData.autoTopVer" placeholder="select" clearable>
+                        <el-select v-model="formData.autoTestVersion" placeholder="select" clearable>
                             <!-- 添加选项 -->
                             <el-option label="v1" value="v1"></el-option>
                             <el-option label="v2" value="v2"></el-option>
@@ -320,7 +318,7 @@
                 <el-col :span="24">
                     <div class="form-item">
                         <div class="form-item-label">deviceFilter</div>
-                        <el-input v-model="formData.deviceFilter" placeholder="e.g. adx=adxName&make=品牌&bundle=媒体app" />
+                        <el-input v-model="formData.filter" placeholder="e.g. adx=adxName&make=品牌&bundle=媒体app" />
                     </div>
                 </el-col>
             </el-row>
@@ -342,7 +340,7 @@
                 </div>
                 <div class="form-item">
                     <div class="form-item-label">设备受众</div>
-                    <el-select v-model="formData.audienceList" :max-collapse-tags="4" multiple collapse-tags
+                    <el-select v-model="audienceList" :max-collapse-tags="4" multiple collapse-tags
                         collapse-tags-tooltip placeholder="Select" style="width: 240px" filterable clearable>
                         <!-- 动态添加其他选项 -->
                         <el-option v-for="item in audienceList" :key="item.id" :label="item.name" :value="item.name" />
@@ -361,8 +359,7 @@
 
 <script lang="ts" setup>
 import { ref, defineProps, defineEmits, watch, onMounted } from 'vue'
-import { reqAudienceList } from "@/api/pushtask/index"
-import { ElMessage } from 'element-plus'
+import { reqAudienceList, reqTaskget } from "@/api/pushtask/index"
 
 const props = defineProps({
     modelValue: Boolean,
@@ -410,19 +407,17 @@ const formData = ref({
     bundleSizeFilter: '',
     sevenDaysClickFilter: false,
     invalidIfaFilter: false,
-    invalidIfaOnly: '',
+    invalidIfa: '',
     nearGateway: '',
     clickRetry: '',
-    cpaClick: '',
-    delayClick: '',
-    abTestV: '',
+    randomClick: '',
+    abTestVersion: '',
     topLtBundle: '',
     autoTopBundle: [],
-    autoTopVer: '',
+    autoTestVersion: '',
     base64Info: '',
-    deviceFilter: '',
+    filter: '',
     urlparams: '',
-    audienceList: '',
     eraselfa: false,
     nolpUaDup: false,
 })
@@ -434,6 +429,9 @@ const handleClose = () => {
 const handleSave = () => {
     emit('confirm', formData.value)
 }
+const resTask = ref({
+    clickTimeDelay: ''
+})
 const handleNew = () => {
     formData.value = {
         type: '',
@@ -458,74 +456,23 @@ const handleNew = () => {
         bundleSizeFilter: '',
         sevenDaysClickFilter: false,
         invalidIfaFilter: false,
-        invalidIfaOnly: '',
+        invalidIfa: '',
         nearGateway: '',
         clickRetry: '',
-        cpaClick: '',
-        delayClick: '',
-        abTestV: '',
+        randomClick: '',
+        abTestVersion: '',
         topLtBundle: '',
         autoTopBundle: [],
-        autoTopVer: '',
+        autoTestVersion: '',
         base64Info: '',
-        deviceFilter: '',
+        filter: '',
         urlparams: '',
-        audienceList: '',
         eraselfa: false,
         nolpUaDup: false,
     }
+    resTask.value.clickTimeDelay = ''
+    audienceList.value = []
 }
-
-// 监听 currentRowData 变化
-watch(() => props.currentRowData, (newData) => {
-    debugger
-    if (newData) {
-        // 如果有当前行数据，填充表单
-        formData.value = {
-            type: newData.etype || '',
-            offers: newData.offers || '',
-            pkgName: newData.pkgName || '',
-            appid: newData.appId || '',
-            affId: newData.affId || '',
-            country: newData.country || '',
-            os: newData.os || '',
-            usalg: newData.usealg || '',
-            bsclick: newData.bsclick || '',
-            weight: newData.weight || '',
-            gt: newData.gt || '',
-            lt: newData.lt || '',
-            ifadupcheck: newData.ifadupcheck.split(":")[0] || '',
-            checkservice: newData.ifadupcheck.split(":")[1] || '',
-            primary: newData.primary || '',
-            sendPlan: newData.sendPlan || '',
-            crFilter: newData.crFilter || '',
-            clickMin: newData.clickMin || '',
-            autoCr: newData.autoCr || false,
-            bundleSizeFilter: newData.bundleSizeFilter || '',
-            sevenDaysClickFilter: newData.sevenDaysClickFilter || false,
-            invalidIfaFilter: newData.invalidIfaFilter || false,
-            invalidIfaOnly: newData.invalidIfaOnly || '',
-            nearGateway: newData.nearGateway || '',
-            clickRetry: newData.clickRetry || '',
-            cpaClick: newData.cpaClick || '',
-            delayClick: newData.delayClick || '',
-            abTestV: newData.abTestV || '',
-            topLtBundle: newData.topLtBundle || '',
-            autoTopBundle: newData.autoTopBundle || [],
-            autoTopVer: newData.autoTopVer || '',
-            base64Info: newData.base64Info || '',
-            deviceFilter: newData.deviceFilter || '',
-            urlparams: newData.urlparams || '',
-            audienceList: newData.audienceList || '',
-            eraselfa: newData.eraselfa || false,
-            nolpUaDup: newData.nolpUaDup || false,
-        }
-    } else {
-        // 如果没有当前行数据，清空表单
-        handleNew()
-    }
-}, { immediate: true })
-
 // 定义接口类型
 interface AudienceItem {
     id: number
@@ -538,17 +485,69 @@ interface AudienceItem {
 }
 // 存储audience列表数据
 const audienceList = ref<AudienceItem[]>([])
-
+const newData = ref<any>(null)
 // 监听弹层显示状态
 watch(() => props.modelValue, async (newVal) => {
+    // 如果没有当前行数据，清空表单
+    handleNew()
     if (newVal) {  // 当弹层显示时
         try {
+            newData.value = props.currentRowData
+            if (newData.value) {
+                // 如果有当前行数据，填充表单
+                formData.value = {
+                    type: newData.value.etype || '',
+                    offers: newData.value.offers || '',
+                    pkgName: newData.value.pkgName || '',
+                    appid: newData.value.appId || '',
+                    affId: newData.value.affId || '',
+                    country: newData.value.country || '',
+                    os: newData.value.os || '',
+                    usalg: newData.value.usealg || '',
+                    bsclick: newData.value.bsclick || '',
+                    weight: newData.value.weight || '',
+                    gt: newData.value.gt || '',
+                    lt: newData.value.lt || '',
+                    ifadupcheck: newData.value.ifadupcheck.split(":")[0] || '',
+                    checkservice: newData.value.ifadupcheck.split(":")[1] || '',
+                    primary: newData.value.primary || '',
+                    sendPlan: newData.value.sendPlan || '',
+                    crFilter: newData.value.crFilter || '',
+                    clickMin: newData.value.clickMin || '',
+                    autoCr: newData.value.autoCr || false,
+                    bundleSizeFilter: newData.value.bundleSizeFilter || '',
+                    sevenDaysClickFilter: newData.value.sevenDaysClickFilter || false,
+                    invalidIfaFilter: newData.value.invalidIfaFilter || false,
+                    invalidIfa: newData.value.invalidIfa || '',
+                    nearGateway: newData.value.nearGateway || '',
+                    clickRetry: newData.value.clickRetry || '',
+                    randomClick: newData.value.randomClick || '',
+                    abTestVersion: newData.value.abTestVersion || '',
+                    topLtBundle: newData.value.topLtBundle.split(',') || '',
+                    autoTopBundle: newData.value.autoTopBundle.split(',') || [],
+                    autoTestVersion: newData.value.autoTestVersion || '',
+                    base64Info: newData.value.base64Info || '',
+                    filter: newData.value.filter || '',
+                    urlparams: newData.value.urlparams || '',
+                    eraselfa: newData.value.eraselfa || false,
+                    nolpUaDup: newData.value.nolpUaDup || false,
+                }
+                console.log(props);
+
+                const resTaskData = await reqTaskget({ taskId: props.currentRowData.id })
+                resTask.value = resTaskData
+                console.log(resTask.value.clickTimeDelay);
+            } else {
+                // 如果没有当前行数据，清空表单
+                handleNew()
+            }
+            // 弹层打开就调用一次  设备受众列表
             const res = await reqAudienceList()
             audienceList.value = res.data
             console.log(audienceList.value);
-
         } catch (error) {
-            ElMessage.error('获取Audience列表失败')
+            // 如果没有当前行数据，清空表单
+            handleNew()
         }
     }
 })
@@ -630,6 +629,7 @@ watch(() => props.modelValue, async (newVal) => {
         // 确保按钮样式正确
         .el-button {
             width: 100%;
+
             &.el-button--default {
                 background-color: transparent;
                 border: 1px solid #dcdfe6;
@@ -650,14 +650,14 @@ watch(() => props.modelValue, async (newVal) => {
             display: flex;
             align-items: center;
             margin: 20px 0;
-            
+
             h3 {
                 margin: 0 10px;
                 white-space: nowrap;
                 order: 1;
                 margin-left: 20px;
             }
-            
+
             &::before {
                 content: '';
                 height: 1px;
@@ -665,7 +665,7 @@ watch(() => props.modelValue, async (newVal) => {
                 width: 20px;
                 order: 0;
             }
-            
+
             &::after {
                 content: '';
                 height: 1px;
@@ -682,19 +682,19 @@ watch(() => props.modelValue, async (newVal) => {
                 border-radius: 4px 0 0 4px !important;
             }
         }
-        
+
         .middle-input {
             :deep(.el-input__wrapper) {
                 border-radius: 0;
             }
         }
-        
+
         .last-input {
             :deep(.el-input__wrapper) {
                 border-radius: 0 4px 4px 0;
             }
         }
-        
+
         .no-radius {
             border-radius: 0;
         }

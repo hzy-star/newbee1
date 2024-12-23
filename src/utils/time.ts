@@ -35,3 +35,19 @@ export function getRelativeDates(num: number) {
   
     return dates;  // 返回所有的日期数组
   }
+
+
+  // 封装一个方法来格式化日期为 "yyyy-MM-dd HH:mm:ss" 格式
+  export function formatDateToSimple(dateString:string) {
+    const date = new Date(dateString);
+  
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0'); // 确保月份两位数
+    const day = date.getDate().toString().padStart(2, '0'); // 确保日期两位数
+    const hours = date.getHours().toString().padStart(2, '0'); // 确保小时两位数
+    const minutes = date.getMinutes().toString().padStart(2, '0'); // 确保分钟两位数
+    const seconds = date.getSeconds().toString().padStart(2, '0'); // 确保秒数两位数
+  
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  }
+  
