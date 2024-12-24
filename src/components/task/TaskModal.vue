@@ -110,28 +110,28 @@
                 </el-col>
                 <el-col :span="4">
                     <div class="form-item">
-                        <el-button :type="formData.eraselfa ? 'primary' : 'default'"
-                            @click="formData.eraselfa = !formData.eraselfa">
+                        <el-button :type="formData.eraseifa ? 'primary' : 'default'"
+                            @click="formData.eraseifa = !formData.eraseifa">
                             eraselfa
                         </el-button>
                     </div>
                 </el-col>
                 <el-col :span="4">
                     <div class="form-item">
-                        <el-button :type="formData.nolpUaDup ? 'primary' : 'default'"
-                            @click="formData.nolpUaDup = !formData.nolpUaDup">
+                        <el-button :type="formData.noipuadup ? 'primary' : 'default'"
+                            @click="formData.noipuadup = !formData.noipuadup">
                             nolpUaDup
                         </el-button>
                     </div>
                 </el-col>
             </el-row>
-
             <!-- 第四行 -->
-            <el-row :gutter="20">
-                <el-col :span="6">
+             <el-row :gutter="24">
+                <el-col :span="24">
                     <div class="form-item">
                         <div class="form-item-label">crFilter</div>
-                        <el-select v-model="formData.crFilter" placeholder="select" clearable>
+                        <el-select v-model="formData.crFilter" placeholder="select" :max-collapse-tags="8" multiple collapse-tags
+                        collapse-tags-tooltip  style="width: 240px" clearable>
                             <!-- 添加选项 -->
                             <el-option label="topBundle3dayCr" value="top_bo_cr_3"></el-option>
                             <el-option label="topBundle7dayCr" value="top_bo_cr_7"></el-option>
@@ -148,9 +148,20 @@
                             <el-option label="city7dayCr" value="top_city_cr"></el-option>
                             <el-option label="makeModel7dayCr" value="top_make_model_cr"></el-option>
                         </el-select>
-                        <el-input v-model="formData.clickMin" />
                     </div>
                 </el-col>
+             </el-row>
+             <el-row :gutter="24">
+                <el-col :span="24">
+                    <div class="form-item">
+                        <div class="form-item-label">crValue</div>
+                        <el-input v-model="formData.crValue" />
+                    </div>
+                </el-col>
+             </el-row>
+            <!-- 第四行 -->
+            <el-row :gutter="20">
+                
                 <el-col :span="10">
                     <div class="form-item">
                         <div class="form-item-label">clickMin</div>
@@ -226,7 +237,7 @@
                 <el-col :span="4">
                     <div class="form-item">
                         <div class="form-item-label">delayClick</div>
-                        <el-select v-model="resTask.clickTimeDelay" placeholder="select" clearable>
+                        <el-select v-model="formData.clickTimeDelay" placeholder="select" clearable>
                             <!-- 添加选项 -->
                             <el-option label="短" value="A"></el-option>
                         </el-select>
@@ -340,10 +351,10 @@
                 </div>
                 <div class="form-item">
                     <div class="form-item-label">设备受众</div>
-                    <el-select v-model="audienceList" :max-collapse-tags="4" multiple collapse-tags
+                    <el-select v-model="formData.audienceList" :max-collapse-tags="4" multiple collapse-tags
                         collapse-tags-tooltip placeholder="Select" style="width: 240px" filterable clearable>
                         <!-- 动态添加其他选项 -->
-                        <el-option v-for="item in audienceList" :key="item.id" :label="item.name" :value="item.name" />
+                        <el-option v-for="item in formData.audienceList" :key="item.id" :label="item.name" :value="item.name" />
                     </el-select>
                 </div>
             </div>
@@ -401,7 +412,8 @@ const formData = ref({
     checkservice: '',
     primary: '',
     sendPlan: '',
-    crFilter: '',
+    crFilter: [] as string[],
+    crValue:'',
     clickMin: '',
     autoCr: false,
     bundleSizeFilter: '',
@@ -418,8 +430,10 @@ const formData = ref({
     base64Info: '',
     filter: '',
     urlparams: '',
-    eraselfa: false,
-    nolpUaDup: false,
+    clickTimeDelay:'',
+    audienceList: [] as AudienceItem[],
+    eraseifa:false,
+    noipuadup:false,
 })
 
 const handleClose = () => {
@@ -429,8 +443,17 @@ const handleClose = () => {
 const handleSave = () => {
     emit('confirm', formData.value)
 }
+interface AutoFilters {
+    [key: string]: any;
+}
 const resTask = ref({
-    clickTimeDelay: ''
+    clickTimeDelay: '',
+    attr: {
+        autoCrClickMin: '',
+        eraseifa: false,
+        noipuadup: false,
+    },
+    autoFilter: {} as AutoFilters
 })
 const handleNew = () => {
     formData.value = {
@@ -450,7 +473,8 @@ const handleNew = () => {
         checkservice: '',
         primary: '',
         sendPlan: '',
-        crFilter: '',
+        crFilter: [],
+        crValue:'',
         clickMin: '',
         autoCr: false,
         bundleSizeFilter: '',
@@ -467,24 +491,19 @@ const handleNew = () => {
         base64Info: '',
         filter: '',
         urlparams: '',
-        eraselfa: false,
-        nolpUaDup: false,
+        clickTimeDelay:'',
+        audienceList: [],
+        eraseifa:false,
+        noipuadup:false,
     }
-    resTask.value.clickTimeDelay = ''
-    audienceList.value = []
 }
 // 定义接口类型
 interface AudienceItem {
     id: number
     name: string
-    audienceType: string
-    content: string
-    checkIn: boolean
-    empty: boolean
-    bloomFilter: boolean
 }
 // 存储audience列表数据
-const audienceList = ref<AudienceItem[]>([])
+// const audienceList = ref<AudienceItem[]>([])
 const newData = ref<any>(null)
 // 监听弹层显示状态
 watch(() => props.modelValue, async (newVal) => {
@@ -494,6 +513,30 @@ watch(() => props.modelValue, async (newVal) => {
         try {
             newData.value = props.currentRowData
             if (newData.value) {
+                const resTaskData = await reqTaskget({ taskId: props.currentRowData.id })
+                resTask.value = resTaskData
+                console.log(resTask.value);
+                const {
+                    auto_cr,
+                    day7click,
+                    invalid_ifa_filter,
+                    ...otherFilters
+                } = resTask.value.autoFilter
+                // crFilter
+                const autoCrFilterNames: string[] = [];
+                // crValue
+                const autoCrFilterValues: string[] = [];
+                // 遍历 otherFilters
+                Object.entries(otherFilters).forEach(([crK, crV]) => {
+                    if (Array.isArray(crV)) {
+                        // 如果值是数组，转换为用"-"连接的字符串
+                        const crVString = crV.join("-");
+                        autoCrFilterNames.push(crK);
+                        autoCrFilterValues.push(crVString);
+                    }
+                });
+                
+                
                 // 如果有当前行数据，填充表单
                 formData.value = {
                     type: newData.value.etype || '',
@@ -512,12 +555,13 @@ watch(() => props.modelValue, async (newVal) => {
                     checkservice: newData.value.ifadupcheck.split(":")[1] || '',
                     primary: newData.value.primary || '',
                     sendPlan: newData.value.sendPlan || '',
-                    crFilter: newData.value.crFilter || '',
-                    clickMin: newData.value.clickMin || '',
-                    autoCr: newData.value.autoCr || false,
+                    crFilter: autoCrFilterNames.join(",").split(',') || '',
+                    crValue:autoCrFilterValues.join(",") || '',
+                    clickMin: resTask.value?.attr?.autoCrClickMin || '',
+                    autoCr: !!auto_cr || false,
                     bundleSizeFilter: newData.value.bundleSizeFilter || '',
-                    sevenDaysClickFilter: newData.value.sevenDaysClickFilter || false,
-                    invalidIfaFilter: newData.value.invalidIfaFilter || false,
+                    sevenDaysClickFilter: !!day7click || false,
+                    invalidIfaFilter: !!invalid_ifa_filter || false,
                     invalidIfa: newData.value.invalidIfa || '',
                     nearGateway: newData.value.nearGateway || '',
                     clickRetry: newData.value.clickRetry || '',
@@ -529,22 +573,20 @@ watch(() => props.modelValue, async (newVal) => {
                     base64Info: newData.value.base64Info || '',
                     filter: newData.value.filter || '',
                     urlparams: newData.value.urlparams || '',
-                    eraselfa: newData.value.eraselfa || false,
-                    nolpUaDup: newData.value.nolpUaDup || false,
+                    clickTimeDelay: resTask.value.clickTimeDelay || '',
+                    eraseifa: !!resTask.value?.attr?.eraseifa,
+                    noipuadup: !!resTask.value?.attr?.noipuadup,
+                    audienceList: [] as AudienceItem[],
                 }
-                console.log(props);
-
-                const resTaskData = await reqTaskget({ taskId: props.currentRowData.id })
-                resTask.value = resTaskData
-                console.log(resTask.value.clickTimeDelay);
+                console.log('formData.value', formData.value);
+                
             } else {
                 // 如果没有当前行数据，清空表单
                 handleNew()
             }
             // 弹层打开就调用一次  设备受众列表
             const res = await reqAudienceList()
-            audienceList.value = res.data
-            console.log(audienceList.value);
+            formData.value.audienceList =  res.data || []
         } catch (error) {
             // 如果没有当前行数据，清空表单
             handleNew()
