@@ -7,8 +7,8 @@
         <el-col :span="4">
           <div class="form-item">
             <div class="form-item-label">Etype</div>
-            <el-select v-model="propFrom.etypes" placeholder="Please select">
-              <el-option label="click" value="click" de />
+            <el-select v-model="propFrom.etypes" placeholder="Please select" @change="handleEtypeChange">
+              <el-option label="click" value="click"  />
               <el-option label="imp" value="imp" />
               <el-option label="all" value="all" />
             </el-select>
@@ -108,7 +108,7 @@
           <el-button type="primary" @click="CreateTemplate">CreateTemplate</el-button>
         </el-col>
 
-        <!-- 右侧按钮 -->
+        <!-- 右侧按��� -->
         <el-col :span="12" class="form-item-right">
           <el-button type="primary" @click="addTask">Add Task</el-button>
           <el-button type="primary" @click="findAll">Find All</el-button>
@@ -244,7 +244,7 @@ import { ref, onMounted, reactive } from 'vue';
 import type { propFormInter } from '@/api/pushtask/type'
 import { ElMessage } from 'element-plus';
 import { getRelativeDates,formatDateToSimple } from "@/utils/time";
-import { reqlistUrl, reqOngoing, reqGetBundleKey } from "@/api/pushtask/index"
+import { reqlistUrl, reqOngoing, reqGetBundleKey,reqSaveTask } from "@/api/pushtask/index"
 import listTaskCr from "@/store/common/listTaskCr"
 import TaskModal from '@/components/task/TaskModal.vue'
 import { VxeTableInstance } from 'vxe-table'
@@ -256,6 +256,12 @@ const date = ref(getRelativeDates(-3));
 // 初始化获取所有任务
 const ongoing: any = ref()
 // 表单数据
+// 添加处理 etype 变化的方法
+const handleEtypeChange = (value: string) => {
+  if (value === 'all') {
+    propFrom.value.etypes = '';
+  }
+}
 const propFrom = ref<propFormInter>({
   etypes: 'click',
   offerIds: '',
@@ -292,6 +298,7 @@ const result = ref([])
 const findAll = async () => {
   loading.value = true
   try {
+    debugger
     const res = await reqlistUrl(propFrom.value)
     result.value = res
     // 判断ongoing.value中的taskId 是否在tableData.value中存在
@@ -366,7 +373,7 @@ const pageChange = ({ pageSize, currentPage }: { pageSize: number; currentPage: 
 }
 /****  分页结束 */
 
-// more展示el-popover
+// more展���el-popover
 const generateStatusDetail = (ongoingData: any) => {
   // 动态生成字符串逻辑
   let statusDetail = ongoingData;
@@ -491,10 +498,83 @@ const showTask = (row: any) => {
 }
 
 // 处理弹窗确认
-const handleModalConfirm = (formData: any) => {
-  console.log('Form data:', formData)
-  showModal.value = false
-  // 处理表单提交逻辑
+const handleModalConfirm = async (formData: any) => {
+  // ... existing code ...
+  
+  // 转换数据格式
+  const taskInfo = {
+    ...formData,
+    // 转换数组为字符串
+    autoCrFilterName: formData.autoCrFilterName.join(','),
+    autoTopBundle: formData.autoTopBundle.join(','),
+    topLtBundle: formData.topLtBundle.join(','),
+    
+    // 创建 attr 对象
+    attr: JSON.stringify({
+      autoCrClickMin: formData.autoCrClickMin,
+      eraseifa: formData.eraseifa.toString(),
+      noipuadup: formData.noipuadup.toString()
+    }),
+    
+    // 创建 audiences 对象
+    audiences: JSON.stringify({
+      ifaAudience: ["", "1"],
+      optionFilterText: ""
+    }),
+    
+    // 创建 autoTrafficFilter
+    autoTrafficFilter: [
+      formData.autoCr && 'auto_cr',
+      formData.sevenDaysClickFilter && 'day7click',
+      formData.invalidIfaFilter && 'invalid_ifa_filter'
+    ].filter(Boolean).join(','),
+    
+    // 合并 autoTrafficFilter 和 autoCrFilterName
+    autoFilterRuleNames: [
+      [
+        formData.autoCr && 'auto_cr',
+        formData.sevenDaysClickFilter && 'day7click',
+        formData.invalidIfaFilter && 'invalid_ifa_filter'
+      ].filter(Boolean),
+      formData.autoCrFilterName
+    ].flat().join(','),
+    
+    // 创建 autoFilterRuleValues
+    autoFilterRuleValues: JSON.stringify(
+      formData.autoCrFilterName.reduce((acc: any, name: string, index: number) => {
+        const values = formData.autoCrFilterVal.split(',')[index];
+        acc[name] = values;
+        return acc;
+      }, {})
+    ),
+    
+    // 合并 ifadupcheck 和 checkservice
+    ifadupcheck: `${formData.ifadupcheck}:${formData.checkservice}`,
+    
+    // 添加 id
+    id: selectedIds.value.join(',')  || '',
+    
+    // 添加 ifaAudience
+    ifaAudience: ',1'
+  };
+  delete taskInfo.audienceList;
+  delete taskInfo.invalidIfaFilter
+  console.log('TaskInfo:', taskInfo);
+  // 创建 URLSearchParams
+  const params = new URLSearchParams();
+  Object.entries(taskInfo).forEach(([key, value]) => {
+    params.append(key, String(value));
+  });
+
+  const res = await reqSaveTask(params)
+  console.log(res);
+  if(res == 'success'){
+    ElMessage.success('保存成功')
+    findAll()
+    showModal.value = false; // 关闭弹窗
+  }else{
+    ElMessage.error('保存失败')
+  }
 }
 
 const handleModalConfirmNew = (formData: any) => {

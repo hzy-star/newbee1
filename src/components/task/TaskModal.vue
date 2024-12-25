@@ -6,7 +6,7 @@
             <el-row :gutter="20">
                 <el-col :span="4">
                     <div class="form-item">
-                        <el-select v-model="formData.type" placeholder="select" clearable>
+                        <el-select v-model="formData.etype" placeholder="select" clearable>
                             <el-option label="click" value="click" />
                             <el-option label="imp" value="imp" />
                         </el-select>
@@ -27,7 +27,7 @@
                 <el-col :span="4">
                     <div class="form-item">
                         <div class="form-item-label">appid</div>
-                        <el-input v-model="formData.appid" />
+                        <el-input v-model="formData.appId" />
                     </div>
                 </el-col>
                 <el-col :span="4">
@@ -59,7 +59,7 @@
                 <el-col :span="4">
                     <div class="form-item">
                         <div class="form-item-label">usalg</div>
-                        <el-select v-model="formData.usalg" placeholder="select" clearable>
+                        <el-select v-model="formData.usealg" placeholder="select" clearable>
                             <el-option label="true" value="true" />
                             <el-option label="dropWhenFail" value="dropWhenFail" />
                             <el-option label="false" value="false" />
@@ -130,7 +130,7 @@
                 <el-col :span="24">
                     <div class="form-item">
                         <div class="form-item-label">crFilter</div>
-                        <el-select v-model="formData.crFilter" placeholder="select" :max-collapse-tags="8" multiple collapse-tags
+                        <el-select v-model="formData.autoCrFilterName" placeholder="select" :max-collapse-tags="8" multiple collapse-tags
                         collapse-tags-tooltip  style="width: 240px" clearable>
                             <!-- 添加选项 -->
                             <el-option label="topBundle3dayCr" value="top_bo_cr_3"></el-option>
@@ -155,7 +155,7 @@
                 <el-col :span="24">
                     <div class="form-item">
                         <div class="form-item-label">crValue</div>
-                        <el-input v-model="formData.crValue" />
+                        <el-input v-model="formData.autoCrFilterVal" />
                     </div>
                 </el-col>
              </el-row>
@@ -165,7 +165,7 @@
                 <el-col :span="10">
                     <div class="form-item">
                         <div class="form-item-label">clickMin</div>
-                        <el-input v-model="formData.clickMin" />
+                        <el-input v-model="formData.autoCrClickMin" />
                         <el-checkbox v-model="formData.autoCr">AutoCr</el-checkbox>
                     </div>
                 </el-col>
@@ -396,14 +396,14 @@ onMounted(() => {
 const emit = defineEmits(['update:modelValue', 'confirm', 'confirmNew'])
 
 const formData = ref({
-    type: '',
+    etype: '',
     offers: '',
     pkgName: '',
-    appid: '',
+    appId: '',
     affId: '',
     country: '',
     os: '',
-    usalg: '',
+    usealg: '',
     bsclick: '',
     weight: '',
     gt: '',
@@ -412,9 +412,9 @@ const formData = ref({
     checkservice: '',
     primary: '',
     sendPlan: '',
-    crFilter: [] as string[],
-    crValue:'',
-    clickMin: '',
+    autoCrFilterName: [] as string[],
+    autoCrFilterVal:'',
+    autoCrClickMin: '',
     autoCr: false,
     bundleSizeFilter: '',
     sevenDaysClickFilter: false,
@@ -457,14 +457,14 @@ const resTask = ref({
 })
 const handleNew = () => {
     formData.value = {
-        type: '',
+        etype: '',
         offers: '',
         pkgName: '',
-        appid: '',
+        appId: '',
         affId: '',
         country: '',
         os: '',
-        usalg: '',
+        usealg: '',
         bsclick: '',
         weight: '',
         gt: '',
@@ -473,9 +473,9 @@ const handleNew = () => {
         checkservice: '',
         primary: '',
         sendPlan: '',
-        crFilter: [],
-        crValue:'',
-        clickMin: '',
+        autoCrFilterName: [],
+        autoCrFilterVal:'',
+        autoCrClickMin: '',
         autoCr: false,
         bundleSizeFilter: '',
         sevenDaysClickFilter: false,
@@ -522,9 +522,9 @@ watch(() => props.modelValue, async (newVal) => {
                     invalid_ifa_filter,
                     ...otherFilters
                 } = resTask.value.autoFilter
-                // crFilter
+                // autoCrFilterName
                 const autoCrFilterNames: string[] = [];
-                // crValue
+                // autoCrFilterVal
                 const autoCrFilterValues: string[] = [];
                 // 遍历 otherFilters
                 Object.entries(otherFilters).forEach(([crK, crV]) => {
@@ -536,17 +536,17 @@ watch(() => props.modelValue, async (newVal) => {
                     }
                 });
                 
-                
+                debugger
                 // 如果有当前行数据，填充表单
                 formData.value = {
-                    type: newData.value.etype || '',
+                    etype: newData.value.etype || '',
                     offers: newData.value.offers || '',
                     pkgName: newData.value.pkgName || '',
-                    appid: newData.value.appId || '',
+                    appId: newData.value.appId || '',
                     affId: newData.value.affId || '',
                     country: newData.value.country || '',
                     os: newData.value.os || '',
-                    usalg: newData.value.usealg || '',
+                    usealg: newData.value.usealg || '',
                     bsclick: newData.value.bsclick || '',
                     weight: newData.value.weight || '',
                     gt: newData.value.gt || '',
@@ -555,9 +555,9 @@ watch(() => props.modelValue, async (newVal) => {
                     checkservice: newData.value.ifadupcheck.split(":")[1] || '',
                     primary: newData.value.primary || '',
                     sendPlan: newData.value.sendPlan || '',
-                    crFilter: autoCrFilterNames.join(",").split(',') || '',
-                    crValue:autoCrFilterValues.join(",") || '',
-                    clickMin: resTask.value?.attr?.autoCrClickMin || '',
+                    autoCrFilterName: autoCrFilterNames.join(",").split(',') || '',
+                    autoCrFilterVal:autoCrFilterValues.join(",") || '',
+                    autoCrClickMin: resTask.value?.attr?.autoCrClickMin || '',
                     autoCr: !!auto_cr || false,
                     bundleSizeFilter: newData.value.bundleSizeFilter || '',
                     sevenDaysClickFilter: !!day7click || false,
@@ -574,8 +574,8 @@ watch(() => props.modelValue, async (newVal) => {
                     filter: newData.value.filter || '',
                     urlparams: newData.value.urlparams || '',
                     clickTimeDelay: resTask.value.clickTimeDelay || '',
-                    eraseifa: !!resTask.value?.attr?.eraseifa,
-                    noipuadup: !!resTask.value?.attr?.noipuadup,
+                    eraseifa: String(resTask.value?.attr?.eraseifa) === 'true',
+                    noipuadup: String(resTask.value?.attr?.noipuadup) === 'true',
                     audienceList: [] as AudienceItem[],
                 }
                 console.log('formData.value', formData.value);
