@@ -361,8 +361,9 @@
 
 
             <div class="form-footer">
-                <el-button type="primary" @click="handleSave">save</el-button>
-                <el-button type="primary" @click="handleNew">new</el-button>
+                <el-button type="primary" @click="handleSaveToTask('template')" v-if="btnType === 'createTemplate'">save to task</el-button>
+                <el-button type="primary" @click="handleSave('save')" v-if="btnType != 'addTask'">save</el-button>
+                <el-button type="primary" @click="handleNew('new')">new</el-button>
             </div>
         </div>
     </el-dialog>
@@ -386,6 +387,9 @@ const props = defineProps({
     autoBundleKey: {  // 添加这个prop
         type: Array,    // 或者根据实际类型调整
         default: () => []
+    },
+    btnType: {
+        type: String,
     }
 })
 onMounted(() => {
@@ -410,7 +414,6 @@ const formData = ref({
     lt: '',
     ifadupcheck: '',
     checkservice: '',
-    primary: '',
     sendPlan: '',
     autoCrFilterName: [] as string[],
     autoCrFilterVal:'',
@@ -434,14 +437,24 @@ const formData = ref({
     audienceList: [] as AudienceItem[],
     eraseifa:false,
     noipuadup:false,
+    taskStatus: '',
 })
 
 const handleClose = () => {
     emit('update:modelValue', false)
 }
-
-const handleSave = () => {
-    emit('confirm', formData.value)
+// 保存模板
+const handleSaveToTask = (type:string) => {
+    emit('confirm', { ...formData.value, buttonType: type })
+}
+// 保存
+const handleSave = (type:string) => {
+    emit('confirm', { ...formData.value, buttonType: type })
+}
+// 新增
+const handleNew = (type:string) =>{
+    emit('confirm', { ...formData.value, buttonType: type })
+    // emit('confirmNew', formData.value)
 }
 interface AutoFilters {
     [key: string]: any;
@@ -455,7 +468,7 @@ const resTask = ref({
     },
     autoFilter: {} as AutoFilters
 })
-const handleNew = () => {
+const resetData = () => {
     formData.value = {
         etype: '',
         offers: '',
@@ -471,7 +484,6 @@ const handleNew = () => {
         lt: '',
         ifadupcheck: '',
         checkservice: '',
-        primary: '',
         sendPlan: '',
         autoCrFilterName: [],
         autoCrFilterVal:'',
@@ -495,6 +507,7 @@ const handleNew = () => {
         audienceList: [],
         eraseifa:false,
         noipuadup:false,
+        taskStatus:''
     }
 }
 // 定义接口类型
@@ -508,7 +521,7 @@ const newData = ref<any>(null)
 // 监听弹层显示状态
 watch(() => props.modelValue, async (newVal) => {
     // 如果没有当前行数据，清空表单
-    handleNew()
+    resetData()
     if (newVal) {  // 当弹层显示时
         try {
             newData.value = props.currentRowData
@@ -553,10 +566,9 @@ watch(() => props.modelValue, async (newVal) => {
                     lt: newData.value.lt || '',
                     ifadupcheck: newData.value.ifadupcheck.split(":")[0] || '',
                     checkservice: newData.value.ifadupcheck.split(":")[1] || '',
-                    primary: newData.value.primary || '',
                     sendPlan: newData.value.sendPlan || '',
-                    autoCrFilterName: autoCrFilterNames.join(",").split(',') || '',
-                    autoCrFilterVal:autoCrFilterValues.join(",") || '',
+                    autoCrFilterName: autoCrFilterNames.length > 0 ? autoCrFilterNames.join(",").split(',') : [],
+                    autoCrFilterVal:autoCrFilterValues?.join(",") || '',
                     autoCrClickMin: resTask.value?.attr?.autoCrClickMin || '',
                     autoCr: !!auto_cr || false,
                     bundleSizeFilter: newData.value.bundleSizeFilter || '',
@@ -567,8 +579,8 @@ watch(() => props.modelValue, async (newVal) => {
                     clickRetry: newData.value.clickRetry || '',
                     randomClick: newData.value.randomClick || '',
                     abTestVersion: newData.value.abTestVersion || '',
-                    topLtBundle: newData.value.topLtBundle.split(',') || '',
-                    autoTopBundle: newData.value.autoTopBundle.split(',') || [],
+                    topLtBundle: newData.value.topLtBundle.length > 0 ? newData.value.topLtBundle.split(',') : [],
+                    autoTopBundle: newData.value.autoTopBundle.length > 0 ? newData.value.autoTopBundle.split(',') : [],
                     autoTestVersion: newData.value.autoTestVersion || '',
                     base64Info: newData.value.base64Info || '',
                     filter: newData.value.filter || '',
@@ -577,19 +589,20 @@ watch(() => props.modelValue, async (newVal) => {
                     eraseifa: String(resTask.value?.attr?.eraseifa) === 'true',
                     noipuadup: String(resTask.value?.attr?.noipuadup) === 'true',
                     audienceList: [] as AudienceItem[],
+                    taskStatus: newData.value.taskStatus || '',
                 }
                 console.log('formData.value', formData.value);
                 
             } else {
                 // 如果没有当前行数据，清空表单
-                handleNew()
+                resetData()
             }
             // 弹层打开就调用一次  设备受众列表
             const res = await reqAudienceList()
             formData.value.audienceList =  res.data || []
         } catch (error) {
             // 如果没有当前行数据，清空表单
-            handleNew()
+            resetData()
         }
     }
 })

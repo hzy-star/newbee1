@@ -102,16 +102,20 @@
       <el-row class="form-item-buttons">
         <!-- 左侧按钮 -->
         <el-col :span="12" class="form-item-left">
-          <el-button type="primary" @click="BatchEdit">BatchEdit</el-button>
+          <el-button 
+            v-show="propFrom.status !== 'template'" 
+            type="primary" 
+            @click="BatchEdit"
+          >BatchEdit</el-button>
           <el-button type="success" @click="">BatchEnable</el-button>
           <el-button type="danger" @click="">BatchDisable</el-button>
           <el-button type="primary" @click="CreateTemplate">CreateTemplate</el-button>
         </el-col>
 
-        <!-- 右侧按��� -->
+        <!-- 右侧按钮 -->
         <el-col :span="12" class="form-item-right">
           <el-button type="primary" @click="addTask">Add Task</el-button>
-          <el-button type="primary" @click="findAll">Find All</el-button>
+          <el-button type="primary" @click="findAll(true)">Find All</el-button>
         </el-col>
       </el-row>
     </div>
@@ -235,7 +239,7 @@
     </div>
     <!-- 添加在 template 最后 -->
     <TaskModal v-model="showModal" :title="modalTitle" :selected-ids="selectedIds" :current-row-data="currentRowData"
-      :auto-bundle-key="autoBundleKey" @confirm="handleModalConfirm" @confirmNew="handleModalConfirmNew" />
+      :auto-bundle-key="autoBundleKey" @confirm="handleModalConfirm" @confirmNew="handleModalConfirm" :btn-type="btnType" />
   </div>
 </template>
 
@@ -244,7 +248,7 @@ import { ref, onMounted, reactive } from 'vue';
 import type { propFormInter } from '@/api/pushtask/type'
 import { ElMessage } from 'element-plus';
 import { getRelativeDates,formatDateToSimple } from "@/utils/time";
-import { reqlistUrl, reqOngoing, reqGetBundleKey,reqSaveTask } from "@/api/pushtask/index"
+import { reqlistUrl, reqOngoing, reqGetBundleKey,reqSaveTask,reqBatchSaveTasks } from "@/api/pushtask/index"
 import listTaskCr from "@/store/common/listTaskCr"
 import TaskModal from '@/components/task/TaskModal.vue'
 import { VxeTableInstance } from 'vxe-table'
@@ -294,11 +298,10 @@ const checkCharts = (row: any) => {
 // 表格数据
 const tableData = ref<any>([]);
 const result = ref([])
-// 查���功能
-const findAll = async () => {
+// 查询功能
+const findAll = async (type:boolean) => {
   loading.value = true
   try {
-    debugger
     const res = await reqlistUrl(propFrom.value)
     result.value = res
     // 判断ongoing.value中的taskId 是否在tableData.value中存在
@@ -317,11 +320,10 @@ const findAll = async () => {
         taskCrData: taskCrData || null,
       };
     });
-
-    console.log('/-*-/*/-*/*/-*', tableData.value);
-
-
-    ElMessage.success('查询成功');
+    // 点击查询才会提示
+    if(type){
+      ElMessage.success('查询成功');
+    }
     pageChange({ pageSize: pageVO.pageSize, currentPage: 1 });
   } catch (error) {
     ElMessage.error('查询失败');
@@ -373,7 +375,7 @@ const pageChange = ({ pageSize, currentPage }: { pageSize: number; currentPage: 
 }
 /****  分页结束 */
 
-// more展���el-popover
+// more展示el-popover
 const generateStatusDetail = (ongoingData: any) => {
   // 动态生成字符串逻辑
   let statusDetail = ongoingData;
@@ -446,6 +448,7 @@ const shouldShowPopover = (row: any) => {
 // 添加状态管理
 const showModal = ref(false)
 const modalTitle = ref('')
+const btnType = ref('')
 const selectedIds = ref<string[]>([])
 const currentRowData = ref<any>(null)
 interface RowVO {
@@ -458,18 +461,26 @@ interface RowVO {
 }
 const tableRef = ref<VxeTableInstance<RowVO>>()
 // 批量编辑
+const formatSelectedIds = (ids: string[]) => {
+  if (ids.length <= 1) {
+    return ids.join(', ');
+  }
+  return `${ids.slice(0, 1).join(', ')}... (共${ids.length}个)`;
+}
+
 const BatchEdit = () => {
   const $table = tableRef.value
   if ($table) {
     const selectRecords = $table.getCheckboxRecords()
-    if (selectRecords.length === 0) {
-      ElMessage.warning('请选择要编辑的任务')
+    if (selectRecords.length < 2) {
+      ElMessage.warning('请选择至少2条要编辑的任务')
       return
     }
     selectedIds.value = selectRecords.map(row => row.id)
-    modalTitle.value = `TaskDetail [${selectedIds.value.join(', ')}]`
+    modalTitle.value = `TaskDetail [${formatSelectedIds(selectedIds.value)}]`
     currentRowData.value = null // 清空当前行数据
     showModal.value = true
+    btnType.value = 'batchEdit'
   }
 }
 
@@ -479,6 +490,7 @@ const CreateTemplate = () => {
   modalTitle.value = 'TaskDetail []'
   currentRowData.value = null // 清空当前行数据
   showModal.value = true
+  btnType.value = 'createTemplate'
 }
 
 // 添加任务
@@ -487,6 +499,7 @@ const addTask = () => {
   modalTitle.value = 'TaskDetail []'
   currentRowData.value = null // 清空当前行数据
   showModal.value = true
+  btnType.value = 'addTask'
 }
 
 // 显示任务详情
@@ -495,92 +508,176 @@ const showTask = (row: any) => {
   modalTitle.value = `TaskDetail [${row.id}]`
   currentRowData.value = row // 设置当前行数据
   showModal.value = true
+  btnType.value = 'showTask'
 }
 
 // 处理弹窗确认
 const handleModalConfirm = async (formData: any) => {
   // ... existing code ...
-  
+  const { buttonType, ...resformData } = formData
   // 转换数据格式
   const taskInfo = {
-    ...formData,
+    ...resformData,
     // 转换数组为字符串
-    autoCrFilterName: formData.autoCrFilterName.join(','),
-    autoTopBundle: formData.autoTopBundle.join(','),
-    topLtBundle: formData.topLtBundle.join(','),
+    autoCrFilterName: (resformData.autoCrFilterName || []).join(','),
+    autoTopBundle: (resformData.autoTopBundle || []).join(','),
+    topLtBundle: (resformData.topLtBundle || []).join(','),
     
     // 创建 attr 对象
     attr: JSON.stringify({
-      autoCrClickMin: formData.autoCrClickMin,
-      eraseifa: formData.eraseifa.toString(),
-      noipuadup: formData.noipuadup.toString()
+      autoCrClickMin: resformData.autoCrClickMin || '',
+      eraseifa:  (resformData.eraseifa || false).toString(),
+      noipuadup: (resformData.noipuadup || false).toString()
     }),
     
     // 创建 audiences 对象
     audiences: JSON.stringify({
-      ifaAudience: ["", "1"],
+      ifaAudience: ["", resformData.ifaAudience || "1"],
       optionFilterText: ""
     }),
     
     // 创建 autoTrafficFilter
     autoTrafficFilter: [
-      formData.autoCr && 'auto_cr',
-      formData.sevenDaysClickFilter && 'day7click',
-      formData.invalidIfaFilter && 'invalid_ifa_filter'
+      resformData.autoCr && 'auto_cr',
+      resformData.sevenDaysClickFilter && 'day7click',
+      resformData.invalidIfaFilter && 'invalid_ifa_filter'
     ].filter(Boolean).join(','),
     
     // 合并 autoTrafficFilter 和 autoCrFilterName
     autoFilterRuleNames: [
       [
-        formData.autoCr && 'auto_cr',
-        formData.sevenDaysClickFilter && 'day7click',
-        formData.invalidIfaFilter && 'invalid_ifa_filter'
+        resformData.autoCr && 'auto_cr',
+        resformData.sevenDaysClickFilter && 'day7click',
+        resformData.invalidIfaFilter && 'invalid_ifa_filter'
       ].filter(Boolean),
-      formData.autoCrFilterName
+      resformData.autoCrFilterName || []
     ].flat().join(','),
     
     // 创建 autoFilterRuleValues
     autoFilterRuleValues: JSON.stringify(
-      formData.autoCrFilterName.reduce((acc: any, name: string, index: number) => {
-        const values = formData.autoCrFilterVal.split(',')[index];
-        acc[name] = values;
+      (resformData.autoCrFilterName || []).reduce((acc: any, name: string, index: number) => {
+        const values = (resformData.autoCrFilterVal || '').split(',')[index];
+        acc[name] = values || '';
         return acc;
       }, {})
     ),
     
     // 合并 ifadupcheck 和 checkservice
-    ifadupcheck: `${formData.ifadupcheck}:${formData.checkservice}`,
+    ifadupcheck: `${resformData.ifadupcheck || ''}:${resformData.checkservice || ''}`,
     
     // 添加 id
     id: selectedIds.value.join(',')  || '',
     
     // 添加 ifaAudience
-    ifaAudience: ',1'
+    ifaAudience: resformData.ifaAudience || ',1'
   };
-  delete taskInfo.audienceList;
-  delete taskInfo.invalidIfaFilter
-  console.log('TaskInfo:', taskInfo);
   // 创建 URLSearchParams
   const params = new URLSearchParams();
-  Object.entries(taskInfo).forEach(([key, value]) => {
-    params.append(key, String(value));
-  });
-
-  const res = await reqSaveTask(params)
-  console.log(res);
-  if(res == 'success'){
+  let res = ref('')
+  // 根据按钮类型执行不同的操作
+  // 多选编辑保存
+  if(btnType.value == 'batchEdit' && buttonType == 'save'){
+    // 批量编辑
+    debugger
+    taskInfo.ids = selectedIds.value.join(',')
+    taskInfo.isBatchEdit = 'yes'
+    // isTemplate(resformData.taskStatus, taskInfo)
+    Object.entries(taskInfo).forEach(([key, value]) => {
+      params.append(key, String(value));
+    });
+    return
+    res.value = await reqBatchSaveTasks(params)
+  }else if(btnType.value == 'batchEdit' && buttonType == 'new'){ //多选编辑---新增
+    delete taskInfo.audienceList;
+    delete taskInfo.invalidIfaFilter
+    taskInfo.batchType = 'new'
+    taskInfo.id = ''
+    // isTemplate(resformData.taskStatus, taskInfo)
+    Object.entries(taskInfo).forEach(([key, value]) => {
+      params.append(key, String(value));
+    });
+    res.value = await reqSaveTask(params)
+  }else if(btnType.value == 'createTemplate' && buttonType == 'template'){  // 创建任务--save to task
+    // 显示任务详情
+    delete taskInfo.audienceList;
+    delete taskInfo.invalidIfaFilter
+    taskInfo.isTemplate = 'no'
+    taskInfo.id = ''
+    Object.entries(taskInfo).forEach(([key, value]) => {
+      params.append(key, String(value));
+    });
+    res.value = await reqSaveTask(params)
+  }else if(btnType.value == 'createTemplate' && buttonType == 'save'){  // 编辑模板--save
+    // 显示任务详情
+    delete taskInfo.audienceList;
+    delete taskInfo.invalidIfaFilter
+    addTemplate(taskInfo)
+    Object.entries(taskInfo).forEach(([key, value]) => {
+      params.append(key, String(value));
+    });
+    res.value = await reqSaveTask(params)
+  }else if(btnType.value == 'createTemplate' && buttonType == 'new'){  // 新增模板--new
+    // 显示任务详情
+    delete taskInfo.audienceList;
+    delete taskInfo.invalidIfaFilter
+    addTemplate(taskInfo)
+    Object.entries(taskInfo).forEach(([key, value]) => {
+      params.append(key, String(value));
+    });
+    res.value = await reqSaveTask(params)
+  }else if(btnType.value == 'addTask' && buttonType == 'new'){      // 添加任务--只有新增
+    // 添加任务
+    // 显示任务详情
+    delete taskInfo.audienceList;
+    delete taskInfo.invalidIfaFilter
+    taskInfo.batchType = 'new'
+    taskInfo.id = ''
+    Object.entries(taskInfo).forEach(([key, value]) => {
+      params.append(key, String(value));
+    });
+    res.value = await reqSaveTask(params)
+  }else if(btnType.value == 'showTask' && buttonType == 'save'){ // 单选编辑
+    // 显示任务详情
+    delete taskInfo.audienceList;
+    delete taskInfo.invalidIfaFilter
+    isTemplate(resformData.taskStatus, taskInfo)
+    Object.entries(taskInfo).forEach(([key, value]) => {
+      params.append(key, String(value));
+    });
+    res.value = await reqSaveTask(params)
+  }else if(btnType.value == 'showTask' && buttonType == 'new'){ // 单选编辑--新增
+    delete taskInfo.audienceList;
+    delete taskInfo.invalidIfaFilter
+    taskInfo.batchType = 'new'
+    taskInfo.id = ''
+    isTemplate(resformData.taskStatus, taskInfo)
+    Object.entries(taskInfo).forEach(([key, value]) => {
+      params.append(key, String(value));
+    });
+    res.value = await reqSaveTask(params)
+  }
+  if(res.value == 'success'){
     ElMessage.success('保存成功')
-    findAll()
+    findAll(false)
     showModal.value = false; // 关闭弹窗
   }else{
     ElMessage.error('保存失败')
   }
 }
-
-const handleModalConfirmNew = (formData: any) => {
-  console.log('handleModalConfirmNew:', formData)
-  showModal.value = false
+const isTemplate = (_t: any,taskInfo: any) => {
+  if(_t == 'template'){
+    taskInfo.isTemplate = 'yes'
+    taskInfo.offers = taskInfo.offers==null?"all":taskInfo.offers;
+    taskInfo.country = taskInfo.country==null?"all":taskInfo.country;
+  }
 }
+const addTemplate = (taskInfo: any) => {
+    taskInfo.isTemplate = 'yes'
+    taskInfo.offers = taskInfo.offers==null?"all":taskInfo.offers;
+    taskInfo.country = taskInfo.country==null?"all":taskInfo.country;
+  
+}
+
 // 弹窗结束*****
 
 onMounted(async () => {
@@ -591,7 +688,7 @@ onMounted(async () => {
     taskid: '',
     taskdate: propFrom.value.taskdate
   }
-  // 获取所有��任务
+  // 获取所有任务
   ongoing.value = await reqOngoing(taskdate)
   // 页面初始化，获取一次cr数据
   await getTaskCr.loadTaskCrIfNeeded()

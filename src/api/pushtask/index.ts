@@ -8,7 +8,9 @@ enum API{
     GETBUNDLEKEY_URL = '/newbee/getAutoTopBundleKeyNames',
     AUDIENCELIST_URL = '/newbee/audience/list',
     TASKGET_URL = '/newbee/task/get',
-    SAVETASK_URL = '/newbee/savetask',// 保存接口
+    SAVETASK_URL = '/newbee/savetask',// show保存接口
+    BATCHSAVETASKS_URL = '/newbee/batchSaveTasks',// 多选保存接口
+
 }
 
 // 暴露接口
@@ -26,3 +28,5 @@ export const reqAudienceList = () => request.get<any,any>(API.AUDIENCELIST_URL)
 export const reqTaskget = (param:any) => request.get<any,any>(API.TASKGET_URL,{params:param})
 // 保存接口
 export const reqSaveTask = (param:any) => request.post<any,any>(API.SAVETASK_URL,param)
+// 多选保存接口
+export const reqBatchSaveTasks = (param:any) => request.post<any,any>(API.BATCHSAVETASKS_URL,param)
