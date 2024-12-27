@@ -8,7 +8,7 @@
           <div class="form-item">
             <div class="form-item-label">Etype</div>
             <el-select v-model="propFrom.etypes" placeholder="Please select" @change="handleEtypeChange">
-              <el-option label="click" value="click"  />
+              <el-option label="click" value="click" />
               <el-option label="imp" value="imp" />
               <el-option label="all" value="all" />
             </el-select>
@@ -86,7 +86,7 @@
         <!-- Status -->
         <el-col :span="7">
           <div class="form-item">
-            <el-radio-group v-model="propFrom.status">
+            <el-radio-group v-model="propFrom.status" @change="handleStatusChange">
               <el-radio label="enable">Enabled</el-radio>
               <el-radio label="disabled">Disabled</el-radio>
               <el-radio label="template">Template</el-radio>
@@ -102,18 +102,14 @@
       <el-row class="form-item-buttons">
         <!-- 左侧按钮 -->
         <el-col :span="12" class="form-item-left">
-          <el-button 
-            v-show="propFrom.status !== 'template'" 
-            type="primary" 
-            @click="BatchEdit"
-          >BatchEdit</el-button>
-          <el-button type="success" @click="">BatchEnable</el-button>
-          <el-button type="danger" @click="">BatchDisable</el-button>
-          <el-button type="primary" @click="CreateTemplate">CreateTemplate</el-button>
+          <el-button v-show="propFrom.status !== 'template'" type="primary" @click="BatchEdit">BatchEdit</el-button>
+          <el-button v-show="propFrom.status !== 'template'" type="success" @click="BatchEnable">BatchEnable</el-button>
+          <el-button v-show="propFrom.status !== 'template'" type="danger" @click="BatchDisable">BatchDisable</el-button>
         </el-col>
 
         <!-- 右侧按钮 -->
         <el-col :span="12" class="form-item-right">
+          <el-button type="primary" @click="CreateTemplate">CreateTemplate</el-button>
           <el-button type="primary" @click="addTask">Add Task</el-button>
           <el-button type="primary" @click="findAll(true)">Find All</el-button>
         </el-col>
@@ -221,9 +217,10 @@
           </template>
           <template #default="scope">
             <el-button size="small" type="primary" @click="showTask(scope.row)">show</el-button>
-            <el-button size="small" type="warning">del</el-button>
-            <el-button size="small" type="success" v-if="scope.row.bsclick == 'true'">enable</el-button>
-            <el-button size="small" type="danger" v-else>disable</el-button>
+            <el-button size="small" type="warning" @click="delTask(scope.row)">del</el-button>
+            <el-button size="small" type="success" v-if="scope.row.taskStatus == 'disable' && scope.row.taskStatus != 'template'"
+              @click="enableTask(scope.row)">enable</el-button>
+            <el-button size="small" type="danger" v-else-if="scope.row.taskStatus == 'enable' && scope.row.taskStatus != 'template'" @click="disableTask(scope.row)">disable</el-button>
           </template>
         </vxe-column>
       </vxe-table>
@@ -239,16 +236,17 @@
     </div>
     <!-- 添加在 template 最后 -->
     <TaskModal v-model="showModal" :title="modalTitle" :selected-ids="selectedIds" :current-row-data="currentRowData"
-      :auto-bundle-key="autoBundleKey" @confirm="handleModalConfirm" @confirmNew="handleModalConfirm" :btn-type="btnType" />
+      :auto-bundle-key="autoBundleKey" @confirm="handleModalConfirm" @confirmNew="handleModalConfirm"
+      :btn-type="btnType" />
   </div>
 </template>
 
 <script lang="ts" setup>
 import { ref, onMounted, reactive } from 'vue';
 import type { propFormInter } from '@/api/pushtask/type'
-import { ElMessage } from 'element-plus';
-import { getRelativeDates,formatDateToSimple } from "@/utils/time";
-import { reqlistUrl, reqOngoing, reqGetBundleKey,reqSaveTask,reqBatchSaveTasks } from "@/api/pushtask/index"
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { getRelativeDates, formatDateToSimple } from "@/utils/time";
+import { reqlistUrl, reqOngoing, reqGetBundleKey, reqSaveTask, reqBatchSaveTasks, reqDelTask, reqEnableTask, reqDisAbleTask, reqBatchEnableTask, reqBatchDisableTask } from "@/api/pushtask/index"
 import listTaskCr from "@/store/common/listTaskCr"
 import TaskModal from '@/components/task/TaskModal.vue'
 import { VxeTableInstance } from 'vxe-table'
@@ -295,11 +293,15 @@ const checkCharts = (row: any) => {
   console.log(row);
 
 }
+// 点击单选框，直接查询数据
+const handleStatusChange = () => {
+  findAll(true)
+}
 // 表格数据
 const tableData = ref<any>([]);
 const result = ref([])
 // 查询功能
-const findAll = async (type:boolean) => {
+const findAll = async (type: boolean) => {
   loading.value = true
   try {
     const res = await reqlistUrl(propFrom.value)
@@ -321,7 +323,7 @@ const findAll = async (type:boolean) => {
       };
     });
     // 点击查询才会提示
-    if(type){
+    if (type) {
       ElMessage.success('查询成功');
     }
     pageChange({ pageSize: pageVO.pageSize, currentPage: 1 });
@@ -363,7 +365,6 @@ const handlePageData = (num?: number) => {
     pageVO.total = tableData.value.length
     tableDataList.value = tableData.value.slice(((num ?? currentPage) - 1) * pageSize, (num ?? currentPage) * pageSize)
     loading.value = false
-    console.log(tableDataList.value);
 
   }, 100)
 }
@@ -510,173 +511,243 @@ const showTask = (row: any) => {
   showModal.value = true
   btnType.value = 'showTask'
 }
+// 删除当前行数据
+const delTask = (row: any) => {
+  ElMessageBox.confirm('确定删除该任务吗？', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning',
+  }).then(async () => {
+    const params = new URLSearchParams();
+    params.append('id', row.id);
+    const res = await reqDelTask(params);
+
+    if (res === 'OK') {
+      ElMessage.success('删除成功');
+      // 刷新表格数据
+      findAll(false)
+    } else {
+      ElMessage.error('删除失败');
+    }
+  })
+}
+// 启用当前行数据--单独启用
+const enableTask = (row: any) => {
+  ElMessageBox.confirm('确定启用该任务吗？', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning',
+  }).then(async () => {
+    const params = new URLSearchParams();
+    params.append('id', row.id);
+    const res = await reqEnableTask(params);
+
+    if (res === 'OK') {
+      ElMessage.success('启用成功');
+      // 刷新表格数据
+      findAll(false)
+    } else {
+      ElMessage.error('启用失败');
+    }
+
+  })
+}
+// 启用选中数据--批量启用
+const BatchEnable = () => {
+  const $table = tableRef.value
+  if ($table) {
+    const selectRecords = $table.getCheckboxRecords()
+    if (selectRecords.length < 1) {
+      ElMessage.warning('请选择要启用的数据')
+      return
+    }
+    const params = selectRecords.map(row => row.id).join(',')
+    ElMessageBox.confirm('确定启用吗？', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    }).then(async () => {
+      const res = await reqBatchEnableTask(params)
+      if (res === 'OK') {
+        ElMessage.success('启用成功')
+        // 刷新表格数据
+        findAll(false)
+      } else {
+        ElMessage.error('启用失败')
+      }
+    })
+  }
+
+}
+// 禁用当前行数据--单独禁用
+const disableTask = (row: any) => {
+  ElMessageBox.confirm('确定禁用该任务吗？', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning',
+  }).then(async () => {
+    const params = new URLSearchParams();
+    params.append('id', row.id);
+    const res = await reqDisAbleTask(params);
+
+    if (res === 'OK') {
+      ElMessage.success('禁用成功');
+      // 刷新表格数据
+      findAll(false)
+    } else {
+      ElMessage.error('禁用失败');
+    }
+  })
+}
+
+// 禁用选中数据--批量禁用
+const BatchDisable = () => {
+  const $table = tableRef.value
+  if ($table) {
+    const selectRecords = $table.getCheckboxRecords()
+    if (selectRecords.length < 1) {
+      ElMessage.warning('请选择要禁用的数据')
+      return
+    }
+    const params = selectRecords.map(row => row.id).join(',')
+    ElMessageBox.confirm('确定禁用吗？', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    }).then(async () => {
+      const res = await reqBatchDisableTask(params)
+      if (res === 'OK') {
+        ElMessage.success('禁用成功')
+        // 刷新表格数据
+        findAll(false)
+      } else {
+        ElMessage.error('禁用失败')
+      }
+    })
+  }
+}
+
+
 
 // 处理弹窗确认
-const handleModalConfirm = async (formData: any) => {
-  // ... existing code ...
-  const { buttonType, ...resformData } = formData
-  // 转换数据格式
-  const taskInfo = {
+// 处理弹窗确认
+const handleModalConfirm = async (formData: any): Promise<void> => {
+  const { buttonType, ...resformData } = formData;
+  const taskInfo = buildTaskInfo(resformData);
+  const params = new URLSearchParams();
+  let res = ref<string>('');
+
+  const actions: Record<string, Record<string, () => void>> = {
+    batchEdit: {
+      save: () => {
+        taskInfo.ids = selectedIds.value.join(',');
+        taskInfo.isBatchEdit = 'yes';
+      },
+      new: () => {
+        taskInfo.batchType = 'new';
+        taskInfo.id = '';
+      },
+    },
+    createTemplate: {
+      template: () => {
+        taskInfo.isTemplate = 'no';
+        taskInfo.id = '';
+      },
+      save: () => addTemplate(taskInfo),
+      new: () => addTemplate(taskInfo),
+    },
+    addTask: {
+      new: () => {
+        taskInfo.batchType = 'new';
+        taskInfo.id = '';
+      },
+    },
+    showTask: {
+      save: () => isTemplate(resformData.taskStatus, taskInfo),
+      new: () => {
+        taskInfo.batchType = 'new';
+        taskInfo.id = '';
+        isTemplate(resformData.taskStatus, taskInfo);
+      },
+    },
+  };
+
+  if (actions[btnType.value] && actions[btnType.value][buttonType]) {
+    actions[btnType.value][buttonType]();
+    delete taskInfo.audienceList;
+    delete taskInfo.invalidIfaFilter;
+    Object.entries(taskInfo).forEach(([key, value]) => params.append(key, String(value)));
+    res.value = await (btnType.value === 'batchEdit' ? reqBatchSaveTasks(params) : reqSaveTask(params));
+  }
+
+  handleResponse(res.value);
+};
+
+const buildTaskInfo = (resformData: any): Record<string, any> => {
+  return {
     ...resformData,
-    // 转换数组为字符串
     autoCrFilterName: (resformData.autoCrFilterName || []).join(','),
     autoTopBundle: (resformData.autoTopBundle || []).join(','),
     topLtBundle: (resformData.topLtBundle || []).join(','),
-    
-    // 创建 attr 对象
     attr: JSON.stringify({
       autoCrClickMin: resformData.autoCrClickMin || '',
-      eraseifa:  (resformData.eraseifa || false).toString(),
-      noipuadup: (resformData.noipuadup || false).toString()
+      eraseifa: (resformData.eraseifa || false).toString(),
+      noipuadup: (resformData.noipuadup || false).toString(),
     }),
-    
-    // 创建 audiences 对象
     audiences: JSON.stringify({
-      ifaAudience: ["", resformData.ifaAudience || "1"],
-      optionFilterText: ""
+      ifaAudience: ['', resformData.ifaAudience || '1'],
+      optionFilterText: '',
     }),
-    
-    // 创建 autoTrafficFilter
     autoTrafficFilter: [
       resformData.autoCr && 'auto_cr',
       resformData.sevenDaysClickFilter && 'day7click',
-      resformData.invalidIfaFilter && 'invalid_ifa_filter'
+      resformData.invalidIfaFilter && 'invalid_ifa_filter',
     ].filter(Boolean).join(','),
-    
-    // 合并 autoTrafficFilter 和 autoCrFilterName
     autoFilterRuleNames: [
       [
         resformData.autoCr && 'auto_cr',
         resformData.sevenDaysClickFilter && 'day7click',
-        resformData.invalidIfaFilter && 'invalid_ifa_filter'
+        resformData.invalidIfaFilter && 'invalid_ifa_filter',
       ].filter(Boolean),
-      resformData.autoCrFilterName || []
+      resformData.autoCrFilterName || [],
     ].flat().join(','),
-    
-    // 创建 autoFilterRuleValues
     autoFilterRuleValues: JSON.stringify(
-      (resformData.autoCrFilterName || []).reduce((acc: any, name: string, index: number) => {
+      (resformData.autoCrFilterName || []).reduce((acc: Record<string, string>, name: string, index: number) => {
         const values = (resformData.autoCrFilterVal || '').split(',')[index];
         acc[name] = values || '';
         return acc;
       }, {})
     ),
-    
-    // 合并 ifadupcheck 和 checkservice
     ifadupcheck: `${resformData.ifadupcheck || ''}:${resformData.checkservice || ''}`,
-    
-    // 添加 id
-    id: selectedIds.value.join(',')  || '',
-    
-    // 添加 ifaAudience
-    ifaAudience: resformData.ifaAudience || ',1'
+    id: selectedIds.value.join(',') || '',
+    ifaAudience: resformData.ifaAudience || ',1',
   };
-  // 创建 URLSearchParams
-  const params = new URLSearchParams();
-  let res = ref('')
-  // 根据按钮类型执行不同的操作
-  // 多选编辑保存
-  if(btnType.value == 'batchEdit' && buttonType == 'save'){
-    // 批量编辑
-    debugger
-    taskInfo.ids = selectedIds.value.join(',')
-    taskInfo.isBatchEdit = 'yes'
-    // isTemplate(resformData.taskStatus, taskInfo)
-    Object.entries(taskInfo).forEach(([key, value]) => {
-      params.append(key, String(value));
-    });
-    return
-    res.value = await reqBatchSaveTasks(params)
-  }else if(btnType.value == 'batchEdit' && buttonType == 'new'){ //多选编辑---新增
-    delete taskInfo.audienceList;
-    delete taskInfo.invalidIfaFilter
-    taskInfo.batchType = 'new'
-    taskInfo.id = ''
-    // isTemplate(resformData.taskStatus, taskInfo)
-    Object.entries(taskInfo).forEach(([key, value]) => {
-      params.append(key, String(value));
-    });
-    res.value = await reqSaveTask(params)
-  }else if(btnType.value == 'createTemplate' && buttonType == 'template'){  // 创建任务--save to task
-    // 显示任务详情
-    delete taskInfo.audienceList;
-    delete taskInfo.invalidIfaFilter
-    taskInfo.isTemplate = 'no'
-    taskInfo.id = ''
-    Object.entries(taskInfo).forEach(([key, value]) => {
-      params.append(key, String(value));
-    });
-    res.value = await reqSaveTask(params)
-  }else if(btnType.value == 'createTemplate' && buttonType == 'save'){  // 编辑模板--save
-    // 显示任务详情
-    delete taskInfo.audienceList;
-    delete taskInfo.invalidIfaFilter
-    addTemplate(taskInfo)
-    Object.entries(taskInfo).forEach(([key, value]) => {
-      params.append(key, String(value));
-    });
-    res.value = await reqSaveTask(params)
-  }else if(btnType.value == 'createTemplate' && buttonType == 'new'){  // 新增模板--new
-    // 显示任务详情
-    delete taskInfo.audienceList;
-    delete taskInfo.invalidIfaFilter
-    addTemplate(taskInfo)
-    Object.entries(taskInfo).forEach(([key, value]) => {
-      params.append(key, String(value));
-    });
-    res.value = await reqSaveTask(params)
-  }else if(btnType.value == 'addTask' && buttonType == 'new'){      // 添加任务--只有新增
-    // 添加任务
-    // 显示任务详情
-    delete taskInfo.audienceList;
-    delete taskInfo.invalidIfaFilter
-    taskInfo.batchType = 'new'
-    taskInfo.id = ''
-    Object.entries(taskInfo).forEach(([key, value]) => {
-      params.append(key, String(value));
-    });
-    res.value = await reqSaveTask(params)
-  }else if(btnType.value == 'showTask' && buttonType == 'save'){ // 单选编辑
-    // 显示任务详情
-    delete taskInfo.audienceList;
-    delete taskInfo.invalidIfaFilter
-    isTemplate(resformData.taskStatus, taskInfo)
-    Object.entries(taskInfo).forEach(([key, value]) => {
-      params.append(key, String(value));
-    });
-    res.value = await reqSaveTask(params)
-  }else if(btnType.value == 'showTask' && buttonType == 'new'){ // 单选编辑--新增
-    delete taskInfo.audienceList;
-    delete taskInfo.invalidIfaFilter
-    taskInfo.batchType = 'new'
-    taskInfo.id = ''
-    isTemplate(resformData.taskStatus, taskInfo)
-    Object.entries(taskInfo).forEach(([key, value]) => {
-      params.append(key, String(value));
-    });
-    res.value = await reqSaveTask(params)
+};
+
+const isTemplate = (taskStatus: any, taskInfo: Record<string, any>): void => {
+  if (taskStatus === 'template') {
+    taskInfo.isTemplate = 'yes';
+    taskInfo.offers = taskInfo.offers || 'all';
+    taskInfo.country = taskInfo.country || 'all';
   }
-  if(res.value == 'success'){
-    ElMessage.success('保存成功')
-    findAll(false)
-    showModal.value = false; // 关闭弹窗
-  }else{
-    ElMessage.error('保存失败')
+};
+
+const addTemplate = (taskInfo: Record<string, any>): void => {
+  taskInfo.isTemplate = 'yes';
+  taskInfo.offers = taskInfo.offers || 'all';
+  taskInfo.country = taskInfo.country || 'all';
+};
+
+const handleResponse = (response: string): void => {
+  if (response === 'success') {
+    ElMessage.success('保存成功');
+    findAll(false);
+    showModal.value = false;
+  } else {
+    ElMessage.error('保存失败');
   }
-}
-const isTemplate = (_t: any,taskInfo: any) => {
-  if(_t == 'template'){
-    taskInfo.isTemplate = 'yes'
-    taskInfo.offers = taskInfo.offers==null?"all":taskInfo.offers;
-    taskInfo.country = taskInfo.country==null?"all":taskInfo.country;
-  }
-}
-const addTemplate = (taskInfo: any) => {
-    taskInfo.isTemplate = 'yes'
-    taskInfo.offers = taskInfo.offers==null?"all":taskInfo.offers;
-    taskInfo.country = taskInfo.country==null?"all":taskInfo.country;
-  
-}
+};
+
 
 // 弹窗结束*****
 

@@ -528,13 +528,12 @@ watch(() => props.modelValue, async (newVal) => {
             if (newData.value) {
                 const resTaskData = await reqTaskget({ taskId: props.currentRowData.id })
                 resTask.value = resTaskData
-                console.log(resTask.value);
                 const {
                     auto_cr,
                     day7click,
                     invalid_ifa_filter,
                     ...otherFilters
-                } = resTask.value.autoFilter
+                } = resTask.value?.autoFilter || {}
                 // autoCrFilterName
                 const autoCrFilterNames: string[] = [];
                 // autoCrFilterVal
@@ -549,7 +548,6 @@ watch(() => props.modelValue, async (newVal) => {
                     }
                 });
                 
-                debugger
                 // 如果有当前行数据，填充表单
                 formData.value = {
                     etype: newData.value.etype || '',
@@ -591,7 +589,6 @@ watch(() => props.modelValue, async (newVal) => {
                     audienceList: [] as AudienceItem[],
                     taskStatus: newData.value.taskStatus || '',
                 }
-                console.log('formData.value', formData.value);
                 
             } else {
                 // 如果没有当前行数据，清空表单
