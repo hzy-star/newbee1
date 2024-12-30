@@ -1,0 +1,54 @@
+# You may add here your
+# server {
+#   ...
+# }
+# statements for each of your virtual hosts to this file
+
+##
+# You should look at the following URL's in order to grasp a solid understanding
+# of Nginx configuration files in order to fully unleash the power of Nginx.
+# http://wiki.nginx.org/Pitfalls
+# http://wiki.nginx.org/QuickStart
+# http://wiki.nginx.org/Configuration
+#
+# Generally, you will want to move this file somewhere, and start with a clean
+# file but keep this around for reference. Or just disable in sites-enabled.
+#
+# Please see /usr/share/doc/nginx-doc/examples/ for more detailed examples.
+##
+
+server {
+    listen 8080;
+
+    server_name localhost;
+     client_max_body_size 200m;
+    root /dianyi/app/yfp/newmanage;
+    
+    location = /index.html {
+        root  /dianyi/app/yfp/newmanage;
+        add_header Cache-Control "no-store";
+    }
+
+    location / {
+        root  /dianyi/app/yfp/newmanage;
+        index  index.html;
+        ssi on;
+        ssi_silent_errors on;
+        ssi_types text/shtml;
+        try_files $uri $uri/ /index.html;
+        expires    7d;
+        add_header Cache-Control public;
+        
+    }
+    location ^~ /waiterapi/ {
+        proxy_set_header  X-Forwarded-For $remote_addr;
+        proxy_pass http://<NEW_WAITERAPI_ADDR>/;
+        keepalive_timeout   300s;
+        proxy_connect_timeout       300s;
+        proxy_send_timeout          300s;
+        proxy_read_timeout          300s;
+        send_timeout                30s;
+    }
+}
+
+
