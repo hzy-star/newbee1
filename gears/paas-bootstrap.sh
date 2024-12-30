@@ -20,4 +20,4 @@ tar -zxf /root/newbee-web.tar.gz --strip-components=1
 # /usr/sbin/nginx  -s reload
 
 # 启动 nginx
-# nginx -g 'daemon off;'
+service nginx start
