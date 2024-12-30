@@ -1,4 +1,4 @@
-FROM 172.30.10.185:15000/cd-build/node-nginx:19
+FROM 172.30.10.185:15000/cd-build/node-nginx:18
 
 ENV BUILD_DIR gears
 
