@@ -38,8 +38,13 @@ export default defineConfig(({ mode }) => {
         [env.VITE_APP_BASE_API]: {
           target: env.VITE_SERVE,
           changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/api/, '')
-        }
+          rewrite: (path) => path.replace(new RegExp(`^${env.VITE_APP_BASE_API}`), '')
+        },
+        [env.VITE_APP_WAITER_API]: {
+          target: env.VITE_WAITER_SERVE,
+          changeOrigin: true,
+          rewrite: (path) => path.replace(new RegExp(`^${env.VITE_APP_WAITER_API}`), '')
+        },
       }
     }
   }

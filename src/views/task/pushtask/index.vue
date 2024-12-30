@@ -121,7 +121,7 @@
       <vxe-table border auto-resize height="auto" :loading="loading" :column-config="{ resizable: true }"
         :cell-config="{ verticalAlign: 'center' }" :row-config="{ isCurrent: true, isHover: true, }"
         :data="tableDataList" ref="tableRef">
-        <vxe-column type="checkbox" title="" align="center" width="70">
+        <vxe-column type="checkbox" title="" align="center" width="90">
           <template #header="{ checked, indeterminate }">
             <span class="custom-checkbox" @click.stop="toggleAllCheckboxEvent">
               <i v-if="indeterminate" class="vxe-icon-square-minus-fill"></i>
@@ -136,8 +136,12 @@
               <i v-else-if="checked" class="vxe-icon-square-checked-fill"></i>
               <i v-else class="vxe-icon-checkbox-unchecked"></i>
             </span>
-            <div @click="checkCharts(row)" class="icon-echarts">
-              <svg-icon name="echarts" width="15px" height="15px"></svg-icon>
+            <div  class="icon-echarts">
+              <svg-icon name="fa-plane" width="15px" height="15px" @click="checkCharts(row)"></svg-icon>
+              <svg-icon name="fa-android" width="15px" height="15px"></svg-icon>
+              <svg-icon name="fa-line-chart" width="15px" height="15px"></svg-icon>
+              <svg-icon name="fa-magic" width="15px" height="15px"></svg-icon>
+              <svg-icon name="fa-signal" width="15px" height="15px"></svg-icon>
             </div>
           </template>
         </vxe-column>
@@ -842,6 +846,8 @@ onMounted(async () => {
 }
 
 .icon-echarts {
-  cursor: $base-cursor
+  cursor: $base-cursor;
+  display: flex;
+  align-items: center;
 }
 </style>

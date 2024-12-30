@@ -22,27 +22,25 @@ server {
 
     server_name localhost;
      client_max_body_size 200m;
-    root /dianyi/app/yfp/newmanage;
+    root /dianyi/app/newbee-web;
     
     location = /index.html {
-        root  /dianyi/app/yfp/newmanage;
+        root  /dianyi/app/newbee-web;
         add_header Cache-Control "no-store";
     }
 
     location / {
-        root  /dianyi/app/yfp/newmanage;
+        root  /dianyi/app/newbee-web;
         index  index.html;
-        ssi on;
-        ssi_silent_errors on;
-        ssi_types text/shtml;
         try_files $uri $uri/ /index.html;
         expires    7d;
         add_header Cache-Control public;
-        
     }
-    location ^~ /waiterapi/ {
+
+    # API 代理
+    location ^~ /api/ {
         proxy_set_header  X-Forwarded-For $remote_addr;
-        proxy_pass http://<NEW_WAITERAPI_ADDR>/;
+        proxy_pass http://ymnewbee.newbee-manage.svc.cluster.local:18080;
         keepalive_timeout   300s;
         proxy_connect_timeout       300s;
         proxy_send_timeout          300s;

@@ -3,7 +3,8 @@ shopt -s extglob
 git_home=$(readlink -f $(dirname $0))/..
 cd $git_home
 
-export NODE_HOME=/opt/tools/node-v10.15.1-linux-x64
+# 更新 Node 版本
+export NODE_HOME=/opt/tools/node-v18.19.0-linux-x64
 export PATH=${NODE_HOME}/bin:$PATH
 
 function isError(){
@@ -26,12 +27,12 @@ else
     npm install
     isError
     echo "-----build-------"
-    npm run build
+    npm run build:prod
     isError
-    echo "tar -czf gears/newbee-web.tar.gz output"
+    echo "tar -czf gears/newbee-web.tar.gz dist"
     pwd
-    tar -czf gears/newbee-web.tar.gz output
-    ls -al output/dianyi/app/newbee-web/
+    tar -czf gears/newbee-web.tar.gz dist
+    ls -al dist/
 fi
 
 cleanSpace
