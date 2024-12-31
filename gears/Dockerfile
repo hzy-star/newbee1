@@ -1,4 +1,6 @@
 FROM 172.30.10.185:15000/cd-build/node-nginx:22-v2
+# 安装 gettext 包，提供 envsubst 命令
+RUN apt-get update && apt-get install -y gettext-base && rm -rf /var/lib/apt/lists/*
 
 ENV BUILD_DIR gears
 # 设置默认值
