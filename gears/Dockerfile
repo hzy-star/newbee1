@@ -8,6 +8,8 @@ ENV BACKEND_API_URL=http://10.101.135.36:18080
 
 COPY $BUILD_DIR/manage.ym.conf  /etc/nginx/conf.d/
 COPY $BUILD_DIR/newbee-web.tar.gz $BUILD_DIR/ypp_log_init.sh /root/
+COPY $BUILD_DIR/paas-bootstrap.sh /root/
+CMD bash /root/paas-bootstrap.sh
 
-ADD $BUILD_DIR/paas-bootstrap.sh /
-CMD bash /paas-bootstrap.sh
+
+
