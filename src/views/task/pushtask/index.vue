@@ -137,11 +137,11 @@
               <i v-else class="vxe-icon-checkbox-unchecked"></i>
             </span>
             <div  class="icon-echarts">
-              <svg-icon name="fa-plane" width="15px" height="15px" @click="checkCharts(row)"></svg-icon>
-              <svg-icon name="fa-android" width="15px" height="15px"></svg-icon>
+              <svg-icon v-if="row.createdBy == 'app'" name="fa-plane" width="15px" height="15px" @click="checkCharts(row)"></svg-icon>
+              <svg-icon v-if="row.trafficcontrol" name="fa-android" width="15px" height="15px"></svg-icon>
               <svg-icon name="fa-line-chart" width="15px" height="15px"></svg-icon>
-              <svg-icon name="fa-magic" width="15px" height="15px"></svg-icon>
-              <svg-icon name="fa-signal" width="15px" height="15px"></svg-icon>
+              <svg-icon v-if="row.autoCr" name="fa-magic" width="15px" height="15px"></svg-icon>
+              <svg-icon v-if="row.sortCr" name="fa-signal" width="15px" height="15px"></svg-icon>
             </div>
           </template>
         </vxe-column>
@@ -848,6 +848,7 @@ onMounted(async () => {
 .icon-echarts {
   cursor: $base-cursor;
   display: flex;
+  justify-content: center;
   align-items: center;
 }
 </style>

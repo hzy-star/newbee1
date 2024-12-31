@@ -1,6 +1,6 @@
 <template>
     <div>
-        <svg :style="{ width: width, height: height }">
+        <svg :style="{ width: width, height: height,margin:margin }">
             <use :xlink:href="prefix + name" :fill="color"></use>
         </svg>
     </div>
@@ -29,6 +29,11 @@ defineProps({
     height: {
         type: String,
         default: '16px'
+    },
+    //svg外边距
+    margin: {
+        type: String,
+        default: '2px'
     }
 
 })
