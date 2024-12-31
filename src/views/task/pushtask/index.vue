@@ -137,11 +137,11 @@
               <i v-else class="vxe-icon-checkbox-unchecked"></i>
             </span>
             <div  class="icon-echarts">
-              <svg-icon v-if="row.createdBy == 'app'" name="fa-plane" width="15px" height="15px" @click="checkCharts(row)"></svg-icon>
+              <svg-icon v-if="row.createdBy == 'app'" name="fa-plane" width="15px" height="15px" ></svg-icon>
               <svg-icon v-if="row.trafficcontrol" name="fa-android" width="15px" height="15px"></svg-icon>
-              <svg-icon name="fa-line-chart" width="15px" height="15px"></svg-icon>
-              <svg-icon v-if="row.autoCr" name="fa-magic" width="15px" height="15px"></svg-icon>
-              <svg-icon v-if="row.sortCr" name="fa-signal" width="15px" height="15px"></svg-icon>
+              <svg-icon name="fa-line-chart" width="15px" height="15px" @click="showChart(row)"></svg-icon>
+              <svg-icon v-if="row.autoCr" name="fa-magic" width="15px" height="15px" @click="showAutoCr(row)"></svg-icon>
+              <svg-icon v-if="row.sortCr" name="fa-signal" width="15px" height="15px" @click="showTaskSortChart(row)"></svg-icon>
             </div>
           </template>
         </vxe-column>
@@ -293,9 +293,15 @@ const toggleCheckboxEvent = (row: any) => {
   }
 }
 // 查看图表
-const checkCharts = (row: any) => {
+const showChart = (row: any) => {
   console.log(row);
 
+}
+const showAutoCr = (row: any) => {
+  console.log(row);
+}
+const showTaskSortChart = (row: any) => {
+  console.log(row);
 }
 // 点击单选框，直接查询数据
 const handleStatusChange = () => {
