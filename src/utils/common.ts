@@ -1,5 +1,5 @@
 // 封装公共方法
-export const  toQueryStr =(  src: any) =>{
+const  toQueryStr =(  src: any) =>{
     var  buffer = [];
     if ( !src ) return "";
     for ( var i in  src ) {
@@ -15,4 +15,9 @@ export const  toQueryStr =(  src: any) =>{
         }
     }
     return  buffer.join("&" );
+}
+
+
+export default {
+    toQueryStr
 }

@@ -104,7 +104,8 @@
         <el-col :span="12" class="form-item-left">
           <el-button v-show="propFrom.status !== 'template'" type="primary" @click="BatchEdit">BatchEdit</el-button>
           <el-button v-show="propFrom.status !== 'template'" type="success" @click="BatchEnable">BatchEnable</el-button>
-          <el-button v-show="propFrom.status !== 'template'" type="danger" @click="BatchDisable">BatchDisable</el-button>
+          <el-button v-show="propFrom.status !== 'template'" type="danger"
+            @click="BatchDisable">BatchDisable</el-button>
         </el-col>
 
         <!-- 右侧按钮 -->
@@ -121,7 +122,7 @@
       <vxe-table border auto-resize height="auto" :loading="loading" :column-config="{ resizable: true }"
         :cell-config="{ verticalAlign: 'center' }" :row-config="{ isCurrent: true, isHover: true, }"
         :data="tableDataList" ref="tableRef">
-        <vxe-column type="checkbox" title="" align="center" width="90">
+        <vxe-column field="#" type="checkbox" title="" align="center" width="90">
           <template #header="{ checked, indeterminate }">
             <span class="custom-checkbox" @click.stop="toggleAllCheckboxEvent">
               <i v-if="indeterminate" class="vxe-icon-square-minus-fill"></i>
@@ -136,11 +137,12 @@
               <i v-else-if="checked" class="vxe-icon-square-checked-fill"></i>
               <i v-else class="vxe-icon-checkbox-unchecked"></i>
             </span>
-            <div  class="icon-echarts">
-              <svg-icon v-if="row.createdBy == 'app'" name="fa-plane" width="15px" height="15px" ></svg-icon>
+            <div class="icon-echarts">
+              <svg-icon v-if="row.createdBy == 'app'" name="fa-plane" width="15px" height="15px"></svg-icon>
               <svg-icon v-if="row.trafficcontrol" name="fa-android" width="15px" height="15px"></svg-icon>
               <svg-icon name="fa-line-chart" width="15px" height="15px" @click="showChart(row)"></svg-icon>
-              <svg-icon v-if="row.autoCr" name="fa-magic" width="15px" height="15px" @click="showAutoCr(row)"></svg-icon>
+              <svg-icon v-if="row.autoCr" name="fa-magic" width="15px" height="15px"
+                @click="showAutoCr(row)"></svg-icon>
               <svg-icon v-if="row.sortCr" name="fa-signal" width="15px" height="15px" @click="showTaskSortChart(row)"></svg-icon>
             </div>
           </template>
@@ -149,7 +151,7 @@
         <vxe-column field="offers" title="offer" align="center" width="70"></vxe-column>
         <vxe-column field="appId" title="appid" align="center" width="70"></vxe-column>
         <vxe-column field="weight" title="weight" align="center" width="70"></vxe-column>
-        <vxe-column title="scope" align="center" width="80">
+        <vxe-column field="scope" title="scope" align="center" width="80">
           <template #default="{ row }">
             {{ row.gt + "->" + row.lt }}
           </template>
@@ -212,19 +214,22 @@
             {{ formatDateToSimple(row?.mdate) }}
           </template>
         </vxe-column>
-        <vxe-column align="center" fixed="right" width="240">
+        <vxe-column field="Action" align="center" fixed="right" width="240">
           <template #header>
             <div style="display: flex; align-items: center; justify-content: center;">
               <span>Action</span>
-              <el-button type="primary" size="small" @click="">scv</el-button>
+              <el-button type="primary" size="small" @click="exportToCSV">csv</el-button>
             </div>
           </template>
           <template #default="scope">
             <el-button size="small" type="primary" @click="showTask(scope.row)">show</el-button>
             <el-button size="small" type="warning" @click="delTask(scope.row)">del</el-button>
-            <el-button size="small" type="success" v-if="scope.row.taskStatus == 'disable' && scope.row.taskStatus != 'template'"
+            <el-button size="small" type="success"
+              v-if="scope.row.taskStatus == 'disable' && scope.row.taskStatus != 'template'"
               @click="enableTask(scope.row)">enable</el-button>
-            <el-button size="small" type="danger" v-else-if="scope.row.taskStatus == 'enable' && scope.row.taskStatus != 'template'" @click="disableTask(scope.row)">disable</el-button>
+            <el-button size="small" type="danger"
+              v-else-if="scope.row.taskStatus == 'enable' && scope.row.taskStatus != 'template'"
+              @click="disableTask(scope.row)">disable</el-button>
           </template>
         </vxe-column>
       </vxe-table>
@@ -242,6 +247,8 @@
     <TaskModal v-model="showModal" :title="modalTitle" :selected-ids="selectedIds" :current-row-data="currentRowData"
       :auto-bundle-key="autoBundleKey" @confirm="handleModalConfirm" @confirmNew="handleModalConfirm"
       :btn-type="btnType" />
+    <ChartModal v-model:visible="chartVisible" :title="chartTitle" :chart-type="chartType" :chart-data="chartData"
+      :show-switch="showSwitch" :default-type="defaultType" />
   </div>
 </template>
 
@@ -249,10 +256,11 @@
 import { ref, onMounted, reactive } from 'vue';
 import type { propFormInter } from '@/api/pushtask/type'
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { getRelativeDates, formatDateToSimple } from "@/utils/time";
-import { reqlistUrl, reqOngoing, reqGetBundleKey, reqSaveTask, reqBatchSaveTasks, reqDelTask, reqEnableTask, reqDisAbleTask, reqBatchEnableTask, reqBatchDisableTask } from "@/api/pushtask/index"
+import { getRelativeDates, formatDateToSimple, toDateStr } from "@/utils/time";
+import { reqlistUrl, reqOngoing, reqGetBundleKey, reqSaveTask, reqBatchSaveTasks, reqDelTask, reqEnableTask, reqDisAbleTask, reqBatchEnableTask, reqBatchDisableTask, reqCounttaskhour, reqAutoCrHisGet, reqSortCr } from "@/api/pushtask/index"
 import listTaskCr from "@/store/common/listTaskCr"
 import TaskModal from '@/components/task/TaskModal.vue'
+import ChartModal from '@/components/task/ChartModal.vue'
 import { VxeTableInstance } from 'vxe-table'
 const getTaskCr = listTaskCr()
 // 页面初始化获取getAutoTopBundleKeyNames接口的值
@@ -292,16 +300,101 @@ const toggleCheckboxEvent = (row: any) => {
     $table.toggleCheckboxRow(row)
   }
 }
-// 查看图表
-const showChart = (row: any) => {
-  console.log(row);
 
+// 图表相关的状态
+const chartVisible = ref(false)
+const chartTitle = ref('')
+const chartType = ref('line')
+const chartData = ref({})
+const showSwitch = ref(false)
+const defaultType = ref('deviceCount')
+// 查看图表
+const showChart = async (row: any) => {
+  try {
+    let params = {
+      startday: toDateStr(new Date()),
+      step: -2,
+      taskid: row.id,
+      groupby: "hour"
+    }
+    // 调用获取图表数据的接口
+    const res = await reqCounttaskhour(params)
+
+    chartTitle.value = 'TaskCountChart'
+    chartType.value = 'line'
+    chartData.value = res
+    showSwitch.value = true
+    defaultType.value = 'deviceCount'
+    chartVisible.value = true
+  } catch (error) {
+    ElMessage.error('获取图表数据失败')
+  }
 }
-const showAutoCr = (row: any) => {
-  console.log(row);
+
+// 显示自动CR图表
+const showAutoCr = async (row: any) => {
+
+  try {
+    let params = {
+      startDate: toDateStr(new Date()),
+      step: -2,
+      tid: row.id,
+      groupby: "hour"
+    }
+    const res = await reqAutoCrHisGet(params)
+    // let data = {
+    //   "20241231": {
+    //     "0100": "0.5",
+    //     "0500": "0.21",
+    //     "1200": "0.55",
+    //     "1300": "0.5",
+    //   },
+    //   "20250101": {
+    //     "0400": "0.25",
+    //     "0600": "0.1",
+    //     "1500": "0.5",
+    //     "1900": "0.75",
+    //   },
+    //   "20250102": {
+    //     "0600": "0.78",
+    //     "0900": "0.1",
+    //     "1900": "0.59",
+    //     "2200": "0.75",
+    //   }
+    // }
+    // console.log(data);
+    chartTitle.value = 'TaskAutoCRchart'
+    chartType.value = 'line'
+    chartData.value = res
+    showSwitch.value = false
+    defaultType.value = 'deviceCount'
+    chartVisible.value = true
+
+  } catch (error) {
+    ElMessage.error('获取数据失败')
+  }
 }
-const showTaskSortChart = (row: any) => {
-  console.log(row);
+
+// 显示排序CR图表
+const showTaskSortChart = async (row: any) => {
+  try {
+    let params = {
+      offer_id: row.offers,
+      app_id: row.appId,
+      page: 0,
+      limit: 60
+    }
+    const res = await reqSortCr(params)
+    chartTitle.value = 'TaskSortCRchart'
+    chartType.value = 'line'
+    chartData.value = res
+    showSwitch.value = true
+    defaultType.value = 'task_rate'
+    chartVisible.value = true
+
+  } catch (error) {
+    ElMessage.error('获取数据失败')
+  }
 }
 // 点击单选框，直接查询数据
 const handleStatusChange = () => {
@@ -760,6 +853,62 @@ const handleResponse = (response: string): void => {
 
 
 // 弹窗结束*****
+
+
+// 导出csv
+const exportToCSV = () => {
+  const rows = tableData.value;
+  if (!rows || rows.length === 0) {
+    alert('No data to export');
+    return;
+  }
+
+  const $table = tableRef.value;
+  if ($table) {
+    const list = $table.getFullColumns();
+    const headers = list.map((column) => column.title);
+    headers[0] = '#';
+    headers[headers.length - 1] = 'Action';
+
+    const formattedRows = tableData.value.map((row: any) => {
+      return list.map((column) => {
+        if (column.field === 'succ/total/status/dcsuccss/sent') {
+          // 动态拼接 succ/total/status/dcsuccss/sent 的值
+          const ongoingData = row.ongoingData?.[0] || {};
+          return `${ongoingData.successCount || ''}/` +
+            `${ongoingData.sendCount || ''}/` +
+            `${ongoingData.message || ''}/` +
+            `${ongoingData.dcsuccessCount || ''}/` +
+            `${ongoingData.sendServerCount || ''}`;
+        } else if (column.field === 'cr/ecpc(0.285%)/roi(65%)') {
+          // 动态拼接 cr/ecpc(0.285%)/roi(65%) 的值
+          const taskCrData = row?.taskCrData;
+          if (taskCrData) {
+            const cr = ((taskCrData.ctr + taskCrData.ivr) * 100).toFixed(4);
+            return `cr: ${cr}%`;
+          }
+          return ''; // 如果数据不存在返回空字符串
+        }
+        return row[column.field] || ''; // 其他字段正常取值
+      });
+    });
+
+    const csvContent = [headers, ...formattedRows].map((row) => row.join(',')).join('\n');
+
+    // 创建 Blob
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+
+    // 创建隐藏的下载链接并触发下载
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'table_data.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+};
+
 
 onMounted(async () => {
   if (date.value.length > 0) {

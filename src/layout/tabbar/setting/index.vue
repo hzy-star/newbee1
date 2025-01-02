@@ -72,6 +72,7 @@ import useUserStore from '@/store/modules/user'
 import useCookie from '@/store/modules/cookie'
 //获取骨架的小仓库
 import useLayOutSettingStore from '@/store/modules/setting'
+import { VxeUI } from 'vxe-table'
 let layoutSettingStore = useLayOutSettingStore()
 const cookieStore = useCookie()
 let userStore = useUserStore()
@@ -136,6 +137,7 @@ const changeDark = () => {
   let html = document.documentElement
   //判断HTML标签是否有类名dark
   dark.value ? (html.className = 'dark') : (html.className = '')
+  dark.value ? VxeUI.setTheme('dark') : VxeUI.setTheme('light')
 }
 
 //主题颜色的设置

@@ -15,6 +15,10 @@ enum API {
     DISABLETASK_URL = '/newbee/disableTask',    // 禁用接口
     BATCHENABLETASK_URL = '/newbee/batchEnableTasks',    // 批量启用接口
     BATCHDISABLETASK_URL = '/newbee/batchDisableTasks',    // 批量禁用接口
+    
+    COUNTTASKHOUR_URL = '/newbee/counttaskhour',    // 图表任务量统计接口
+    AUTOCRHISGET_URL = '/newbee/autoCrHis/get',    // 图表自动CR统计接口
+    SORTCR_URL = '/newbee/autosendplan/get_history_status_chart',    // 获取sortCR统计接口
 
 }
 
@@ -45,3 +49,12 @@ export const reqDisAbleTask = (param: any) => request.get<any, any>(API.DISABLET
 export const reqBatchEnableTask = (taskIds: string) => request.post<any, any>(API.BATCHENABLETASK_URL, { taskIds }, { isForm: true });
 // 批量禁用接口
 export const reqBatchDisableTask = (taskIds: string) => request.post<any, any>(API.BATCHDISABLETASK_URL, { taskIds }, { isForm: true });
+
+
+
+// 图表任务量统计接口
+export const reqCounttaskhour = (param: any) => request.get<any, any>(API.COUNTTASKHOUR_URL, { params: param})
+// 图表自动CR统计接口
+export const reqAutoCrHisGet = (param: any) => request.get<any, any>(API.AUTOCRHISGET_URL, { params: param})
+// 获取sortCR统计接口
+export const reqSortCr = (param: any) => request.get<any, any>(API.SORTCR_URL, { params: param})
