@@ -859,7 +859,7 @@ const handleResponse = (response: string): void => {
 const exportToCSV = () => {
   const rows = tableData.value;
   if (!rows || rows.length === 0) {
-    alert('No data to export');
+    ElMessage.error('暂无数据可导出');
     return;
   }
 
