@@ -14,7 +14,7 @@ router.beforeEach(async (to: any, from: any, next: any) => {
 
     document.title = setting.title + '-' + to.meta.title
     NProgress.start()
-    const cookie = useCookies.cookie
+    const cookie = useCookies.getCookie()
     const username = useCookies.username
     if (from.path == '') {
         next({ path: '/' })
