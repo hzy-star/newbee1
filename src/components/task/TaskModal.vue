@@ -370,7 +370,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, defineProps, defineEmits, watch, onMounted } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import { reqAudienceList, reqTaskget } from "@/api/pushtask/index"
 import type { FormDataType } from './type'
 

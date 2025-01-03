@@ -140,11 +140,11 @@
             <div class="icon-echarts">
               <svg-icon v-if="row.createdBy == 'app'" name="fa-plane" width="15px" height="15px"></svg-icon>
               <svg-icon v-if="row.trafficcontrol" name="fa-android" width="15px" height="15px"></svg-icon>
-              <svg-icon name="fa-line-chart" width="15px" height="15px" @click="showChart(row)"></svg-icon>
+              <svg-icon name="fa-line-chart" width="15px" height="15px" @click="handleshowChart(row)"></svg-icon>
               <svg-icon v-if="row.autoCr" name="fa-magic" width="15px" height="15px"
-                @click="showAutoCr(row)"></svg-icon>
+                @click="handleshowAutoCr(row)"></svg-icon>
               <svg-icon v-if="row.sortCr" name="fa-signal" width="15px" height="15px"
-                @click="showTaskSortChart(row)"></svg-icon>
+                @click="handleshowTaskSortChart(row)"></svg-icon>
             </div>
           </template>
         </vxe-column>
@@ -245,7 +245,7 @@
       </vxe-pager>
     </div>
     <!-- 添加在 template 最后 -->
-    <TaskModal v-model="showModal" :title="modalTitle" :selected-ids="selectedIds" :current-row-data="currentRowData"
+    <TaskModal v-model="showModal" :title="modalTitle" :selected-ids="taskStore.selectedIds" :current-row-data="currentRowData"
       :auto-bundle-key="autoBundleKey" @confirm="handleModalConfirm" @confirmNew="handleModalConfirm"
       :btn-type="btnType" />
     <ChartModal v-model:visible="chartVisible" :title="chartTitle" :chart-type="chartType" :chart-data="chartData"
@@ -254,23 +254,24 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, reactive, watch } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import type { propFormInter } from '@/api/pushtask/type'
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { getRelativeDates, formatDateToSimple, toDateStr } from "@/utils/time";
-import { reqlistUrl, reqOngoing, reqGetBundleKey, reqSaveTask, reqBatchSaveTasks, reqDelTask, reqEnableTask, reqDisAbleTask, reqBatchEnableTask, reqBatchDisableTask, reqCounttaskhour, reqAutoCrHisGet, reqSortCr } from "@/api/pushtask/index"
+import useChart from './hooks/useChart'
+import useTable from './hooks/useTable'
+import useModal from './hooks/useModal'
+import { getRelativeDates, formatDateToSimple } from "@/utils/time";
+import {  reqOngoing, reqGetBundleKey, reqDelTask, reqEnableTask, reqDisAbleTask, reqBatchEnableTask, reqBatchDisableTask} from "@/api/pushtask/index"
 import listTaskCr from "@/store/common/listTaskCr"
 import TaskModal from '@/components/task/TaskModal.vue'
 import ChartModal from '@/components/task/ChartModal.vue'
-import { VxeTableInstance } from 'vxe-table'
 import type { FormDataType } from '@/components/task/type'
+import { useTaskStore } from '@/store/pushtask/task'
 const getTaskCr = listTaskCr()
 // 页面初始化获取getAutoTopBundleKeyNames接口的值
-const autoBundleKey = ref<any>()
+const autoBundleKey = ref<Array<string>>()
 // 获取最近3天的日期
 const date = ref(getRelativeDates(-3));
-// 初始化获取所有任务
-const ongoing: any = ref()
 // 表单数据
 // 添加处理 etype 变化的方法
 const handleEtypeChange = (value: string) => {
@@ -303,191 +304,72 @@ const toggleCheckboxEvent = (row: any) => {
   }
 }
 
-// 图表相关的状态
-const chartVisible = ref(false)
-const chartTitle = ref('')
-const chartType = ref('line')
-const chartData = ref({})
-const showSwitch = ref(false)
-const defaultType = ref('deviceCount')
+// -------------------echarts图表-------------------
+const {
+  chartVisible,
+  chartTitle,
+  chartType,
+  chartData,
+  showSwitch,
+  defaultType,
+  showChart,
+  showAutoCr,
+  showTaskSortChart,
+} = useChart()
 // 查看图表
-const showChart = async (row: any) => {
-  try {
-    let params = {
-      startday: toDateStr(new Date()),
-      step: -2,
-      taskid: row.id,
-      groupby: "hour"
-    }
-    // 调用获取图表数据的接口
-    const res = await reqCounttaskhour(params)
-
-    chartTitle.value = 'TaskCountChart'
-    chartType.value = 'line'
-    chartData.value = res
-    showSwitch.value = true
-    defaultType.value = 'deviceCount'
-    chartVisible.value = true
-  } catch (error) {
-    ElMessage.error('获取图表数据失败')
-  }
+const handleshowChart = async (row: any) => {
+  showChart(row)
 }
-
 // 显示自动CR图表
-const showAutoCr = async (row: any) => {
-
-  try {
-    let params = {
-      startDate: toDateStr(new Date()),
-      step: -2,
-      tid: row.id,
-      groupby: "hour"
-    }
-    const res = await reqAutoCrHisGet(params)
-    // let data = {
-    //   "20241231": {
-    //     "0100": "0.5",
-    //     "0500": "0.21",
-    //     "1200": "0.55",
-    //     "1300": "0.5",
-    //   },
-    //   "20250101": {
-    //     "0400": "0.25",
-    //     "0600": "0.1",
-    //     "1500": "0.5",
-    //     "1900": "0.75",
-    //   },
-    //   "20250102": {
-    //     "0600": "0.78",
-    //     "0900": "0.1",
-    //     "1900": "0.59",
-    //     "2200": "0.75",
-    //   }
-    // }
-    // console.log(data);
-    chartTitle.value = 'TaskAutoCRchart'
-    chartType.value = 'line'
-    chartData.value = res
-    showSwitch.value = false
-    defaultType.value = 'deviceCount'
-    chartVisible.value = true
-
-  } catch (error) {
-    ElMessage.error('获取数据失败')
-  }
+const handleshowAutoCr = async (row: any) => {
+  showAutoCr(row)
 }
-
 // 显示排序CR图表
-const showTaskSortChart = async (row: any) => {
-  try {
-    let params = {
-      offer_id: row.offers,
-      app_id: row.appId,
-      page: 0,
-      limit: 60
-    }
-    const res = await reqSortCr(params)
-    chartTitle.value = 'TaskSortCRchart'
-    chartType.value = 'line'
-    chartData.value = res
-    showSwitch.value = true
-    defaultType.value = 'task_rate'
-    chartVisible.value = true
+const handleshowTaskSortChart = async (row: any) => {
+  showTaskSortChart(row)
+}
+// -------------------echarts图表结束-------------------
 
-  } catch (error) {
-    ElMessage.error('获取数据失败')
-  }
+
+// -------------------查询功能-------------------
+const {
+  tableRef,
+  loading,
+  tableDataList,
+  pageVO,
+  tableData,
+  ongoing,
+  findAllHooks,
+  pageChanges
+} = useTable()
+// 查询功能
+const findAll = async (type: boolean) => {
+  findAllHooks(type,1)
+};
+const pageChange = ({ currentPage, pageSize }: any) => {
+  pageChanges({ pageSize, currentPage })
 }
 // 点击单选框，直接查询数据
 const handleStatusChange = () => {
-  findAll(true)
-}
-// 表格数据
-const tableData = ref<any>([]);
-const result = ref([])
-// 查询功能
-const findAll = async (type: boolean) => {
-  loading.value = true
-  try {
-    const res = await reqlistUrl(propFrom.value)
-    result.value = res
-    // 判断ongoing.value中的taskId 是否在tableData.value中存在
-    // 如果相同，则把ongoing.value中的数据添加到tableData.value中，存放在一个ongoingData中
-    tableData.value = res.map((item: any) => {
-      // 查找 ongoing 中所有匹配的记录
-      const matchedOngoing = ongoing.value.filter(
-        (ongoingItem: any) => ongoingItem.taskId === item.id
-      );
-      // 从 taskCr 中查找对应 taskId 的数据
-      const taskCrData = getTaskCr.taskCr[item.id];
-      // 返回新的结构，将 matchedOngoing 嵌套到 ongoingData
-      return {
-        ...item, // 保留原来的字段
-        ongoingData: matchedOngoing.length > 0 ? matchedOngoing : null, // 如果有匹配项，则嵌套数组；否则为 null
-        taskCrData: taskCrData || null,
-      };
-    });
-    // 点击查询才会提示
-    if (type) {
-      ElMessage.success('查询成功');
-    }
-    pageChange({ pageSize: pageVO.pageSize, currentPage: 1 });
-  } catch (error) {
-    ElMessage.error('查询失败');
-  } finally {
-    loading.value = false
-  }
-};
-
-// 分页
-const pageVO = reactive({
-  total: 0,
-  currentPage: 1,
-  pageSize: 10
-})
-
-const loading = ref(false)
-// 前端分页
-const tableDataList = ref([])
-const handlePageData = (num?: number) => {
-  loading.value = true
-  setTimeout(() => {
-    const { pageSize, currentPage } = pageVO
-    tableData.value = result.value.map((item: any) => {
-      // 查找 ongoing 中所有匹配的记录
-      const matchedOngoing = ongoing.value.filter(
-        (ongoingItem: any) => ongoingItem.taskId === item.id
-      );
-      // 从 taskCr 中查找对应 taskId 的数据
-      const taskCrData = getTaskCr.taskCr[item.id];
-      // 返回新的结构，将 matchedOngoing 嵌套到 ongoingData
-      return {
-        ...item, // 保留原来的字段
-        ongoingData: matchedOngoing.length > 0 ? matchedOngoing : null, // 如果有匹配项，则嵌套数组；否则为 null
-        taskCrData: taskCrData || null,
-      };
-    });
-    pageVO.total = tableData.value.length
-    tableDataList.value = tableData.value.slice(((num ?? currentPage) - 1) * pageSize, (num ?? currentPage) * pageSize)
-    loading.value = false
-
-  }, 100)
+  findAllHooks(true,1)
 }
 
-const pageChange = ({ pageSize, currentPage }: { pageSize: number; currentPage: number }) => {
-  pageVO.currentPage = currentPage
-  pageVO.pageSize = pageSize
-  handlePageData()
-}
-/****  分页结束 */
 
+const taskStore = useTaskStore()
+watch(propFrom, (newValue) => {
+  taskStore.updatePropFrom(newValue)
+}, { deep: true, immediate: true })
+// -------------------查询功能结束-------------------
+
+
+// -------------------显示more-------------------
 // more展示el-popover
 const generateStatusDetail = (ongoingData: any) => {
   // 动态生成字符串逻辑
   let statusDetail = ongoingData;
   let statusDetailArr = [];
   let statusDetailSendArr = [];
-  let result = '';
+  let results = '';
   var totalCount = 0;
   for (var i in statusDetail) {
     const value = parseInt(statusDetail[i]);
@@ -534,10 +416,9 @@ const generateStatusDetail = (ongoingData: any) => {
   }
 
   // 拼接最终的 HTML 内容
-  result = [...statusDetailSendArr, ...statusDetailArr].join('');
-  return result;
+  results = [...statusDetailSendArr, ...statusDetailArr].join('');
+  return results;
 }
-
 //根据条件显示el-popover
 const shouldShowPopover = (row: any) => {
   const ongoingData = row?.ongoingData?.[0];
@@ -548,51 +429,27 @@ const shouldShowPopover = (row: any) => {
     ongoingData?.sendServerCount > 0 ||
     ongoingData?.statusDetail != null;
 };
+// -------------------显示more结束-------------------
 
+// -------------------弹窗状态-------------------
+const {
+  showModal,
+  modalTitle,
+  btnType,
+  currentRowData,
+  handleModals,
+  BatchEdits,
+} = useModal(tableRef, findAllHooks)
 
-// 弹窗相关****
-// 添加状态管理
-const showModal = ref(false)
-const modalTitle = ref('')
-const btnType = ref('')
-const selectedIds = ref<string[]>([])
-const currentRowData = ref<any>(null)
-interface RowVO {
-  id: number
-  name: string
-  role: string
-  sex: string
-  age: number
-  address: string
-}
-const tableRef = ref<VxeTableInstance<RowVO>>()
 // 批量编辑
-const formatSelectedIds = (ids: string[]) => {
-  if (ids.length <= 1) {
-    return ids.join(', ');
-  }
-  return `${ids.slice(0, 1).join(', ')}... (共${ids.length}个)`;
-}
-
 const BatchEdit = () => {
-  const $table = tableRef.value
-  if ($table) {
-    const selectRecords = $table.getCheckboxRecords()
-    if (selectRecords.length < 2) {
-      ElMessage.warning('请选择至少2条要编辑的任务')
-      return
-    }
-    selectedIds.value = selectRecords.map(row => row.id)
-    modalTitle.value = `TaskDetail [${formatSelectedIds(selectedIds.value)}]`
-    currentRowData.value = null // 清空当前行数据
-    showModal.value = true
-    btnType.value = 'batchEdit'
-  }
+  debugger
+  BatchEdits()
 }
 
 // 创建模板
 const CreateTemplate = () => {
-  selectedIds.value = []
+  taskStore.setSelectedIds([])
   modalTitle.value = 'TaskDetail []'
   currentRowData.value = null // 清空当前行数据
   showModal.value = true
@@ -601,7 +458,7 @@ const CreateTemplate = () => {
 
 // 添加任务
 const addTask = () => {
-  selectedIds.value = []
+  taskStore.setSelectedIds([])
   modalTitle.value = 'TaskDetail []'
   currentRowData.value = null // 清空当前行数据
   showModal.value = true
@@ -610,7 +467,7 @@ const addTask = () => {
 
 // 显示任务详情
 const showTask = (row: any) => {
-  selectedIds.value = [row.id]
+  taskStore.setSelectedIds([row.id])
   modalTitle.value = `TaskDetail [${row.id}]`
   currentRowData.value = row // 设置当前行数据
   showModal.value = true
@@ -621,6 +478,10 @@ watch(() => showModal.value, async (newValue) => {
     autoBundleKey.value = await reqGetBundleKey()
   }
 })
+// -------------------弹窗状态结束-------------------
+
+
+// -------------------表格操作-------------------
 // 删除当前行数据
 const delTask = (row: any) => {
   ElMessageBox.confirm('确定删除该任务吗？', '提示', {
@@ -635,7 +496,7 @@ const delTask = (row: any) => {
     if (res === 'OK') {
       ElMessage.success('删除成功');
       // 刷新表格数据
-      findAll(false)
+      findAllHooks(false)
     } else {
       ElMessage.error('删除失败');
     }
@@ -655,7 +516,7 @@ const enableTask = (row: any) => {
     if (res === 'OK') {
       ElMessage.success('启用成功');
       // 刷新表格数据
-      findAll(false)
+      findAllHooks(false)
     } else {
       ElMessage.error('启用失败');
     }
@@ -681,7 +542,7 @@ const BatchEnable = () => {
       if (res === 'OK') {
         ElMessage.success('启用成功')
         // 刷新表格数据
-        findAll(false)
+        findAllHooks(false)
       } else {
         ElMessage.error('启用失败')
       }
@@ -703,7 +564,7 @@ const disableTask = (row: any) => {
     if (res === 'OK') {
       ElMessage.success('禁用成功');
       // 刷新表格数据
-      findAll(false)
+      findAllHooks(false)
     } else {
       ElMessage.error('禁用失败');
     }
@@ -729,136 +590,21 @@ const BatchDisable = () => {
       if (res === 'OK') {
         ElMessage.success('禁用成功')
         // 刷新表格数据
-        findAll(false)
+        findAllHooks(false)
       } else {
         ElMessage.error('禁用失败')
       }
     })
   }
 }
+// -------------------表格操作结束-------------------
 
 
-
-// 处理弹窗确认
+// -------------------处理弹窗确认-------------------
 const handleModalConfirm = async (formData: FormDataType): Promise<void> => {
-  const { buttonType, ...resformData } = formData;
-  const taskInfo = buildTaskInfo(resformData);
-  const params = new URLSearchParams();
-  let res = ref<string>('');
-
-  const actions: Record<string, Record<string, () => void>> = {
-    batchEdit: {
-      save: () => {
-        taskInfo.ids = selectedIds.value.join(',');
-        taskInfo.isBatchEdit = 'yes';
-      },
-      new: () => {
-        taskInfo.batchType = 'new';
-        taskInfo.id = '';
-      },
-    },
-    createTemplate: {
-      template: () => {
-        taskInfo.isTemplate = 'no';
-        taskInfo.id = '';
-      },
-      save: () => addTemplate(taskInfo),
-      new: () => addTemplate(taskInfo),
-    },
-    addTask: {
-      new: () => {
-        taskInfo.batchType = 'new';
-        taskInfo.id = '';
-      },
-    },
-    showTask: {
-      save: () => isTemplate(resformData.taskStatus, taskInfo),
-      new: () => {
-        taskInfo.batchType = 'new';
-        taskInfo.id = '';
-        isTemplate(resformData.taskStatus, taskInfo);
-      },
-    },
-  };
-
-  if (actions[btnType.value] && actions[btnType.value][buttonType as string]) {
-    actions[btnType.value][buttonType as string]();
-    delete taskInfo.audienceList;
-    delete taskInfo.invalidIfaFilter;
-    Object.entries(taskInfo).forEach(([key, value]) => params.append(key, String(value)));
-    res.value = await (btnType.value === 'batchEdit' ? reqBatchSaveTasks(params) : reqSaveTask(params));
-  }
-
-  handleResponse(res.value);
+  handleModals(formData)
 };
-
-const buildTaskInfo = (resformData: any): Record<string, any> => {
-  return {
-    ...resformData,
-    autoCrFilterName: (resformData.autoCrFilterName || []).join(','),
-    autoTopBundle: (resformData.autoTopBundle || []).join(','),
-    topLtBundle: (resformData.topLtBundle || []).join(','),
-    attr: JSON.stringify({
-      autoCrClickMin: resformData.autoCrClickMin || '',
-      eraseifa: (resformData.eraseifa || false).toString(),
-      noipuadup: (resformData.noipuadup || false).toString(),
-    }),
-    audiences: JSON.stringify({
-      ifaAudience: ['', resformData.ifaAudience || '1'],
-      optionFilterText: '',
-    }),
-    autoTrafficFilter: [
-      resformData.autoCr && 'auto_cr',
-      resformData.sevenDaysClickFilter && 'day7click',
-      resformData.invalidIfaFilter && 'invalid_ifa_filter',
-    ].filter(Boolean).join(','),
-    autoFilterRuleNames: [
-      [
-        resformData.autoCr && 'auto_cr',
-        resformData.sevenDaysClickFilter && 'day7click',
-        resformData.invalidIfaFilter && 'invalid_ifa_filter',
-      ].filter(Boolean),
-      resformData.autoCrFilterName || [],
-    ].flat().join(','),
-    autoFilterRuleValues: JSON.stringify(
-      (resformData.autoCrFilterName || []).reduce((acc: Record<string, string>, name: string, index: number) => {
-        const values = (resformData.autoCrFilterVal || '').split(',')[index];
-        acc[name] = values || '';
-        return acc;
-      }, {})
-    ),
-    ifadupcheck: `${resformData.ifadupcheck || ''}:${resformData.checkservice || ''}`,
-    id: selectedIds.value.join(',') || '',
-    ifaAudience: resformData.ifaAudience || ',1',
-  };
-};
-
-const isTemplate = (taskStatus: string, taskInfo: Record<string, any>): void => {
-  if (taskStatus === 'template') {
-    taskInfo.isTemplate = 'yes';
-    taskInfo.offers = taskInfo.offers || 'all';
-    taskInfo.country = taskInfo.country || 'all';
-  }
-};
-
-const addTemplate = (taskInfo: Record<string, any>): void => {
-  taskInfo.isTemplate = 'yes';
-  taskInfo.offers = taskInfo.offers || 'all';
-  taskInfo.country = taskInfo.country || 'all';
-};
-
-const handleResponse = (response: string): void => {
-  if (response === 'success') {
-    ElMessage.success('保存成功');
-    findAll(false);
-    showModal.value = false;
-  } else {
-    ElMessage.error('保存失败');
-  }
-};
-
-
-// 弹窗结束*****
+// -------------------处理弹窗确认结束-------------------
 
 
 // 导出csv
