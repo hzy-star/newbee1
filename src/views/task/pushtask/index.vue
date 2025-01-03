@@ -143,7 +143,8 @@
               <svg-icon name="fa-line-chart" width="15px" height="15px" @click="showChart(row)"></svg-icon>
               <svg-icon v-if="row.autoCr" name="fa-magic" width="15px" height="15px"
                 @click="showAutoCr(row)"></svg-icon>
-              <svg-icon v-if="row.sortCr" name="fa-signal" width="15px" height="15px" @click="showTaskSortChart(row)"></svg-icon>
+              <svg-icon v-if="row.sortCr" name="fa-signal" width="15px" height="15px"
+                @click="showTaskSortChart(row)"></svg-icon>
             </div>
           </template>
         </vxe-column>
@@ -253,7 +254,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, reactive } from 'vue';
+import { ref, onMounted, reactive, watch } from 'vue';
 import type { propFormInter } from '@/api/pushtask/type'
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { getRelativeDates, formatDateToSimple, toDateStr } from "@/utils/time";
@@ -262,6 +263,7 @@ import listTaskCr from "@/store/common/listTaskCr"
 import TaskModal from '@/components/task/TaskModal.vue'
 import ChartModal from '@/components/task/ChartModal.vue'
 import { VxeTableInstance } from 'vxe-table'
+import type { FormDataType } from '@/components/task/type'
 const getTaskCr = listTaskCr()
 // 页面初始化获取getAutoTopBundleKeyNames接口的值
 const autoBundleKey = ref<any>()
@@ -614,6 +616,11 @@ const showTask = (row: any) => {
   showModal.value = true
   btnType.value = 'showTask'
 }
+watch(() => showModal.value, async (newValue) => {
+  if (newValue === true && !autoBundleKey.value) { // 弹窗打开时，获取数据
+    autoBundleKey.value = await reqGetBundleKey()
+  }
+})
 // 删除当前行数据
 const delTask = (row: any) => {
   ElMessageBox.confirm('确定删除该任务吗？', '提示', {
@@ -733,8 +740,7 @@ const BatchDisable = () => {
 
 
 // 处理弹窗确认
-// 处理弹窗确认
-const handleModalConfirm = async (formData: any): Promise<void> => {
+const handleModalConfirm = async (formData: FormDataType): Promise<void> => {
   const { buttonType, ...resformData } = formData;
   const taskInfo = buildTaskInfo(resformData);
   const params = new URLSearchParams();
@@ -775,8 +781,8 @@ const handleModalConfirm = async (formData: any): Promise<void> => {
     },
   };
 
-  if (actions[btnType.value] && actions[btnType.value][buttonType]) {
-    actions[btnType.value][buttonType]();
+  if (actions[btnType.value] && actions[btnType.value][buttonType as string]) {
+    actions[btnType.value][buttonType as string]();
     delete taskInfo.audienceList;
     delete taskInfo.invalidIfaFilter;
     Object.entries(taskInfo).forEach(([key, value]) => params.append(key, String(value)));
@@ -827,7 +833,7 @@ const buildTaskInfo = (resformData: any): Record<string, any> => {
   };
 };
 
-const isTemplate = (taskStatus: any, taskInfo: Record<string, any>): void => {
+const isTemplate = (taskStatus: string, taskInfo: Record<string, any>): void => {
   if (taskStatus === 'template') {
     taskInfo.isTemplate = 'yes';
     taskInfo.offers = taskInfo.offers || 'all';
@@ -922,7 +928,6 @@ onMounted(async () => {
   ongoing.value = await reqOngoing(taskdate)
   // 页面初始化，获取一次cr数据
   await getTaskCr.loadTaskCrIfNeeded()
-  autoBundleKey.value = await reqGetBundleKey()
 
 });
 </script>

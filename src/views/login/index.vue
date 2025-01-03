@@ -11,7 +11,7 @@
           </el-form-item>
           <el-form-item prop="password">
             <el-input v-model="loginForm.password" placeholder="Please input" :prefix-icon="Lock" show-password
-              type="password"></el-input>
+              type="password" @keyup.enter="handleLogin"></el-input>
           </el-form-item>
           <el-form-item>
             <el-button :loading="loading" class="login_btn" type="primary" size="default"
@@ -55,7 +55,7 @@ const handleLogin = async () => {
         // 登录失败后提示
         ElNotification({
           title: "警告",
-          message: (error as Error).message,
+          message: '登录失败,请检查账号密码',
           type: "warning",
         });
         loading.value = false;

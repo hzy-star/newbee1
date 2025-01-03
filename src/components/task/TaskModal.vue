@@ -372,6 +372,7 @@
 <script lang="ts" setup>
 import { ref, defineProps, defineEmits, watch, onMounted } from 'vue'
 import { reqAudienceList, reqTaskget } from "@/api/pushtask/index"
+import type { FormDataType } from './type'
 
 const props = defineProps({
     modelValue: Boolean,
@@ -399,7 +400,7 @@ onMounted(() => {
 
 const emit = defineEmits(['update:modelValue', 'confirm', 'confirmNew'])
 
-const formData = ref({
+const formData = ref<FormDataType>({
     etype: '',
     offers: '',
     pkgName: '',
@@ -434,7 +435,7 @@ const formData = ref({
     filter: '',
     urlparams: '',
     clickTimeDelay:'',
-    audienceList: [] as AudienceItem[],
+    audienceList: [],
     eraseifa:false,
     noipuadup:false,
     taskStatus: '',
@@ -468,6 +469,7 @@ const resTask = ref({
     },
     autoFilter: {} as AutoFilters
 })
+// 清空表单数据
 const resetData = () => {
     formData.value = {
         etype: '',
@@ -510,13 +512,7 @@ const resetData = () => {
         taskStatus:''
     }
 }
-// 定义接口类型
-interface AudienceItem {
-    id: number
-    name: string
-}
 // 存储audience列表数据
-// const audienceList = ref<AudienceItem[]>([])
 const newData = ref<any>(null)
 // 监听弹层显示状态
 watch(() => props.modelValue, async (newVal) => {
@@ -586,7 +582,7 @@ watch(() => props.modelValue, async (newVal) => {
                     clickTimeDelay: resTask.value.clickTimeDelay || '',
                     eraseifa: String(resTask.value?.attr?.eraseifa) === 'true',
                     noipuadup: String(resTask.value?.attr?.noipuadup) === 'true',
-                    audienceList: [] as AudienceItem[],
+                    audienceList: [],
                     taskStatus: newData.value.taskStatus || '',
                 }
                 
