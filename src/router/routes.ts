@@ -71,7 +71,7 @@ export const constantRoutes = [
                 meta: {
                     title: 'pulltask',
                     icon: 'DataLine',
-                    hidden: false
+                    hidden: true
                 }
             },
             {
@@ -81,6 +81,16 @@ export const constantRoutes = [
                 meta: {
                     title: 'Autotask',
                     icon: 'Notification',
+                    hidden: false
+                }
+            },
+            {
+                path: '/task/autopkgtask',
+                component: () => import('@/views/task/autopkgtask/index.vue'),
+                name: 'Autopkgtask',
+                meta: {
+                    title: 'autopkgtask',
+                    icon: 'DataLine',
                     hidden: false
                 }
             },

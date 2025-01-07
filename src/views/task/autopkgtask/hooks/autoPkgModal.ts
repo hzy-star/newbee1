@@ -4,7 +4,7 @@ import type { FormDataType } from '@/components/task/type'
 import { reqSaveTask, reqBatchSaveTasks } from "@/api/pushtask/index"
 import { ElMessage } from 'element-plus';
 
-export default function useModal(tableRef: any, findAllHooks: (type: boolean) => Promise<void>) {
+export default function autoPkgModal(tableRef: any, findAllHooks: (type: boolean) => Promise<void>) {
     const taskStore = useTaskStore()
     const showModal = ref(false)
     const modalTitle = ref('')
@@ -26,9 +26,7 @@ export default function useModal(tableRef: any, findAllHooks: (type: boolean) =>
                 },
                 new: () => {
                     taskInfo.batchType = 'new';
-                    // taskInfo.id = '';
-                    taskInfo.ids = taskStore.selectedIds.join(',');
-                    taskInfo.isBatchEdit = 'yes';
+                    taskInfo.id = '';
                 },
             },
             createTemplate: {

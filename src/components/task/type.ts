@@ -1,9 +1,9 @@
 
 // 定义接口类型
-interface AudienceItem {
-    id: number
-    name: string
-}
+// interface AudienceItem {
+//     id: number
+//     name: string
+// }
 // 导出数据类型
 export interface  FormDataType {
     etype: string;
@@ -40,7 +40,6 @@ export interface  FormDataType {
     filter: string;
     urlparams: string;
     clickTimeDelay: string;
-    audienceList: AudienceItem[];
     eraseifa: boolean;
     noipuadup: boolean;
     taskStatus: string;

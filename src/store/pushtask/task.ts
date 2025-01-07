@@ -33,6 +33,7 @@ export const useTaskStore = defineStore('task', {
   
   actions: {
     updatePropFrom(data: Partial<propFormInter>) {
+      debugger
       this.propFrom = { ...this.propFrom, ...data }
     },
     setOngoing(data: any[]) {

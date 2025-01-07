@@ -351,10 +351,10 @@
                 </div>
                 <div class="form-item">
                     <div class="form-item-label">设备受众</div>
-                    <el-select v-model="formData.audienceList" :max-collapse-tags="4" multiple collapse-tags
+                    <el-select v-model="audienceListRes" :max-collapse-tags="4" multiple collapse-tags
                         collapse-tags-tooltip placeholder="Select" style="width: 240px" filterable clearable>
                         <!-- 动态添加其他选项 -->
-                        <el-option v-for="item in formData.audienceList" :key="item.id" :label="item.name" :value="item.name" />
+                        <el-option v-for="item in audienceListRes" :key="item.id" :label="item.name" :value="item.name" />
                     </el-select>
                 </div>
             </div>
@@ -373,7 +373,7 @@
 import { ref, watch, onMounted } from 'vue'
 import { reqAudienceList, reqTaskget } from "@/api/pushtask/index"
 import type { FormDataType } from './type'
-
+const audienceListRes = ref<any[]>([])
 const props = defineProps({
     modelValue: Boolean,
     title: String,
@@ -392,9 +392,6 @@ const props = defineProps({
     btnType: {
         type: String,
     }
-})
-onMounted(() => {
-    console.log('autoBundleKey changed:', props.autoBundleKey)
 })
 
 
@@ -435,7 +432,7 @@ const formData = ref<FormDataType>({
     filter: '',
     urlparams: '',
     clickTimeDelay:'',
-    audienceList: [],
+    // audienceList: [],
     eraseifa:false,
     noipuadup:false,
     taskStatus: '',
@@ -454,6 +451,8 @@ const handleSave = (type:string) => {
 }
 // 新增
 const handleNew = (type:string) =>{
+    console.log('formData.value:', formData.value);
+    
     emit('confirm', { ...formData.value, buttonType: type })
     // emit('confirmNew', formData.value)
 }
@@ -506,7 +505,7 @@ const resetData = () => {
         filter: '',
         urlparams: '',
         clickTimeDelay:'',
-        audienceList: [],
+        // audienceList: [],
         eraseifa:false,
         noipuadup:false,
         taskStatus:''
@@ -582,7 +581,7 @@ watch(() => props.modelValue, async (newVal) => {
                     clickTimeDelay: resTask.value.clickTimeDelay || '',
                     eraseifa: String(resTask.value?.attr?.eraseifa) === 'true',
                     noipuadup: String(resTask.value?.attr?.noipuadup) === 'true',
-                    audienceList: [],
+                    // audienceList: [],
                     taskStatus: newData.value.taskStatus || '',
                 }
                 
@@ -590,14 +589,18 @@ watch(() => props.modelValue, async (newVal) => {
                 // 如果没有当前行数据，清空表单
                 resetData()
             }
-            // 弹层打开就调用一次  设备受众列表
-            const res = await reqAudienceList()
-            formData.value.audienceList =  res.data || []
         } catch (error) {
             // 如果没有当前行数据，清空表单
             resetData()
         }
     }
+})
+onMounted( async () => {
+    console.log('autoBundleKey changed:', props.autoBundleKey)
+            // 弹层打开就调用一次  设备受众列表
+            const res = await reqAudienceList()
+            audienceListRes.value = res.data || []
+            // formData.value.audienceList =  res.data || []
 })
 </script>
 
