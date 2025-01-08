@@ -148,6 +148,7 @@
             </div>
           </template>
         </vxe-column>
+        <vxe-column type="seq" align="center" title=" " width="50"></vxe-column>
         <vxe-column field="etype" title="event" align="center" width="70"></vxe-column>
         <vxe-column field="offers" title="offer" align="center" width="70"></vxe-column>
         <vxe-column field="appId" title="appid" align="center" width="70"></vxe-column>
@@ -190,9 +191,9 @@
             </div>
 
             <!-- Add a check to only display popover if necessary fields are not null -->
-            <el-popover v-if="shouldShowPopover(row)" effect="light" trigger="hover" placement="top" width="auto">
+            <el-popover v-if="shouldShowPopover(row)" effect="light" trigger="hover" placement="left" width="auto">
               <template #default>
-                <div v-html="generateStatusDetail(row?.ongoingData?.[0]?.statusDetail || '')"></div>
+                <div class="popoverClass" v-html="generateStatusDetail(row?.ongoingData?.[0]?.statusDetail || '')"></div>
               </template>
               <template #reference>
                 <el-tag>more</el-tag>
@@ -758,5 +759,13 @@ onMounted(async () => {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+.popoverClass{
+  max-height: 500px;
+  word-wrap: break-word;
+  word-break: break-all;
+  white-space: normal;
+  padding: 10px;
+  overflow: scroll;
 }
 </style>

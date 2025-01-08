@@ -1,5 +1,5 @@
 <template>
-    <el-dialog :model-value="modelValue" :title="title" align-center @close="handleClose" width="80%"
+    <el-dialog :model-value="modelValue" :title="title" align-center @close="handleClose" width="60%"
         :close-on-click-modal="false">
         <div class="task-form">
             <!-- 第一行 -->
@@ -13,7 +13,7 @@
                         </el-select>
                     </div>
                 </el-col>
-                <el-col :span="4">
+                <el-col :span="6">
                     <div class="form-item">
                         <div class="form-item-label">pkgName</div>
                         <el-input v-model="formData.pkgName" />
@@ -105,9 +105,8 @@
 
 
             <div class="form-footer">
-                <el-button type="primary" @click="handleSaveToTask('template')" v-if="btnType === 'createTemplate'">save to task</el-button>
-                <el-button type="primary" @click="handleSave('save')" v-if="btnType != 'addTask'">save</el-button>
-                <el-button type="primary" @click="handleNew('new')">new</el-button>
+                <el-button type="primary" @click="handleSave('save')" >save</el-button>
+                <el-button type="primary" @click="handleNew('new')" v-if="btnType != 'batchEdit'">new</el-button>
             </div>
         </div>
     </el-dialog>
@@ -159,12 +158,9 @@ const formData = ref<FormDataType>({
 const handleClose = () => {
     emit('update:modelValue', false)
 }
-// 保存模板
-const handleSaveToTask = (type:string) => {
-    emit('confirm', { ...formData.value, buttonType: type })
-}
 // 保存
 const handleSave = (type:string) => {
+    debugger
     emit('confirm', { ...formData.value, buttonType: type })
 }
 // 新增
@@ -172,7 +168,6 @@ const handleNew = (type:string) =>{
     console.log('formData.value:', formData.value);
     
     emit('confirm', { ...formData.value, buttonType: type })
-    // emit('confirmNew', formData.value)
 }
 interface AutoFilters {
     [key: string]: any;

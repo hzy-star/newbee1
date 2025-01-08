@@ -14,7 +14,7 @@ export const constantRoutes = [
         path: '/',
         component: () => import('@/layout/index.vue'),
         name: 'layout',
-        redirect: '/newbee',
+        redirect: '/task/pushtask', //默认重定向到pushtask
         meta: {
             title: '',
             hidden: false,

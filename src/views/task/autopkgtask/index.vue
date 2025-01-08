@@ -105,7 +105,7 @@
             <vxe-table border auto-resize height="auto" :column-config="{ resizable: true }"
                 :cell-config="{ verticalAlign: 'center' }" :row-config="{ isCurrent: true, isHover: true, }"
                 :data="tableDataList" ref="tableRef">
-                <vxe-column field="#" type="checkbox" title="" align="center" width="90">
+                <vxe-column field="#" type="checkbox" title="" align="center" >
                     <template #header="{ checked, indeterminate }">
                         <span class="custom-checkbox" @click.stop="toggleAllCheckboxEvent">
                             <i v-if="indeterminate" class="vxe-icon-square-minus-fill"></i>
@@ -122,17 +122,17 @@
                         </span>
                     </template>
                 </vxe-column>
-                <vxe-column field="etype" title="event" align="center" width="85">
+                <vxe-column field="etype" title="event" align="center" width="50">
                     <template #default="{ row }">
                         {{ row.etype == null ? "click" : row.etype }}
                     </template>
                 </vxe-column>
                 <vxe-column field="id" title="taskid" align="center" width="85"></vxe-column>
                 <vxe-column field="appId" title="appId" align="center" width="85"></vxe-column>
-                <vxe-column field="pkgName" title="pkgname" align="center" width="85"></vxe-column>
-                <vxe-column field="country" title="country" align="center" width="85"></vxe-column>
+                <vxe-column field="pkgName" title="pkgname" align="center" width="110"></vxe-column>
+                <vxe-column field="country" title="country" align="center" width="50"></vxe-column>
                 <vxe-column field="offers" title="offers" align="center" width="85"></vxe-column>
-                <vxe-column field="deviceDays" title="deviceDays" align="center" width="100"></vxe-column>
+                <vxe-column field="deviceDays" title="deviceDays" align="center" width="50"></vxe-column>
                 <vxe-column field="source" title="source" align="center" width="180">
                     <template #default="{ row }">
                         <div class="device-box">
@@ -148,7 +148,7 @@
                         </div>
                     </template>
                 </vxe-column>
-                <vxe-column field="bsclick" title="bsclick" align="center" width="170"></vxe-column>
+                <vxe-column field="bsclick" title="bsclick" align="center" width="50"></vxe-column>
                 <vxe-column field="max" title="max" align="center" width="90"></vxe-column>
                 <vxe-column field="hour" title="hour" align="center" width="90"></vxe-column>
                 <vxe-column field="startHour" title="startHour" align="center" width="90"></vxe-column>
@@ -175,9 +175,12 @@
                         </div>
 
                         <!-- Add a check to only display popover if necessary fields are not null -->
-                        <el-popover v-if="row?.runnerStatus?.resultDetail" effect="light" trigger="hover" placement="top" width="auto">
+                        <el-popover v-if="row?.runnerStatus?.resultDetail" effect="light" trigger="hover"
+                            placement="top" width="auto">
                             <template #default>
-                                <div v-html="row?.runnerStatus?.resultDetail ? generateStatusDetail(row?.runnerStatus?.resultDetail) : ''"></div>
+                                <div
+                                    v-html="row?.runnerStatus?.resultDetail ? generateStatusDetail(row?.runnerStatus?.resultDetail) : ''">
+                                </div>
                             </template>
                             <template #reference>
                                 <el-tag>more</el-tag>
@@ -190,7 +193,8 @@
                         <!-- 检查 taskCr 是否存在且不为 null -->
                         <div class="device-box">
                             <div class="device-text"><span class="device-span">cr:</span>
-                                {{ (((row?.crInfo?.ctr ? row?.crInfo?.ctr : 0) + (row?.crInfo?.ivr ? row?.crInfo?.ivr : 0)) * 100).toFixed(4) }}%</div>
+                                {{ (((row?.crInfo?.ctr ? row?.crInfo?.ctr : 0) + (row?.crInfo?.ivr ? row?.crInfo?.ivr :
+                                0)) * 100).toFixed(4) }}%</div>
                             <div class="device-text"><span class="device-span">ecpc:</span>
                                 {{ (((row?.crInfo?.ecpc ? row?.crInfo?.ecpc : 0)) * 100).toFixed(4) }}%</div>
                             <div class="device-text"><span class="device-span">cr:</span>
@@ -212,14 +216,14 @@
                         </div>
                     </template>
                     <template #default="scope">
-                        <el-button size="small" type="primary" @click="showTask(scope.row)">show</el-button>
-                        <el-button size="small" type="primary" @click="tryTask(scope.row)">try</el-button>
-                        <el-button size="small" type="primary" @click="runTask(scope.row)">run</el-button>
-                        <el-button size="small" type="success"
-                            v-if="scope.row.status == 'disable'" @click="enableTask(scope.row)">enable</el-button>
-                        <el-button size="small" type="danger"
-                            v-else-if="scope.row.status == 'enable'" @click="disableTask(scope.row)">disable</el-button>
-                        <el-button size="small" type="primary" @click="historyTask(scope.row)">history</el-button>
+                        <el-button class="btn_table" size="small" type="primary" @click="showTask(scope.row)">show</el-button>
+                        <el-button class="btn_table" size="small" type="primary" @click="tryTask(scope.row)">try</el-button>
+                        <el-button class="btn_table" size="small" type="primary" @click="runTask(scope.row)">run</el-button>
+                        <el-button class="btn_table" size="small" type="success" v-if="scope.row.status == 'disable'"
+                            @click="enableTask(scope.row)">enable</el-button>
+                        <el-button class="btn_table" size="small" type="danger" v-else-if="scope.row.status == 'enabled'"
+                            @click="disableTask(scope.row)">disable</el-button>
+                        <el-button class="btn_table" size="small" type="primary" @click="historyTask(scope.row)">history</el-button>
                     </template>
                 </vxe-column>
             </vxe-table>
@@ -233,6 +237,10 @@
                 @page-change="pageChange">
             </vxe-pager>
         </div>
+        <!-- 添加在 template 最后 -->
+        <PkgModal v-model="showModal" :title="modalTitle" :selected-ids="taskStore.selectedIds"
+            :current-row-data="currentRowData"  @confirm="handleModalConfirm" @confirmNew="handleModalConfirm" 
+            :btn-type="btnType" />
     </div>
 </template>
 
@@ -246,6 +254,8 @@ import autoRunningStatus from './hooks/autoRunningStatus'
 import { formatDateToSimple } from "@/utils/time";
 import { reqOngoing, reqEnableTask, reqDisAbleTask, reqBatchEnableTask, reqBatchDisableTask } from "@/api/pushtask/index"
 import { useTaskStore } from '@/store/pushtask/autoPkgTask'
+import PkgModal from '@/components/task/AutoPkgTask/PkgModal.vue'
+import type { FormDataType } from '@/components/task/AutoPkgTask/type'
 import { truncateText } from '@/utils/common'; // 直接导入默认对象并调用truncateText
 const taskStore = useTaskStore()
 // 表单数据
@@ -322,6 +332,7 @@ const {
     btnType,
     currentRowData,
     BatchEdits,
+    handleModals
 } = autoPkgModal(tableRef, findAllHooks)
 
 // 批量编辑
@@ -329,7 +340,12 @@ const BatchEdit = () => {
     BatchEdits()
 }
 
-
+// -------------------处理弹窗确认-------------------
+const handleModalConfirm = async (formData: FormDataType): Promise<void> => {
+    debugger
+  handleModals(formData)
+};
+// -------------------处理弹窗确认结束-------------------
 // 添加任务
 const addJob = () => {
     taskStore.setSelectedIds([])
@@ -348,7 +364,7 @@ const showTask = (row: any) => {
     btnType.value = 'showTask'
 }
 watch(() => showModal.value, async (newValue) => {
-    if (newValue === true) { 
+    if (newValue === true) {
 
     }
 })
@@ -565,6 +581,9 @@ onMounted(async () => {
     .pushtask_footer {
         width: 100%;
         height: 10%;
+    }
+    .btn_table{
+        margin: 10px;
     }
 }
 

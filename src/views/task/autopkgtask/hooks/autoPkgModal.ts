@@ -29,14 +29,6 @@ export default function autoPkgModal(tableRef: any, findAllHooks: (type: boolean
                     taskInfo.id = '';
                 },
             },
-            createTemplate: {
-                template: () => {
-                    taskInfo.isTemplate = 'no';
-                    taskInfo.id = '';
-                },
-                save: () => addTemplate(taskInfo),
-                new: () => addTemplate(taskInfo),
-            },
             addTask: {
                 new: () => {
                     taskInfo.batchType = 'new';
