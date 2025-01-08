@@ -35,12 +35,9 @@ export default function autoPkgTable() {
     })
 
     const findAllHooks = async (type: boolean, num?: number) => {
-        debugger
         loading.value = true
         try {
             taskStore.propFrom.status = taskStore.propFrom.ce_pkg_status
-            taskStore.propFrom.passcode = '7735'
-            taskStore.propFrom.name = 'cathy'
             const res = await reqPkgTaskUrl(taskStore.propFrom)
             result.value = res
             const processedData = res.map((item: any) => {

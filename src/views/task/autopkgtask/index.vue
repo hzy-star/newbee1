@@ -102,7 +102,7 @@
 
         <!-- 数据表格 -->
         <div class="pushtask_table">
-            <vxe-table border auto-resize height="auto"  :column-config="{ resizable: true }"
+            <vxe-table border auto-resize height="auto" :column-config="{ resizable: true }"
                 :cell-config="{ verticalAlign: 'center' }" :row-config="{ isCurrent: true, isHover: true, }"
                 :data="tableDataList" ref="tableRef">
                 <vxe-column field="#" type="checkbox" title="" align="center" width="90">
@@ -136,9 +136,15 @@
                 <vxe-column field="source" title="source" align="center" width="180">
                     <template #default="{ row }">
                         <div class="device-box">
-                            <div class="device-text" :title="!!row.s ? (row.s) : '-'"><span class="device-span">source:</span> {{ !!row.s ? truncateText(row.s) : '-' }}</div>
-                            <div class="device-text" :title="!!row.ds_adx ? (row.ds_adx) : '-'"><span class="device-span">dsadx:</span> {{ !!row.ds_adx ? truncateText(row.ds_adx) : '-'}}</div>
-                            <div class="device-text" :title="!!row.ds_bundle ? (row.ds_bundle) : '-'"><span class="device-span">dsbundle:</span> {{ !!row.ds_bundle ? truncateText(row.ds_bundle) : '-' }}</div>
+                            <div class="device-text" :title="!!row.s ? (row.s) : '-'"><span
+                                    class="device-span">source:</span> {{ !!row.s ? truncateText(row.s) : '-' }}</div>
+                            <div class="device-text" :title="!!row.ds_adx ? (row.ds_adx) : '-'"><span
+                                    class="device-span">dsadx:</span> {{ !!row.ds_adx ? truncateText(row.ds_adx) : '-'
+                                }}
+                            </div>
+                            <div class="device-text" :title="!!row.ds_bundle ? (row.ds_bundle) : '-'"><span
+                                    class="device-span">dsbundle:</span> {{ !!row.ds_bundle ?
+                                        truncateText(row.ds_bundle) : '-' }}</div>
                         </div>
                     </template>
                 </vxe-column>
@@ -146,47 +152,56 @@
                 <vxe-column field="max" title="max" align="center" width="90"></vxe-column>
                 <vxe-column field="hour" title="hour" align="center" width="90"></vxe-column>
                 <vxe-column field="startHour" title="startHour" align="center" width="90"></vxe-column>
-                <vxe-column field="runningStatus" title="runningStatus" align="center" width="90"></vxe-column>
+                <vxe-column field="runningStatus" title="runningStatus" align="center" width="90">
+                    <template #default="{ row }">
+                        <div class="device-box">
+                            <div class="device-text">
+                                <span class="device-span">succ:</span>
+                                {{ !!row.runnerStatus?.succCount ? (row.runnerStatus?.succCount) : '' }}
+                            </div>
+                            <div class="device-text">
+                                <span class="device-span">sent:</span>
+                                {{ !!row.runnerStatus?.sendCount ? (row.runnerStatus?.sendCount) : '' }}
+                            </div>
+                            <div class="device-text">
+                                <span class="device-span">valid:</span>
+                                {{ !!row.runnerStatus?.validCount ? (row.runnerStatus?.validCount) : '' }}
+                            </div>
+
+                            <div class="device-text"
+                                :class="row.runnerStatus?.status < 0 ? 'text-danger' : 'text-success'">
+                                {{ !!row.runnerStatus?.status ? filterStatus(row.runnerStatus?.status) : '' }}
+                            </div>
+                        </div>
+
+                        <!-- Add a check to only display popover if necessary fields are not null -->
+                        <el-popover v-if="row?.runnerStatus?.resultDetail" effect="light" trigger="hover" placement="top" width="auto">
+                            <template #default>
+                                <div v-html="row?.runnerStatus?.resultDetail ? generateStatusDetail(row?.runnerStatus?.resultDetail) : ''"></div>
+                            </template>
+                            <template #reference>
+                                <el-tag>more</el-tag>
+                            </template>
+                        </el-popover>
+                    </template>
+                </vxe-column>
                 <vxe-column field="cr" title="cr" align="center" width="120">
                     <template #default="{ row }">
                         <!-- 检查 taskCr 是否存在且不为 null -->
-                        <div v-if="row?.taskCrData">
-                            cr: {{ ((row?.taskCrData?.ctr + row?.taskCrData?.ivr) * 100).toFixed(4) }}%
-                        </div>
-                    </template>
-                </vxe-column>
-                <vxe-column field="updateDate" title="updateDate" align="center" width="100">
-                    <template #default="{ row }">
-                        {{ formatDateToSimple(row?.updateDate) }}
-                    </template>
-                </vxe-column>
+                        <div class="device-box">
+                            <div class="device-text"><span class="device-span">cr:</span>
+                                {{ (((row?.crInfo?.ctr ? row?.crInfo?.ctr : 0) + (row?.crInfo?.ivr ? row?.crInfo?.ivr : 0)) * 100).toFixed(4) }}%</div>
+                            <div class="device-text"><span class="device-span">ecpc:</span>
+                                {{ (((row?.crInfo?.ecpc ? row?.crInfo?.ecpc : 0)) * 100).toFixed(4) }}%</div>
+                            <div class="device-text"><span class="device-span">cr:</span>
+                                {{ (((row?.crInfo?.roi ? row?.crInfo?.roi : 0)) * 100).toFixed(2) }}%</div>
 
-                <vxe-column field="succ/total/status/dcsuccss/sent" align="center"
-                    title="succ/total/status/dcsuccss/sent" width="260">
-                    <template #default="{ row }">
-                        <div>
-                            <div>
-                                {{ row?.ongoingData?.[0]?.successCount != null ?
-                                `${row?.ongoingData?.[0]?.successCount}/` : '' }}
-                            </div>
-                            <div>
-                                {{ row?.ongoingData?.[0]?.sendCount != null ? `${row?.ongoingData?.[0]?.sendCount}/` :
-                                '' }}
-                            </div>
-                            <!-- message等于success，显示绿色内容，不然显示红色 -->
-                            <div v-if="row?.ongoingData?.[0]?.message != null"
-                                :style="{ color: row?.ongoingData?.[0]?.message === 'success' ? 'green' : 'red' }">
-                                {{ row?.ongoingData?.[0]?.message }}/
-                            </div>
-                            <div>
-                                {{ row?.ongoingData?.[0]?.dcsuccessCount > 0 ? row?.ongoingData?.[0]?.dcsuccessCount :
-                                '' }}
-                            </div>
-                            <div>
-                                {{ row?.ongoingData?.[0]?.sendServerCount > 0 ? row?.ongoingData?.[0]?.sendServerCount :
-                                '' }}
-                            </div>
                         </div>
+                    </template>
+                </vxe-column>
+                <vxe-column field="updated" title="updateDate" align="center" width="100">
+                    <template #default="{ row }">
+                        {{ formatDateToSimple(row?.updated) }}
                     </template>
                 </vxe-column>
                 <vxe-column field="Action" align="center" fixed="right" width="240">
@@ -198,12 +213,13 @@
                     </template>
                     <template #default="scope">
                         <el-button size="small" type="primary" @click="showTask(scope.row)">show</el-button>
+                        <el-button size="small" type="primary" @click="tryTask(scope.row)">try</el-button>
+                        <el-button size="small" type="primary" @click="runTask(scope.row)">run</el-button>
                         <el-button size="small" type="success"
-                            v-if="scope.row.taskStatus == 'disable' && scope.row.taskStatus != 'template'"
-                            @click="enableTask(scope.row)">enable</el-button>
+                            v-if="scope.row.status == 'disable'" @click="enableTask(scope.row)">enable</el-button>
                         <el-button size="small" type="danger"
-                            v-else-if="scope.row.taskStatus == 'enable' && scope.row.taskStatus != 'template'"
-                            @click="disableTask(scope.row)">disable</el-button>
+                            v-else-if="scope.row.status == 'enable'" @click="disableTask(scope.row)">disable</el-button>
+                        <el-button size="small" type="primary" @click="historyTask(scope.row)">history</el-button>
                     </template>
                 </vxe-column>
             </vxe-table>
@@ -226,15 +242,12 @@ import type { autoPkgFormInter } from '@/api/pushtask/type'
 import { ElMessage, ElMessageBox } from 'element-plus';
 import autoPkgTable from './hooks/autoPkgTable'
 import autoPkgModal from './hooks/autoPkgModal'
+import autoRunningStatus from './hooks/autoRunningStatus'
 import { formatDateToSimple } from "@/utils/time";
-import { reqOngoing, reqGetBundleKey, reqEnableTask, reqDisAbleTask, reqBatchEnableTask, reqBatchDisableTask } from "@/api/pushtask/index"
-import listTaskCr from "@/store/common/listTaskCr"
+import { reqOngoing, reqEnableTask, reqDisAbleTask, reqBatchEnableTask, reqBatchDisableTask } from "@/api/pushtask/index"
 import { useTaskStore } from '@/store/pushtask/autoPkgTask'
 import { truncateText } from '@/utils/common'; // 直接导入默认对象并调用truncateText
 const taskStore = useTaskStore()
-const getTaskCr = listTaskCr()
-// 页面初始化获取getAutoTopBundleKeyNames接口的值
-const autoBundleKey = ref<Array<string>>()
 // 表单数据
 // 添加处理 etype 变化的方法
 const handleEtypeChange = (value: string) => {
@@ -280,12 +293,12 @@ const {
 } = autoPkgTable()
 // 查询功能
 const findJob = async (type: boolean) => {
-  let taskdate = {
-    taskid: '',
-  }
-  // 获取所有任务
-  ongoing.value = await reqOngoing(taskdate)
-  taskStore.setOngoing(ongoing.value)
+    let taskdate = {
+        taskid: '',
+    }
+    // 获取所有任务
+    ongoing.value = await reqOngoing(taskdate)
+    taskStore.setOngoing(ongoing.value)
     findAllHooks(type, 1)
 };
 const pageChange = ({ currentPage, pageSize }: any) => {
@@ -335,8 +348,8 @@ const showTask = (row: any) => {
     btnType.value = 'showTask'
 }
 watch(() => showModal.value, async (newValue) => {
-    if (newValue === true && !autoBundleKey.value) { // 弹窗打开时，获取数据
-        autoBundleKey.value = await reqGetBundleKey()
+    if (newValue === true) { 
+
     }
 })
 // -------------------弹窗状态结束-------------------
@@ -443,6 +456,33 @@ const BatchDisable = () => {
 
 // -------------------处理弹窗确认结束-------------------
 
+const {
+    filterStatus
+} = autoRunningStatus()
+
+
+const generateStatusDetail = (data: any) => {
+    let statusDetail = eval("(" + data + ")");
+    let statusPercent = '';
+    let statusDetailArr = [];
+    for (let i in statusDetail) {
+        statusPercent = `
+            <div>
+                <label class="bg-gray text-muted">
+                    ${i.replaceAll("<", "").replaceAll(">", "") + ':'}
+                </label>
+                <br />
+                <span class="display-5 px-1">
+                    <b> ${statusDetail[i]} </b>
+                </span>
+            </div>`;
+        statusDetailArr.push(statusPercent);
+    }
+    console.log(statusDetailArr.join(''));
+
+    // 拼接最终的 HTML 内容
+    return statusDetailArr.join('');
+}
 
 // 导出csv
 const exportToCSV = () => {
@@ -500,8 +540,7 @@ const exportToCSV = () => {
 
 
 onMounted(async () => {
-    // 页面初始化，获取一次cr数据
-    await getTaskCr.loadTaskCrIfNeeded()
+
 
 });
 </script>
@@ -585,15 +624,25 @@ onMounted(async () => {
     justify-content: center;
     align-items: center;
 }
-.device-box{
+
+.device-box {
     display: flex;
     flex-direction: column;
     gap: 5px;
     text-align: left;
-    .device-text{
-    }
-    .device-span{
+
+    .device-text {}
+
+    .device-span {
         font-weight: bold;
     }
+}
+
+.text-danger {
+    color: #dc3545
+}
+
+.text-success {
+    color: #28a745
 }
 </style>
