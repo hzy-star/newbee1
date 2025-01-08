@@ -24,7 +24,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from "vue";
+import { ref, reactive,onMounted } from "vue";
 import { User, Lock } from "@element-plus/icons-vue";
 import useUserStore from "@/store/modules/user";
 import { ElNotification } from "element-plus";
@@ -32,8 +32,8 @@ import { getTime } from "@/utils/time";
 const loading = ref(false);
 const userStore = useUserStore();
 let loginForm = reactive({
-  name: "tom",
-  password: "easypassword",
+  name: "",
+  password: "",
 });
 const loginFormRef = ref();
 // 登录
