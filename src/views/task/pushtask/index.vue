@@ -119,7 +119,7 @@
 
     <!-- 数据表格 -->
     <div class="pushtask_table">
-      <vxe-table border auto-resize height="auto" :loading="loading" :column-config="{ resizable: true }"
+      <vxe-table border auto-resize height="auto" :column-config="{ resizable: true }"
         :cell-config="{ verticalAlign: 'center' }" :row-config="{ isCurrent: true, isHover: true, }"
         :data="tableDataList" ref="tableRef">
         <vxe-column field="#" type="checkbox" title="" align="center" width="90">
@@ -245,9 +245,9 @@
       </vxe-pager>
     </div>
     <!-- 添加在 template 最后 -->
-    <TaskModal v-model="showModal" :title="modalTitle" :selected-ids="taskStore.selectedIds" :current-row-data="currentRowData"
-      :auto-bundle-key="autoBundleKey" @confirm="handleModalConfirm" @confirmNew="handleModalConfirm"
-      :btn-type="btnType" />
+    <TaskModal v-model="showModal" :title="modalTitle" :selected-ids="taskStore.selectedIds"
+      :current-row-data="currentRowData" :auto-bundle-key="autoBundleKey" @confirm="handleModalConfirm"
+      @confirmNew="handleModalConfirm" :btn-type="btnType" />
     <ChartModal v-model:visible="chartVisible" :title="chartTitle" :chart-type="chartType" :chart-data="chartData"
       :show-switch="showSwitch" :default-type="defaultType" />
   </div>
@@ -261,7 +261,7 @@ import useChart from './hooks/useChart'
 import useTable from './hooks/useTable'
 import useModal from './hooks/useModal'
 import { getRelativeDates, formatDateToSimple } from "@/utils/time";
-import {  reqOngoing, reqGetBundleKey, reqDelTask, reqEnableTask, reqDisAbleTask, reqBatchEnableTask, reqBatchDisableTask} from "@/api/pushtask/index"
+import { reqOngoing, reqGetBundleKey, reqDelTask, reqEnableTask, reqDisAbleTask, reqBatchEnableTask, reqBatchDisableTask } from "@/api/pushtask/index"
 import listTaskCr from "@/store/common/listTaskCr"
 import TaskModal from '@/components/task/TaskModal.vue'
 import ChartModal from '@/components/task/ChartModal.vue'
@@ -334,7 +334,7 @@ const handleshowTaskSortChart = async (row: any) => {
 // -------------------查询功能-------------------
 const {
   tableRef,
-  loading,
+  // loading,
   tableDataList,
   pageVO,
   tableData,
@@ -344,14 +344,22 @@ const {
 } = useTable()
 // 查询功能
 const findAll = async (type: boolean) => {
-  findAllHooks(type,1)
+
+  let taskdate = {
+    taskid: '',
+    taskdate: propFrom.value.taskdate
+  }
+  // 获取所有任务
+  ongoing.value = await reqOngoing(taskdate)
+  taskStore.setOngoing(ongoing.value)
+  findAllHooks(type, 1)
 };
 const pageChange = ({ currentPage, pageSize }: any) => {
   pageChanges({ pageSize, currentPage })
 }
 // 点击单选框，直接查询数据
 const handleStatusChange = () => {
-  findAllHooks(true,1)
+  findAllHooks(true, 1)
 }
 
 
@@ -666,12 +674,6 @@ onMounted(async () => {
   if (date.value.length > 0) {
     propFrom.value.taskdate = date.value[0];  // 设置默认选中第一个日期
   }
-  let taskdate = {
-    taskid: '',
-    taskdate: propFrom.value.taskdate
-  }
-  // 获取所有任务
-  ongoing.value = await reqOngoing(taskdate)
   // 页面初始化，获取一次cr数据
   await getTaskCr.loadTaskCrIfNeeded()
 

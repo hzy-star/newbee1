@@ -74,7 +74,7 @@
                 <el-col :span="7">
                     <div class="form-item">
                         <el-radio-group v-model="propFrom.ce_pkg_status" @change="handleStatusChange">
-                            <el-radio label="enable">Enabled</el-radio>
+                            <el-radio label="enabled">Enabled</el-radio>
                             <el-radio label="disabled">Disabled</el-radio>
                         </el-radio-group>
                     </div>
@@ -102,7 +102,7 @@
 
         <!-- 数据表格 -->
         <div class="pushtask_table">
-            <vxe-table border auto-resize height="auto" :loading="loading" :column-config="{ resizable: true }"
+            <vxe-table border auto-resize height="auto"  :column-config="{ resizable: true }"
                 :cell-config="{ verticalAlign: 'center' }" :row-config="{ isCurrent: true, isHover: true, }"
                 :data="tableDataList" ref="tableRef">
                 <vxe-column field="#" type="checkbox" title="" align="center" width="90">
@@ -122,35 +122,56 @@
                         </span>
                     </template>
                 </vxe-column>
-                <vxe-column field="etype" title="event" align="center" width="70"></vxe-column>
-                <vxe-column field="offers" title="offer" align="center" width="70"></vxe-column>
-                <vxe-column field="appId" title="appid" align="center" width="70"></vxe-column>
-                <vxe-column field="weight" title="weight" align="center" width="70"></vxe-column>
-                <vxe-column field="scope" title="scope" align="center" width="80">
+                <vxe-column field="etype" title="event" align="center" width="85">
                     <template #default="{ row }">
-                        {{ row.gt + "->" + row.lt }}
+                        {{ row.etype == null ? "click" : row.etype }}
                     </template>
                 </vxe-column>
-                <vxe-column field="country" title="country" align="center" width="90"></vxe-column>
-                <vxe-column field="usealg" title="usealg" align="center" width="90"></vxe-column>
-                <vxe-column field="urlparams" title="urlparam" align="center" width="170"></vxe-column>
-                <vxe-column field="sendPlan" title="sendPlan" align="center" width="90"></vxe-column>
-                <vxe-column field="pkgName" title="pkg" align="center" width="90">
+                <vxe-column field="id" title="taskid" align="center" width="85"></vxe-column>
+                <vxe-column field="appId" title="appId" align="center" width="85"></vxe-column>
+                <vxe-column field="pkgName" title="pkgname" align="center" width="85"></vxe-column>
+                <vxe-column field="country" title="country" align="center" width="85"></vxe-column>
+                <vxe-column field="offers" title="offers" align="center" width="85"></vxe-column>
+                <vxe-column field="deviceDays" title="deviceDays" align="center" width="100"></vxe-column>
+                <vxe-column field="source" title="source" align="center" width="180">
                     <template #default="{ row }">
-                        {{ row.pkgName != 'null' ? row.pkgName : '' }}
+                        <div class="device-box">
+                            <div class="device-text" :title="!!row.s ? (row.s) : '-'"><span class="device-span">source:</span> {{ !!row.s ? truncateText(row.s) : '-' }}</div>
+                            <div class="device-text" :title="!!row.ds_adx ? (row.ds_adx) : '-'"><span class="device-span">dsadx:</span> {{ !!row.ds_adx ? truncateText(row.ds_adx) : '-'}}</div>
+                            <div class="device-text" :title="!!row.ds_bundle ? (row.ds_bundle) : '-'"><span class="device-span">dsbundle:</span> {{ !!row.ds_bundle ? truncateText(row.ds_bundle) : '-' }}</div>
+                        </div>
                     </template>
                 </vxe-column>
+                <vxe-column field="bsclick" title="bsclick" align="center" width="170"></vxe-column>
+                <vxe-column field="max" title="max" align="center" width="90"></vxe-column>
+                <vxe-column field="hour" title="hour" align="center" width="90"></vxe-column>
+                <vxe-column field="startHour" title="startHour" align="center" width="90"></vxe-column>
+                <vxe-column field="runningStatus" title="runningStatus" align="center" width="90"></vxe-column>
+                <vxe-column field="cr" title="cr" align="center" width="120">
+                    <template #default="{ row }">
+                        <!-- 检查 taskCr 是否存在且不为 null -->
+                        <div v-if="row?.taskCrData">
+                            cr: {{ ((row?.taskCrData?.ctr + row?.taskCrData?.ivr) * 100).toFixed(4) }}%
+                        </div>
+                    </template>
+                </vxe-column>
+                <vxe-column field="updateDate" title="updateDate" align="center" width="100">
+                    <template #default="{ row }">
+                        {{ formatDateToSimple(row?.updateDate) }}
+                    </template>
+                </vxe-column>
+
                 <vxe-column field="succ/total/status/dcsuccss/sent" align="center"
                     title="succ/total/status/dcsuccss/sent" width="260">
                     <template #default="{ row }">
                         <div>
                             <div>
                                 {{ row?.ongoingData?.[0]?.successCount != null ?
-                                    `${row?.ongoingData?.[0]?.successCount}/` : '' }}
+                                `${row?.ongoingData?.[0]?.successCount}/` : '' }}
                             </div>
                             <div>
                                 {{ row?.ongoingData?.[0]?.sendCount != null ? `${row?.ongoingData?.[0]?.sendCount}/` :
-                                    '' }}
+                                '' }}
                             </div>
                             <!-- message等于success，显示绿色内容，不然显示红色 -->
                             <div v-if="row?.ongoingData?.[0]?.message != null"
@@ -159,29 +180,13 @@
                             </div>
                             <div>
                                 {{ row?.ongoingData?.[0]?.dcsuccessCount > 0 ? row?.ongoingData?.[0]?.dcsuccessCount :
-                                    '' }}
+                                '' }}
                             </div>
                             <div>
                                 {{ row?.ongoingData?.[0]?.sendServerCount > 0 ? row?.ongoingData?.[0]?.sendServerCount :
-                                    '' }}
+                                '' }}
                             </div>
                         </div>
-                    </template>
-
-                </vxe-column>
-                <vxe-column field="cr/ecpc(0.285%)/roi(65%)" title="cr/ecpc(0.285%)/roi(65%)" align="center"
-                    width="120">
-                    <template #default="{ row }">
-                        <!-- 检查 taskCr 是否存在且不为 null -->
-                        <div v-if="row?.taskCrData">
-                            cr: {{ ((row?.taskCrData?.ctr + row?.taskCrData?.ivr) * 100).toFixed(4) }}%
-                        </div>
-                    </template>
-                </vxe-column>
-                <vxe-column field="bsclick" title="bsclick" align="center" width="90"></vxe-column>
-                <vxe-column field="mdate" title="mdate" align="center" width="100">
-                    <template #default="{ row }">
-                        {{ formatDateToSimple(row?.mdate) }}
                     </template>
                 </vxe-column>
                 <vxe-column field="Action" align="center" fixed="right" width="240">
@@ -225,6 +230,8 @@ import { formatDateToSimple } from "@/utils/time";
 import { reqOngoing, reqGetBundleKey, reqEnableTask, reqDisAbleTask, reqBatchEnableTask, reqBatchDisableTask } from "@/api/pushtask/index"
 import listTaskCr from "@/store/common/listTaskCr"
 import { useTaskStore } from '@/store/pushtask/autoPkgTask'
+import { truncateText } from '@/utils/common'; // 直接导入默认对象并调用truncateText
+const taskStore = useTaskStore()
 const getTaskCr = listTaskCr()
 // 页面初始化获取getAutoTopBundleKeyNames接口的值
 const autoBundleKey = ref<Array<string>>()
@@ -236,7 +243,7 @@ const handleEtypeChange = (value: string) => {
     }
 }
 const propFrom = ref<autoPkgFormInter>({
-    etype: 'click',
+    etype: '',
     offerid: '',
     pkgname: '',
     appid: '',
@@ -244,7 +251,7 @@ const propFrom = ref<autoPkgFormInter>({
     jobid: '',
     bsclick: '',
     ce_pkg_filtercontent: '',
-    ce_pkg_status: 'enable',
+    ce_pkg_status: 'enabled',
 })
 const toggleAllCheckboxEvent = () => {
     const $table = tableRef.value
@@ -263,7 +270,7 @@ const toggleCheckboxEvent = (row: any) => {
 // -------------------查询功能-------------------
 const {
     tableRef,
-    loading,
+    // loading,
     tableDataList,
     pageVO,
     tableData,
@@ -273,6 +280,12 @@ const {
 } = autoPkgTable()
 // 查询功能
 const findJob = async (type: boolean) => {
+  let taskdate = {
+    taskid: '',
+  }
+  // 获取所有任务
+  ongoing.value = await reqOngoing(taskdate)
+  taskStore.setOngoing(ongoing.value)
     findAllHooks(type, 1)
 };
 const pageChange = ({ currentPage, pageSize }: any) => {
@@ -284,7 +297,6 @@ const handleStatusChange = () => {
 }
 
 
-const taskStore = useTaskStore()
 watch(propFrom, (newValue) => {
     taskStore.updatePropFrom(newValue)
 }, { deep: true, immediate: true })
@@ -457,8 +469,8 @@ const exportToCSV = () => {
                         `${ongoingData.message || ''}/` +
                         `${ongoingData.dcsuccessCount || ''}/` +
                         `${ongoingData.sendServerCount || ''}`;
-                } else if (column.field === 'cr/ecpc(0.285%)/roi(65%)') {
-                    // 动态拼接 cr/ecpc(0.285%)/roi(65%) 的值
+                } else if (column.field === 'cr') {
+                    // 动态拼接 cr 的值
                     const taskCrData = row?.taskCrData;
                     if (taskCrData) {
                         const cr = ((taskCrData.ctr + taskCrData.ivr) * 100).toFixed(4);
@@ -488,11 +500,6 @@ const exportToCSV = () => {
 
 
 onMounted(async () => {
-    let taskdate = {
-        taskid: '',
-    }
-    // 获取所有任务
-    ongoing.value = await reqOngoing(taskdate)
     // 页面初始化，获取一次cr数据
     await getTaskCr.loadTaskCrIfNeeded()
 
@@ -577,5 +584,16 @@ onMounted(async () => {
     display: flex;
     justify-content: center;
     align-items: center;
+}
+.device-box{
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    text-align: left;
+    .device-text{
+    }
+    .device-span{
+        font-weight: bold;
+    }
 }
 </style>

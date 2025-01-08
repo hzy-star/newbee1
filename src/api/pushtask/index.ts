@@ -28,11 +28,11 @@ export const reqlistUrl = (param: any) => request.get<any, any>(API.LIST_URL, { 
 // 查询listongoing
 export const reqOngoing = (param: any) => request.get<any, any>(API.LISTONGGOING_URL, { params: param })
 // 查询listTaskCr
-export const reqListTaskCr = () => request.get<any, any>(API.LISTTASKCR_URL)
+export const reqListTaskCr = () => request.get<any, any>(API.LISTTASKCR_URL,{ noloading: true });
 // 查询getAutoTopBundleKeyNames
 export const reqGetBundleKey = () => request.get<any, any>(API.GETBUNDLEKEY_URL)
 // 查询audience
-export const reqAudienceList = () => request.get<any, any>(API.AUDIENCELIST_URL)
+export const reqAudienceList = () => request.get<any, any>(API.AUDIENCELIST_URL,{ noloading: true });
 // 通过id查询task
 export const reqTaskget = (param: any) => request.get<any, any>(API.TASKGET_URL, { params: param })
 // 保存接口

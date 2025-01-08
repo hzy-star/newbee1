@@ -6,6 +6,7 @@ import type { LoadingInstance } from 'element-plus/es/components/loading/src/loa
 declare module 'axios' {
   interface AxiosRequestConfig {
     isForm?: boolean;
+    noloading?: boolean; // 是否不显示loading
   }
 }
 // 定义loading实例类型
@@ -24,12 +25,14 @@ const request = axios.create({
 // 请求拦截器
 request.interceptors.request.use(
   (config) => {
-    // 显示全局 loading
-    loadingInstance = ElLoading.service({
-      lock: true,
-      text: 'Loading...',
-      background: 'rgba(0, 0, 0, 0.7)',
-    });
+    if (!config.noloading) {
+      // 显示全局 loading
+      loadingInstance = ElLoading.service({
+        lock: true,
+        text: 'Loading...',
+        background: 'rgba(0, 0, 0, 0.7)',
+      });
+    }
       // 设置 Content-Type
     if (config.data instanceof FormData) {
       // 如果是 FormData 类型，让浏览器自动设置 Content-Type

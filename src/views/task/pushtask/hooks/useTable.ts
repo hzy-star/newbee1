@@ -27,6 +27,8 @@ export default function useTable() {
     const tableData = ref<any>([]);
     // 初始化获取所有任务
     const ongoing: any = ref()
+    debugger
+    
 
     const pageVO = reactive({
         total: 0,
@@ -72,7 +74,7 @@ export default function useTable() {
             if (num) {
                 pageVO.currentPage = num
             }
-            
+            debugger
             tableData.value = result.value.map((item: any) => {
                 // 查找 ongoing 中所有匹配的记录
                 const matchedOngoing = ongoing.value.filter(

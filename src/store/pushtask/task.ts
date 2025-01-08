@@ -37,6 +37,7 @@ export const useTaskStore = defineStore('task', {
       this.propFrom = { ...this.propFrom, ...data }
     },
     setOngoing(data: any[]) {
+      debugger
       this.ongoing = data
     },
     setAutoBundleKey(data: any) {
