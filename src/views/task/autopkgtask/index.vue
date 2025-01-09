@@ -88,8 +88,8 @@
                 <!-- 左侧按钮 -->
                 <el-col :span="12" class="form-item-left">
                     <el-button type="primary" @click="BatchEdit">BatchEdit</el-button>
-                    <el-button type="success" @click="BatchEnable">BatchEnable</el-button>
-                    <el-button type="danger" @click="BatchDisable">BatchDisable</el-button>
+                    <el-button type="success" v-show="propFrom.ce_pkg_status == 'disabled'"  @click="BatchEnable">BatchEnable</el-button>
+                    <el-button type="danger"  v-show="propFrom.ce_pkg_status == 'enabled'"   @click="BatchDisable">BatchDisable</el-button>
                 </el-col>
 
                 <!-- 右侧按钮 -->
@@ -219,7 +219,7 @@
                         <el-button class="btn_table" size="small" type="primary" @click="showTask(scope.row)">show</el-button>
                         <el-button class="btn_table" size="small" type="primary" @click="tryTask(scope.row)">try</el-button>
                         <el-button class="btn_table" size="small" type="primary" @click="runTask(scope.row)">run</el-button>
-                        <el-button class="btn_table" size="small" type="success" v-if="scope.row.status == 'disable'"
+                        <el-button class="btn_table" size="small" type="success" v-if="scope.row.status == 'disabled'"
                             @click="enableTask(scope.row)">enable</el-button>
                         <el-button class="btn_table" size="small" type="danger" v-else-if="scope.row.status == 'enabled'"
                             @click="disableTask(scope.row)">disable</el-button>
@@ -252,7 +252,7 @@ import autoPkgTable from './hooks/autoPkgTable'
 import autoPkgModal from './hooks/autoPkgModal'
 import autoRunningStatus from './hooks/autoRunningStatus'
 import { formatDateToSimple } from "@/utils/time";
-import { reqOngoing, reqEnableTask, reqDisAbleTask, reqBatchEnableTask, reqBatchDisableTask } from "@/api/pushtask/index"
+import {  reqBatchEnabledOrDisabled,reqTryOrRunUrl } from "@/api/pushtask/autoPkgTask"
 import { useTaskStore } from '@/store/pushtask/autoPkgTask'
 import PkgModal from '@/components/task/AutoPkgTask/PkgModal.vue'
 import type { FormDataType } from '@/components/task/AutoPkgTask/type'
@@ -297,18 +297,11 @@ const {
     tableDataList,
     pageVO,
     tableData,
-    ongoing,
     findAllHooks,
     pageChanges
 } = autoPkgTable()
 // 查询功能
 const findJob = async (type: boolean) => {
-    let taskdate = {
-        taskid: '',
-    }
-    // 获取所有任务
-    ongoing.value = await reqOngoing(taskdate)
-    taskStore.setOngoing(ongoing.value)
     findAllHooks(type, 1)
 };
 const pageChange = ({ currentPage, pageSize }: any) => {
@@ -342,7 +335,6 @@ const BatchEdit = () => {
 
 // -------------------处理弹窗确认-------------------
 const handleModalConfirm = async (formData: FormDataType): Promise<void> => {
-    debugger
   handleModals(formData)
 };
 // -------------------处理弹窗确认结束-------------------
@@ -363,6 +355,42 @@ const showTask = (row: any) => {
     showModal.value = true
     btnType.value = 'showTask'
 }
+// 通用的任务操作函数
+const handleTask = async (row: any, max: number, message: string, type: string) => {
+  ElMessageBox.confirm(message, '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).then(async () => {
+    const params = {
+      pkgTaskId: row.id,
+      max: max
+    }
+    let res = await reqTryOrRunUrl(params)
+    console.log(res)
+    if(res.message === 'success') {
+      ElMessage.success(`${type} success`)
+    } else {
+      ElMessage.error(res.message)
+    }
+    findAllHooks(false)
+  }).catch(() => {
+    ElMessage.info(`${type} cancel`)
+  })
+}
+// try 任务
+const tryTask = (row: any) => {
+  handleTask(row, 5, 'Confirm try to send 5 click for task','try')
+}
+// run 任务
+const runTask = (row: any) => {
+  handleTask(row, 0, 'Confirm to run task','run')
+}
+// historyTask
+const historyTask = (row:any) => {
+    console.log(row)
+}
+
 watch(() => showModal.value, async (newValue) => {
     if (newValue === true) {
 
@@ -372,101 +400,54 @@ watch(() => showModal.value, async (newValue) => {
 
 
 // -------------------表格操作-------------------
-// 启用当前行数据--单独启用
-const enableTask = (row: any) => {
-    ElMessageBox.confirm('确定启用该任务吗？', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning',
-    }).then(async () => {
-        const params = new URLSearchParams();
-        params.append('id', row.id);
-        const res = await reqEnableTask(params);
-
-        if (res === 'OK') {
-            ElMessage.success('启用成功');
-            // 刷新表格数据
-            findAllHooks(false)
-        } else {
-            ElMessage.error('启用失败');
-        }
-
-    })
-}
-// 启用选中数据--批量启用
-const BatchEnable = () => {
-    const $table = tableRef.value
-    if ($table) {
+// 统一处理启用/禁用操作的函数
+const handleTaskStatus = async (type: 'enable' | 'disable', isBatch: boolean, data: any) => {
+    const value = type === 'enable' ? 'enabled' : 'disabled'
+    const actionText = type === 'enable' ? '启用' : '禁用'
+    
+    // 批量操作时的检查
+    if (isBatch) {
+        const $table = tableRef.value
+        if (!$table) return
+        
         const selectRecords = $table.getCheckboxRecords()
         if (selectRecords.length < 1) {
-            ElMessage.warning('请选择要启用的数据')
+            ElMessage.warning(`请选择要${actionText}的数据`)
             return
         }
-        const params = selectRecords.map(row => row.id).join(',')
-        ElMessageBox.confirm('确定启用吗？', '提示', {
+        data = selectRecords
+    }
+
+    // 构造请求参数
+    const params = {
+        key: 'status',
+        value,
+        pkgTaskIds: isBatch ? data.map((row: any) => row.id).join(',') : data.id
+    }
+
+    try {
+        await ElMessageBox.confirm(`确定${actionText}${isBatch ? '' : '该任务'}吗？`, '提示', {
             confirmButtonText: '确定',
             cancelButtonText: '取消',
             type: 'warning',
-        }).then(async () => {
-            const res = await reqBatchEnableTask(params)
-            if (res === 'OK') {
-                ElMessage.success('启用成功')
-                // 刷新表格数据
-                findAllHooks(false)
-            } else {
-                ElMessage.error('启用失败')
-            }
         })
-    }
 
-}
-// 禁用当前行数据--单独禁用
-const disableTask = (row: any) => {
-    ElMessageBox.confirm('确定禁用该任务吗？', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning',
-    }).then(async () => {
-        const params = new URLSearchParams();
-        params.append('id', row.id);
-        const res = await reqDisAbleTask(params);
-
-        if (res === 'OK') {
-            ElMessage.success('禁用成功');
-            // 刷新表格数据
+        const res = await reqBatchEnabledOrDisabled(params)
+        if (res.message === 'success') {
+            ElMessage.success(`${actionText}成功`)
             findAllHooks(false)
         } else {
-            ElMessage.error('禁用失败');
+            ElMessage.error(`${actionText}失败`)
         }
-    })
-}
-
-// 禁用选中数据--批量禁用
-const BatchDisable = () => {
-    const $table = tableRef.value
-    if ($table) {
-        const selectRecords = $table.getCheckboxRecords()
-        if (selectRecords.length < 1) {
-            ElMessage.warning('请选择要禁用的数据')
-            return
-        }
-        const params = selectRecords.map(row => row.id).join(',')
-        ElMessageBox.confirm('确定禁用吗？', '提示', {
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
-            type: 'warning',
-        }).then(async () => {
-            const res = await reqBatchDisableTask(params)
-            if (res === 'OK') {
-                ElMessage.success('禁用成功')
-                // 刷新表格数据
-                findAllHooks(false)
-            } else {
-                ElMessage.error('禁用失败')
-            }
-        })
+    } catch (err) {
+        // 用户取消操作，不需要处理
     }
 }
+// 简化后的四个方法
+const enableTask = (row: any) => handleTaskStatus('enable', false, row)
+const BatchEnable = () => handleTaskStatus('enable', true, null)
+const disableTask = (row: any) => handleTaskStatus('disable', false, row)
+const BatchDisable = () => handleTaskStatus('disable', true, null)
 // -------------------表格操作结束-------------------
 
 

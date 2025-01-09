@@ -7,7 +7,7 @@
                 <el-col :span="4">
                     <div class="form-item">
                         <div class="form-item-label">etype</div>
-                        <el-select v-model="formData.etype" placeholder="select" clearable>
+                        <el-select v-model="formData.etype" >
                             <el-option label="click" value="click" />
                             <el-option label="imp" value="imp" />
                         </el-select>
@@ -34,7 +34,7 @@
                 <el-col :span="4">
                     <div class="form-item">
                         <div class="form-item-label">os</div>
-                        <el-select v-model="formData.os" placeholder="select" clearable>
+                        <el-select v-model="formData.os" >
                             <el-option label="android" value="android" />
                             <el-option label="ios" value="ios" />
                         </el-select>
@@ -42,12 +42,48 @@
                 </el-col>
             </el-row>
 
+            <!-- 第二行 -->
+            <el-row :gutter="20">
+                <el-col :span="4">
+                    <div class="form-item">
+                        <div class="form-item-label">bsclick</div>
+                        <el-select v-model="formData.bsclick"  >
+                            <el-option label="false" value="0" />
+                            <el-option label="true" value="1" />
+                        </el-select>
+                    </div>
+                </el-col>
+                <el-col :span="6">
+                    <div class="form-item">
+                        <div class="form-item-label">max</div>
+                        <el-input v-model="formData.max"  placeholder="2000000" />
+                    </div>
+                </el-col>
+                <el-col :span="4">
+                    <div class="form-item">
+                        <div class="form-item-label">hour</div>
+                        <el-input v-model="formData.hour" placeholder="eg:6" />
+                    </div>
+                </el-col>
+                <el-col :span="4">
+                    <div class="form-item">
+                        <div class="form-item-label">startHour</div>
+                        <el-input v-model="formData.startHour" placeholder="eg:0:6 or 12" />
+                    </div>
+                </el-col>
+                <el-col :span="4">
+                    <div class="form-item">
+                        <div class="form-item-label">deviceDays</div>
+                        <el-input v-model="formData.deviceDays" placeholder="eg:7" />
+                    </div>
+                </el-col>
+            </el-row>
             <!-- 第三行 -->
-            <el-row :gutter="24">
+            <el-row :gutter="24" v-if="btnType != 'batchEdit'">
                 <el-col :span="4">
                     <div class="form-item">
                         <div class="form-item-label">status</div>
-                        <el-select v-model="formData.status" placeholder="select" clearable>
+                        <el-select v-model="formData.status" placeholder="select">
                             <el-option label="enabled" value="enabled" />
                             <el-option label="disabled" value="disabled" />
                         </el-select>
@@ -59,7 +95,7 @@
                 <el-col :span="12">
                     <div class="form-item">
                         <div class="form-item-label">source</div>
-                        <el-input v-model="formData.s" />
+                        <el-input v-model="formData.s" placeholder="eg: google:xiaomi"/>
                     </div>
                 </el-col>
                 <el-col :span="12">
@@ -114,9 +150,7 @@
 
 <script lang="ts" setup>
 import { ref, watch, onMounted } from 'vue'
-import { reqAudienceList, reqTaskget } from "@/api/pushtask/index"
 import type { FormDataType } from './type'
-const audienceListRes = ref<any[]>([])
 const props = defineProps({
     modelValue: Boolean,
     title: String,
@@ -141,18 +175,23 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue', 'confirm', 'confirmNew'])
 
 const formData = ref<FormDataType>({
-    etype: '',
+    etype: 'click',
     pkgName:'',
     appId:'',
     country:'',
-    os:'',
-    status:'',
+    os:'android',
+    status:'enabled',
     s:'',
     ds_adx:'',
     ds_bundle:'',
     urlparam:'',
     offers:'',
-    target_pkg_name:''
+    target_pkg_name:'',
+    bsclick:'0',
+    max:'',
+    hour:'',
+    startHour:'',
+    deviceDays:''
 })
 
 const handleClose = () => {
@@ -160,7 +199,6 @@ const handleClose = () => {
 }
 // 保存
 const handleSave = (type:string) => {
-    debugger
     emit('confirm', { ...formData.value, buttonType: type })
 }
 // 新增
@@ -169,33 +207,26 @@ const handleNew = (type:string) =>{
     
     emit('confirm', { ...formData.value, buttonType: type })
 }
-interface AutoFilters {
-    [key: string]: any;
-}
-const resTask = ref({
-    clickTimeDelay: '',
-    attr: {
-        autoCrClickMin: '',
-        eraseifa: false,
-        noipuadup: false,
-    },
-    autoFilter: {} as AutoFilters
-})
 // 清空表单数据
 const resetData = () => {
     formData.value = {
-        etype: '',
-        pkgName:'',
-        appId:'',
-        country:'',
-        os:'',
-        status:'',
-        s:'',
-        ds_adx:'',
-        ds_bundle:'',
-        urlparam:'',
-        offers:'',
-        target_pkg_name:''
+        etype: 'click',
+        pkgName: '',
+        appId: '',
+        country: '',
+        os: 'android',   // 同样保持os的默认值
+        status: 'enabled', // 保持status的默认值
+        s: '',
+        ds_adx: '',
+        ds_bundle: '',
+        urlparam: '',
+        offers: '',
+        target_pkg_name: '',
+        bsclick: '0',
+        max: '',
+        hour: '',
+        startHour: '',
+        deviceDays: ''
     }
 }
 // 存储audience列表数据
@@ -221,7 +252,12 @@ watch(() => props.modelValue, async (newVal) => {
                     ds_bundle:newData.value.ds_bundle,
                     urlparam:newData.value.urlparam,
                     offers:newData.value.offers,
-                    target_pkg_name:newData.value.target_pkg_name
+                    target_pkg_name:newData.value.target_pkg_name,
+                    bsclick: newData.value.bsclick,
+                    max: newData.value.max,
+                    hour: newData.value.hour,
+                    startHour: newData.value.startHour,
+                    deviceDays: newData.value.deviceDays
                 }
             } else {
                 // 如果没有当前行数据，清空表单
@@ -235,10 +271,6 @@ watch(() => props.modelValue, async (newVal) => {
 })
 onMounted( async () => {
     console.log('autoBundleKey changed:', props.autoBundleKey)
-            // formData.value.audienceList =  res.data || []
-            // 弹层打开就调用一次  设备受众列表
-            const res = await reqAudienceList()
-            audienceListRes.value = res.data || []
 })
 </script>
 

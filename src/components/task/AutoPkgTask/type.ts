@@ -11,11 +11,17 @@ export interface  FormDataType {
     appId: string
     country: string
     os: string
-    status: string
+    status?: string
     s: string
     ds_adx: string
     ds_bundle: string
     urlparam: string
     offers: string
-    target_pkg_name: string
+    target_pkg_name: string,
+    buttonType?: string;
+    bsclick: string,
+    max: string,
+    hour: string,
+    startHour: string,
+    deviceDays: string
   }

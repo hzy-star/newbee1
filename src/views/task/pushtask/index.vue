@@ -103,8 +103,8 @@
         <!-- 左侧按钮 -->
         <el-col :span="12" class="form-item-left">
           <el-button v-show="propFrom.status !== 'template'" type="primary" @click="BatchEdit">BatchEdit</el-button>
-          <el-button v-show="propFrom.status !== 'template'" type="success" @click="BatchEnable">BatchEnable</el-button>
-          <el-button v-show="propFrom.status !== 'template'" type="danger"
+          <el-button v-show="propFrom.status !== 'template' && propFrom.status !=='enable'" type="success" @click="BatchEnable">BatchEnable</el-button>
+          <el-button v-show="propFrom.status !== 'template' && propFrom.status !=='disabled'" type="danger"
             @click="BatchDisable">BatchDisable</el-button>
         </el-col>
 
@@ -345,22 +345,21 @@ const {
 } = useTable()
 // 查询功能
 const findAll = async (type: boolean) => {
-
-  let taskdate = {
-    taskid: '',
-    taskdate: propFrom.value.taskdate
-  }
-  // 获取所有任务
-  ongoing.value = await reqOngoing(taskdate)
-  taskStore.setOngoing(ongoing.value)
-  findAllHooks(type, 1)
+  await fetchTasks(type)
 };
 const pageChange = ({ currentPage, pageSize }: any) => {
   pageChanges({ pageSize, currentPage })
 }
 // 点击单选框，直接查询数据
-const handleStatusChange = () => {
-  findAllHooks(true, 1)
+const handleStatusChange = async () => {
+  await fetchTasks(true)
+}
+// 通用的获取任务并更新状态逻辑
+const fetchTasks = async (hooksParam: boolean) => {
+  const taskdate = { taskid: '', taskdate: propFrom.value.taskdate }
+  ongoing.value = await reqOngoing(taskdate)
+  taskStore.setOngoing(ongoing.value)
+  findAllHooks(hooksParam, 1)
 }
 
 

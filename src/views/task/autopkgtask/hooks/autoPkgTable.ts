@@ -3,7 +3,6 @@ import { ElMessage } from 'element-plus'
 import { reqPkgTaskUrl } from "@/api/pushtask/autoPkgTask"
 import type { VxeTableInstance } from 'vxe-table'
 import { useTaskStore } from '@/store/pushtask/autoPkgTask'
-import listTaskCr from "@/store/common/listTaskCr"
 
 export default function autoPkgTable() {
     interface RowVO {
@@ -15,7 +14,6 @@ export default function autoPkgTable() {
         address: string
     }
     const taskStore = useTaskStore()
-    const getTaskCr = listTaskCr()
     const tableRef = ref<VxeTableInstance<RowVO>>()
     // 定义loading状态
     const loading = ref(false)
@@ -25,8 +23,6 @@ export default function autoPkgTable() {
     const result = ref<any[]>([])
     // 表格数据
     const tableData = ref<any>([]);
-    // 初始化获取所有任务
-    const ongoing: any = ref()
 
     const pageVO = reactive({
         total: 0,
@@ -41,14 +37,8 @@ export default function autoPkgTable() {
             const res = await reqPkgTaskUrl(taskStore.propFrom)
             result.value = res
             const processedData = res.map((item: any) => {
-                const matchedOngoing = taskStore.ongoing.filter(
-                    (ongoingItem: any) => ongoingItem.taskId === item.id
-                )
-                const taskCrData = getTaskCr.taskCr[item.id]
                 return {
                     ...item,
-                    ongoingData: matchedOngoing.length > 0 ? matchedOngoing : null,
-                    taskCrData: taskCrData || null,
                 }
             })
 
@@ -74,17 +64,9 @@ export default function autoPkgTable() {
             }
             
             tableData.value = result.value.map((item: any) => {
-                // 查找 ongoing 中所有匹配的记录
-                const matchedOngoing = ongoing.value.filter(
-                    (ongoingItem: any) => ongoingItem.taskId === item.id
-                );
-                // 从 taskCr 中查找对应 taskId 的数据
-                const taskCrData = getTaskCr.taskCr[item.id];
                 // 返回新的结构，将 matchedOngoing 嵌套到 ongoingData
                 return {
                     ...item, // 保留原来的字段
-                    ongoingData: matchedOngoing.length > 0 ? matchedOngoing : null, // 如果有匹配项，则嵌套数组；否则为 null
-                    taskCrData: taskCrData || null,
                 };
             });
             
@@ -98,7 +80,6 @@ export default function autoPkgTable() {
     }
 
     const pageChanges = ({ pageSize, currentPage }: { pageSize: number; currentPage: number }) => {
-        debugger
         pageVO.currentPage = currentPage
         pageVO.pageSize = pageSize
         handlePageData()
@@ -110,7 +91,6 @@ export default function autoPkgTable() {
         tableDataList,
         pageVO,
         tableData,
-        ongoing,
         findAllHooks,
         pageChanges
     }
