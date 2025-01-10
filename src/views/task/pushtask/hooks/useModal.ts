@@ -12,7 +12,6 @@ export default function useModal(tableRef: any, findAllHooks: (type: boolean) =>
     const currentRowData = ref<any>(null)
 
     const handleModals = async (formData: FormDataType): Promise<void> => {
-        debugger
         const { buttonType, ...resformData } = formData;
         const taskInfo = buildTaskInfo(resformData);
         const params = new URLSearchParams();

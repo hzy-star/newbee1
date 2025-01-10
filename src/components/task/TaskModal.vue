@@ -451,10 +451,7 @@ const handleSave = (type:string) => {
 }
 // 新增
 const handleNew = (type:string) =>{
-    console.log('formData.value:', formData.value);
-    
     emit('confirm', { ...formData.value, buttonType: type })
-    // emit('confirmNew', formData.value)
 }
 interface AutoFilters {
     [key: string]: any;
@@ -595,12 +592,10 @@ watch(() => props.modelValue, async (newVal) => {
         }
     }
 })
-onMounted( async () => {
-    console.log('autoBundleKey changed:', props.autoBundleKey)
-            // formData.value.audienceList =  res.data || []
-            // 弹层打开就调用一次  设备受众列表
-            const res = await reqAudienceList()
-            audienceListRes.value = res.data || []
+onMounted(async () => {
+    // 弹层打开就调用一次  设备受众列表
+    const res = await reqAudienceList()
+    audienceListRes.value = res.data || []
 })
 </script>
 

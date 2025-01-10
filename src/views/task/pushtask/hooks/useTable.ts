@@ -27,7 +27,6 @@ export default function useTable() {
     const tableData = ref<any>([]);
     // 初始化获取所有任务
     const ongoing: any = ref()
-    debugger
     
 
     const pageVO = reactive({
@@ -37,7 +36,6 @@ export default function useTable() {
     })
 
     const findAllHooks = async (type: boolean, num?: number) => {
-        debugger
         loading.value = true
         try {
             const res = await reqlistUrl(taskStore.propFrom)
@@ -74,7 +72,6 @@ export default function useTable() {
             if (num) {
                 pageVO.currentPage = num
             }
-            debugger
             tableData.value = result.value.map((item: any) => {
                 // 查找 ongoing 中所有匹配的记录
                 const matchedOngoing = ongoing.value.filter(
@@ -100,7 +97,6 @@ export default function useTable() {
     }
 
     const pageChanges = ({ pageSize, currentPage }: { pageSize: number; currentPage: number }) => {
-        debugger
         pageVO.currentPage = currentPage
         pageVO.pageSize = pageSize
         handlePageData()

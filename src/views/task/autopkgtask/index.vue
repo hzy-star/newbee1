@@ -241,6 +241,8 @@
         <PkgModal v-model="showModal" :title="modalTitle" :selected-ids="taskStore.selectedIds"
             :current-row-data="currentRowData"  @confirm="handleModalConfirm" @confirmNew="handleModalConfirm" 
             :btn-type="btnType" />
+            <!-- historyTask -->
+            <HistoryTaskTable v-model="showHistoryModal" :title="historyTitle" :historyId="String(historyId)" />
     </div>
 </template>
 
@@ -255,6 +257,7 @@ import { formatDateToSimple } from "@/utils/time";
 import {  reqBatchEnabledOrDisabled,reqTryOrRunUrl } from "@/api/pushtask/autoPkgTask"
 import { useTaskStore } from '@/store/pushtask/autoPkgTask'
 import PkgModal from '@/components/task/AutoPkgTask/PkgModal.vue'
+import HistoryTaskTable from '@/components/task/AutoPkgTask/HistoryTaskTable.vue'
 import type { FormDataType } from '@/components/task/AutoPkgTask/type'
 import { truncateText } from '@/utils/common'; // 直接导入默认对象并调用truncateText
 const taskStore = useTaskStore()
@@ -367,7 +370,6 @@ const handleTask = async (row: any, max: number, message: string, type: string) 
       max: max
     }
     let res = await reqTryOrRunUrl(params)
-    console.log(res)
     if(res.message === 'success') {
       ElMessage.success(`${type} success`)
     } else {
@@ -386,9 +388,14 @@ const tryTask = (row: any) => {
 const runTask = (row: any) => {
   handleTask(row, 0, 'Confirm to run task','run')
 }
+const showHistoryModal = ref<boolean>(false)
+const historyTitle = ref<string>('')
+const historyId = ref<string>('')
 // historyTask
 const historyTask = (row:any) => {
-    console.log(row)
+    showHistoryModal.value = true
+    historyTitle.value = `TaskDetail [${row.id}]`
+    historyId.value = row.id
 }
 
 watch(() => showModal.value, async (newValue) => {
@@ -475,7 +482,6 @@ const generateStatusDetail = (data: any) => {
             </div>`;
         statusDetailArr.push(statusPercent);
     }
-    console.log(statusDetailArr.join(''));
 
     // 拼接最终的 HTML 内容
     return statusDetailArr.join('');
@@ -498,22 +504,21 @@ const exportToCSV = () => {
 
         const formattedRows = tableData.value.map((row: any) => {
             return list.map((column) => {
-                if (column.field === 'succ/total/status/dcsuccss/sent') {
-                    // 动态拼接 succ/total/status/dcsuccss/sent 的值
-                    const ongoingData = row.ongoingData?.[0] || {};
-                    return `${ongoingData.successCount || ''}/` +
-                        `${ongoingData.sendCount || ''}/` +
-                        `${ongoingData.message || ''}/` +
-                        `${ongoingData.dcsuccessCount || ''}/` +
-                        `${ongoingData.sendServerCount || ''}`;
-                } else if (column.field === 'cr') {
-                    // 动态拼接 cr 的值
-                    const taskCrData = row?.taskCrData;
-                    if (taskCrData) {
-                        const cr = ((taskCrData.ctr + taskCrData.ivr) * 100).toFixed(4);
-                        return `cr: ${cr}%`;
-                    }
-                    return ''; // 如果数据不存在返回空字符串
+                if (column.field === 'source') {
+                    return `source:${row.s || '-'};dsadx:${row.ds_adx || '-'};dsbundle:${row.ds_bundle || '-'}`;
+                } else if (column.field === 'runningStatus') {
+                    // 添加状态值的安全检查
+                    const status = row.runnerStatus?.status;
+                    const statusText = status !== undefined && status !== null ? filterStatus(status) : '';
+                    return `succ:${row.runnerStatus?.succCount || ''};sent:${row.runnerStatus?.sendCount || ''};valid:${row.runnerStatus?.validCount || ''};status:${statusText}`;
+                } else if(column.field === 'cr') {
+                    const ctr = row?.crInfo?.ctr || 0;
+                    const ivr = row?.crInfo?.ivr || 0;
+                    const ecpc = row?.crInfo?.ecpc || 0;
+                    const roi = row?.crInfo?.roi || 0;
+                    return `cr:${((ctr + ivr) * 100).toFixed(4)}%;ecpc:${(ecpc * 100).toFixed(4)}%;roi:${(roi * 100).toFixed(2)}%`;
+                } else if(column.field === 'updated') {
+                    return formatDateToSimple(row?.updated);
                 }
                 return row[column.field] || ''; // 其他字段正常取值
             });

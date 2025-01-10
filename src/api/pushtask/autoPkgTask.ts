@@ -8,6 +8,7 @@ enum API {
     BATCHEDIT_URL = '/newbee/ce/pkgtask/batchedit', //批量保存接口
     ENABLEDORDISABLED_URL = '/newbee/ce/pkgtask/batchUpdate', //批量enabled/disabled接口,单独启用禁用接口
     TRYORRUN_URL = '/newbee/ce/pkgtask/trigger', //try/run接口
+    HISTORY_URL = '/newbee/ce/pkgtaskrunner/history', //history查询接口
 }
 
 // 暴露接口
@@ -21,3 +22,5 @@ export const reqBatchEdits = (param: any) => request.post<any, any>(API.BATCHEDI
 export const reqBatchEnabledOrDisabled = (param: any) => request.post<any, any>(API.ENABLEDORDISABLED_URL, param,{ isForm: true })
 // try/run接口
 export const reqTryOrRunUrl = (param: any) => request.get<Root,any>(API.TRYORRUN_URL, { params: param })
+// history查询接口
+export const reqHistoryUrl = (param: any) => request.get<Root,any>(API.HISTORY_URL, { params: param })

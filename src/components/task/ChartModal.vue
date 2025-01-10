@@ -63,7 +63,6 @@ let myChart: echarts.ECharts | null = null
 
 // 添加新的响应式变量
 const currentType = ref(props.defaultType)
-console.log('currentType:', currentType);
 
 // 监听 visible 变化，初始化图表
 watch(() => props.visible, (newVal) => {
@@ -378,7 +377,6 @@ onMounted(() => {
 
 // 监听数据变化重新渲染
 watch(() => props.chartData, (val) => {
-  console.log('chartData changed:', val)
   const options = generateChartOptions()
   myChart?.setOption(options, true)
 }, { deep: true })

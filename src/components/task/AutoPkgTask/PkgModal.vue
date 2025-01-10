@@ -203,8 +203,6 @@ const handleSave = (type:string) => {
 }
 // 新增
 const handleNew = (type:string) =>{
-    console.log('formData.value:', formData.value);
-    
     emit('confirm', { ...formData.value, buttonType: type })
 }
 // 清空表单数据

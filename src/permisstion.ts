@@ -10,7 +10,6 @@ import useCookie from "./store/modules/cookie";
 const useCookies = useCookie(pinia)
 // 全局前置守卫
 router.beforeEach(async (to: any, from: any, next: any) => {
-    // console.log(document.cookie);
 
     document.title = setting.title + '-' + to.meta.title
     NProgress.start()
