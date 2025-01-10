@@ -36,8 +36,8 @@
                 <el-col :span="4">
                     <div class="form-item">
                         <div class="form-item-label">Bsclick</div>
-                        <el-select v-model="propFrom.bsclick" placeholder="" clearable>
-                            <el-option label="all" value="" />
+                        <el-select v-model="propFrom.bsclick" placeholder="">
+                            <el-option label="all" value="all" />
                             <el-option label="true" value="1" />
                             <el-option label="false" value="0" />
                         </el-select>
@@ -57,10 +57,10 @@
                 <el-col :span="4">
                     <div class="form-item">
                         <div class="form-item-label">Etype</div>
-                        <el-select v-model="propFrom.etype" placeholder="Please select" @change="handleEtypeChange">
+                        <el-select v-model="propFrom.etype" placeholder="Please select" >
                             <el-option label="click" value="click" />
                             <el-option label="imp" value="imp" />
-                            <el-option label="all" value="" />
+                            <el-option label="all" value="all" />
                         </el-select>
                     </div>
                 </el-col>
@@ -262,20 +262,14 @@ import type { FormDataType } from '@/components/task/AutoPkgTask/type'
 import { truncateText } from '@/utils/common'; // 直接导入默认对象并调用truncateText
 const taskStore = useTaskStore()
 // 表单数据
-// 添加处理 etype 变化的方法
-const handleEtypeChange = (value: string) => {
-    if (value === 'all') {
-        propFrom.value.etype = '';
-    }
-}
 const propFrom = ref<autoPkgFormInter>({
-    etype: '',
+    etype: 'all',
     offerid: '',
     pkgname: '',
     appid: '',
     country: '',
     jobid: '',
-    bsclick: '',
+    bsclick: 'all',
     ce_pkg_filtercontent: '',
     ce_pkg_status: 'enabled',
 })

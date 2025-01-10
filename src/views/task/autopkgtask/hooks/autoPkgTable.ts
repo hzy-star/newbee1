@@ -34,6 +34,8 @@ export default function autoPkgTable() {
         loading.value = true
         try {
             taskStore.propFrom.status = taskStore.propFrom.ce_pkg_status
+            taskStore.propFrom.bsclick == 'all' ? taskStore.propFrom.bsclick = '' : taskStore.propFrom.bsclick
+            taskStore.propFrom.etype == 'all' ? taskStore.propFrom.etype = '' : taskStore.propFrom.etype
             const res = await reqPkgTaskUrl(taskStore.propFrom)
             result.value = res
             const processedData = res.map((item: any) => {

@@ -38,6 +38,7 @@ export default function useTable() {
     const findAllHooks = async (type: boolean, num?: number) => {
         loading.value = true
         try {
+            taskStore.propFrom.etypes == 'all' ? taskStore.propFrom.etypes = '' : taskStore.propFrom.etypes
             const res = await reqlistUrl(taskStore.propFrom)
             result.value = res
             const processedData = res.map((item: any) => {

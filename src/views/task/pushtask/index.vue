@@ -7,7 +7,7 @@
         <el-col :span="4">
           <div class="form-item">
             <div class="form-item-label">Etype</div>
-            <el-select v-model="propFrom.etypes" placeholder="Please select" @change="handleEtypeChange">
+            <el-select v-model="propFrom.etypes" placeholder="Please select" >
               <el-option label="click" value="click" />
               <el-option label="imp" value="imp" />
               <el-option label="all" value="all" />
@@ -274,12 +274,6 @@ const autoBundleKey = ref<Array<string>>()
 // 获取最近3天的日期
 const date = ref(getRelativeDates(-3));
 // 表单数据
-// 添加处理 etype 变化的方法
-const handleEtypeChange = (value: string) => {
-  if (value === 'all') {
-    propFrom.value.etypes = '';
-  }
-}
 const propFrom = ref<propFormInter>({
   etypes: 'click',
   offerIds: '',
