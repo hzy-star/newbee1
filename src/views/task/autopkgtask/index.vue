@@ -122,6 +122,7 @@
                         </span>
                     </template>
                 </vxe-column>
+                <vxe-column type="seq" align="center" title=" " width="50"></vxe-column>
                 <vxe-column field="etype" title="event" align="center" width="50">
                     <template #default="{ row }">
                         {{ row.etype == null ? "click" : row.etype }}
@@ -197,7 +198,7 @@
                                 0)) * 100).toFixed(4) }}%</div>
                             <div class="device-text"><span class="device-span">ecpc:</span>
                                 {{ (((row?.crInfo?.ecpc ? row?.crInfo?.ecpc : 0)) * 100).toFixed(4) }}%</div>
-                            <div class="device-text"><span class="device-span">cr:</span>
+                            <div class="device-text"><span class="device-span">roi:</span>
                                 {{ (((row?.crInfo?.roi ? row?.crInfo?.roi : 0)) * 100).toFixed(2) }}%</div>
 
                         </div>

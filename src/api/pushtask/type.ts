@@ -30,6 +30,18 @@ export interface autoPkgFormInter {
   status?: string;
 }
 
+// 定义autoTask参数类型
+export interface autoTaskFormInter {
+  etypes: string;
+  offerIds: string;
+  pkgNames: string;
+  apps: string;
+  countries: string;
+  ce_filtercontent?: string;
+  status: string;
+  passcode?: string;
+  name?: string;
+}
 // ---------定义reqPkgTaskUrl接口返回值类型-------
 export interface Root {
   offers: string;

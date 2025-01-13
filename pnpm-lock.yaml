@@ -44,6 +44,9 @@ importers:
       vxe-table:
         specifier: 4.9.29
         version: 4.9.29(vue@3.5.13(typescript@5.4.5))
+      xe-utils:
+        specifier: ^3.7.0
+        version: 3.7.0
     devDependencies:
       '@types/lodash':
         specifier: ^4.17.13
@@ -2376,8 +2379,8 @@ packages:
     engines: {node: '>= 8'}
     hasBin: true
 
-  xe-utils@3.5.32:
-    resolution: {integrity: sha512-R8ZT2lRnRBQO3pchM1za/Aru+/29DVDWD/OmOFODWWGkiQYz0iVIr8Bq8uKXS6zMhEsSqVCrn46bXzfe/Agjcw==}
+  xe-utils@3.7.0:
+    resolution: {integrity: sha512-2pndXCEivB7+xWCdCDth/LJ5ngAAstUOoHTGBQauwTqc03M3Cl1tYbNhPUqi4Lcj+UNZnnc8fANbFWjb6TMx6A==}
 
   yallist@3.1.1:
     resolution: {integrity: sha512-a4UGQaWPH59mOXUYnAG2ewncQS4i4F43Tv3JoAM+s2VDAmS9NsK8GpDMLrCHPksFT7h3K6TOoUNn2pb7RoXx4g==}
@@ -2867,7 +2870,7 @@ snapshots:
     dependencies:
       dom-zindex: 1.0.6
       vue: 3.5.13(typescript@5.4.5)
-      xe-utils: 3.5.32
+      xe-utils: 3.7.0
 
   acorn@8.14.0: {}
 
@@ -4867,7 +4870,7 @@ snapshots:
     dependencies:
       isexe: 2.0.0
 
-  xe-utils@3.5.32: {}
+  xe-utils@3.7.0: {}
 
   yallist@3.1.1: {}
 
