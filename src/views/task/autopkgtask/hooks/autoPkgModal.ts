@@ -22,6 +22,7 @@ export default function autoPkgModal(tableRef: any, findAllHooks: (type: boolean
             // 批量编辑--只有save方法
             batchEdit: {
                 save: () => {
+                    delete taskInfo.status
                     taskInfo.task_ids = taskStore.selectedIds.join(',');
                 },
             },
@@ -63,11 +64,11 @@ export default function autoPkgModal(tableRef: any, findAllHooks: (type: boolean
     // 处理响应
     const handleResponse = (response: Response): void => {
         if (response.message === 'success') {
-            ElMessage.success('保存成功');
+            ElMessage.success(response.message);
             findAllHooks(false);
             showModal.value = false;
         } else {
-            ElMessage.error('保存失败');
+            ElMessage.error(response.message);
         }
     };
 
