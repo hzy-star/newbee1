@@ -20,7 +20,6 @@ export const useTaskStore = defineStore("autoPkgTask", {
       country: "",
       jobid: "",
       bsclick: "",
-      ce_pkg_filtercontent: "",
       ce_pkg_status: "enable",
       status: "",
     },
