@@ -3,6 +3,8 @@ import { ElMessage } from 'element-plus'
 import { reqAutoTaskUrl } from "@/api/pushtask/autoTask"
 import type { VxeTableInstance } from 'vxe-table'
 import { useTaskStore } from '@/store/pushtask/autoTask'
+import {  formatDateToSimple } from "@/utils/time";
+import XEUtils from 'xe-utils'
 
 export default function autoTaskTable() {
     interface RowVO {
@@ -23,6 +25,8 @@ export default function autoTaskTable() {
     const result = ref<any[]>([])
     // 表格数据
     const tableData = ref<any>([]);
+    // 模糊查询
+    const filterName = ref('') // 搜索框内容
 
     const pageVO = reactive({
         total: 0,
@@ -76,10 +80,53 @@ export default function autoTaskTable() {
                 (pageVO.currentPage - 1) * pageSize, 
                 pageVO.currentPage * pageSize
             )
+            searchEvent(num)
             loading.value = false
         }, 100)
     }
+    const handleSearch = (num?: number) => {
+        const filterVal = String(filterName.value).trim().toLowerCase()
+        
+        const { pageSize } = pageVO
+        // 首先过滤数据
+        let filteredData = tableData.value
+        if (filterVal) {
+            // 直接在原始数据上进行过滤
+            filteredData = tableData.value.filter((item: any) => {
+                // 构造用于搜索的字符串
+                const searchText = [
+                    item.type == 0 ? 'click' : 'imp',
+                    item.appId,
+                    item.country,
+                    item.offerId,
+                    item.pkg_name,
+                    item.source,
+                    item.fill_type ?? 'top',
+                    item.bsclick ?? 'false',
+                    // cr相关信息
+                    `cr:${(((item?.crInfo?.ctr || 0) + (item?.crInfo?.ivr || 0)) * 100).toFixed(4)}`,
+                    `ecpc:${((item?.crInfo?.ecpc || 0) * 100).toFixed(4)}`,
+                    `roi:${((item?.crInfo?.roi || 0) * 100).toFixed(2)}`,
+                    formatDateToSimple(item.updatedTime)
+                ].join(' ').toLowerCase()
 
+                return searchText.includes(filterVal)
+            })
+        } 
+        // 更新总数据量
+        pageVO.total = filteredData.length
+        if (num) {
+            pageVO.currentPage = num
+        }
+        tableDataList.value = filteredData.slice(
+            (pageVO.currentPage - 1) * pageSize, 
+            pageVO.currentPage * pageSize
+        )
+    }
+    // 节流函数,间隔500毫秒触发搜索
+    const searchEvent = XEUtils.throttle(function (num?: number) {
+        handleSearch(num)
+    }, 200, { trailing: true, leading: true })
     const pageChanges = ({ pageSize, currentPage }: { pageSize: number; currentPage: number }) => {
         pageVO.currentPage = currentPage
         pageVO.pageSize = pageSize
@@ -92,6 +139,8 @@ export default function autoTaskTable() {
         tableDataList,
         pageVO,
         tableData,
+        filterName,
+        searchEvent,
         findAllHooks,
         pageChanges
     }

@@ -46,7 +46,7 @@
                 <!-- 其他字段 -->
                 <el-col :span="4">
                     <div class="form-item">
-                        <el-input v-model="filterName" clearable @input="searchEvent" />
+                        <el-input v-model="filterName" clearable @change="searchEvent(1)" />
                     </div>
                 </el-col>
                 <!-- Status -->
@@ -241,51 +241,18 @@ const toggleCheckboxEvent = (row: any) => {
 
 
 // -------------------查询功能-------------------
-const filterName = ref('') // 搜索框内容
 const {
     tableRef,
     // loading,
     tableDataList,
     pageVO,
     tableData,
+    filterName,
+    searchEvent,
     findAllHooks,
     pageChanges
 } = autoTaskTable()
-const handleSearch = () => {
-    const filterVal = String(filterName.value).trim().toLowerCase()
-    
-    if (filterVal) {
-        // 直接在原始数据上进行过滤
-        tableDataList.value = tableData.value.filter((item: any) => {
-            // 构造用于搜索的字符串
-            const searchText = [
-                item.type == 0 ? 'click' : 'imp',
-                item.appId,
-                item.country,
-                item.offerId,
-                item.pkg_name,
-                item.source,
-                item.fill_type ?? 'top',
-                item.bsclick ?? 'false',
-                item.send_plan ?? item.clickTarget,
-                // cr相关信息
-                `cr:${(((item?.crInfo?.ctr || 0) + (item?.crInfo?.ivr || 0)) * 100).toFixed(4)}`,
-                `ecpc:${((item?.crInfo?.ecpc || 0) * 100).toFixed(4)}`,
-                `roi:${((item?.crInfo?.roi || 0) * 100).toFixed(2)}`,
-                formatDateToSimple(item.updatedTime)
-            ].join(' ').toLowerCase()
 
-            return searchText.includes(filterVal)
-        })
-    } else {
-        tableDataList.value = tableData.value
-        pageChanges({ pageSize: 10, currentPage: 1 })
-    }
-}
-// 节流函数,间隔500毫秒触发搜索
-const searchEvent = XEUtils.throttle(function () {
-    handleSearch()
-}, 200, { trailing: true, leading: true })
 // 查询功能
 const findJob = async (type: boolean) => {
     findAllHooks(type, 1)

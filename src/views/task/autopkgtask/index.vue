@@ -67,7 +67,7 @@
                 <!-- 其他字段 -->
                 <el-col :span="4">
                     <div class="form-item">
-                        <el-input v-model="propFrom.ce_pkg_filtercontent" />
+                        <el-input v-model="filtercontent" @change="searchEvent(1)"/>
                     </div>
                 </el-col>
                 <!-- Status -->
@@ -271,7 +271,6 @@ const propFrom = ref<autoPkgFormInter>({
     country: '',
     jobid: '',
     bsclick: 'all',
-    ce_pkg_filtercontent: '',
     ce_pkg_status: 'enabled',
 })
 const toggleAllCheckboxEvent = () => {
@@ -295,6 +294,8 @@ const {
     tableDataList,
     pageVO,
     tableData,
+    filtercontent,
+    searchEvent,
     findAllHooks,
     pageChanges
 } = autoPkgTable()

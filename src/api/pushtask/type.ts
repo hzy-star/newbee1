@@ -22,7 +22,6 @@ export interface autoPkgFormInter {
   country: string;
   jobid: string;
   bsclick: string;
-  ce_pkg_filtercontent: string;
   ce_pkg_status: string;
   passcode?: string;
   name?: string;

@@ -3,6 +3,10 @@ import { ElMessage } from 'element-plus'
 import { reqPkgTaskUrl } from "@/api/pushtask/autoPkgTask"
 import type { VxeTableInstance } from 'vxe-table'
 import { useTaskStore } from '@/store/pushtask/autoPkgTask'
+import {  formatDateToSimple } from "@/utils/time";
+import XEUtils from 'xe-utils'
+import { truncateText } from '@/utils/common'; // 直接导入默认对象并调用truncateText
+import autoRunningStatus from './autoRunningStatus'
 
 export default function autoPkgTable() {
     interface RowVO {
@@ -23,6 +27,8 @@ export default function autoPkgTable() {
     const result = ref<any[]>([])
     // 表格数据
     const tableData = ref<any>([]);
+    // 模糊查询
+    const filtercontent = ref('')
 
     const pageVO = reactive({
         total: 0,
@@ -30,6 +36,9 @@ export default function autoPkgTable() {
         pageSize: 10
     })
 
+    const {
+        filterStatus
+    } = autoRunningStatus()
     const findAllHooks = async (type: boolean, num?: number) => {
         loading.value = true
         try {
@@ -77,10 +86,66 @@ export default function autoPkgTable() {
                 (pageVO.currentPage - 1) * pageSize, 
                 pageVO.currentPage * pageSize
             )
+            searchEvent(num)
             loading.value = false
         }, 100)
     }
-
+    // 模糊查询
+    const handleSearch = (num?: number) => {
+        const filterVal = String(filtercontent.value).trim().toLowerCase()
+        
+        const { pageSize } = pageVO
+        // 首先过滤数据
+        let filteredData = tableData.value
+        if (filterVal) {
+            // 直接在原始数据上进行过滤
+            filteredData = tableData.value.filter((item: any) => {
+                // 构造用于搜索的字符串
+                const searchText = [
+                    `${item.etype == null ? "click" : item.etype}`,
+                    item.id,
+                    item.appId,
+                    item.pkgName,
+                    item.country,
+                    item.offers,
+                    item.deviceDays,
+                    `source:${!!item.s ? truncateText(item.s) : '-'}`,
+                    `dsadx:${!!item.ds_adx ? truncateText(item.ds_adx) : '-'}`,
+                    `dsbundle:${!!item.ds_bundle ? truncateText(item.ds_bundle) : '-'}`,
+                    item.bsclick,
+                    item.max,
+                    item.hour,
+                    item.startHour,
+                    // runningStatus
+                    `succ:${!!item.runnerStatus?.succCount ? (item.runnerStatus?.succCount) : ''}`,
+                    `sent:${!!item.runnerStatus?.sendCount ? (item.runnerStatus?.sendCount) : ''}`,
+                    `valid:${!!item.runnerStatus?.validCount ? (item.runnerStatus?.validCount) : ''}`,
+                    `${!!item.runnerStatus?.status ? filterStatus(item.runnerStatus?.status) : ''}`,
+                    `cr:${ (((item?.crInfo?.ctr ? item?.crInfo?.ctr : 0) + (item?.crInfo?.ivr ? item?.crInfo?.ivr :
+                                0)) * 100).toFixed(4) }%`,
+                    `ecpc:${(((item?.crInfo?.ecpc ? item?.crInfo?.ecpc : 0))* 100).toFixed(4)}%`,
+                    `roi:${(((item?.crInfo?.roi ? item?.crInfo?.roi : 0))* 100).toFixed(2)}%`,
+                    item.bsclick,
+                    formatDateToSimple(item?.updated)
+                ].join(' ').toLowerCase()
+    
+                return searchText.includes(filterVal)
+            })
+        }
+        // 更新总数据量
+        pageVO.total = filteredData.length
+        if (num) {
+            pageVO.currentPage = num
+        }
+        tableDataList.value = filteredData.slice(
+            (pageVO.currentPage - 1) * pageSize, 
+            pageVO.currentPage * pageSize
+        )
+    }
+    // 节流函数,间隔500毫秒触发搜索
+    const searchEvent = XEUtils.throttle(function (num?: number) {
+        handleSearch(num)
+    }, 200, { trailing: true, leading: true })
     const pageChanges = ({ pageSize, currentPage }: { pageSize: number; currentPage: number }) => {
         pageVO.currentPage = currentPage
         pageVO.pageSize = pageSize
@@ -93,6 +158,8 @@ export default function autoPkgTable() {
         tableDataList,
         pageVO,
         tableData,
+        filtercontent,
+        searchEvent,
         findAllHooks,
         pageChanges
     }
