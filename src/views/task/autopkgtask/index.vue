@@ -104,6 +104,7 @@
         <div class="pushtask_table">
             <vxe-table border auto-resize height="auto" :column-config="{ resizable: true }"
                 :cell-config="{ verticalAlign: 'center' }" :row-config="{ isCurrent: true, isHover: true, }"
+                :scroll-y="{enabled: true, gt: 0}" 
                 :data="tableDataList" ref="tableRef">
                 <vxe-column field="#" type="checkbox" title="" align="center" width="2%">
                     <template #header="{ checked, indeterminate }">
