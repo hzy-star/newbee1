@@ -122,7 +122,7 @@
       <vxe-table border auto-resize height="auto" :column-config="{ resizable: true }"
         :cell-config="{ verticalAlign: 'center' }" :row-config="{ isCurrent: true, isHover: true, }"
         :data="tableDataList" ref="tableRef">
-        <vxe-column field="#" type="checkbox" title="" align="center" width="90">
+        <vxe-column field="#" type="checkbox" title="" align="center" width="6%">
           <template #header="{ checked, indeterminate }">
             <span class="custom-checkbox" @click.stop="toggleAllCheckboxEvent">
               <i v-if="indeterminate" class="vxe-icon-square-minus-fill"></i>
@@ -148,27 +148,27 @@
             </div>
           </template>
         </vxe-column>
-        <vxe-column type="seq" align="center" title=" " width="50"></vxe-column>
-        <vxe-column field="etype" title="event" align="center" width="70"></vxe-column>
-        <vxe-column field="offers" title="offer" align="center" width="70"></vxe-column>
-        <vxe-column field="appId" title="appid" align="center" width="70"></vxe-column>
-        <vxe-column field="weight" title="weight" align="center" width="70"></vxe-column>
-        <vxe-column field="scope" title="scope" align="center" width="80">
+        <vxe-column type="seq" align="center" title=" " width="3%"></vxe-column>
+        <vxe-column field="etype" title="event" align="center" width="4%"></vxe-column>
+        <vxe-column field="offers" title="offer" align="center" width="6%"></vxe-column>
+        <vxe-column field="appId" title="appid" align="center" width="6%"></vxe-column>
+        <vxe-column field="weight" title="weight" align="center" width="5%"></vxe-column>
+        <vxe-column field="scope" title="scope" align="center" width="5%">
           <template #default="{ row }">
             {{ row.gt + "->" + row.lt }}
           </template>
         </vxe-column>
-        <vxe-column field="country" title="country" align="center" width="90"></vxe-column>
-        <vxe-column field="usealg" title="usealg" align="center" width="90"></vxe-column>
-        <vxe-column field="urlparams" title="urlparam" align="center" width="170"></vxe-column>
-        <vxe-column field="sendPlan" title="sendPlan" align="center" width="90"></vxe-column>
-        <vxe-column field="pkgName" title="pkg" align="center" width="90">
+        <vxe-column field="country" title="country" align="center" width="4%"></vxe-column>
+        <vxe-column field="usealg" title="usealg" align="center" width="5%"></vxe-column>
+        <vxe-column field="urlparams" title="urlparam" align="center" width="10%"></vxe-column>
+        <vxe-column field="sendPlan" title="sendPlan" align="center" width="8%"></vxe-column>
+        <vxe-column field="pkgName" title="pkg" align="center" width="9%">
           <template #default="{ row }">
             {{ row.pkgName != 'null' ? row.pkgName : '' }}
           </template>
         </vxe-column>
         <vxe-column field="succ/total/status/dcsuccss/sent" align="center" title="succ/total/status/dcsuccss/sent"
-          width="260">
+          width="12%">
           <template #default="{ row }">
             <div>
               <div>
@@ -202,7 +202,7 @@
           </template>
 
         </vxe-column>
-        <vxe-column field="cr/ecpc(0.285%)/roi(65%)" title="cr/ecpc(0.285%)/roi(65%)" align="center" width="120">
+        <vxe-column field="cr/ecpc(0.285%)/roi(65%)" title="cr/ecpc(0.285%)/roi(65%)" align="center" width="10%">
           <template #default="{ row }">
             <!-- 检查 taskCr 是否存在且不为 null -->
             <div v-if="row?.taskCrData">
@@ -210,7 +210,7 @@
             </div>
           </template>
         </vxe-column>
-        <vxe-column field="bsclick" title="bsclick" align="center" width="90"></vxe-column>
+        <vxe-column field="bsclick" title="bsclick" align="center" width="5%"></vxe-column>
         <vxe-column field="mdate" title="mdate" align="center" width="100">
           <template #default="{ row }">
             {{ formatDateToSimple(row?.mdate) }}

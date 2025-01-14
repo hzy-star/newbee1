@@ -159,7 +159,7 @@
                         </div>
                     </template>
                 </vxe-column>
-                <vxe-column field="updatedTime" title="mdate" align="center" width="6%">
+                <vxe-column field="updatedTime" title="mdate" align="center" width="100">
                     <template #default="{ row }">
                         {{ formatDateToSimple(row?.updatedTime) }}
                     </template>

@@ -105,7 +105,7 @@
             <vxe-table border auto-resize height="auto" :column-config="{ resizable: true }"
                 :cell-config="{ verticalAlign: 'center' }" :row-config="{ isCurrent: true, isHover: true, }"
                 :data="tableDataList" ref="tableRef">
-                <vxe-column field="#" type="checkbox" title="" align="center" >
+                <vxe-column field="#" type="checkbox" title="" align="center" width="2%">
                     <template #header="{ checked, indeterminate }">
                         <span class="custom-checkbox" @click.stop="toggleAllCheckboxEvent">
                             <i v-if="indeterminate" class="vxe-icon-square-minus-fill"></i>
@@ -122,19 +122,19 @@
                         </span>
                     </template>
                 </vxe-column>
-                <vxe-column type="seq" align="center" title=" " width="50"></vxe-column>
-                <vxe-column field="etype" title="event" align="center" width="50">
+                <vxe-column type="seq" align="center" title=" " width="3%"></vxe-column>
+                <vxe-column field="etype" title="event" align="center" width="3%">
                     <template #default="{ row }">
                         {{ row.etype == null ? "click" : row.etype }}
                     </template>
                 </vxe-column>
-                <vxe-column field="id" title="taskid" align="center" width="85"></vxe-column>
-                <vxe-column field="appId" title="appId" align="center" width="85"></vxe-column>
-                <vxe-column field="pkgName" title="pkgname" align="center" width="110"></vxe-column>
-                <vxe-column field="country" title="country" align="center" width="50"></vxe-column>
-                <vxe-column field="offers" title="offers" align="center" width="85"></vxe-column>
-                <vxe-column field="deviceDays" title="deviceDays" align="center" width="50"></vxe-column>
-                <vxe-column field="source" title="source" align="center" width="180">
+                <vxe-column field="id" title="taskid" align="center" width="5%"></vxe-column>
+                <vxe-column field="appId" title="appId" align="center" width="5%"></vxe-column>
+                <vxe-column field="pkgName" title="pkgname" align="center" width="10%"></vxe-column>
+                <vxe-column field="country" title="country" align="center" width="5%"></vxe-column>
+                <vxe-column field="offers" title="offers" align="center" width="6%"></vxe-column>
+                <vxe-column field="deviceDays" title="deviceDays" align="center" width="5%"></vxe-column>
+                <vxe-column field="source" title="source" align="center" width="12%">
                     <template #default="{ row }">
                         <div class="device-box">
                             <div class="device-text" :title="!!row.s ? (row.s) : '-'"><span
@@ -149,11 +149,11 @@
                         </div>
                     </template>
                 </vxe-column>
-                <vxe-column field="bsclick" title="bsclick" align="center" width="50"></vxe-column>
-                <vxe-column field="max" title="max" align="center" width="90"></vxe-column>
-                <vxe-column field="hour" title="hour" align="center" width="90"></vxe-column>
-                <vxe-column field="startHour" title="startHour" align="center" width="90"></vxe-column>
-                <vxe-column field="runningStatus" title="runningStatus" align="center" width="90">
+                <vxe-column field="bsclick" title="bsclick" align="center" width="5%"></vxe-column>
+                <vxe-column field="max" title="max" align="center" width="5%"></vxe-column>
+                <vxe-column field="hour" title="hour" align="center" width="5%"></vxe-column>
+                <vxe-column field="startHour" title="startHour" align="center" width="5%"></vxe-column>
+                <vxe-column field="runningStatus" title="runningStatus" align="center" width="6%">
                     <template #default="{ row }">
                         <div class="device-box">
                             <div class="device-text">
@@ -189,7 +189,7 @@
                         </el-popover>
                     </template>
                 </vxe-column>
-                <vxe-column field="cr" title="cr" align="center" width="120">
+                <vxe-column field="cr" title="cr" align="center" width="8%">
                     <template #default="{ row }">
                         <!-- 检查 taskCr 是否存在且不为 null -->
                         <div class="device-box">
