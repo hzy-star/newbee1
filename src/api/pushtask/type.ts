@@ -9,7 +9,6 @@ export interface propFormInter {
   bsclick: string;
   status: string;
   taskdate?: string;
-  filtercontent: string;
   passcode?: string;
   name?: string;
 }

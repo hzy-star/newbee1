@@ -11,9 +11,12 @@ const listTaskCr = defineStore('setTask', {
     actions: {
         // 获取 TaskCr 数据
         async setTaskCr() {
+            this.clearTaskCr()
             try {
                 const res = await reqListTaskCr();
                 this.taskCr = res;  // 将获取的 TaskCr 数据存储到 state 中
+                console.log('TaskCr:', Object.entries(this.taskCr).length);
+                
                 this.lastUpdated = Date.now(); // 更新数据时间戳，类型为 number
                 return this.taskCr;
             } catch (error) {

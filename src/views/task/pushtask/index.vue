@@ -69,7 +69,7 @@
         <!-- 其他字段 -->
         <el-col :span="4">
           <div class="form-item">
-            <el-input v-model="propFrom.filtercontent" />
+            <el-input  v-model="filtercontent" @change="searchEvent(1)" />
           </div>
         </el-col>
 
@@ -284,7 +284,6 @@ const propFrom = ref<propFormInter>({
   bsclick: '',
   status: 'enable',
   taskdate: '',
-  filtercontent: '',
 })
 const toggleAllCheckboxEvent = () => {
   const $table = tableRef.value
@@ -334,6 +333,8 @@ const {
   pageVO,
   tableData,
   ongoing,
+  filtercontent,
+  searchEvent,
   findAllHooks,
   pageChanges
 } = useTable()

@@ -4,6 +4,8 @@ import { reqlistUrl } from "@/api/pushtask/index"
 import type { VxeTableInstance } from 'vxe-table'
 import { useTaskStore } from '@/store/pushtask/task'
 import listTaskCr from "@/store/common/listTaskCr"
+import {  formatDateToSimple } from "@/utils/time";
+import XEUtils from 'xe-utils'
 
 export default function useTable() {
     interface RowVO {
@@ -25,6 +27,8 @@ export default function useTable() {
     const result = ref<any[]>([])
     // 表格数据
     const tableData = ref<any>([]);
+    // 模糊查询
+    const filtercontent = ref('')
     // 初始化获取所有任务
     const ongoing: any = ref()
     
@@ -93,10 +97,62 @@ export default function useTable() {
                 (pageVO.currentPage - 1) * pageSize, 
                 pageVO.currentPage * pageSize
             )
+            searchEvent(num)
             loading.value = false
         }, 100)
     }
+    // 模糊查询
+    const handleSearch = (num?: number) => {
+        const filterVal = String(filtercontent.value).trim().toLowerCase()
+        
+        const { pageSize } = pageVO
+        // 首先过滤数据
+        let filteredData = tableData.value
+        if (filterVal) {
+            // 直接在原始数据上进行过滤
+            filteredData = tableData.value.filter((item: any) => {
+                // 构造用于搜索的字符串
+                const searchText = [
+                    item.etype,
+                    item.offers,
+                    item.appId,
+                    item.weight,
+                    item.pkg_name,
+                    `${item.gt + "->" + item.lt}`,
+                    item.country,
+                    item.usealg,
+                    item.urlparams,
+                    `${item.pkgName != 'null' ? item.pkgName : ''}`,
+                    // cr相关信息
+                    `${item?.ongoingData?.[0]?.successCount != null ? `${item?.ongoingData?.[0]?.successCount}/` : ''}`,
+                    `${item?.ongoingData?.[0]?.sendCount != null ? `${item?.ongoingData?.[0]?.sendCount}/` : ''}`,
+                    `${item?.ongoingData?.[0]?.message}`,
+                    `${item?.ongoingData?.[0]?.dcsuccessCount > 0 ? item?.ongoingData?.[0]?.dcsuccessCount : '' }`,
+                    `${item?.ongoingData?.[0]?.sendServerCount > 0 ? item?.ongoingData?.[0]?.sendServerCount : ''}`,
+                    `cr:${((item?.taskCrData?.ctr + item?.taskCrData?.ivr) * 100).toFixed(4)}%`,
+                    item.bsclick,
+                    formatDateToSimple(item?.mdate)
+                ].join(' ').toLowerCase()
+    
+                return searchText.includes(filterVal)
+            })
+        }
+        // 更新总数据量
+        pageVO.total = filteredData.length
+        if (num) {
+            pageVO.currentPage = num
+        }
+        tableDataList.value = filteredData.slice(
+            (pageVO.currentPage - 1) * pageSize, 
+            pageVO.currentPage * pageSize
+        )
+    }
+    // 节流函数,间隔500毫秒触发搜索
+    const searchEvent = XEUtils.throttle(function (num?: number) {
+        handleSearch(num)
+    }, 200, { trailing: true, leading: true })
 
+    // 分页
     const pageChanges = ({ pageSize, currentPage }: { pageSize: number; currentPage: number }) => {
         pageVO.currentPage = currentPage
         pageVO.pageSize = pageSize
@@ -110,6 +166,8 @@ export default function useTable() {
         pageVO,
         tableData,
         ongoing,
+        filtercontent,
+        searchEvent,
         findAllHooks,
         pageChanges
     }
