@@ -10,7 +10,7 @@ export interface FormDataType {
   appId: string
   country: string
   os: string
-  s: string
+  source: string
   clickTarget: string
   send_plan: string
   fill_type: string

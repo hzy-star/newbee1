@@ -1,7 +1,7 @@
 import { ref } from 'vue'
-import { useTaskStore } from '@/store/pushtask/autoPkgTask'
+import { useTaskStore } from '@/store/pushtask/autoTask'
 import type { FormDataType } from '@/components/task/AutoPkgTask/type'
-import { reqNewSaveTask,reqBatchEdits } from "@/api/pushtask/autoPkgTask"
+import { reqNewSaveTask,reqBatchEdits } from "@/api/pushtask/autoTask"
 import { ElMessage } from 'element-plus';
 import { Response } from './type'
 
@@ -22,14 +22,23 @@ export default function autoTaskModals(tableRef: any, findAllHooks: (type: boole
             // 批量编辑--只有save方法
             batchEdit: {
                 save: () => {
-                    delete taskInfo.status
                     taskInfo.task_ids = taskStore.selectedIds.join(',');
+                    taskInfo.clickTarget = taskInfo.daily_click
+                    delete taskInfo.offer_id
+                    delete taskInfo.app_id
+                    delete taskInfo.task_type
+                    delete taskInfo.status
+                    delete taskInfo.is_manual
+                    delete taskInfo.country
+                    delete taskInfo.platform
+                    delete taskInfo.source
+                    delete taskInfo.daily_click
                 },
             },
             // 新增任务--save和new方法
             addJob: {
                 save: () => {
-                    
+
                 },
                 new: () => {
                     taskInfo.id = '';
@@ -48,7 +57,7 @@ export default function autoTaskModals(tableRef: any, findAllHooks: (type: boole
         };
 
         if (actions[btnType.value] && actions[btnType.value][buttonType as string]) {
-            actions[btnType.value][buttonType as string]();
+            actions[btnType.value][buttonType as string]();         
             Object.entries(taskInfo).forEach(([key, value]) => params.append(key, String(value)));
             res.value = await (btnType.value === 'batchEdit' ? reqBatchEdits(params) : reqNewSaveTask(params));
         }
@@ -56,8 +65,23 @@ export default function autoTaskModals(tableRef: any, findAllHooks: (type: boole
     };
 
     const buildTaskInfo = (resformData: any): Record<string, any> => {
+        let params = {
+            offer_id : resformData.offerId,
+            app_id : resformData.appId,
+            task_type : resformData.etype,
+            status : "enabled",
+            is_manual : 1,
+            manual_adx : resformData.manual_adx,
+            country : resformData.country,
+            platform : resformData.os,
+            daily_click : resformData.clickTarget,
+            send_plan : resformData.send_plan,
+            fill_type : resformData.fill_type,
+            source : resformData.source,
+        }
+
         return {
-            ...resformData,
+            ...params
         };
     };
 
@@ -93,7 +117,7 @@ export default function autoTaskModals(tableRef: any, findAllHooks: (type: boole
                 ElMessage.warning('请选择至少2条要编辑的任务')
                 return
             }
-            taskStore.selectedIds = selectRecords.map((row: any) => row.id)
+            taskStore.selectedIds = selectRecords.map((row: any) => row.taskId)
             modalTitle.value = `TaskDetail [${formatSelectedIds(taskStore.selectedIds)}]`
             currentRowData.value = null // 清空当前行数据
             showModal.value = true

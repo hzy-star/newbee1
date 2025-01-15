@@ -68,10 +68,10 @@
                 <!-- 左侧按钮 -->
                 <el-col :span="12" class="form-item-left">
                     <el-button type="primary" @click="BatchEdit">BatchEdit</el-button>
-                    <el-button type="success" v-show="propFrom.status == 'disabled'"
+                    <el-button type="success" v-show="propFrom.status != 'enabled'"
                         @click="BatchEnable">BatchEnable</el-button>
                     <el-button type="danger" v-show="propFrom.status == 'enabled'"
-                        @click="BatchDisable">BatchDisable</el-button>
+                        @click="BatchDisable">BatchTerminated</el-button>
                 </el-col>
 
                 <!-- 右侧按钮 -->
@@ -95,7 +95,6 @@
                             <i v-else-if="checked" class="vxe-icon-square-checked-fill"></i>
                             <i v-else class="vxe-icon-checkbox-unchecked"></i>
                         </span>
-                        #
                     </template>
                     <template #checkbox="{ row, checked, indeterminate }">
                         <span class="custom-checkbox" @click.stop="toggleCheckboxEvent(row)">
@@ -105,14 +104,14 @@
                         </span>
                     </template>
                 </vxe-column>
-                <vxe-column type="seq" align="center" title=" " width="3%"></vxe-column>
-                <vxe-column field="etype" title="event" align="center" width="3%">
+                <vxe-column field="xh" type="seq" align="center" title=" " width="3%"></vxe-column>
+                <vxe-column field="etype" title="event" align="center" width="4%">
                     <template #default="{ row }">
                         {{ row.type == 0 ? "click" : 'imp' }}
                     </template>
                 </vxe-column>
                 <vxe-column field="appId" title="app" align="center" width="5%"></vxe-column>
-                <vxe-column field="country" title="country" align="center" width="5%"></vxe-column>
+                <vxe-column field="country" title="country" align="center" width="4%"></vxe-column>
                 <vxe-column field="offerId" title="offer" align="center" width="8%"></vxe-column>
                 <vxe-column field="pkg_name" title="pkg" align="center" width="18%"></vxe-column>
                 <vxe-column field="source" title="source" align="center" width="5%"></vxe-column>
@@ -143,7 +142,7 @@
                         </div>
                     </template>
                 </vxe-column>
-                <vxe-column field="cr" title="cr" align="center" width="10%">
+                <vxe-column field="cr" title="cr" align="center" width="8%">
                     <template #default="{ row }" >
                         <!-- 检查 taskCr 是否存在且不为 null -->
                         <div class="device-box" v-if="group == 'ym'">
@@ -165,7 +164,7 @@
                         {{ formatDateToSimple(row?.updatedTime) }}
                     </template>
                 </vxe-column>
-                <vxe-column field="Action" align="center" fixed="right" >
+                <vxe-column field="Action" align="center" fixed="right" width="220">
                     <template #header>
                         <div style="display: flex; align-items: center; justify-content: center;">
                             <span>Action</span>
@@ -179,7 +178,7 @@
                             @click="enableTask(scope.row)">enable</el-button>
                         <el-button class="btn_table" size="small" type="danger"
                             v-else-if="scope.row.status == 'enabled'"
-                            @click="disableTask(scope.row)">disable</el-button>
+                            @click="disableTask(scope.row)">terminated</el-button>
                     </template>
                 </vxe-column>
             </vxe-table>
@@ -202,18 +201,18 @@
 
 <script lang="ts" setup>
 import { ref, onMounted, watch } from 'vue';
-import XEUtils from 'xe-utils'
 import type { autoTaskFormInter } from '@/api/pushtask/type'
 import { ElMessage, ElMessageBox } from 'element-plus';
 import autoTaskTable from './hooks/autoTaskTable';
 import autoTaskModals from './hooks/autoTaskModals'
 import autoRunningStatus from './hooks/autoRunningStatus'
 import { formatDateToSimple } from "@/utils/time";
-import { reqBatchEnabledOrDisabled } from "@/api/pushtask/autoPkgTask"
+import { reqBatchEnabled,reqDisBatchEnabled } from "@/api/pushtask/autoTask"
 import { useTaskStore } from '@/store/pushtask/autoTask'
 import AutoTask from '@/components/task/AutoTask/PkgModal.vue'
 import type { FormDataType } from '@/components/task/AutoPkgTask/type'
 import {getCookies} from '@/utils/common'
+import { autoTaskEnabled } from "@/api/pushtask/type";
 // 获取group
 const group = ref(getCookies('group'))
 
@@ -303,8 +302,8 @@ const addJob = () => {
 
 // 显示任务详情
 const showTask = (row: any) => {
-    taskStore.setSelectedIds([row.id])
-    modalTitle.value = `TaskDetail [${row.id}]`
+    taskStore.setSelectedIds([row.taskId])
+    modalTitle.value = `TaskDetail [${row.taskId}]`
     currentRowData.value = row // 设置当前行数据
     showModal.value = true
     btnType.value = 'showTask'
@@ -320,7 +319,6 @@ watch(() => showModal.value, async (newValue) => {
 // -------------------表格操作-------------------
 // 统一处理启用/禁用操作的函数
 const handleTaskStatus = async (type: 'enable' | 'disable', isBatch: boolean, data: any) => {
-    const value = type === 'enable' ? 'enabled' : 'disabled'
     const actionText = type === 'enable' ? '启用' : '禁用'
 
     // 批量操作时的检查
@@ -338,9 +336,7 @@ const handleTaskStatus = async (type: 'enable' | 'disable', isBatch: boolean, da
 
     // 构造请求参数
     const params = {
-        key: 'status',
-        value,
-        pkgTaskIds: isBatch ? data.map((row: any) => row.id).join(',') : data.id
+        taskIds: isBatch ? data.map((row: any) => row.taskId).join(',') : data.taskId
     }
 
     try {
@@ -349,8 +345,12 @@ const handleTaskStatus = async (type: 'enable' | 'disable', isBatch: boolean, da
             cancelButtonText: '取消',
             type: 'warning',
         })
-
-        const res = await reqBatchEnabledOrDisabled(params)
+        let res: autoTaskEnabled
+        if(type === 'enable'){
+            res = await reqBatchEnabled(params)
+        }else{
+            res = await reqDisBatchEnabled(params)
+        }
         if (res.message === 'success') {
             ElMessage.success(`${actionText}成功`)
             findAllHooks(false)
@@ -385,28 +385,32 @@ const exportToCSV = () => {
 
     const $table = tableRef.value;
     if ($table) {
-        const list = $table.getFullColumns();
+        const list = $table.getFullColumns()
+        .filter(column => !['xh', '#'].includes(column.field)); // 过滤掉 xh 和 # 列// 过滤掉 xh 列;
         const headers = list.map((column) => column.title);
-        headers[0] = '#';
-        headers[headers.length - 1] = 'Action';
+        // headers[0] = '#';
+        // headers[headers.length - 1] = 'Action';
 
         const formattedRows = tableData.value.map((row: any) => {
             return list.map((column) => {
-                if (column.field === 'source') {
-                    return `source:${row.s || '-'};dsadx:${row.ds_adx || '-'};dsbundle:${row.ds_bundle || '-'}`;
-                } else if (column.field === 'runningStatus') {
-                    // 添加状态值的安全检查
-                    const status = row.runnerStatus?.status;
-                    const statusText = status !== undefined && status !== null ? filterStatus(status) : '';
-                    return `succ:${row.runnerStatus?.succCount || ''};sent:${row.runnerStatus?.sendCount || ''};valid:${row.runnerStatus?.validCount || ''};status:${statusText}`;
-                } else if (column.field === 'cr') {
+                if(column.field === 'etype'){
+                    return `${row.type == 0 ? "click" : 'imp'}`;
+                }else if(column.field === 'fill_type'){
+                    return `${row.fill_type == null ? 'top' : row.fill_type}`;
+                }else if(column.field === 'bsclick'){
+                    return `${row.bsclick == null ? 'false' : row.bsclick}`;
+                }else if(column.field === 'send_plan'){
+                    return `${row.send_plan == null ? row.clickTarget : row.send_plan}`;
+                }else if (column.field === 'succ/sent/result') {
+                    return `${row.clickSuccess + '/' + row.clickSent}`;
+                }else if (column.field === 'cr') {
                     const ctr = row?.crInfo?.ctr || 0;
                     const ivr = row?.crInfo?.ivr || 0;
                     const ecpc = row?.crInfo?.ecpc || 0;
                     const roi = row?.crInfo?.roi || 0;
                     return `cr:${((ctr + ivr) * 100).toFixed(4)}%;ecpc:${(ecpc * 100).toFixed(4)}%;roi:${(roi * 100).toFixed(2)}%`;
-                } else if (column.field === 'updated') {
-                    return formatDateToSimple(row?.updated);
+                } else if (column.field === 'updatedTime') {
+                    return formatDateToSimple(row?.updatedTime);
                 }
                 return row[column.field] || ''; // 其他字段正常取值
             });

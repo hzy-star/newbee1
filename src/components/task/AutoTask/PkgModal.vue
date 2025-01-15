@@ -3,7 +3,7 @@
         :close-on-click-modal="false">
         <div class="task-form">
             <!-- 第一行 -->
-            <el-row :gutter="20">
+            <el-row :gutter="20" v-if="btnType != 'batchEdit'">
                 <el-col :span="4">
                     <div class="form-item">
                         <div class="form-item-label">etype</div>
@@ -43,7 +43,7 @@
                 <el-col :span="4">
                     <div class="form-item">
                         <div class="form-item-label">source</div>
-                        <el-select v-model="formData.s" >
+                        <el-select v-model="formData.source" >
                             <el-option label="offlineadx" value="offlineadx" />
                             <el-option label="gateway" value="gateway" />
                             <el-option label="okx" value="okx" />
@@ -70,7 +70,7 @@
                 </el-col>
                 <el-col :span="6">
                     <div class="form-item">
-                        <div class="form-item-label">补量机制</div>
+                        <div class="form-item-label">{{btnType != 'batchEdit' ? '补量机制' : 'fill_type'}}</div>
                         <el-select v-model="formData.fill_type" >
                             <el-option label="top_adx" value="top" />
                             <el-option label="manual_adx" value="manual" />
@@ -128,7 +128,7 @@ const formData = ref<FormDataType>({
     appId:'',
     country:'',
     os:'android',
-    s:'',
+    source:'offlineadx',
     clickTarget:'',
     send_plan:'',
     fill_type:'top_adx',
@@ -144,6 +144,7 @@ const handleSave = (type:string) => {
 }
 // 新增
 const handleNew = (type:string) =>{
+    debugger
     emit('confirm', { ...formData.value, buttonType: type })
 }
 // 清空表单数据
@@ -154,7 +155,7 @@ const resetData = () => {
         appId: '',
         country: '',
         os: 'android',   // 同样保持os的默认值
-        s: '',
+        source: 'offlineadx',
         clickTarget:'',
         send_plan:'',
         fill_type:'top_adx',
@@ -173,16 +174,16 @@ watch(() => props.modelValue, async (newVal) => {
             if (newData.value) {
                 // 如果有当前行数据，填充表单
                 formData.value = {
-                    etype: newData.value.etype,
+                    etype: newData.value.type == 1 ? "imp" : 'click',
                     offerId:newData.value.offerId,
                     appId:newData.value.appId,
                     country:newData.value.country,
-                    os:newData.value.os,
-                    s:newData.value.s,
-                    clickTarget:'',
-                    send_plan:'',
-                    fill_type:'',
-                    manual_adx:'',
+                    os:newData.value.platform,
+                    source:newData.value.source,
+                    clickTarget:newData.value.clickTarget,
+                    send_plan:newData.value.send_plan,
+                    fill_type:newData.value.fill_type,
+                    manual_adx:newData.value.manual_adx,
                 }
             } else {
                 // 如果没有当前行数据，清空表单

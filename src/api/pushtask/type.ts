@@ -106,3 +106,10 @@ export interface RunnerStatus {
   status: number;
 }
 // ---------定义reqPkgTaskUrl接口返回值类型-------
+
+// 定义
+export interface autoTaskEnabled {
+  data: any
+  success: boolean
+  message: string
+}

@@ -130,7 +130,6 @@
               <i v-else-if="checked" class="vxe-icon-square-checked-fill"></i>
               <i v-else class="vxe-icon-checkbox-unchecked"></i>
             </span>
-            #
           </template>
           <template #checkbox="{ row, checked, indeterminate }">
             <span class="custom-checkbox" @click.stop="toggleCheckboxEvent(row)">
@@ -149,7 +148,7 @@
             </div>
           </template>
         </vxe-column>
-        <vxe-column type="seq" align="center" title=" " width="3%"></vxe-column>
+        <vxe-column field="xh" type="seq" align="center" title=" " width="3%"></vxe-column>
         <vxe-column field="etype" title="event" align="center" width="4%"></vxe-column>
         <vxe-column field="offers" title="offer" align="center" width="6%"></vxe-column>
         <vxe-column field="appId" title="appid" align="center" width="6%"></vxe-column>
@@ -620,20 +619,23 @@ const exportToCSV = () => {
 
   const $table = tableRef.value;
   if ($table) {
-    const list = $table.getFullColumns();
+    const list = $table.getFullColumns()
+    .filter(column => !['xh', '#'].includes(column.field)); // 过滤掉 xh 和 # 列// 过滤掉 xh 列;;
     const headers = list.map((column) => column.title);
-    headers[0] = '#';
-    headers[headers.length - 1] = 'Action';
+    // headers[0] = '#';
+    // headers[headers.length - 1] = 'Action';
 
     const formattedRows = tableData.value.map((row: any) => {
       return list.map((column) => {
-        if (column.field === 'succ/total/status/dcsuccss/sent') {
+        if( column.field === 'sendPlan' ){
+          return `"${row.sendPlan || ''}"`;
+        }else if (column.field === 'succ/total/status/dcsuccss/sent') {
           // 动态拼接 succ/total/status/dcsuccss/sent 的值
           const ongoingData = row.ongoingData?.[0] || {};
-          return `${ongoingData.successCount || ''}/` +
-            `${ongoingData.sendCount || ''}/` +
-            `${ongoingData.message || ''}/` +
-            `${ongoingData.dcsuccessCount || ''}/` +
+          return `${ongoingData.successCount || ''}/ ` +
+            `${ongoingData.sendCount || ''}/ ` +
+            `${ongoingData.message || ''}/ ` +
+            `${ongoingData.dcsuccessCount || ''}/ ` +
             `${ongoingData.sendServerCount || ''}`;
         } else if (column.field === 'cr/ecpc(0.285%)/roi(65%)') {
           // 动态拼接 cr/ecpc(0.285%)/roi(65%) 的值

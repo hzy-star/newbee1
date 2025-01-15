@@ -113,7 +113,6 @@
                             <i v-else-if="checked" class="vxe-icon-square-checked-fill"></i>
                             <i v-else class="vxe-icon-checkbox-unchecked"></i>
                         </span>
-                        #
                     </template>
                     <template #checkbox="{ row, checked, indeterminate }">
                         <span class="custom-checkbox" @click.stop="toggleCheckboxEvent(row)">
@@ -123,8 +122,8 @@
                         </span>
                     </template>
                 </vxe-column>
-                <vxe-column type="seq" align="center" title=" " width="3%"></vxe-column>
-                <vxe-column field="etype" title="event" align="center" width="3%">
+                <vxe-column field="xh" type="seq" align="center" title=" " width="3%"></vxe-column>
+                <vxe-column field="etype" title="event" align="center" width="4%">
                     <template #default="{ row }">
                         {{ row.etype == null ? "click" : row.etype }}
                     </template>
@@ -132,7 +131,7 @@
                 <vxe-column field="id" title="taskid" align="center" width="5%"></vxe-column>
                 <vxe-column field="appId" title="appId" align="center" width="5%"></vxe-column>
                 <vxe-column field="pkgName" title="pkgname" align="center" width="10%"></vxe-column>
-                <vxe-column field="country" title="country" align="center" width="5%"></vxe-column>
+                <vxe-column field="country" title="country" align="center" width="4%"></vxe-column>
                 <vxe-column field="offers" title="offers" align="center" width="6%"></vxe-column>
                 <vxe-column field="deviceDays" title="deviceDays" align="center" width="5%"></vxe-column>
                 <vxe-column field="source" title="source" align="center" width="12%">
@@ -150,11 +149,11 @@
                         </div>
                     </template>
                 </vxe-column>
-                <vxe-column field="bsclick" title="bsclick" align="center" width="5%"></vxe-column>
+                <vxe-column field="bsclick" title="bsclick" align="center" width="4%"></vxe-column>
                 <vxe-column field="max" title="max" align="center" width="5%"></vxe-column>
-                <vxe-column field="hour" title="hour" align="center" width="5%"></vxe-column>
+                <vxe-column field="hour" title="hour" align="center" width="4%"></vxe-column>
                 <vxe-column field="startHour" title="startHour" align="center" width="5%"></vxe-column>
-                <vxe-column field="runningStatus" title="runningStatus" align="center" width="6%">
+                <vxe-column field="runningStatus" title="runningStatus" align="center" width="8%">
                     <template #default="{ row }">
                         <div class="device-box">
                             <div class="device-text">
@@ -178,9 +177,9 @@
 
                         <!-- Add a check to only display popover if necessary fields are not null -->
                         <el-popover v-if="row?.runnerStatus?.resultDetail" effect="light" trigger="hover"
-                            placement="top" width="auto">
+                            placement="left" width="auto">
                             <template #default>
-                                <div
+                                <div class="popoverClass"
                                     v-html="row?.runnerStatus?.resultDetail ? generateStatusDetail(row?.runnerStatus?.resultDetail) : ''">
                                 </div>
                             </template>
@@ -494,10 +493,11 @@ const exportToCSV = () => {
 
     const $table = tableRef.value;
     if ($table) {
-        const list = $table.getFullColumns();
+        const list = $table.getFullColumns()
+        .filter(column => !['xh', '#'].includes(column.field)); // 过滤掉 xh 和 # 列// 过滤掉 xh 列;;
         const headers = list.map((column) => column.title);
-        headers[0] = '#';
-        headers[headers.length - 1] = 'Action';
+        // headers[0] = '#';
+        // headers[headers.length - 1] = 'Action';
 
         const formattedRows = tableData.value.map((row: any) => {
             return list.map((column) => {
@@ -646,5 +646,19 @@ onMounted(async () => {
 
 .text-success {
     color: #28a745
+}
+.popoverClass{
+  max-height: 500px;
+  word-wrap: break-word;
+  word-break: break-all;
+  white-space: normal;
+  padding: 10px;
+  overflow: scroll;
+}
+.text-muted {
+    color: #6c757d !important
+}
+.px-1{
+    font-weight: 600 !important;
 }
 </style>

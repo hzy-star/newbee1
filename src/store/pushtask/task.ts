@@ -22,7 +22,6 @@ export const useTaskStore = defineStore('task', {
       bsclick: '',
       status: 'enable',
       taskdate: '',
-      filtercontent: '',
     },
     ongoing: [],
     autoBundleKey: null,
