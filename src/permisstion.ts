@@ -7,10 +7,11 @@ import "nprogress/nprogress.css"
 NProgress.configure({ showSpinner: false })
 import pinia from "./store";
 import useCookie from "./store/modules/cookie";
+import { ElMessage } from 'element-plus';
 const useCookies = useCookie(pinia)
 // 全局前置守卫
 router.beforeEach(async (to: any, from: any, next: any) => {
-
+    debugger
     document.title = setting.title + '-' + to.meta.title
     NProgress.start()
     const cookie = useCookies.getCookie()
@@ -44,6 +45,7 @@ router.beforeEach(async (to: any, from: any, next: any) => {
         if (to.path == '/login') {
             next()
         } else {
+            ElMessage.error('登录过期,请重新登录');
             next({ path: '/login', query: { redirect: to.path } })
         }
     }
