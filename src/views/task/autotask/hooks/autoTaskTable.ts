@@ -1,4 +1,4 @@
-import { ref, reactive } from 'vue'
+import { ref, reactive ,onMounted,onUnmounted} from 'vue'
 import { ElMessage } from 'element-plus'
 import { reqAutoTaskUrl } from "@/api/pushtask/autoTask"
 import type { VxeTableInstance } from 'vxe-table'
@@ -34,6 +34,7 @@ export default function autoTaskTable() {
         pageSize: 10
     })
 
+    const searchEvent = ref()
     const findAllHooks = async (type: boolean, num?: number) => {
         loading.value = true
         try {
@@ -80,7 +81,7 @@ export default function autoTaskTable() {
                 (pageVO.currentPage - 1) * pageSize, 
                 pageVO.currentPage * pageSize
             )
-            searchEvent(num)
+            searchEvent.value(num)
             loading.value = false
         }, 100)
     }
@@ -123,10 +124,17 @@ export default function autoTaskTable() {
             pageVO.currentPage * pageSize
         )
     }
-    // 节流函数,间隔500毫秒触发搜索
-    const searchEvent = XEUtils.throttle(function (num?: number) {
-        handleSearch(num)
-    }, 200, { trailing: true, leading: true })
+    onMounted(() => {
+        searchEvent.value = XEUtils.throttle(function (num?: number) {
+            handleSearch(num)
+        }, 200, { trailing: true, leading: true })
+    })
+    onUnmounted(() => {
+        // 清除节流函数
+        if (searchEvent.value && searchEvent.value.cancel) {
+            searchEvent.value.cancel()
+        }
+    })
     const pageChanges = ({ pageSize, currentPage }: { pageSize: number; currentPage: number }) => {
         pageVO.currentPage = currentPage
         pageVO.pageSize = pageSize

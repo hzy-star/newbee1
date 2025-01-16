@@ -1,4 +1,4 @@
-import { ref, reactive } from 'vue'
+import { ref, reactive ,onMounted,onUnmounted} from 'vue'
 import { ElMessage } from 'element-plus'
 import { reqPkgTaskUrl } from "@/api/pushtask/autoPkgTask"
 import type { VxeTableInstance } from 'vxe-table'
@@ -36,6 +36,7 @@ export default function autoPkgTable() {
         pageSize: 10
     })
 
+    const searchEvent = ref()
     const {
         filterStatus
     } = autoRunningStatus()
@@ -86,7 +87,7 @@ export default function autoPkgTable() {
                 (pageVO.currentPage - 1) * pageSize, 
                 pageVO.currentPage * pageSize
             )
-            searchEvent(num)
+            searchEvent.value(num)
             loading.value = false
         }, 100)
     }
@@ -142,10 +143,18 @@ export default function autoPkgTable() {
             pageVO.currentPage * pageSize
         )
     }
-    // 节流函数,间隔500毫秒触发搜索
-    const searchEvent = XEUtils.throttle(function (num?: number) {
-        handleSearch(num)
-    }, 200, { trailing: true, leading: true })
+    
+    onMounted(() => {
+        searchEvent.value = XEUtils.throttle(function (num?: number) {
+            handleSearch(num)
+        }, 200, { trailing: true, leading: true })
+    })
+    onUnmounted(() => {
+        // 清除节流函数
+        if (searchEvent.value && searchEvent.value.cancel) {
+            searchEvent.value.cancel()
+        }
+    })
     const pageChanges = ({ pageSize, currentPage }: { pageSize: number; currentPage: number }) => {
         pageVO.currentPage = currentPage
         pageVO.pageSize = pageSize
