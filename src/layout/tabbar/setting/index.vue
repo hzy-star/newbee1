@@ -63,7 +63,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import listTaskCr from "@/store/common/listTaskCr"
 //获取用户相关的小仓库
@@ -73,6 +73,7 @@ import useCookie from '@/store/modules/cookie'
 //获取骨架的小仓库
 import useLayOutSettingStore from '@/store/modules/setting'
 import { VxeUI } from 'vxe-table'
+import { debounce } from 'lodash'
 let layoutSettingStore = useLayOutSettingStore()
 const cookieStore = useCookie()
 let userStore = useUserStore()
@@ -85,10 +86,9 @@ let dark = ref<boolean>(false)
 //刷新按钮点击回调
 // 刷新页面的时候，重新获取cr数据
 const getTaskCr = listTaskCr()
-const updateRefsh = async () => {
+const updateRefsh = debounce(async () => {
   layoutSettingStore.refsh = !layoutSettingStore.refsh
-  await getTaskCr.setTaskCr(); // 重新加载数据
-}
+}, 500) // 500ms 的防抖延迟
 //全屏按钮点击的回调
 const fullScreen = () => {
   //DOM对象的一个属性:可以用来判断当前是不是全屏模式[全屏:true,不是全屏:false]
@@ -152,6 +152,19 @@ const setColor = () => {
   html.style.setProperty('--el-color-danger', color.value); // 修改危险色
   html.style.setProperty('--el-color-info', color.value); // 修改信息色
 }
+const debouncedSetTaskCr = debounce(async () => {
+  await getTaskCr.setTaskCr(); // 重新加载数据
+}, 500);
+// 监听 refsh 的变化
+watch(
+  () => layoutSettingStore.refsh, // 监听 layoutSettingStore.refsh 的变化
+  (newValue, oldValue) => {
+    if (newValue !== oldValue) {
+      debouncedSetTaskCr(); // 防抖调用 setTaskCr
+    }
+  }
+);
+
 </script>
 
 <script lang="ts">
