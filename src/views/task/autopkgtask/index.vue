@@ -74,8 +74,8 @@
                 <el-col :span="7">
                     <div class="form-item">
                         <el-radio-group v-model="propFrom.ce_pkg_status" @change="handleStatusChange">
-                            <el-radio label="enabled">Enabled</el-radio>
-                            <el-radio label="disabled">Disabled</el-radio>
+                            <el-radio value="enabled">Enabled</el-radio>
+                            <el-radio value="disabled">Disabled</el-radio>
                         </el-radio-group>
                     </div>
                 </el-col>

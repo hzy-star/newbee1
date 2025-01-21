@@ -28,7 +28,7 @@ const useCookie = defineStore("setCookie", {
       const hourInMs = 24 * 60 * 60 * 1000 // 24小时的毫秒数
     //   const hourInMs = 10000; // 测试10秒钟的毫秒数
 
-      if (cookieAge > hourInMs) {
+      if (cookieAge > hourInMs || document.cookie === "") {
         // cookie已过期，清除
         this.clearCookie();
         return "";

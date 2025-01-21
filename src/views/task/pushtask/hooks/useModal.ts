@@ -13,7 +13,7 @@ export default function useModal(tableRef: any, findAllHooks: (type: boolean) =>
 
     const handleModals = async (formData: FormDataType): Promise<void> => {
         const { buttonType, ...resformData } = formData;
-        const taskInfo = buildTaskInfo(resformData);
+        let taskInfo = buildTaskInfo(resformData);
         const params = new URLSearchParams();
         let res = ref<string>('');
 
@@ -22,6 +22,7 @@ export default function useModal(tableRef: any, findAllHooks: (type: boolean) =>
                 save: () => {
                     taskInfo.ids = taskStore.selectedIds.join(',');
                     taskInfo.isBatchEdit = 'yes';
+                    taskInfo = removeEmptyFields(taskInfo);
                 },
                 new: () => {
                     taskInfo.batchType = 'new';
@@ -66,6 +67,9 @@ export default function useModal(tableRef: any, findAllHooks: (type: boolean) =>
     };
 
     const buildTaskInfo = (resformData: any): Record<string, any> => {
+        debugger
+        console.log(resformData);
+        
         return {
             ...resformData,
             autoCrFilterName: (resformData.autoCrFilterName || []).join(','),
@@ -73,8 +77,8 @@ export default function useModal(tableRef: any, findAllHooks: (type: boolean) =>
             topLtBundle: (resformData.topLtBundle || []).join(','),
             attr: JSON.stringify({
                 autoCrClickMin: resformData.autoCrClickMin || '',
-                eraseifa: (resformData.eraseifa || false).toString(),
-                noipuadup: (resformData.noipuadup || false).toString(),
+                eraseifa: (resformData.eraseifa).toString(),
+                noipuadup: (resformData.noipuadup).toString(),
             }),
             audiences: JSON.stringify({
                 ifaAudience: ['', resformData.ifaAudience || '1'],
@@ -100,7 +104,7 @@ export default function useModal(tableRef: any, findAllHooks: (type: boolean) =>
                     return acc;
                 }, {})
             ),
-            ifadupcheck: `${resformData.ifadupcheck || ''}:${resformData.checkservice || ''}`,
+            ifadupcheck: `${resformData.ifadupcheck ? resformData.ifadupcheck + ':' : ''}${resformData.checkservice || ''}`,
             id: taskStore.selectedIds.join(',') || '',
             ifaAudience: resformData.ifaAudience || ',1',
         };
@@ -158,7 +162,31 @@ export default function useModal(tableRef: any, findAllHooks: (type: boolean) =>
             btnType.value = 'batchEdit'
         }
     }
-
+    // 删除 taskInfo 对象中所有值为空的字段
+    const removeEmptyFields = (taskInfo: Record<string, any>) => {
+        for (const key in taskInfo) {
+            if (taskInfo[key] === "" || taskInfo[key] === null || taskInfo[key] === undefined) {
+                delete taskInfo[key];
+            } else if (typeof taskInfo[key] === 'object' && taskInfo[key] !== null) {
+                // 递归处理对象字段
+                removeEmptyFields(taskInfo[key]);
+            }
+        }
+        let attr = JSON.parse(taskInfo.attr)
+        let attrNullFlag = true
+        for (const i in attr){
+            if (attr[i] === "" || attr[i] === null || attr[i] === undefined || attr[i] == 'false') {
+                delete attr[i];
+            }else{
+                attrNullFlag = false
+            }
+        }
+        if (attrNullFlag) {
+            delete taskInfo.attr
+        }
+        return taskInfo;
+    }
+    
     return {
         showModal,
         modalTitle,

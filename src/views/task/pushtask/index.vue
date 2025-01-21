@@ -87,10 +87,10 @@
         <el-col :span="7">
           <div class="form-item">
             <el-radio-group v-model="propFrom.status" @change="handleStatusChange">
-              <el-radio label="enable">Enabled</el-radio>
-              <el-radio label="disabled">Disabled</el-radio>
-              <el-radio label="template">Template</el-radio>
-              <el-radio label="all">All</el-radio>
+              <el-radio value="enable">Enabled</el-radio>
+              <el-radio value="disabled">Disabled</el-radio>
+              <el-radio value="template">Template</el-radio>
+              <el-radio value="all">All</el-radio>
             </el-radio-group>
           </div>
         </el-col>
