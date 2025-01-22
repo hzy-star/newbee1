@@ -251,7 +251,7 @@ watch(() => props.modelValue, async (newVal) => {
                     urlparam:newData.value.urlparam,
                     offers:newData.value.offers,
                     target_pkg_name:newData.value.target_pkg_name,
-                    bsclick: newData.value.bsclick,
+                    bsclick: newData.value.bsclick.toString(),
                     max: newData.value.max,
                     hour: newData.value.hour,
                     startHour: newData.value.startHour,

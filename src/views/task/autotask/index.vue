@@ -8,8 +8,8 @@
                     <div class="form-item">
                         <div class="form-item-label">Etype</div>
                         <el-select v-model="propFrom.etypes" placeholder="Please select">
-                            <el-option label="click" value="click" />
-                            <el-option label="imp" value="imp" />
+                            <el-option label="click" value="0" />
+                            <el-option label="imp" value="1" />
                             <el-option label="all" value="all" />
                         </el-select>
                     </div>

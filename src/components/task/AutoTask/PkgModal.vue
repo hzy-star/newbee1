@@ -169,12 +169,14 @@ watch(() => props.modelValue, async (newVal) => {
     // 如果没有当前行数据，清空表单
     resetData()
     if (newVal) {  // 当弹层显示时
+        
         try {
             newData.value = props.currentRowData
+            console.log(newData.value.type);
             if (newData.value) {
                 // 如果有当前行数据，填充表单
                 formData.value = {
-                    etype: newData.value.type == 1 ? "imp" : 'click',
+                    etype: newData.value.type.toString(),
                     offerId:newData.value.offerId,
                     appId:newData.value.appId,
                     country:newData.value.country,
