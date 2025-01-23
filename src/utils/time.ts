@@ -49,7 +49,7 @@ export function formatDateToSimple(dateString: string) {
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
 
-export function toDateStr(srcDate: Date | undefined) {
+export function toDateStr(srcDate: Date | undefined, simpleFormat: boolean = false) {
   let date = srcDate || new Date();
   let year = date.getFullYear();
   let month = "00" + (date.getMonth() + 1);
@@ -62,6 +62,11 @@ export function toDateStr(srcDate: Date | undefined) {
   minutes = minutes.slice(-2);
   let seconds = "00" + date.getSeconds();
   seconds = seconds.slice(-2);
+
+  if (simpleFormat) {
+    return year + "-" + month + "-" + day;
+  }
+
   return (
     year + "-" + month + "-" + day + " " + hour + ":" + minutes + ":" + seconds
   );
