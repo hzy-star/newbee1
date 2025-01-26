@@ -84,104 +84,109 @@
 
         <!-- 数据表格 -->
         <div class="pushtask_table">
-            <vxe-table border auto-resize height="auto" :column-config="{ resizable: true }"
-                :cell-config="{ verticalAlign: 'center' }" :row-config="{ isCurrent: true, isHover: true, }"
-                :scroll-y="{enabled: true, gt: 0}" 
-                :data="tableDataList" ref="tableRef">
-                <vxe-column field="#" type="checkbox" title="" align="center" width="2%">
-                    <template #header="{ checked, indeterminate }">
-                        <span class="custom-checkbox" @click.stop="toggleAllCheckboxEvent">
-                            <i v-if="indeterminate" class="vxe-icon-square-minus-fill"></i>
-                            <i v-else-if="checked" class="vxe-icon-square-checked-fill"></i>
-                            <i v-else class="vxe-icon-checkbox-unchecked"></i>
-                        </span>
-                    </template>
-                    <template #checkbox="{ row, checked, indeterminate }">
-                        <span class="custom-checkbox" @click.stop="toggleCheckboxEvent(row)">
-                            <i v-if="indeterminate" class="vxe-icon-square-minus-fill"></i>
-                            <i v-else-if="checked" class="vxe-icon-square-checked-fill"></i>
-                            <i v-else class="vxe-icon-checkbox-unchecked"></i>
-                        </span>
-                    </template>
-                </vxe-column>
-                <vxe-column field="xh" type="seq" align="center" title=" " width="3%"></vxe-column>
-                <vxe-column field="etype" title="event" align="center" width="4%">
-                    <template #default="{ row }">
-                        {{ row.type == 0 ? "click" : 'imp' }}
-                    </template>
-                </vxe-column>
-                <vxe-column field="appId" title="app" align="center" width="5%"></vxe-column>
-                <vxe-column field="country" title="country" align="center" width="4%"></vxe-column>
-                <vxe-column field="offerId" title="offer" align="center" width="8%"></vxe-column>
-                <vxe-column field="pkg_name" title="pkg" align="center" width="18%"></vxe-column>
-                <vxe-column field="source" title="source" align="center" width="5%"></vxe-column>
-                <vxe-column field="fill_type" title="fillType" align="center" width="4%">
-                    <template #default="{ row }">
-                        {{ row.fill_type == null ? 'top' : row.fill_type }}
-                    </template>
-                </vxe-column>
-                <vxe-column field="bsclick" title="bsclick" align="center" width="4%">
-                    <template #default="{ row }">
-                        {{ row.bsclick == null ? 'false' : row.bsclick }}
-                    </template>
-                </vxe-column>
-                <vxe-column field="send_plan" title="sendPlan" align="center" width="5%">
-                    <template #default="{ row }">
-                        {{ row.send_plan == "" ? row.clickTarget : row.send_plan }}
-                    </template>
-                </vxe-column>
-                <vxe-column field="succ/sent/result" title="succ/sent/result" align="center" width="10%">
-                    <template #default="{ row }">
-                        <div >
+            <div class="toolbarRef-div">
+                <vxe-toolbar ref="toolbarRef" custom></vxe-toolbar>
+            </div>
+            <div class="vxe-table-div">
+                <vxe-table border auto-resize height="auto" :column-config="{ resizable: true }"
+                    :cell-config="{ verticalAlign: 'center' }" :row-config="{ isCurrent: true, isHover: true, }"
+                    :scroll-y="{ enabled: true, gt: 0 }" :data="tableDataList" ref="tableRef" :custom-config="customConfig">
+                    <vxe-column field="#" type="checkbox" title="" align="center" width="2%">
+                        <template #header="{ checked, indeterminate }">
+                            <span class="custom-checkbox" @click.stop="toggleAllCheckboxEvent">
+                                <i v-if="indeterminate" class="vxe-icon-square-minus-fill"></i>
+                                <i v-else-if="checked" class="vxe-icon-square-checked-fill"></i>
+                                <i v-else class="vxe-icon-checkbox-unchecked"></i>
+                            </span>
+                        </template>
+                        <template #checkbox="{ row, checked, indeterminate }">
+                            <span class="custom-checkbox" @click.stop="toggleCheckboxEvent(row)">
+                                <i v-if="indeterminate" class="vxe-icon-square-minus-fill"></i>
+                                <i v-else-if="checked" class="vxe-icon-square-checked-fill"></i>
+                                <i v-else class="vxe-icon-checkbox-unchecked"></i>
+                            </span>
+                        </template>
+                    </vxe-column>
+                    <vxe-column field="xh" type="seq" align="center" title=" " width="3%"></vxe-column>
+                    <vxe-column field="etype" title="event" align="center" width="4%">
+                        <template #default="{ row }">
+                            {{ row.type == 0 ? "click" : 'imp' }}
+                        </template>
+                    </vxe-column>
+                    <vxe-column field="appId" title="app" align="center" width="5%"></vxe-column>
+                    <vxe-column field="country" title="country" align="center" width="4%"></vxe-column>
+                    <vxe-column field="offerId" title="offer" align="center" width="8%"></vxe-column>
+                    <vxe-column field="pkg_name" title="pkg" align="center" width="18%"></vxe-column>
+                    <vxe-column field="source" title="source" align="center" width="5%" ></vxe-column>
+                    <vxe-column field="fill_type" title="fillType" align="center" width="4%">
+                        <template #default="{ row }">
+                            {{ row.fill_type == null ? 'top' : row.fill_type }}
+                        </template>
+                    </vxe-column>
+                    <vxe-column field="bsclick" title="bsclick" align="center" width="4%">
+                        <template #default="{ row }">
+                            {{ row.bsclick == null ? 'false' : row.bsclick }}
+                        </template>
+                    </vxe-column>
+                    <vxe-column field="send_plan" title="sendPlan" align="center" width="5%">
+                        <template #default="{ row }">
+                            {{ row.send_plan == "" ? row.clickTarget : row.send_plan }}
+                        </template>
+                    </vxe-column>
+                    <vxe-column field="succ/sent/result" title="succ/sent/result" align="center" width="10%">
+                        <template #default="{ row }">
                             <div>
-                                {{ row?.clickSuccess + '/'}}
+                                <div>
+                                    {{ row?.clickSuccess + '/' }}
+                                </div>
+                                <div>
+                                    {{ row?.clickSent }}
+                                </div>
                             </div>
-                            <div>
-                                {{ row?.clickSent }}
-                            </div>
-                        </div>
-                    </template>
-                </vxe-column>
-                <vxe-column field="cr" title="cr" align="center" width="8%">
-                    <template #default="{ row }" >
-                        <!-- 检查 taskCr 是否存在且不为 null -->
-                        <div class="device-box" v-if="group == 'ym'">
-                            <div class="device-text"><span class="device-span">cr:</span>
-                                {{ (((row?.crInfo?.ctr ? row?.crInfo?.ctr : 0) + (row?.crInfo?.ivr ? row?.crInfo?.ivr :
+                        </template>
+                    </vxe-column>
+                    <vxe-column field="cr" title="cr" align="center" width="8%">
+                        <template #default="{ row }">
+                            <!-- 检查 taskCr 是否存在且不为 null -->
+                            <div class="device-box" v-if="group == 'ym'">
+                                <div class="device-text"><span class="device-span">cr:</span>
+                                    {{ (((row?.crInfo?.ctr ? row?.crInfo?.ctr : 0) + (row?.crInfo?.ivr ?
+                                        row?.crInfo?.ivr :
                                     0)) * 100).toFixed(4) }}%</div>
-                            <div class="device-text"><span class="device-span">ecpc:</span>
-                                {{ (((row?.crInfo?.ecpc ? row?.crInfo?.ecpc : 0)) * 100).toFixed(4) }}%</div>
-                            <div class="device-text"><span class="device-span">roi:</span>
-                                {{ (((row?.crInfo?.roi ? row?.crInfo?.roi : 0)) * 100).toFixed(2) }}%</div>
-                        </div>
-                        <div v-else>
-                            {{ '' }}
-                        </div>
-                    </template>
-                </vxe-column>
-                <vxe-column field="updatedTime" title="mdate" align="center" width="100">
-                    <template #default="{ row }">
-                        {{ formatDateToSimple(row?.updatedTime) }}
-                    </template>
-                </vxe-column>
-                <vxe-column field="Action" align="center" fixed="right" width="220">
-                    <template #header>
-                        <div style="display: flex; align-items: center; justify-content: center;">
-                            <span>Action</span>
-                            <el-button type="primary" size="small" @click="exportToCSV">csv</el-button>
-                        </div>
-                    </template>
-                    <template #default="scope">
-                        <el-button class="btn_table" size="small" type="primary"
-                            @click="showTask(scope.row)">show</el-button>
-                        <el-button class="btn_table" size="small" type="success" v-if="scope.row.status != 'enabled'"
-                            @click="enableTask(scope.row)">enable</el-button>
-                        <el-button class="btn_table" size="small" type="danger"
-                            v-else-if="scope.row.status == 'enabled'"
-                            @click="disableTask(scope.row)">terminated</el-button>
-                    </template>
-                </vxe-column>
-            </vxe-table>
+                                <div class="device-text"><span class="device-span">ecpc:</span>
+                                    {{ (((row?.crInfo?.ecpc ? row?.crInfo?.ecpc : 0)) * 100).toFixed(4) }}%</div>
+                                <div class="device-text"><span class="device-span">roi:</span>
+                                    {{ (((row?.crInfo?.roi ? row?.crInfo?.roi : 0)) * 100).toFixed(2) }}%</div>
+                            </div>
+                            <div v-else>
+                                {{ '' }}
+                            </div>
+                        </template>
+                    </vxe-column>
+                    <vxe-column field="updatedTime" title="mdate" align="center" width="100">
+                        <template #default="{ row }">
+                            {{ formatDateToSimple(row?.updatedTime) }}
+                        </template>
+                    </vxe-column>
+                    <vxe-column field="Action" align="center" fixed="right" min-width="220">
+                        <template #header>
+                            <div style="display: flex; align-items: center; justify-content: center;">
+                                <span>Action</span>
+                                <el-button type="primary" size="small" @click="exportToCSV">csv</el-button>
+                            </div>
+                        </template>
+                        <template #default="scope">
+                            <el-button class="btn_table" size="small" type="primary"
+                                @click="showTask(scope.row)">show</el-button>
+                            <el-button class="btn_table" size="small" type="success"
+                                v-if="scope.row.status != 'enabled'" @click="enableTask(scope.row)">enable</el-button>
+                            <el-button class="btn_table" size="small" type="danger"
+                                v-else-if="scope.row.status == 'enabled'"
+                                @click="disableTask(scope.row)">terminated</el-button>
+                        </template>
+                    </vxe-column>
+                </vxe-table>
+            </div>
         </div>
 
         <div class="pushtask_footer">
@@ -200,19 +205,20 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, reactive } from 'vue';
 import type { autoTaskFormInter } from '@/api/pushtask/type'
 import { ElMessage, ElMessageBox } from 'element-plus';
 import autoTaskTable from './hooks/autoTaskTable';
 import autoTaskModals from './hooks/autoTaskModals'
 import autoRunningStatus from './hooks/autoRunningStatus'
 import { formatDateToSimple } from "@/utils/time";
-import { reqBatchEnabled,reqDisBatchEnabled } from "@/api/pushtask/autoTask"
+import { reqBatchEnabled, reqDisBatchEnabled } from "@/api/pushtask/autoTask"
 import { useTaskStore } from '@/store/pushtask/autoTask'
 import AutoTask from '@/components/task/AutoTask/PkgModal.vue'
 import type { FormDataType } from '@/components/task/AutoPkgTask/type'
-import {getCookies} from '@/utils/common'
+import { getCookies } from '@/utils/common'
 import { autoTaskEnabled } from "@/api/pushtask/type";
+import type { VxeToolbarInstance ,VxeTablePropTypes} from 'vxe-table'
 // 获取group
 const group = ref(getCookies('group'))
 
@@ -346,9 +352,9 @@ const handleTaskStatus = async (type: 'enable' | 'disable', isBatch: boolean, da
             type: 'warning',
         })
         let res: autoTaskEnabled
-        if(type === 'enable'){
+        if (type === 'enable') {
             res = await reqBatchEnabled(params)
-        }else{
+        } else {
             res = await reqDisBatchEnabled(params)
         }
         if (res.message === 'success') {
@@ -386,24 +392,24 @@ const exportToCSV = () => {
     const $table = tableRef.value;
     if ($table) {
         const list = $table.getFullColumns()
-        .filter(column => !['xh', '#'].includes(column.field)); // 过滤掉 xh 和 # 列// 过滤掉 xh 列;
+            .filter(column => !['xh', '#'].includes(column.field)); // 过滤掉 xh 和 # 列// 过滤掉 xh 列;
         const headers = list.map((column) => column.title);
         // headers[0] = '#';
         // headers[headers.length - 1] = 'Action';
 
         const formattedRows = tableData.value.map((row: any) => {
             return list.map((column) => {
-                if(column.field === 'etype'){
+                if (column.field === 'etype') {
                     return `${row.type == 0 ? "click" : 'imp'}`;
-                }else if(column.field === 'fill_type'){
+                } else if (column.field === 'fill_type') {
                     return `${row.fill_type == null ? 'top' : row.fill_type}`;
-                }else if(column.field === 'bsclick'){
+                } else if (column.field === 'bsclick') {
                     return `${row.bsclick == null ? 'false' : row.bsclick}`;
-                }else if(column.field === 'send_plan'){
+                } else if (column.field === 'send_plan') {
                     return `${row.send_plan == null ? row.clickTarget : row.send_plan}`;
-                }else if (column.field === 'succ/sent/result') {
+                } else if (column.field === 'succ/sent/result') {
                     return `${row.clickSuccess + '/' + row.clickSent}`;
-                }else if (column.field === 'cr') {
+                } else if (column.field === 'cr') {
                     const ctr = row?.crInfo?.ctr || 0;
                     const ivr = row?.crInfo?.ivr || 0;
                     const ecpc = row?.crInfo?.ecpc || 0;
@@ -433,8 +439,19 @@ const exportToCSV = () => {
 };
 
 
+const customConfig = reactive<VxeTablePropTypes.CustomConfig>({
+  checkMethod ({ column }) {
+    return !['#', 'xh','Action'].includes(column.field)
+  }
+})
+const toolbarRef = ref<VxeToolbarInstance>()
 onMounted(async () => {
 
+    const $table = tableRef.value
+    const $toolbar = toolbarRef.value
+    if ($table && $toolbar) {
+        $table.connect($toolbar)
+    }
 
 });
 </script>
@@ -454,6 +471,14 @@ onMounted(async () => {
         width: 100%;
         height: 70%;
         overflow: hidden;
+
+        .toolbarRef-div {
+            height: 10%;
+        }
+
+        .vxe-table-div {
+            height: 90%;
+        }
     }
 
     .pushtask_footer {

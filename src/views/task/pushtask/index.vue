@@ -7,7 +7,7 @@
         <el-col :span="4">
           <div class="form-item">
             <div class="form-item-label">Etype</div>
-            <el-select v-model="propFrom.etypes" placeholder="Please select" >
+            <el-select v-model="propFrom.etypes" placeholder="Please select">
               <el-option label="click" value="click" />
               <el-option label="imp" value="imp" />
               <el-option label="all" value="all" />
@@ -69,7 +69,7 @@
         <!-- 其他字段 -->
         <el-col :span="4">
           <div class="form-item">
-            <el-input  v-model="filtercontent" @change="searchEvent(1)" />
+            <el-input v-model="filtercontent" @change="searchEvent(1)" />
           </div>
         </el-col>
 
@@ -103,8 +103,9 @@
         <!-- 左侧按钮 -->
         <el-col :span="12" class="form-item-left">
           <el-button v-show="propFrom.status !== 'template'" type="primary" @click="BatchEdit">BatchEdit</el-button>
-          <el-button v-show="propFrom.status !== 'template' && propFrom.status !=='enable'" type="success" @click="BatchEnable">BatchEnable</el-button>
-          <el-button v-show="propFrom.status !== 'template' && propFrom.status !=='disabled'" type="danger"
+          <el-button v-show="propFrom.status !== 'template' && propFrom.status !== 'enable'" type="success"
+            @click="BatchEnable">BatchEnable</el-button>
+          <el-button v-show="propFrom.status !== 'template' && propFrom.status !== 'disabled'" type="danger"
             @click="BatchDisable">BatchDisable</el-button>
         </el-col>
 
@@ -119,10 +120,13 @@
 
     <!-- 数据表格 -->
     <div class="pushtask_table">
-      <vxe-table border auto-resize height="auto" :column-config="{ resizable: true }"
+      <div class="toolbarRef-div">
+        <vxe-toolbar ref="toolbarRef" custom></vxe-toolbar>
+      </div>
+      <div class="vxe-table-div">
+        <vxe-table border auto-resize height="auto" :column-config="{ resizable: true }"
         :cell-config="{ verticalAlign: 'center' }" :row-config="{ isCurrent: true, isHover: true, }"
-        :scroll-y="{enabled: true, gt: 0}" 
-        :data="tableDataList" ref="tableRef">
+        :scroll-y="{ enabled: true, gt: 0 }" :data="tableDataList" ref="tableRef" :custom-config="customConfig">
         <vxe-column field="#" type="checkbox" title="" align="center" width="6%">
           <template #header="{ checked, indeterminate }">
             <span class="custom-checkbox" @click.stop="toggleAllCheckboxEvent">
@@ -152,14 +156,14 @@
         <vxe-column field="etype" title="event" align="center" width="4%"></vxe-column>
         <vxe-column field="offers" title="offer" align="center" width="6%"></vxe-column>
         <vxe-column field="appId" title="appid" align="center" width="6%"></vxe-column>
-        <vxe-column field="weight" title="weight" align="center" width="5%"></vxe-column>
-        <vxe-column field="scope" title="scope" align="center" width="5%">
+        <vxe-column field="weight" title="weight" align="center" width="5%" :visible="false"></vxe-column>
+        <vxe-column field="scope" title="scope" align="center" width="5%" :visible="false">
           <template #default="{ row }">
             {{ row.gt + "->" + row.lt }}
           </template>
         </vxe-column>
         <vxe-column field="country" title="country" align="center" width="4%"></vxe-column>
-        <vxe-column field="usealg" title="usealg" align="center" width="5%"></vxe-column>
+        <vxe-column field="usealg" title="usealg" align="center" width="5%" :visible="false"></vxe-column>
         <vxe-column field="urlparams" title="urlparam" align="center" width="10%"></vxe-column>
         <vxe-column field="sendPlan" title="sendPlan" align="center" width="8%"></vxe-column>
         <vxe-column field="pkgName" title="pkg" align="center" width="9%">
@@ -193,7 +197,8 @@
             <!-- Add a check to only display popover if necessary fields are not null -->
             <el-popover v-if="shouldShowPopover(row)" effect="light" trigger="hover" placement="left" width="auto">
               <template #default>
-                <div class="popoverClass" v-html="generateStatusDetail(row?.ongoingData?.[0]?.statusDetail || '')"></div>
+                <div class="popoverClass" v-html="generateStatusDetail(row?.ongoingData?.[0]?.statusDetail || '')">
+                </div>
               </template>
               <template #reference>
                 <el-tag>more</el-tag>
@@ -216,7 +221,7 @@
             {{ formatDateToSimple(row?.mdate) }}
           </template>
         </vxe-column>
-        <vxe-column field="Action" align="center" fixed="right" width="240">
+        <vxe-column field="Action" align="center" fixed="right" min-width="240">
           <template #header>
             <div style="display: flex; align-items: center; justify-content: center;">
               <span>Action</span>
@@ -235,6 +240,7 @@
           </template>
         </vxe-column>
       </vxe-table>
+      </div>
     </div>
 
     <div class="pushtask_footer">
@@ -255,7 +261,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, reactive } from 'vue';
 import type { propFormInter } from '@/api/pushtask/type'
 import { ElMessage, ElMessageBox } from 'element-plus';
 import useChart from './hooks/useChart'
@@ -268,6 +274,7 @@ import TaskModal from '@/components/task/TaskModal.vue'
 import ChartModal from '@/components/task/ChartModal.vue'
 import type { FormDataType } from '@/components/task/type'
 import { useTaskStore } from '@/store/pushtask/task'
+import type { VxeToolbarInstance ,VxeTablePropTypes} from 'vxe-table'
 const getTaskCr = listTaskCr()
 // 页面初始化获取getAutoTopBundleKeyNames接口的值
 const autoBundleKey = ref<Array<string>>()
@@ -620,16 +627,16 @@ const exportToCSV = () => {
   const $table = tableRef.value;
   if ($table) {
     const list = $table.getFullColumns()
-    .filter(column => !['xh', '#'].includes(column.field)); // 过滤掉 xh 和 # 列// 过滤掉 xh 列;;
+      .filter(column => !['xh', '#'].includes(column.field)); // 过滤掉 xh 和 # 列// 过滤掉 xh 列;;
     const headers = list.map((column) => column.title);
     // headers[0] = '#';
     // headers[headers.length - 1] = 'Action';
 
     const formattedRows = tableData.value.map((row: any) => {
       return list.map((column) => {
-        if( column.field === 'sendPlan' ){
+        if (column.field === 'sendPlan') {
           return `"${row.sendPlan || ''}"`;
-        }else if (column.field === 'succ/total/status/dcsuccss/sent') {
+        } else if (column.field === 'succ/total/status/dcsuccss/sent') {
           // 动态拼接 succ/total/status/dcsuccss/sent 的值
           const ongoingData = row.ongoingData?.[0] || {};
           return `${ongoingData.successCount || ''}/ ` +
@@ -665,9 +672,18 @@ const exportToCSV = () => {
     document.body.removeChild(link);
   }
 };
-
-
+const customConfig = reactive<VxeTablePropTypes.CustomConfig>({
+  checkMethod ({ column }) {
+    return !['#', 'xh','Action'].includes(column.field)
+  }
+})
+const toolbarRef = ref<VxeToolbarInstance>()
 onMounted(async () => {
+  const $table = tableRef.value
+  const $toolbar = toolbarRef.value
+  if ($table && $toolbar) {
+    $table.connect($toolbar)
+  }
   if (date.value.length > 0) {
     propFrom.value.taskdate = date.value[0];  // 设置默认选中第一个日期
   }
@@ -692,6 +708,12 @@ onMounted(async () => {
     width: 100%;
     height: 70%;
     overflow: hidden;
+    .toolbarRef-div{
+      height: 10%;
+    }
+    .vxe-table-div {
+      height: 90%;
+    }
   }
 
   .pushtask_footer {
@@ -756,7 +778,8 @@ onMounted(async () => {
   justify-content: center;
   align-items: center;
 }
-.popoverClass{
+
+.popoverClass {
   max-height: 500px;
   word-wrap: break-word;
   word-break: break-all;

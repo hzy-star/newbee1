@@ -57,7 +57,7 @@
                 <el-col :span="4">
                     <div class="form-item">
                         <div class="form-item-label">Etype</div>
-                        <el-select v-model="propFrom.etype" placeholder="Please select" >
+                        <el-select v-model="propFrom.etype" placeholder="Please select">
                             <el-option label="click" value="click" />
                             <el-option label="imp" value="imp" />
                             <el-option label="all" value="all" />
@@ -67,7 +67,7 @@
                 <!-- 其他字段 -->
                 <el-col :span="4">
                     <div class="form-item">
-                        <el-input v-model="filtercontent" @change="searchEvent(1)"/>
+                        <el-input v-model="filtercontent" @change="searchEvent(1)" />
                     </div>
                 </el-col>
                 <!-- Status -->
@@ -88,8 +88,10 @@
                 <!-- 左侧按钮 -->
                 <el-col :span="12" class="form-item-left">
                     <el-button type="primary" @click="BatchEdit">BatchEdit</el-button>
-                    <el-button type="success" v-show="propFrom.ce_pkg_status == 'disabled'"  @click="BatchEnable">BatchEnable</el-button>
-                    <el-button type="danger"  v-show="propFrom.ce_pkg_status == 'enabled'"   @click="BatchDisable">BatchDisable</el-button>
+                    <el-button type="success" v-show="propFrom.ce_pkg_status == 'disabled'"
+                        @click="BatchEnable">BatchEnable</el-button>
+                    <el-button type="danger" v-show="propFrom.ce_pkg_status == 'enabled'"
+                        @click="BatchDisable">BatchDisable</el-button>
                 </el-col>
 
                 <!-- 右侧按钮 -->
@@ -102,132 +104,144 @@
 
         <!-- 数据表格 -->
         <div class="pushtask_table">
-            <vxe-table border auto-resize height="auto" :column-config="{ resizable: true }"
-                :cell-config="{ verticalAlign: 'center' }" :row-config="{ isCurrent: true, isHover: true, }"
-                :scroll-y="{enabled: true, gt: 0}" 
-                :data="tableDataList" ref="tableRef">
-                <vxe-column field="#" type="checkbox" title="" align="center" width="2%">
-                    <template #header="{ checked, indeterminate }">
-                        <span class="custom-checkbox" @click.stop="toggleAllCheckboxEvent">
-                            <i v-if="indeterminate" class="vxe-icon-square-minus-fill"></i>
-                            <i v-else-if="checked" class="vxe-icon-square-checked-fill"></i>
-                            <i v-else class="vxe-icon-checkbox-unchecked"></i>
-                        </span>
-                    </template>
-                    <template #checkbox="{ row, checked, indeterminate }">
-                        <span class="custom-checkbox" @click.stop="toggleCheckboxEvent(row)">
-                            <i v-if="indeterminate" class="vxe-icon-square-minus-fill"></i>
-                            <i v-else-if="checked" class="vxe-icon-square-checked-fill"></i>
-                            <i v-else class="vxe-icon-checkbox-unchecked"></i>
-                        </span>
-                    </template>
-                </vxe-column>
-                <vxe-column field="xh" type="seq" align="center" title=" " width="3%"></vxe-column>
-                <vxe-column field="etype" title="event" align="center" width="4%">
-                    <template #default="{ row }">
-                        {{ row.etype == null ? "click" : row.etype }}
-                    </template>
-                </vxe-column>
-                <vxe-column field="id" title="taskid" align="center" width="5%"></vxe-column>
-                <vxe-column field="appId" title="appId" align="center" width="5%"></vxe-column>
-                <vxe-column field="pkgName" title="pkgname" align="center" width="10%"></vxe-column>
-                <vxe-column field="country" title="country" align="center" width="4%"></vxe-column>
-                <vxe-column field="offers" title="offers" align="center" width="6%"></vxe-column>
-                <vxe-column field="deviceDays" title="deviceDays" align="center" width="5%"></vxe-column>
-                <vxe-column field="source" title="source" align="center" width="12%">
-                    <template #default="{ row }">
-                        <div class="device-box">
-                            <div class="device-text" :title="!!row.s ? (row.s) : '-'"><span
-                                    class="device-span">source:</span> {{ !!row.s ? truncateText(row.s) : '-' }}</div>
-                            <div class="device-text" :title="!!row.ds_adx ? (row.ds_adx) : '-'"><span
-                                    class="device-span">dsadx:</span> {{ !!row.ds_adx ? truncateText(row.ds_adx) : '-'
-                                }}
-                            </div>
-                            <div class="device-text" :title="!!row.ds_bundle ? (row.ds_bundle) : '-'"><span
-                                    class="device-span">dsbundle:</span> {{ !!row.ds_bundle ?
-                                        truncateText(row.ds_bundle) : '-' }}</div>
-                        </div>
-                    </template>
-                </vxe-column>
-                <vxe-column field="bsclick" title="bsclick" align="center" width="4%"></vxe-column>
-                <vxe-column field="max" title="max" align="center" width="5%"></vxe-column>
-                <vxe-column field="hour" title="hour" align="center" width="4%"></vxe-column>
-                <vxe-column field="startHour" title="startHour" align="center" width="5%"></vxe-column>
-                <vxe-column field="runningStatus" title="runningStatus" align="center" width="8%">
-                    <template #default="{ row }">
-                        <div class="device-box">
-                            <div class="device-text">
-                                <span class="device-span">succ:</span>
-                                {{ !!row.runnerStatus?.succCount ? (row.runnerStatus?.succCount) : '' }}
-                            </div>
-                            <div class="device-text">
-                                <span class="device-span">sent:</span>
-                                {{ !!row.runnerStatus?.sendCount ? (row.runnerStatus?.sendCount) : '' }}
-                            </div>
-                            <div class="device-text">
-                                <span class="device-span">valid:</span>
-                                {{ !!row.runnerStatus?.validCount ? (row.runnerStatus?.validCount) : '' }}
-                            </div>
-
-                            <div class="device-text"
-                                :class="row.runnerStatus?.status < 0 ? 'text-danger' : 'text-success'">
-                                {{ !!row.runnerStatus?.status ? filterStatus(row.runnerStatus?.status) : '' }}
-                            </div>
-                        </div>
-
-                        <!-- Add a check to only display popover if necessary fields are not null -->
-                        <el-popover v-if="row?.runnerStatus?.resultDetail" effect="light" trigger="hover"
-                            placement="left" width="auto">
-                            <template #default>
-                                <div class="popoverClass"
-                                    v-html="row?.runnerStatus?.resultDetail ? generateStatusDetail(row?.runnerStatus?.resultDetail) : ''">
+            <div class="toolbarRef-div">
+                <vxe-toolbar ref="toolbarRef" custom></vxe-toolbar>
+            </div>
+            <div class="vxe-table-div">
+                <vxe-table border auto-resize height="auto" :column-config="{ resizable: true }"
+                    :cell-config="{ verticalAlign: 'center' }" :row-config="{ isCurrent: true, isHover: true, }"
+                    :scroll-y="{ enabled: true, gt: 0 }" :data="tableDataList" ref="tableRef" :custom-config="customConfig">
+                    <vxe-column field="#" type="checkbox" title="" align="center" width="2%">
+                        <template #header="{ checked, indeterminate }">
+                            <span class="custom-checkbox" @click.stop="toggleAllCheckboxEvent">
+                                <i v-if="indeterminate" class="vxe-icon-square-minus-fill"></i>
+                                <i v-else-if="checked" class="vxe-icon-square-checked-fill"></i>
+                                <i v-else class="vxe-icon-checkbox-unchecked"></i>
+                            </span>
+                        </template>
+                        <template #checkbox="{ row, checked, indeterminate }">
+                            <span class="custom-checkbox" @click.stop="toggleCheckboxEvent(row)">
+                                <i v-if="indeterminate" class="vxe-icon-square-minus-fill"></i>
+                                <i v-else-if="checked" class="vxe-icon-square-checked-fill"></i>
+                                <i v-else class="vxe-icon-checkbox-unchecked"></i>
+                            </span>
+                        </template>
+                    </vxe-column>
+                    <vxe-column field="xh" type="seq" align="center" title=" " width="3%"></vxe-column>
+                    <vxe-column field="etype" title="event" align="center" width="4%">
+                        <template #default="{ row }">
+                            {{ row.etype == null ? "click" : row.etype }}
+                        </template>
+                    </vxe-column>
+                    <vxe-column field="id" title="taskid" align="center" width="5%"></vxe-column>
+                    <vxe-column field="appId" title="appId" align="center" width="5%"></vxe-column>
+                    <vxe-column field="pkgName" title="pkgname" align="center" width="10%"></vxe-column>
+                    <vxe-column field="country" title="country" align="center" width="4%"></vxe-column>
+                    <vxe-column field="offers" title="offers" align="center" width="6%"></vxe-column>
+                    <vxe-column field="deviceDays" title="deviceDays" align="center" width="5%"></vxe-column>
+                    <vxe-column field="source" title="source" align="center" width="12%">
+                        <template #default="{ row }">
+                            <div class="device-box">
+                                <div class="device-text" :title="!!row.s ? (row.s) : '-'"><span
+                                        class="device-span">source:</span> {{ !!row.s ? truncateText(row.s) : '-' }}
                                 </div>
-                            </template>
-                            <template #reference>
-                                <el-tag>more</el-tag>
-                            </template>
-                        </el-popover>
-                    </template>
-                </vxe-column>
-                <vxe-column field="cr" title="cr" align="center" width="8%">
-                    <template #default="{ row }">
-                        <!-- 检查 taskCr 是否存在且不为 null -->
-                        <div class="device-box">
-                            <div class="device-text"><span class="device-span">cr:</span>
-                                {{ (((row?.crInfo?.ctr ? row?.crInfo?.ctr : 0) + (row?.crInfo?.ivr ? row?.crInfo?.ivr :
-                                0)) * 100).toFixed(4) }}%</div>
-                            <div class="device-text"><span class="device-span">ecpc:</span>
-                                {{ (((row?.crInfo?.ecpc ? row?.crInfo?.ecpc : 0)) * 100).toFixed(4) }}%</div>
-                            <div class="device-text"><span class="device-span">roi:</span>
-                                {{ (((row?.crInfo?.roi ? row?.crInfo?.roi : 0)) * 100).toFixed(2) }}%</div>
+                                <div class="device-text" :title="!!row.ds_adx ? (row.ds_adx) : '-'"><span
+                                        class="device-span">dsadx:</span> {{ !!row.ds_adx ? truncateText(row.ds_adx) :
+                                            '-'
+                                    }}
+                                </div>
+                                <div class="device-text" :title="!!row.ds_bundle ? (row.ds_bundle) : '-'"><span
+                                        class="device-span">dsbundle:</span> {{ !!row.ds_bundle ?
+                                            truncateText(row.ds_bundle) : '-' }}</div>
+                            </div>
+                        </template>
+                    </vxe-column>
+                    <vxe-column field="bsclick" title="bsclick" align="center" width="4%"></vxe-column>
+                    <vxe-column field="max" title="max" align="center" width="5%"></vxe-column>
+                    <vxe-column field="hour" title="hour" align="center" width="4%"></vxe-column>
+                    <vxe-column field="startHour" title="startHour" align="center" width="5%"></vxe-column>
+                    <vxe-column field="runningStatus" title="runningStatus" align="center" width="8%">
+                        <template #default="{ row }">
+                            <div class="device-box">
+                                <div class="device-text">
+                                    <span class="device-span">succ:</span>
+                                    {{ !!row.runnerStatus?.succCount ? (row.runnerStatus?.succCount) : '' }}
+                                </div>
+                                <div class="device-text">
+                                    <span class="device-span">sent:</span>
+                                    {{ !!row.runnerStatus?.sendCount ? (row.runnerStatus?.sendCount) : '' }}
+                                </div>
+                                <div class="device-text">
+                                    <span class="device-span">valid:</span>
+                                    {{ !!row.runnerStatus?.validCount ? (row.runnerStatus?.validCount) : '' }}
+                                </div>
 
-                        </div>
-                    </template>
-                </vxe-column>
-                <vxe-column field="updated" title="updateDate" align="center" width="100">
-                    <template #default="{ row }">
-                        {{ formatDateToSimple(row?.updated) }}
-                    </template>
-                </vxe-column>
-                <vxe-column field="Action" align="center" fixed="right" width="240">
-                    <template #header>
-                        <div style="display: flex; align-items: center; justify-content: center;">
-                            <span>Action</span>
-                            <el-button type="primary" size="small" @click="exportToCSV">csv</el-button>
-                        </div>
-                    </template>
-                    <template #default="scope">
-                        <el-button class="btn_table" size="small" type="primary" @click="showTask(scope.row)">show</el-button>
-                        <el-button class="btn_table" size="small" type="primary" @click="tryTask(scope.row)">try</el-button>
-                        <el-button class="btn_table" size="small" type="primary" @click="runTask(scope.row)">run</el-button>
-                        <el-button class="btn_table" size="small" type="success" v-if="scope.row.status == 'disabled'"
-                            @click="enableTask(scope.row)">enable</el-button>
-                        <el-button class="btn_table" size="small" type="danger" v-else-if="scope.row.status == 'enabled'"
-                            @click="disableTask(scope.row)">disable</el-button>
-                        <el-button class="btn_table" size="small" type="primary" @click="historyTask(scope.row)">history</el-button>
-                    </template>
-                </vxe-column>
-            </vxe-table>
+                                <div class="device-text"
+                                    :class="row.runnerStatus?.status < 0 ? 'text-danger' : 'text-success'">
+                                    {{ !!row.runnerStatus?.status ? filterStatus(row.runnerStatus?.status) : '' }}
+                                </div>
+                            </div>
+
+                            <!-- Add a check to only display popover if necessary fields are not null -->
+                            <el-popover v-if="row?.runnerStatus?.resultDetail" effect="light" trigger="hover"
+                                placement="left" width="auto">
+                                <template #default>
+                                    <div class="popoverClass"
+                                        v-html="row?.runnerStatus?.resultDetail ? generateStatusDetail(row?.runnerStatus?.resultDetail) : ''">
+                                    </div>
+                                </template>
+                                <template #reference>
+                                    <el-tag>more</el-tag>
+                                </template>
+                            </el-popover>
+                        </template>
+                    </vxe-column>
+                    <vxe-column field="cr" title="cr" align="center" width="8%">
+                        <template #default="{ row }">
+                            <!-- 检查 taskCr 是否存在且不为 null -->
+                            <div class="device-box">
+                                <div class="device-text"><span class="device-span">cr:</span>
+                                    {{ (((row?.crInfo?.ctr ? row?.crInfo?.ctr : 0) + (row?.crInfo?.ivr ?
+                                        row?.crInfo?.ivr :
+                                    0)) * 100).toFixed(4) }}%</div>
+                                <div class="device-text"><span class="device-span">ecpc:</span>
+                                    {{ (((row?.crInfo?.ecpc ? row?.crInfo?.ecpc : 0)) * 100).toFixed(4) }}%</div>
+                                <div class="device-text"><span class="device-span">roi:</span>
+                                    {{ (((row?.crInfo?.roi ? row?.crInfo?.roi : 0)) * 100).toFixed(2) }}%</div>
+
+                            </div>
+                        </template>
+                    </vxe-column>
+                    <vxe-column field="updated" title="updateDate" align="center" width="100">
+                        <template #default="{ row }">
+                            {{ formatDateToSimple(row?.updated) }}
+                        </template>
+                    </vxe-column>
+                    <vxe-column field="Action" align="center" fixed="right" min-width="240">
+                        <template #header>
+                            <div style="display: flex; align-items: center; justify-content: center;">
+                                <span>Action</span>
+                                <el-button type="primary" size="small" @click="exportToCSV">csv</el-button>
+                            </div>
+                        </template>
+                        <template #default="scope">
+                            <el-button class="btn_table" size="small" type="primary"
+                                @click="showTask(scope.row)">show</el-button>
+                            <el-button class="btn_table" size="small" type="primary"
+                                @click="tryTask(scope.row)">try</el-button>
+                            <el-button class="btn_table" size="small" type="primary"
+                                @click="runTask(scope.row)">run</el-button>
+                            <el-button class="btn_table" size="small" type="success"
+                                v-if="scope.row.status == 'disabled'" @click="enableTask(scope.row)">enable</el-button>
+                            <el-button class="btn_table" size="small" type="danger"
+                                v-else-if="scope.row.status == 'enabled'"
+                                @click="disableTask(scope.row)">disable</el-button>
+                            <el-button class="btn_table" size="small" type="primary"
+                                @click="historyTask(scope.row)">history</el-button>
+                        </template>
+                    </vxe-column>
+                </vxe-table>
+            </div>
         </div>
 
         <div class="pushtask_footer">
@@ -240,15 +254,15 @@
         </div>
         <!-- 添加在 template 最后 -->
         <PkgModal v-model="showModal" :title="modalTitle" :selected-ids="taskStore.selectedIds"
-            :current-row-data="currentRowData"  @confirm="handleModalConfirm" @confirmNew="handleModalConfirm" 
+            :current-row-data="currentRowData" @confirm="handleModalConfirm" @confirmNew="handleModalConfirm"
             :btn-type="btnType" />
-            <!-- historyTask -->
-            <HistoryTaskTable v-model="showHistoryModal" :title="historyTitle" :historyId="String(historyId)" />
+        <!-- historyTask -->
+        <HistoryTaskTable v-model="showHistoryModal" :title="historyTitle" :historyId="String(historyId)" />
     </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, reactive } from 'vue';
 import type { autoPkgFormInter } from '@/api/pushtask/type'
 import { ElMessage, ElMessageBox } from 'element-plus';
 import autoPkgTable from './hooks/autoPkgTable'
@@ -261,6 +275,7 @@ import PkgModal from '@/components/task/AutoPkgTask/PkgModal.vue'
 import HistoryTaskTable from '@/components/task/AutoPkgTask/HistoryTaskTable.vue'
 import type { FormDataType } from '@/components/task/AutoPkgTask/type'
 import { truncateText } from '@/utils/common'; // 直接导入默认对象并调用truncateText
+import type { VxeToolbarInstance ,VxeTablePropTypes} from 'vxe-table'
 const taskStore = useTaskStore()
 // 表单数据
 const propFrom = ref<autoPkgFormInter>({
@@ -538,8 +553,19 @@ const exportToCSV = () => {
 };
 
 
+const customConfig = reactive<VxeTablePropTypes.CustomConfig>({
+  checkMethod ({ column }) {
+    return !['#', 'xh','Action'].includes(column.field)
+  }
+})
+const toolbarRef = ref<VxeToolbarInstance>()
 onMounted(async () => {
 
+    const $table = tableRef.value
+    const $toolbar = toolbarRef.value
+    if ($table && $toolbar) {
+        $table.connect($toolbar)
+    }
 
 });
 </script>
@@ -559,6 +585,12 @@ onMounted(async () => {
         width: 100%;
         height: 70%;
         overflow: hidden;
+        .toolbarRef-div{
+        height: 10%;
+        }
+        .vxe-table-div {
+        height: 90%;
+        }
     }
 
     .pushtask_footer {
