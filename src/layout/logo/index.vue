@@ -1,6 +1,6 @@
 <template>
   <div class="logo" v-if="setting.logoHidden">
-    <img :src=setting.logo alt="" :class="!layoutSettingStore.fold ? 'fold' : ''" />
+    <img src='@/assets/images/pushnode.png' alt="" :class="!layoutSettingStore.fold ? 'fold' : ''" />
     <p v-if="!layoutSettingStore.fold">{{setting.title}}</p>
   </div>
 </template>
