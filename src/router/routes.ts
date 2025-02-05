@@ -127,6 +127,16 @@ export const constantRoutes = [
                     hidden: false
                 }
             },
+            {
+                path: '/traffic/deviceChart',
+                component: () => import('@/views/traffic/deviceChart/index.vue'),
+                name: 'deviceChart',
+                meta: {
+                    title: 'deviceChart',
+                    icon: 'Discount',
+                    hidden: false
+                }
+            },
         ]
     },
 ]
