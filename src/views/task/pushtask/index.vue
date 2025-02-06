@@ -2,7 +2,7 @@
   <div class="pushtask">
     <div class="pushtask_header">
       <!-- 查询条件 -->
-      <el-row :gutter="20" type="flex" justify="start">
+      <el-row :gutter="20" type="flex" justify="start" style="margin: 0;">
         <!-- Etype -->
         <el-col :span="4">
           <div class="form-item">
@@ -84,7 +84,7 @@
           </div>
         </el-col>
         <!-- Status -->
-        <el-col :span="7">
+        <el-col :span="10">
           <div class="form-item">
             <el-radio-group v-model="propFrom.status" @change="handleStatusChange">
               <el-radio value="enable">Enabled</el-radio>
@@ -99,23 +99,26 @@
 
     <div class="pushtask_btn">
       <!-- 操作按钮 -->
-      <el-row class="form-item-buttons">
+      <div class="form-item-buttons">
         <!-- 左侧按钮 -->
-        <el-col :span="12" class="form-item-left">
+        <div class="form-item-left">
           <el-button v-show="propFrom.status !== 'template'" type="primary" @click="BatchEdit">BatchEdit</el-button>
           <el-button v-show="propFrom.status !== 'template' && propFrom.status !== 'enable'" type="success"
             @click="BatchEnable">BatchEnable</el-button>
           <el-button v-show="propFrom.status !== 'template' && propFrom.status !== 'disabled'" type="danger"
             @click="BatchDisable">BatchDisable</el-button>
-        </el-col>
+        </div>
+        <el-icon @click="clickarrow">
+          <component :is="arrowupOrDown ? 'ArrowUp' : 'ArrowDown'"></component>
+        </el-icon>
 
         <!-- 右侧按钮 -->
-        <el-col :span="12" class="form-item-right">
+        <div class="form-item-right">
           <el-button type="primary" @click="CreateTemplate">CreateTemplate</el-button>
           <el-button type="primary" @click="addTask">Add Task</el-button>
           <el-button type="primary" @click="findAll(true)">Find All</el-button>
-        </el-col>
-      </el-row>
+        </div>
+      </div>
     </div>
 
     <!-- 数据表格 -->
@@ -125,121 +128,121 @@
       </div>
       <div class="vxe-table-div">
         <vxe-table border auto-resize height="auto" :column-config="{ resizable: true }"
-        :cell-config="{ verticalAlign: 'center' }" :row-config="{ isCurrent: true, isHover: true, }"
-        :scroll-y="{ enabled: true, gt: 0 }" :data="tableDataList" ref="tableRef" :custom-config="customConfig">
-        <vxe-column field="#" type="checkbox" title="" align="center" width="6%">
-          <template #header="{ checked, indeterminate }">
-            <span class="custom-checkbox" @click.stop="toggleAllCheckboxEvent">
-              <i v-if="indeterminate" class="vxe-icon-square-minus-fill"></i>
-              <i v-else-if="checked" class="vxe-icon-square-checked-fill"></i>
-              <i v-else class="vxe-icon-checkbox-unchecked"></i>
-            </span>
-          </template>
-          <template #checkbox="{ row, checked, indeterminate }">
-            <span class="custom-checkbox" @click.stop="toggleCheckboxEvent(row)">
-              <i v-if="indeterminate" class="vxe-icon-square-minus-fill"></i>
-              <i v-else-if="checked" class="vxe-icon-square-checked-fill"></i>
-              <i v-else class="vxe-icon-checkbox-unchecked"></i>
-            </span>
-            <div class="icon-echarts">
-              <svg-icon v-if="row.createdBy == 'app'" name="fa-plane" width="15px" height="15px"></svg-icon>
-              <svg-icon v-if="row.trafficcontrol" name="fa-android" width="15px" height="15px"></svg-icon>
-              <svg-icon name="fa-line-chart" width="15px" height="15px" @click="handleshowChart(row)"></svg-icon>
-              <svg-icon v-if="row.autoCr" name="fa-magic" width="15px" height="15px"
-                @click="handleshowAutoCr(row)"></svg-icon>
-              <svg-icon v-if="row.sortCr" name="fa-signal" width="15px" height="15px"
-                @click="handleshowTaskSortChart(row)"></svg-icon>
-            </div>
-          </template>
-        </vxe-column>
-        <vxe-column field="xh" type="seq" align="center" title=" " width="3%"></vxe-column>
-        <vxe-column field="etype" title="event" align="center" width="4%"></vxe-column>
-        <vxe-column field="offers" title="offer" align="center" width="6%"></vxe-column>
-        <vxe-column field="appId" title="appid" align="center" width="6%"></vxe-column>
-        <vxe-column field="weight" title="weight" align="center" width="5%" :visible="false"></vxe-column>
-        <vxe-column field="scope" title="scope" align="center" width="5%" :visible="false">
-          <template #default="{ row }">
-            {{ row.gt + "->" + row.lt }}
-          </template>
-        </vxe-column>
-        <vxe-column field="country" title="country" align="center" width="4%"></vxe-column>
-        <vxe-column field="usealg" title="usealg" align="center" width="5%" :visible="false"></vxe-column>
-        <vxe-column field="urlparams" title="urlparam" align="center" width="10%"></vxe-column>
-        <vxe-column field="sendPlan" title="sendPlan" align="center" width="8%"></vxe-column>
-        <vxe-column field="pkgName" title="pkg" align="center" width="9%">
-          <template #default="{ row }">
-            {{ row.pkgName != 'null' ? row.pkgName : '' }}
-          </template>
-        </vxe-column>
-        <vxe-column field="succ/total/status/dcsuccss/sent" align="center" title="succ/total/status/dcsuccss/sent"
-          width="12%">
-          <template #default="{ row }">
-            <div>
+          :cell-config="{ verticalAlign: 'center' }" :row-config="{ isCurrent: true, isHover: true, }"
+          :scroll-y="{ enabled: true, gt: 0 }" :data="tableDataList" ref="tableRef" :custom-config="customConfig">
+          <vxe-column field="#" type="checkbox" title="" align="center" width="6%">
+            <template #header="{ checked, indeterminate }">
+              <span class="custom-checkbox" @click.stop="toggleAllCheckboxEvent">
+                <i v-if="indeterminate" class="vxe-icon-square-minus-fill"></i>
+                <i v-else-if="checked" class="vxe-icon-square-checked-fill"></i>
+                <i v-else class="vxe-icon-checkbox-unchecked"></i>
+              </span>
+            </template>
+            <template #checkbox="{ row, checked, indeterminate }">
+              <span class="custom-checkbox" @click.stop="toggleCheckboxEvent(row)">
+                <i v-if="indeterminate" class="vxe-icon-square-minus-fill"></i>
+                <i v-else-if="checked" class="vxe-icon-square-checked-fill"></i>
+                <i v-else class="vxe-icon-checkbox-unchecked"></i>
+              </span>
+              <div class="icon-echarts">
+                <svg-icon v-if="row.createdBy == 'app'" name="fa-plane" width="15px" height="15px"></svg-icon>
+                <svg-icon v-if="row.trafficcontrol" name="fa-android" width="15px" height="15px"></svg-icon>
+                <svg-icon name="fa-line-chart" width="15px" height="15px" @click="handleshowChart(row)"></svg-icon>
+                <svg-icon v-if="row.autoCr" name="fa-magic" width="15px" height="15px"
+                  @click="handleshowAutoCr(row)"></svg-icon>
+                <svg-icon v-if="row.sortCr" name="fa-signal" width="15px" height="15px"
+                  @click="handleshowTaskSortChart(row)"></svg-icon>
+              </div>
+            </template>
+          </vxe-column>
+          <vxe-column field="xh" type="seq" align="center" title=" " width="3%"></vxe-column>
+          <vxe-column field="etype" title="event" align="center" width="4%"></vxe-column>
+          <vxe-column field="offers" title="offer" align="center" width="6%"></vxe-column>
+          <vxe-column field="appId" title="appid" align="center" width="6%"></vxe-column>
+          <vxe-column field="weight" title="weight" align="center" width="5%" :visible="false"></vxe-column>
+          <vxe-column field="scope" title="scope" align="center" width="5%" :visible="false">
+            <template #default="{ row }">
+              {{ row.gt + "->" + row.lt }}
+            </template>
+          </vxe-column>
+          <vxe-column field="country" title="country" align="center" width="4%"></vxe-column>
+          <vxe-column field="usealg" title="usealg" align="center" width="5%" :visible="false"></vxe-column>
+          <vxe-column field="urlparams" title="urlparam" align="center" width="10%"></vxe-column>
+          <vxe-column field="sendPlan" title="sendPlan" align="center" width="8%"></vxe-column>
+          <vxe-column field="pkgName" title="pkg" align="center" width="9%">
+            <template #default="{ row }">
+              {{ row.pkgName != 'null' ? row.pkgName : '' }}
+            </template>
+          </vxe-column>
+          <vxe-column field="succ/total/status/dcsuccss/sent" align="center" title="succ/total/status/dcsuccss/sent"
+            width="12%">
+            <template #default="{ row }">
               <div>
-                {{ row?.ongoingData?.[0]?.successCount != null ? `${row?.ongoingData?.[0]?.successCount}/` : '' }}
-              </div>
-              <div>
-                {{ row?.ongoingData?.[0]?.sendCount != null ? `${row?.ongoingData?.[0]?.sendCount}/` : '' }}
-              </div>
-              <!-- message等于success，显示绿色内容，不然显示红色 -->
-              <div v-if="row?.ongoingData?.[0]?.message != null"
-                :style="{ color: row?.ongoingData?.[0]?.message === 'success' ? 'green' : 'red' }">
-                {{ row?.ongoingData?.[0]?.message }}/
-              </div>
-              <div>
-                {{ row?.ongoingData?.[0]?.dcsuccessCount > 0 ? row?.ongoingData?.[0]?.dcsuccessCount : '' }}
-              </div>
-              <div>
-                {{ row?.ongoingData?.[0]?.sendServerCount > 0 ? row?.ongoingData?.[0]?.sendServerCount : '' }}
-              </div>
-            </div>
-
-            <!-- Add a check to only display popover if necessary fields are not null -->
-            <el-popover v-if="shouldShowPopover(row)" effect="light" trigger="hover" placement="left" width="auto">
-              <template #default>
-                <div class="popoverClass" v-html="generateStatusDetail(row?.ongoingData?.[0]?.statusDetail || '')">
+                <div>
+                  {{ row?.ongoingData?.[0]?.successCount != null ? `${row?.ongoingData?.[0]?.successCount}/` : '' }}
                 </div>
-              </template>
-              <template #reference>
-                <el-tag>more</el-tag>
-              </template>
-            </el-popover>
-          </template>
+                <div>
+                  {{ row?.ongoingData?.[0]?.sendCount != null ? `${row?.ongoingData?.[0]?.sendCount}/` : '' }}
+                </div>
+                <!-- message等于success，显示绿色内容，不然显示红色 -->
+                <div v-if="row?.ongoingData?.[0]?.message != null"
+                  :style="{ color: row?.ongoingData?.[0]?.message === 'success' ? 'green' : 'red' }">
+                  {{ row?.ongoingData?.[0]?.message }}/
+                </div>
+                <div>
+                  {{ row?.ongoingData?.[0]?.dcsuccessCount > 0 ? row?.ongoingData?.[0]?.dcsuccessCount : '' }}
+                </div>
+                <div>
+                  {{ row?.ongoingData?.[0]?.sendServerCount > 0 ? row?.ongoingData?.[0]?.sendServerCount : '' }}
+                </div>
+              </div>
 
-        </vxe-column>
-        <vxe-column field="cr/ecpc(0.285%)/roi(65%)" title="cr/ecpc(0.285%)/roi(65%)" align="center" width="10%">
-          <template #default="{ row }">
-            <!-- 检查 taskCr 是否存在且不为 null -->
-            <div v-if="row?.taskCrData">
-              cr: {{ ((row?.taskCrData?.ctr + row?.taskCrData?.ivr) * 100).toFixed(4) }}%
-            </div>
-          </template>
-        </vxe-column>
-        <vxe-column field="bsclick" title="bsclick" align="center" width="5%"></vxe-column>
-        <vxe-column field="mdate" title="mdate" align="center" width="100">
-          <template #default="{ row }">
-            {{ formatDateToSimple(row?.mdate) }}
-          </template>
-        </vxe-column>
-        <vxe-column field="Action" align="center" fixed="right" min-width="240">
-          <template #header>
-            <div style="display: flex; align-items: center; justify-content: center;">
-              <span>Action</span>
-              <el-button type="primary" size="small" @click="exportToCSV">csv</el-button>
-            </div>
-          </template>
-          <template #default="scope">
-            <el-button size="small" type="primary" @click="showTask(scope.row)">show</el-button>
-            <el-button size="small" type="warning" @click="delTask(scope.row)">del</el-button>
-            <el-button size="small" type="success"
-              v-if="scope.row.taskStatus == 'disable' && scope.row.taskStatus != 'template'"
-              @click="enableTask(scope.row)">enable</el-button>
-            <el-button size="small" type="danger"
-              v-else-if="scope.row.taskStatus == 'enable' && scope.row.taskStatus != 'template'"
-              @click="disableTask(scope.row)">disable</el-button>
-          </template>
-        </vxe-column>
-      </vxe-table>
+              <!-- Add a check to only display popover if necessary fields are not null -->
+              <el-popover v-if="shouldShowPopover(row)" effect="light" trigger="hover" placement="left" width="auto">
+                <template #default>
+                  <div class="popoverClass" v-html="generateStatusDetail(row?.ongoingData?.[0]?.statusDetail || '')">
+                  </div>
+                </template>
+                <template #reference>
+                  <el-tag>more</el-tag>
+                </template>
+              </el-popover>
+            </template>
+
+          </vxe-column>
+          <vxe-column field="cr/ecpc(0.285%)/roi(65%)" title="cr/ecpc(0.285%)/roi(65%)" align="center" width="10%">
+            <template #default="{ row }">
+              <!-- 检查 taskCr 是否存在且不为 null -->
+              <div v-if="row?.taskCrData">
+                cr: {{ ((row?.taskCrData?.ctr + row?.taskCrData?.ivr) * 100).toFixed(4) }}%
+              </div>
+            </template>
+          </vxe-column>
+          <vxe-column field="bsclick" title="bsclick" align="center" width="5%"></vxe-column>
+          <vxe-column field="mdate" title="mdate" align="center" width="100">
+            <template #default="{ row }">
+              {{ formatDateToSimple(row?.mdate) }}
+            </template>
+          </vxe-column>
+          <vxe-column field="Action" align="center" fixed="right" min-width="100">
+            <template #header>
+              <div style="display: flex; align-items: center; justify-content: center;">
+                <span>Action</span>
+                <el-button type="primary" size="small" @click="exportToCSV">csv</el-button>
+              </div>
+            </template>
+            <template #default="scope">
+              <div class="action-icons">
+                <svg-icon class="action-icon-svg" name="view" width="15px" height="15px" @click="showTask(scope.row)" title="show"></svg-icon>
+                <svg-icon class="action-icon-svg" name="delete" width="15px" height="15px" @click="delTask(scope.row)" title="delete"></svg-icon>
+                <svg-icon class="action-icon-svg" v-if="scope.row.taskStatus == 'disable' && scope.row.taskStatus != 'template'" name="enabled"
+                  width="15px" height="15px" @click="enableTask(scope.row)" title="enabled"></svg-icon>
+                <svg-icon class="action-icon-svg" v-else-if="scope.row.taskStatus == 'enable' && scope.row.taskStatus != 'template'"
+                  name="disabled" width="15px" height="15px" @click="disableTask(scope.row)" title="disabled"></svg-icon>
+              </div>
+            </template>
+          </vxe-column>
+        </vxe-table>
       </div>
     </div>
 
@@ -275,6 +278,34 @@ import ChartModal from '@/components/task/ChartModal.vue'
 import type { FormDataType } from '@/components/task/type'
 import { useTaskStore } from '@/store/pushtask/task'
 import type { VxeToolbarInstance ,VxeTablePropTypes} from 'vxe-table'
+const arrowupOrDown = ref(true)
+// 折叠展开
+const clickarrow = () => {
+  arrowupOrDown.value = !arrowupOrDown.value
+  const header = document.querySelector('.pushtask_header') as HTMLElement
+  const tableDiv = document.querySelector('.vxe-table-div') as HTMLElement
+  const pushDiv = document.querySelector('.pushtask_table') as HTMLElement
+  const footDiv = document.querySelector('.pushtask_footer') as HTMLElement
+  const buttonsMargin = document.querySelector('.form-item-buttons') as HTMLElement
+  const tabbarHeight = parseFloat(getComputedStyle(document.querySelector('.layout_tabbar') as HTMLElement).height)
+  const btnHeight = parseFloat(getComputedStyle(document.querySelector('.pushtask_btn') as HTMLElement).height)
+  
+  if (header && tableDiv && pushDiv && footDiv) {
+    if (arrowupOrDown.value) {
+      header.style.display = 'flex'
+      tableDiv.style.height = `90%`
+      pushDiv.style.height = `75%`
+      buttonsMargin.style.marginTop = '5px'
+      buttonsMargin.style.paddingTop = '5px'
+    } else {
+      header.style.display = 'none'
+      tableDiv.style.height = `calc(100% - ${tabbarHeight}px - 5px)`
+      pushDiv.style.height = `calc(100% - ${tabbarHeight}px - ${btnHeight}px )`
+      buttonsMargin.style.marginTop = '0px'
+      buttonsMargin.style.paddingTop = '0px'
+    }
+  }
+}
 const getTaskCr = listTaskCr()
 // 页面初始化获取getAutoTopBundleKeyNames接口的值
 const autoBundleKey = ref<Array<string>>()
@@ -696,43 +727,46 @@ onMounted(async () => {
 <style scoped lang="scss">
 .pushtask {
   width: 100%;
-  height: calc(100vh - 120px);
-
+  height: calc(100vh - $base-tabbar-height - 10px);
+  .pushtask_header{
+    height: 10%;
+  }
   .pushtask_header,
   .pushtask_btn {
     width: 100%;
-    height: 10%;
   }
 
   .pushtask_table {
     width: 100%;
-    height: 70%;
+    height: 75%;
     overflow: hidden;
     .toolbarRef-div{
       height: 10%;
     }
     .vxe-table-div {
       height: 90%;
+      .action-icons{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        .action-icon-svg{
+          margin: 0 5px;
+        }
+      }
     }
   }
 
   .pushtask_footer {
     width: 100%;
-    height: 10%;
+    height: 5%;
   }
 }
 
-.el-row {
-  margin-bottom: 20px;
-}
 
 .el-col {
-  margin: 5px 0;
+  margin: 2px 0;
 }
 
-.el-table {
-  margin-top: 20px;
-}
 
 /* 使标签和输入框对齐 */
 .form-item-label {
@@ -754,22 +788,20 @@ onMounted(async () => {
 .form-item-buttons {
   display: flex;
   justify-content: space-between;
-  padding-top: 10px;
-  margin-top: 20px;
+  padding-top: 5px;
+  margin-top: 5px;
 }
 
 /* 左侧按钮 */
 .form-item-left {
   display: flex;
   justify-content: flex-start;
-  gap: 10px;
 }
 
 /* 右侧按钮 */
 .form-item-right {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
 }
 
 .icon-echarts {

@@ -1,5 +1,5 @@
 <template>
-  <el-dialog v-model="dialogVisible" :title="title" width="60%" :before-close="handleClose">
+  <el-dialog v-model="dialogVisible" :title="title" width="60%" :before-close="handleClose" align-center draggable>
     <div v-if="showSwitch" class="switch-group">
     <el-radio-group v-model="currentType" @change="handleTypeChange">
       <el-radio v-for="option in radioOptions" :key="option.value" :label="option.value">
