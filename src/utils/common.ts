@@ -16,9 +16,9 @@ export const toQueryStr = (src: any) => {
   return buffer.join("&");
 };
 
-export const truncateText = (text: string) => {
+export const truncateText = (text: string, length?: number) => {
   if (!text) return ""; // 如果没有文本则返回空字符串
-  return text.length > 50 ? text.substring(0, 50) + "..." : text;
+  return text.length > (length ?? 50) ? text.substring(0, (length ?? 50)) + "..." : text;
 };
 export const getCookies = ( name:string ) => {
   //accesscode=23b9edc3fb1a4f2c86ba700ba731b4b4; passcode=d2307f01c299485bbc1b6656b161d06

@@ -1,6 +1,6 @@
 <template>
     <el-dialog :model-value="modelValue" :title="title" align-center @close="handleClose" width="80%"
-        :close-on-click-modal="false">
+        :close-on-click-modal="false" draggable>
         <div class="task-form">
             <!-- 第一行 -->
             <el-row :gutter="20">
@@ -601,10 +601,10 @@ onMounted(async () => {
 
 <style scoped lang="scss">
 .task-form {
-    padding: 20px;
+    padding: 0px;
 
     .el-row {
-        margin-bottom: 20px;
+        margin-bottom: 5px;
     }
 
     .form-item {
@@ -686,22 +686,22 @@ onMounted(async () => {
 
     .form-footer {
         text-align: right;
-        margin-top: 20px;
+        margin-top: 5px;
     }
 
     .targeting-section {
-        margin-top: 20px;
+        margin-top: 5px;
 
         .title-with-line {
             display: flex;
             align-items: center;
-            margin: 20px 0;
+            margin: 5px 0;
 
             h3 {
-                margin: 0 10px;
+                margin: 0 5px;
                 white-space: nowrap;
                 order: 1;
-                margin-left: 20px;
+                margin-left: 10px;
             }
 
             &::before {

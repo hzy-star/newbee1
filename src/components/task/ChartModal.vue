@@ -8,7 +8,7 @@
     </el-radio-group>
   </div>
 
-    <div ref="chartRef" :style="{ width: '100%', height: '600px' }"></div>
+    <div ref="chartRef" :style="{ width: '100%', height: chartHeight }"></div>
   </el-dialog>
 </template>
 
@@ -255,6 +255,10 @@ const generateChartOptions = (): EChartsOption => {
         trigger: 'axis'
       },
       legend: {
+        type: 'scroll',
+        orient: 'horizontal',
+        top: 'top',
+        width: '80%',
         data: processedData.series?.map((item: { name: string }) => item.name) || []
       },
       grid: {
@@ -283,6 +287,10 @@ const generateChartOptions = (): EChartsOption => {
         trigger: 'axis'
       },
       legend: {
+        type: 'scroll',
+        orient: 'horizontal',
+        top: 'top',
+        width: '80%',
         data: processedData.series.map(item => item.name)
       },
       grid: {
@@ -320,6 +328,10 @@ const generateChartOptions = (): EChartsOption => {
         trigger: 'axis'
       },
       legend: {
+        type: 'scroll',
+        orient: 'horizontal',
+        top: 'top',
+        width: '80%',
         data: processedData.series?.map((item: LineSeriesOption) => String(item.name)) || []
       },
       grid: {
@@ -366,12 +378,22 @@ const initChart = () => {
   myChart.setOption(options)
 }
 
+//  初始化一个响应式变量
+const chartHeight = ref('600px') // 初始化一个响应式变量
+
+const updateChartHeight = () => {
+  chartHeight.value = `${window.innerHeight - 200}px`
+}
+
+
 // 监听窗口大小变化
 const handleResize = () => {
   myChart?.resize()
 }
 
 onMounted(() => {
+  updateChartHeight() // 初始化时设置高度
+  window.addEventListener('resize', updateChartHeight) // 监听窗口大小变化
   window.addEventListener('resize', handleResize)
 })
 
@@ -383,6 +405,7 @@ watch(() => props.chartData, (val) => {
 
 // 组件销毁时清理
 onUnmounted(() => {
+  window.removeEventListener('resize', updateChartHeight) // 移除监听器
   window.removeEventListener('resize', handleResize)
   myChart?.dispose()
 })

@@ -129,7 +129,7 @@
       <div class="vxe-table-div">
         <vxe-table border auto-resize height="auto" :column-config="{ resizable: true }"
           :cell-config="{ verticalAlign: 'center' }" :row-config="{ isCurrent: true, isHover: true, }"
-          :scroll-y="{ enabled: true, gt: 0 }" :data="tableDataList" ref="tableRef" :custom-config="customConfig">
+          :scroll-y="{ enabled: true, gt: 0 }" :data="tableDataList" ref="tableRef" :custom-config="customConfig" size="mini" round>
           <vxe-column field="#" type="checkbox" title="" align="center" width="6%">
             <template #header="{ checked, indeterminate }">
               <span class="custom-checkbox" @click.stop="toggleAllCheckboxEvent">
@@ -156,25 +156,25 @@
             </template>
           </vxe-column>
           <vxe-column field="xh" type="seq" align="center" title=" " width="3%"></vxe-column>
-          <vxe-column field="etype" title="event" align="center" width="4%"></vxe-column>
-          <vxe-column field="offers" title="offer" align="center" width="6%"></vxe-column>
-          <vxe-column field="appId" title="appid" align="center" width="6%"></vxe-column>
-          <vxe-column field="weight" title="weight" align="center" width="5%" :visible="false"></vxe-column>
-          <vxe-column field="scope" title="scope" align="center" width="5%" :visible="false">
+          <vxe-column field="etype" title="event" show-header-overflow align="center" width="4%"></vxe-column>
+          <vxe-column field="offers" title="offer" show-header-overflow align="center" width="6%"></vxe-column>
+          <vxe-column field="appId" title="appid" show-header-overflow align="center" width="6%"></vxe-column>
+          <vxe-column field="weight" title="weight" show-header-overflow align="center" width="5%" :visible="false"></vxe-column>
+          <vxe-column field="scope" title="scope" show-header-overflow align="center" width="5%" :visible="false">
             <template #default="{ row }">
               {{ row.gt + "->" + row.lt }}
             </template>
           </vxe-column>
-          <vxe-column field="country" title="country" align="center" width="4%"></vxe-column>
-          <vxe-column field="usealg" title="usealg" align="center" width="5%" :visible="false"></vxe-column>
-          <vxe-column field="urlparams" title="urlparam" align="center" width="10%"></vxe-column>
-          <vxe-column field="sendPlan" title="sendPlan" align="center" width="8%"></vxe-column>
-          <vxe-column field="pkgName" title="pkg" align="center" width="9%">
+          <vxe-column field="country" title="country" show-header-overflow align="center" width="5%"></vxe-column>
+          <vxe-column field="usealg" title="usealg" show-header-overflow align="center" width="5%" :visible="false"></vxe-column>
+          <vxe-column field="urlparams" title="urlparam" show-header-overflow align="center" width="10%"></vxe-column>
+          <vxe-column field="sendPlan" title="sendPlan" show-header-overflow align="center" width="8%"></vxe-column>
+          <vxe-column field="pkgName" title="pkg" show-header-overflow align="center" width="9%">
             <template #default="{ row }">
               {{ row.pkgName != 'null' ? row.pkgName : '' }}
             </template>
           </vxe-column>
-          <vxe-column field="succ/total/status/dcsuccss/sent" align="center" title="succ/total/status/dcsuccss/sent"
+          <vxe-column field="succ/total/status/dcsuccss/sent" show-header-overflow   align="center" title="succ/total/status/dcsuccss/sent"
             width="12%">
             <template #default="{ row }">
               <div>
@@ -210,7 +210,7 @@
             </template>
 
           </vxe-column>
-          <vxe-column field="cr/ecpc(0.285%)/roi(65%)" title="cr/ecpc(0.285%)/roi(65%)" align="center" width="10%">
+          <vxe-column field="cr/ecpc(0.285%)/roi(65%)" show-header-overflow   title="cr/ecpc(0.285%)/roi(65%)" align="center" width="10%">
             <template #default="{ row }">
               <!-- 检查 taskCr 是否存在且不为 null -->
               <div v-if="row?.taskCrData">
@@ -218,13 +218,13 @@
               </div>
             </template>
           </vxe-column>
-          <vxe-column field="bsclick" title="bsclick" align="center" width="5%"></vxe-column>
-          <vxe-column field="mdate" title="mdate" align="center" width="100">
+          <vxe-column field="bsclick" title="bsclick" show-header-overflow align="center" width="5%"></vxe-column>
+          <vxe-column field="mdate" title="mdate" show-header-overflow align="center" width="90">
             <template #default="{ row }">
               {{ formatDateToSimple(row?.mdate) }}
             </template>
           </vxe-column>
-          <vxe-column field="Action" align="center" fixed="right" min-width="100">
+          <vxe-column field="Action" align="center" show-header-overflow fixed="right" min-width="100">
             <template #header>
               <div style="display: flex; align-items: center; justify-content: center;">
                 <span>Action</span>
@@ -281,31 +281,28 @@ import type { VxeToolbarInstance ,VxeTablePropTypes} from 'vxe-table'
 const arrowupOrDown = ref(true)
 // 折叠展开
 const clickarrow = () => {
-  arrowupOrDown.value = !arrowupOrDown.value
-  const header = document.querySelector('.pushtask_header') as HTMLElement
-  const tableDiv = document.querySelector('.vxe-table-div') as HTMLElement
-  const pushDiv = document.querySelector('.pushtask_table') as HTMLElement
-  const footDiv = document.querySelector('.pushtask_footer') as HTMLElement
-  const buttonsMargin = document.querySelector('.form-item-buttons') as HTMLElement
-  const tabbarHeight = parseFloat(getComputedStyle(document.querySelector('.layout_tabbar') as HTMLElement).height)
-  const btnHeight = parseFloat(getComputedStyle(document.querySelector('.pushtask_btn') as HTMLElement).height)
-  
-  if (header && tableDiv && pushDiv && footDiv) {
-    if (arrowupOrDown.value) {
-      header.style.display = 'flex'
-      tableDiv.style.height = `90%`
-      pushDiv.style.height = `75%`
-      buttonsMargin.style.marginTop = '5px'
-      buttonsMargin.style.paddingTop = '5px'
-    } else {
-      header.style.display = 'none'
-      tableDiv.style.height = `calc(100% - ${tabbarHeight}px - 5px)`
-      pushDiv.style.height = `calc(100% - ${tabbarHeight}px - ${btnHeight}px )`
-      buttonsMargin.style.marginTop = '0px'
-      buttonsMargin.style.paddingTop = '0px'
-    }
+  arrowupOrDown.value = !arrowupOrDown.value;
+  const elements = {
+    header: document.querySelector('.pushtask_header') as HTMLElement,
+    tableDiv: document.querySelector('.vxe-table-div') as HTMLElement,
+    pushDiv: document.querySelector('.pushtask_table') as HTMLElement,
+    buttonsMargin: document.querySelector('.form-item-buttons') as HTMLElement,
+  };
+
+  const tabbarHeight = parseFloat(getComputedStyle(document.querySelector('.layout_tabbar')!).height);
+  const btnHeight = parseFloat(getComputedStyle(document.querySelector('.pushtask_btn')!).height);
+
+  if (elements.header && elements.tableDiv && elements.pushDiv && elements.buttonsMargin) {
+    const { header, tableDiv, pushDiv, buttonsMargin } = elements;
+    const isExpanded = arrowupOrDown.value;
+
+    header.style.display = isExpanded ? 'flex' : 'none';
+    tableDiv.style.height = isExpanded ? '90%' : `calc(100% - ${tabbarHeight}px - 5px)`;
+    pushDiv.style.height = isExpanded ? '75%' : `calc(100% - ${tabbarHeight}px - ${btnHeight}px)`;
+    buttonsMargin.style.marginTop = isExpanded ? '5px' : '0px';
+    buttonsMargin.style.paddingTop = isExpanded ? '5px' : '0px';
   }
-}
+};
 const getTaskCr = listTaskCr()
 // 页面初始化获取getAutoTopBundleKeyNames接口的值
 const autoBundleKey = ref<Array<string>>()
@@ -741,7 +738,7 @@ onMounted(async () => {
     height: 75%;
     overflow: hidden;
     .toolbarRef-div{
-      height: 10%;
+      height: 8%;
     }
     .vxe-table-div {
       height: 90%;

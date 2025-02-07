@@ -2,7 +2,7 @@
     <div class="pushtask">
         <div class="pushtask_header">
             <!-- 查询条件 -->
-            <el-row :gutter="20" type="flex" justify="start">
+            <el-row :gutter="20" type="flex" justify="start" style="margin: 0;">
                 <!-- Etype -->
                 <el-col :span="4">
                     <div class="form-item">
@@ -50,7 +50,7 @@
                     </div>
                 </el-col>
                 <!-- Status -->
-                <el-col :span="7">
+                <el-col :span="10">
                     <div class="form-item">
                         <el-radio-group v-model="propFrom.status" @change="handleStatusChange">
                             <el-radio value="enabled">Enabled</el-radio>
@@ -64,22 +64,25 @@
 
         <div class="pushtask_btn">
             <!-- 操作按钮 -->
-            <el-row class="form-item-buttons">
+            <div class="form-item-buttons">
                 <!-- 左侧按钮 -->
-                <el-col :span="12" class="form-item-left">
+                <div class="form-item-left">
                     <el-button type="primary" @click="BatchEdit">BatchEdit</el-button>
                     <el-button type="success" v-show="propFrom.status != 'enabled'"
                         @click="BatchEnable">BatchEnable</el-button>
                     <el-button type="danger" v-show="propFrom.status == 'enabled'"
                         @click="BatchDisable">BatchTerminated</el-button>
-                </el-col>
+                </div>
+                <el-icon @click="clickarrow">
+                    <component :is="arrowupOrDown ? 'ArrowUp' : 'ArrowDown'"></component>
+                </el-icon>
 
                 <!-- 右侧按钮 -->
-                <el-col :span="12" class="form-item-right">
+                <div class="form-item-right">
                     <el-button type="primary" @click="addJob">Add Job</el-button>
                     <el-button type="primary" @click="findJob(true)">Find Job</el-button>
-                </el-col>
-            </el-row>
+                </div>
+            </div>
         </div>
 
         <!-- 数据表格 -->
@@ -90,7 +93,8 @@
             <div class="vxe-table-div">
                 <vxe-table border auto-resize height="auto" :column-config="{ resizable: true }"
                     :cell-config="{ verticalAlign: 'center' }" :row-config="{ isCurrent: true, isHover: true, }"
-                    :scroll-y="{ enabled: true, gt: 0 }" :data="tableDataList" ref="tableRef" :custom-config="customConfig">
+                    :scroll-y="{ enabled: true, gt: 0 }" :data="tableDataList" ref="tableRef"
+                    :custom-config="customConfig" size="mini" round>
                     <vxe-column field="#" type="checkbox" title="" align="center" width="2%">
                         <template #header="{ checked, indeterminate }">
                             <span class="custom-checkbox" @click.stop="toggleAllCheckboxEvent">
@@ -108,32 +112,32 @@
                         </template>
                     </vxe-column>
                     <vxe-column field="xh" type="seq" align="center" title=" " width="3%"></vxe-column>
-                    <vxe-column field="etype" title="event" align="center" width="4%">
+                    <vxe-column field="etype" title="event" show-header-overflow align="center" width="4%">
                         <template #default="{ row }">
                             {{ row.type == 0 ? "click" : 'imp' }}
                         </template>
                     </vxe-column>
-                    <vxe-column field="appId" title="app" align="center" width="5%"></vxe-column>
-                    <vxe-column field="country" title="country" align="center" width="4%"></vxe-column>
-                    <vxe-column field="offerId" title="offer" align="center" width="8%"></vxe-column>
-                    <vxe-column field="pkg_name" title="pkg" align="center" width="18%"></vxe-column>
-                    <vxe-column field="source" title="source" align="center" width="5%" ></vxe-column>
-                    <vxe-column field="fill_type" title="fillType" align="center" width="4%">
+                    <vxe-column field="appId" title="app" show-header-overflow align="center" width="5%"></vxe-column>
+                    <vxe-column field="country" title="country" show-header-overflow align="center" width="4%"></vxe-column>
+                    <vxe-column field="offerId" title="offer" show-header-overflow align="center" width="8%"></vxe-column>
+                    <vxe-column field="pkg_name" title="pkg" show-header-overflow align="center" width="18%"></vxe-column>
+                    <vxe-column field="source" title="source" show-header-overflow align="center" width="5%"></vxe-column>
+                    <vxe-column field="fill_type" title="fillType" show-header-overflow align="center" width="4%">
                         <template #default="{ row }">
                             {{ row.fill_type == null ? 'top' : row.fill_type }}
                         </template>
                     </vxe-column>
-                    <vxe-column field="bsclick" title="bsclick" align="center" width="4%">
+                    <vxe-column field="bsclick" title="bsclick" show-header-overflow align="center" width="4%">
                         <template #default="{ row }">
                             {{ row.bsclick == null ? 'false' : row.bsclick }}
                         </template>
                     </vxe-column>
-                    <vxe-column field="send_plan" title="sendPlan" align="center" width="5%">
+                    <vxe-column field="send_plan" title="sendPlan" show-header-overflow align="center" width="5%">
                         <template #default="{ row }">
                             {{ row.send_plan == "" ? row.clickTarget : row.send_plan }}
                         </template>
                     </vxe-column>
-                    <vxe-column field="succ/sent/result" title="succ/sent/result" align="center" width="10%">
+                    <vxe-column field="succ/sent/result" title="succ/sent/result" show-header-overflow align="center" width="10%">
                         <template #default="{ row }">
                             <div>
                                 <div>
@@ -145,13 +149,13 @@
                             </div>
                         </template>
                     </vxe-column>
-                    <vxe-column field="cr" title="cr" align="center" width="8%">
+                    <vxe-column field="cr" title="cr" show-header-overflow align="center" width="8%">
                         <template #default="{ row }">
                             <!-- 检查 taskCr 是否存在且不为 null -->
                             <div class="device-box" v-if="group == 'ym'">
                                 <div class="device-text"><span class="device-span">cr:</span>
                                     {{ (((row?.crInfo?.ctr ? row?.crInfo?.ctr : 0) + (row?.crInfo?.ivr ?
-                                        row?.crInfo?.ivr :
+                                    row?.crInfo?.ivr :
                                     0)) * 100).toFixed(4) }}%</div>
                                 <div class="device-text"><span class="device-span">ecpc:</span>
                                     {{ (((row?.crInfo?.ecpc ? row?.crInfo?.ecpc : 0)) * 100).toFixed(4) }}%</div>
@@ -163,12 +167,12 @@
                             </div>
                         </template>
                     </vxe-column>
-                    <vxe-column field="updatedTime" title="mdate" align="center" width="100">
+                    <vxe-column field="updatedTime" show-header-overflow title="mdate" align="center" width="90">
                         <template #default="{ row }">
                             {{ formatDateToSimple(row?.updatedTime) }}
                         </template>
                     </vxe-column>
-                    <vxe-column field="Action" align="center" fixed="right" min-width="220">
+                    <vxe-column field="Action" align="center" show-header-overflow fixed="right" min-width="100">
                         <template #header>
                             <div style="display: flex; align-items: center; justify-content: center;">
                                 <span>Action</span>
@@ -176,13 +180,16 @@
                             </div>
                         </template>
                         <template #default="scope">
-                            <el-button class="btn_table" size="small" type="primary"
-                                @click="showTask(scope.row)">show</el-button>
-                            <el-button class="btn_table" size="small" type="success"
-                                v-if="scope.row.status != 'enabled'" @click="enableTask(scope.row)">enable</el-button>
-                            <el-button class="btn_table" size="small" type="danger"
-                                v-else-if="scope.row.status == 'enabled'"
-                                @click="disableTask(scope.row)">terminated</el-button>
+                            <div class="action-icons">
+                                <svg-icon class="action-icon-svg" name="view" width="15px" height="15px"
+                                    @click="showTask(scope.row)" title="show"></svg-icon>
+                                <svg-icon v-if="scope.row.status != 'enabled'" class="action-icon-svg" name="enabled"
+                                    width="15px" height="15px" @click="enableTask(scope.row)"
+                                    title="enabled"></svg-icon>
+                                <svg-icon v-else-if="scope.row.status == 'enabled'" class="action-icon-svg"
+                                    name="disabled" width="15px" height="15px" @click="disableTask(scope.row)"
+                                    title="disabled"></svg-icon>
+                            </div>
                         </template>
                     </vxe-column>
                 </vxe-table>
@@ -219,6 +226,35 @@ import type { FormDataType } from '@/components/task/AutoPkgTask/type'
 import { getCookies } from '@/utils/common'
 import { autoTaskEnabled } from "@/api/pushtask/type";
 import type { VxeToolbarInstance ,VxeTablePropTypes} from 'vxe-table'
+const arrowupOrDown = ref(true)
+// 折叠展开
+const clickarrow = () => {
+  arrowupOrDown.value = !arrowupOrDown.value
+  const header = document.querySelector('.pushtask_header') as HTMLElement
+  const tableDiv = document.querySelector('.vxe-table-div') as HTMLElement
+  const pushDiv = document.querySelector('.pushtask_table') as HTMLElement
+  const footDiv = document.querySelector('.pushtask_footer') as HTMLElement
+  const buttonsMargin = document.querySelector('.form-item-buttons') as HTMLElement
+  const tabbarHeight = parseFloat(getComputedStyle(document.querySelector('.layout_tabbar') as HTMLElement).height)
+  const btnHeight = parseFloat(getComputedStyle(document.querySelector('.pushtask_btn') as HTMLElement).height)
+  
+  if (header && tableDiv && pushDiv && footDiv) {
+    if (arrowupOrDown.value) {
+      header.style.display = 'flex'
+      tableDiv.style.height = `90%`
+      pushDiv.style.height = `75%`
+      buttonsMargin.style.marginTop = '5px'
+      buttonsMargin.style.paddingTop = '5px'
+    } else {
+      header.style.display = 'none'
+      tableDiv.style.height = `calc(100% - ${tabbarHeight}px - 5px)`
+      pushDiv.style.height = `calc(100% - ${tabbarHeight}px - ${btnHeight}px )`
+      buttonsMargin.style.marginTop = '0px'
+      buttonsMargin.style.paddingTop = '0px'
+    }
+  }
+}
+
 // 获取group
 const group = ref(getCookies('group'))
 
@@ -459,49 +495,50 @@ onMounted(async () => {
 <style scoped lang="scss">
 .pushtask {
     width: 100%;
-    height: calc(100vh - 120px);
+    height: calc(100vh - $base-tabbar-height - 10px);
+    .pushtask_header{
+    height: 10%;
+  }
 
     .pushtask_header,
     .pushtask_btn {
         width: 100%;
-        height: 10%;
     }
 
     .pushtask_table {
         width: 100%;
-        height: 70%;
+        height: 75%;
         overflow: hidden;
 
         .toolbarRef-div {
-            height: 10%;
+            height: 8%;
         }
 
         .vxe-table-div {
             height: 90%;
+            .action-icons{
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                .action-icon-svg{
+                margin: 0 5px;
+                }
+            }
+
         }
     }
 
     .pushtask_footer {
         width: 100%;
-        height: 10%;
-    }
-
-    .btn_table {
-        margin: 10px;
+        height: 5%;
     }
 }
 
-.el-row {
-    margin-bottom: 20px;
-}
 
 .el-col {
-    margin: 5px 0;
+    margin: 2px 0;
 }
 
-.el-table {
-    margin-top: 20px;
-}
 
 /* 使标签和输入框对齐 */
 .form-item-label {
@@ -523,22 +560,20 @@ onMounted(async () => {
 .form-item-buttons {
     display: flex;
     justify-content: space-between;
-    padding-top: 10px;
-    margin-top: 20px;
+    padding-top: 5px;
+    margin-top: 5px;
 }
 
 /* 左侧按钮 */
 .form-item-left {
     display: flex;
     justify-content: flex-start;
-    gap: 10px;
 }
 
 /* 右侧按钮 */
 .form-item-right {
     display: flex;
     justify-content: flex-end;
-    gap: 10px;
 }
 
 .icon-echarts {

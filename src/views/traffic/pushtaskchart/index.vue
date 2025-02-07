@@ -346,6 +346,7 @@ const handleResize = () => {
     flex-direction: column;
     width: 100%;
     height: calc(100vh - 120px);
+    padding: 5px;
 
     .pushtaskchart_header,
     .pushtaskchart_radio {

@@ -358,6 +358,7 @@ const handleResize = () => {
     flex-direction: column;
     width: 100%;
     height: calc(100vh - 120px);
+    padding: 5px;
 
     .pulltaskchart_header,
     .pulltaskchart_radio {
