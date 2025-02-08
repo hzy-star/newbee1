@@ -351,7 +351,7 @@
                 </div>
                 <div class="form-item">
                     <div class="form-item-label">设备受众</div>
-                    <el-select v-model="audienceListRes" :max-collapse-tags="4" multiple collapse-tags
+                    <el-select v-model="selectedAudience" :max-collapse-tags="4" multiple collapse-tags
                         collapse-tags-tooltip placeholder="Select" style="width: 240px" filterable clearable>
                         <!-- 动态添加其他选项 -->
                         <el-option v-for="item in audienceListRes" :key="item.id" :label="item.name" :value="item.name" />
@@ -374,6 +374,7 @@ import { ref, watch, onMounted } from 'vue'
 import { reqAudienceList, reqTaskget } from "@/api/pushtask/index"
 import type { FormDataType } from './type'
 const audienceListRes = ref<any[]>([])
+const selectedAudience = ref<string[]>([])
 const props = defineProps({
     modelValue: Boolean,
     title: String,
@@ -596,6 +597,7 @@ onMounted(async () => {
     // 弹层打开就调用一次  设备受众列表
     const res = await reqAudienceList()
     audienceListRes.value = res.data || []
+    selectedAudience.value = []
 })
 </script>
 

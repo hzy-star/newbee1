@@ -81,7 +81,8 @@ export default function useModal(tableRef: any, findAllHooks: (type: boolean) =>
                 noipuadup: (resformData.noipuadup).toString(),
             }),
             audiences: JSON.stringify({
-                ifaAudience: ['', resformData.ifaAudience || '1'],
+                // ifaAudience: ['', resformData.ifaAudience || '1'],
+                ifaAudience: null,
                 optionFilterText: '',
             }),
             autoTrafficFilter: [
@@ -106,7 +107,7 @@ export default function useModal(tableRef: any, findAllHooks: (type: boolean) =>
             ),
             ifadupcheck: `${resformData.ifadupcheck ? resformData.ifadupcheck + ':' : ''}${resformData.checkservice || ''}`,
             id: taskStore.selectedIds.join(',') || '',
-            ifaAudience: resformData.ifaAudience || ',1',
+            // ifaAudience: resformData.ifaAudience || ',1',
         };
     };
 
