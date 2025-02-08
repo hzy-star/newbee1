@@ -93,7 +93,7 @@
             <div class="vxe-table-div">
                 <vxe-table border auto-resize height="auto" :column-config="{ resizable: true }"
                     :cell-config="{ verticalAlign: 'center' }" :row-config="{ isCurrent: true, isHover: true, }"
-                    :scroll-y="{ enabled: true, gt: 0 }" :data="tableDataList" ref="tableRef"
+                    :scroll-y="{ enabled: false, gt: 0 }" :data="tableDataList" ref="tableRef"
                     :custom-config="customConfig" size="mini" round>
                     <vxe-column field="#" type="checkbox" title="" align="center" width="2%">
                         <template #header="{ checked, indeterminate }">
