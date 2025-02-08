@@ -1,6 +1,6 @@
 <template>
     <el-dialog :model-value="modelValue" :title="title" align-center @close="handleClose" width="60%"
-        :close-on-click-modal="false">
+        :close-on-click-modal="false" draggable>
         <div class="task-form">
             <!-- 第一行 -->
             <el-row :gutter="20" v-if="btnType != 'batchEdit'">

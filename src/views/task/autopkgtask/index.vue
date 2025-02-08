@@ -224,7 +224,7 @@
                         <template #header>
                             <div style="display: flex; align-items: center; justify-content: center;">
                                 <span>Action</span>
-                                <el-button type="primary" size="small" @click="exportToCSV">csv</el-button>
+                                <svg-icon name="csvExport" width="15px" height="15px" @click="exportToCSV" title="csv"></svg-icon>
                             </div>
                         </template>
                         <template #default="scope">

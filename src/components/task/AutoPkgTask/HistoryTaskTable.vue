@@ -1,6 +1,6 @@
 <template>
     <el-dialog :model-value="modelValue" :title="title" align-center @close="handleClose" width="60%"
-        :close-on-click-modal="false">
+        :close-on-click-modal="false" draggable>
         <div style="height: 85vh; ">
             <vxe-table border height="100%" auto-resize :cell-config="{ verticalAlign: 'center' }"
                  :data="tableDataList" ref="tableRef">

@@ -133,7 +133,7 @@ export const constantRoutes = [
                 name: 'deviceChart',
                 meta: {
                     title: 'deviceChart',
-                    icon: 'Discount',
+                    icon: 'SetUp',
                     hidden: false
                 }
             },
