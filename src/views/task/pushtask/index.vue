@@ -129,7 +129,8 @@
       <div class="vxe-table-div">
         <vxe-table border auto-resize height="auto" :column-config="{ resizable: true }"
           :cell-config="{ verticalAlign: 'center' }" :row-config="{ isCurrent: true, isHover: true, }"
-          :scroll-y="{ enabled: false, gt: 0 }" :data="tableDataList" ref="tableRef" :custom-config="customConfig" size="mini" round>
+          :scroll-y="{ enabled: false, gt: 0 }" :data="tableDataList" ref="tableRef" :custom-config="customConfig" size="mini" round
+          :sort-config="sortConfig">
           <vxe-column field="#" type="checkbox" title="" align="center" width="6%">
             <template #header="{ checked, indeterminate }">
               <span class="custom-checkbox" @click.stop="toggleAllCheckboxEvent">
@@ -157,15 +158,15 @@
           </vxe-column>
           <vxe-column field="xh" type="seq" align="center" title=" " width="3%"></vxe-column>
           <vxe-column field="etype" title="event" show-header-overflow align="center" width="4%"></vxe-column>
-          <vxe-column field="offers" title="offer" show-header-overflow align="center" width="6%"></vxe-column>
-          <vxe-column field="appId" title="appid" show-header-overflow align="center" width="6%"></vxe-column>
+          <vxe-column field="offers" title="offer" show-header-overflow  sortable align="center" width="6%"></vxe-column>
+          <vxe-column field="appId" title="appid" show-header-overflow   sortable align="center" width="6%"></vxe-column>
           <vxe-column field="weight" title="weight" show-header-overflow align="center" width="5%" :visible="false"></vxe-column>
           <vxe-column field="scope" title="scope" show-header-overflow align="center" width="5%" :visible="false">
             <template #default="{ row }">
               {{ row.gt + "->" + row.lt }}
             </template>
           </vxe-column>
-          <vxe-column field="country" title="country" show-header-overflow align="center" width="5%"></vxe-column>
+          <vxe-column field="country" title="country" show-header-overflow sortable align="center" width="5%"></vxe-column>
           <vxe-column field="usealg" title="usealg" show-header-overflow align="center" width="5%" :visible="false"></vxe-column>
           <vxe-column field="urlparams" title="urlparam" show-header-overflow align="center" width="10%"></vxe-column>
           <vxe-column field="sendPlan" title="sendPlan" show-header-overflow align="center" width="8%"></vxe-column>
@@ -210,7 +211,7 @@
             </template>
 
           </vxe-column>
-          <vxe-column field="cr/ecpc(0.285%)/roi(65%)" show-header-overflow   title="cr/ecpc(0.285%)/roi(65%)" align="center" width="10%">
+          <vxe-column field="cr/ecpc(0.285%)/roi(65%)" show-header-overflow  sortable title="cr/ecpc(0.285%)/roi(65%)" align="center" width="10%">
             <template #default="{ row }">
               <!-- 检查 taskCr 是否存在且不为 null -->
               <div v-if="row?.taskCrData">
@@ -219,7 +220,7 @@
             </template>
           </vxe-column>
           <vxe-column field="bsclick" title="bsclick" show-header-overflow align="center" width="5%"></vxe-column>
-          <vxe-column field="mdate" title="mdate" show-header-overflow align="center" width="90">
+          <vxe-column field="mdate" title="mdate" show-header-overflow sortable align="center" width="90">
             <template #default="{ row }">
               {{ formatDateToSimple(row?.mdate) }}
             </template>
@@ -719,6 +720,63 @@ onMounted(async () => {
   await getTaskCr.loadTaskCrIfNeeded()
 
 });
+// 排序
+// 定义数据项的类型
+interface TableRow {
+  [key: string]: any; // 根据实际数据结构定义
+}
+
+const sortConfig = ref<VxeTablePropTypes.SortConfig<any>>({
+  sortMethod ({ sortList }) {
+    const sortItem = sortList[0]
+    let datas = JSON.parse(JSON.stringify(tableData.value))
+    // 取出第一个排序的列
+    const { field, order } = sortItem
+    let list: any[] = []
+    if (order === 'asc' || order === 'desc') {
+      if (field === 'offers') {
+      list = datas.sort((a: TableRow, b: TableRow) => {
+        const aVal = a[field] === 'all' ? Infinity : (isNaN(Number(a[field])) ? Infinity : Number(a[field]))
+        const bVal = b[field] === 'all' ? Infinity : (isNaN(Number(b[field])) ? Infinity : Number(b[field]))
+        return aVal === bVal ? 0 : (aVal > bVal ? 1 : -1)
+      })
+    }else if (field === 'appId') {
+        list = datas.sort((a: TableRow, b: TableRow) => {
+          const aVal = Number(a[field])
+          const bVal = Number(b[field])
+          return aVal === bVal ? 0 : (aVal > bVal ? 1 : -1)
+        })
+      } else if (field === 'country') {
+        list = datas.sort((a: TableRow, b: TableRow) => {
+          const aVal = a[field].toUpperCase()  // 转换为大写
+          const bVal = b[field].toUpperCase()  // 转换为大写
+          return aVal === bVal ? 0 : (aVal > bVal ? 1 : -1)
+        })
+      } else if (field === 'cr/ecpc(0.285%)/roi(65%)') {
+        list = datas.sort((a: TableRow, b: TableRow) => {
+          const aVal = a.taskCrData ? ((a.taskCrData.ctr + a.taskCrData.ivr) * 100) : 0
+          const bVal = b.taskCrData ? ((b.taskCrData.ctr + b.taskCrData.ivr) * 100) : 0
+          return aVal === bVal ? 0 : (aVal > bVal ? 1 : -1)
+        })
+      } else {
+        list = datas.sort((a: TableRow, b: TableRow) => {
+          const aVal = a[field]
+          const bVal = b[field]
+          return aVal === bVal ? 0 : (aVal > bVal ? 1 : -1)
+        })
+      }
+    }
+    if (order === 'desc') {
+      list.reverse()
+    }
+
+    // 返回一个新的数组，而不是直接修改 tableDataList.value
+    return list.slice(
+      (pageVO.currentPage - 1) * pageVO.pageSize, 
+      pageVO.currentPage * pageVO.pageSize
+    )
+  }
+})
 </script>
 
 <style scoped lang="scss">
