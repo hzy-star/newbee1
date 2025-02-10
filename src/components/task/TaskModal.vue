@@ -1,6 +1,6 @@
 <template>
     <el-dialog :model-value="modelValue" :title="title" align-center @close="handleClose" width="80%"
-        :close-on-click-modal="false" draggable>
+        :close-on-click-modal="false" >
         <div class="task-form">
             <!-- 第一行 -->
             <el-row :gutter="20">
