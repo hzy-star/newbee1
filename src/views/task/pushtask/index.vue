@@ -251,7 +251,7 @@
 
       <!-- 分页 -->
       <vxe-pager v-model:currentPage="pageVO.currentPage" v-model:pageSize="pageVO.pageSize" :total="pageVO.total"
-        :layouts="['Home', 'PrevJump', 'PrevPage', 'Number', 'NextPage', 'NextJump', 'End', 'Sizes', 'FullJump', 'Total']"
+        :layouts="['Home',  'PrevPage', 'Number', 'NextPage',  'End', 'Sizes', 'FullJump', 'Total']"
         @page-change="pageChange">
       </vxe-pager>
     </div>
