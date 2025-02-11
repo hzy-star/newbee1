@@ -5,7 +5,9 @@
       <!-- 渲染layout一级路由的子路由 -->
       <!-- <component :is="Component" v-if="flag" /> -->
       <div v-if="flag">
-        <component :is="Component" />
+        <keep-alive>
+          <component :is="Component" />
+        </keep-alive>
       </div>
     </transition>
   </router-view>
