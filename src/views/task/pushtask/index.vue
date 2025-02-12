@@ -128,9 +128,9 @@
       </div>
       <div class="vxe-table-div">
         <vxe-table border auto-resize height="auto" :column-config="{ resizable: true }"
-          :cell-config="{ verticalAlign: 'center' }" :row-config="{ isCurrent: true, isHover: true, }"
-          :scroll-y="{ enabled: false, gt: 0 }" :data="tableDataList" ref="tableRef" :custom-config="customConfig" size="mini" round
-          :sort-config="sortConfig">
+          :cell-config="{ verticalAlign: 'center' }" :row-config="{ isCurrent: false, isHover: true, }"
+          :scroll-y="{ enabled: true, gt: 50 }" :data="tableDataList" ref="tableRef" :custom-config="customConfig" size="mini" round
+          :sort-config="sortConfig" :loading="loading">
           <vxe-column field="#" type="checkbox" title="" align="center" width="6%">
             <template #header="{ checked, indeterminate }">
               <span class="custom-checkbox" @click.stop="toggleAllCheckboxEvent">
@@ -364,7 +364,7 @@ const handleshowTaskSortChart = async (row: any) => {
 // -------------------查询功能-------------------
 const {
   tableRef,
-  // loading,
+  loading,
   tableDataList,
   pageVO,
   tableData,
@@ -729,7 +729,8 @@ interface TableRow {
 const sortConfig = ref<VxeTablePropTypes.SortConfig<any>>({
   sortMethod ({ sortList }) {
     const sortItem = sortList[0]
-    let datas = JSON.parse(JSON.stringify(tableData.value))
+    // let datas = JSON.parse(JSON.stringify(tableData.value))
+    let datas = [...tableData.value] // 浅拷贝数组
     // 取出第一个排序的列
     const { field, order } = sortItem
     let list: any[] = []

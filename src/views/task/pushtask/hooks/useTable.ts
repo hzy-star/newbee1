@@ -39,13 +39,16 @@ export default function useTable() {
         pageSize: 10
     })
     const searchEvent = ref()
+    // 在useTable.ts中添加
+    let processedData = ref<any[]>([])
+
     const findAllHooks = async (type: boolean, num?: number) => {
         loading.value = true
         try {
             taskStore.propFrom.etypes == 'all' ? taskStore.propFrom.etypes = '' : taskStore.propFrom.etypes
             const res = await reqlistUrl(taskStore.propFrom)
             result.value = res
-            const processedData = res.map((item: any) => {
+            processedData.value = res.map((item: any) => {
                 const matchedOngoing = taskStore.ongoing.filter(
                     (ongoingItem: any) => ongoingItem.taskId === item.id
                 )
@@ -57,7 +60,7 @@ export default function useTable() {
                 }
             })
 
-            taskStore.setTableData(processedData)
+            taskStore.setTableData(processedData.value)
             if (type) {
                 ElMessage.success('查询成功')
             }
@@ -71,7 +74,7 @@ export default function useTable() {
 
     const handlePageData = (num?: number) => {
         loading.value = true
-        setTimeout(() => {
+        // setTimeout(() => {
             const { pageSize } = pageVO
             // 更新当前页码
             if (num) {
@@ -93,13 +96,13 @@ export default function useTable() {
             });
             
             pageVO.total = tableData.value.length
-            tableDataList.value = tableData.value.slice(
+            tableDataList.value = processedData.value.slice(
                 (pageVO.currentPage - 1) * pageSize, 
                 pageVO.currentPage * pageSize
             )
             searchEvent.value(num)
             loading.value = false
-        }, 100)
+        // }, 100)
     }
     // 模糊查询
     const handleSearch = (num?: number) => {
