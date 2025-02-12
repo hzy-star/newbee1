@@ -99,11 +99,11 @@ const calculateDays = (baseDate: any, dayStep: any) => {
 const ShowChart = async () => {
     let params: paramsData = {
         countryos: JSON.stringify({
-            adx: FormData.value.adx,
-            country: FormData.value.country,
-            os: FormData.value.os
+            adx: FormData.value.adx?.trim(),
+            country: FormData.value.country?.trim(),
+            os: FormData.value.os?.trim()
         }),
-        days: calculateDays(FormData.value.baseDate, FormData.value.dayStep),
+        days: calculateDays(FormData.value.baseDate?.trim(), FormData.value.dayStep?.trim()),
     };
     let res = await reqCountDevHour(params)
     resData.value = res

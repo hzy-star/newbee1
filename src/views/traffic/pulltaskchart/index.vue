@@ -159,14 +159,14 @@ const calculateDays = (baseDate: any, dayStep: any) => {
 const ShowChart = async () => {
     let params: paramsData = {
         startday: FormData.value.baseDate,
-        step: parseInt(FormData.value.dayStep),
-        days: calculateDays(FormData.value.baseDate, FormData.value.dayStep),
-        offer: FormData.value.offerId,
-        pkg: FormData.value.pkgName,
-        taskid: FormData.value.taskId,
+        step: parseInt(FormData.value.dayStep?.trim()),
+        days: calculateDays(FormData.value.baseDate?.trim(), FormData.value.dayStep?.trim()),
+        offer: FormData.value.offerId?.trim(),
+        pkg: FormData.value.pkgName?.trim(),
+        taskid: FormData.value.taskId?.trim(),
         jobgroup: FormData.value.JobGroup as string,
-        app: FormData.value.appId,
-        country: FormData.value.country,
+        app: FormData.value.appId?.trim(),
+        country: FormData.value.country?.trim(),
     };
     // 查询task实际量级接口
     let res = await reqCountTaskHour(params)
