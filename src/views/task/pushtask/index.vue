@@ -130,7 +130,7 @@
         <vxe-table border auto-resize height="auto" :column-config="{ resizable: true }"
           :cell-config="{ verticalAlign: 'center' }" :row-config="{ isCurrent: false, isHover: true, }"
           :scroll-y="{ enabled: true, gt: 50 }" :data="tableDataList" ref="tableRef" :custom-config="customConfig" size="mini" round
-          :sort-config="sortConfig" :loading="loading">
+          :sort-config="sortConfig">
           <vxe-column field="#" type="checkbox" title="" align="center" width="6%">
             <template #header="{ checked, indeterminate }">
               <span class="custom-checkbox" @click.stop="toggleAllCheckboxEvent">
@@ -168,7 +168,7 @@
           </vxe-column>
           <vxe-column field="country" title="country" show-header-overflow sortable align="center" width="5%"></vxe-column>
           <vxe-column field="usealg" title="usealg" show-header-overflow align="center" width="5%" :visible="false"></vxe-column>
-          <vxe-column field="urlparams" title="urlparam" show-header-overflow align="center" width="10%"></vxe-column>
+          <vxe-column field="urlparams" title="urlparam" show-header-overflow sortable align="center" width="10%"></vxe-column>
           <vxe-column field="sendPlan" title="sendPlan" show-header-overflow align="center" width="8%"></vxe-column>
           <vxe-column field="pkgName" title="pkg" show-header-overflow align="center" width="9%">
             <template #default="{ row }">
@@ -364,10 +364,10 @@ const handleshowTaskSortChart = async (row: any) => {
 // -------------------查询功能-------------------
 const {
   tableRef,
-  loading,
+  // loading,
   tableDataList,
   pageVO,
-  tableData,
+  processedData,
   ongoing,
   filtercontent,
   searchEvent,
@@ -379,6 +379,7 @@ const findAll = async (type: boolean) => {
   await fetchTasks(type)
 };
 const pageChange = ({ currentPage, pageSize }: any) => {
+  debugger
   pageChanges({ pageSize, currentPage })
 }
 // 点击单选框，直接查询数据
@@ -647,7 +648,7 @@ const handleModalConfirm = async (formData: FormDataType): Promise<void> => {
 
 // 导出csv
 const exportToCSV = () => {
-  const rows = tableData.value;
+  const rows = processedData.value;
   if (!rows || rows.length === 0) {
     ElMessage.error('暂无数据可导出');
     return;
@@ -661,7 +662,7 @@ const exportToCSV = () => {
     // headers[0] = '#';
     // headers[headers.length - 1] = 'Action';
 
-    const formattedRows = tableData.value.map((row: any) => {
+    const formattedRows = processedData.value.map((row: any) => {
       return list.map((column) => {
         if (column.field === 'sendPlan') {
           return `"${row.sendPlan || ''}"`;
@@ -729,8 +730,8 @@ interface TableRow {
 const sortConfig = ref<VxeTablePropTypes.SortConfig<any>>({
   sortMethod ({ sortList }) {
     const sortItem = sortList[0]
-    // let datas = JSON.parse(JSON.stringify(tableData.value))
-    let datas = [...tableData.value] // 浅拷贝数组
+    // let datas = JSON.parse(JSON.stringify(processedData.value))
+    let datas = [...processedData.value] // 浅拷贝数组
     // 取出第一个排序的列
     const { field, order } = sortItem
     let list: any[] = []
@@ -747,7 +748,7 @@ const sortConfig = ref<VxeTablePropTypes.SortConfig<any>>({
           const bVal = Number(b[field])
           return aVal === bVal ? 0 : (aVal > bVal ? 1 : -1)
         })
-      } else if (field === 'country') {
+      } else if (field === 'country' || field === 'urlparam') {
         list = datas.sort((a: TableRow, b: TableRow) => {
           const aVal = a[field].toUpperCase()  // 转换为大写
           const bVal = b[field].toUpperCase()  // 转换为大写
