@@ -341,7 +341,7 @@ const {
     // loading,
     tableDataList,
     pageVO,
-    tableData,
+    processedData,
     filtercontent,
     searchEvent,
     findAllHooks,
@@ -533,7 +533,7 @@ const generateStatusDetail = (data: any) => {
 
 // 导出csv
 const exportToCSV = () => {
-    const rows = tableData.value;
+    const rows = processedData.value;
     if (!rows || rows.length === 0) {
         ElMessage.error('暂无数据可导出');
         return;
@@ -547,7 +547,7 @@ const exportToCSV = () => {
         // headers[0] = '#';
         // headers[headers.length - 1] = 'Action';
 
-        const formattedRows = tableData.value.map((row: any) => {
+        const formattedRows = processedData.value.map((row: any) => {
             return list.map((column) => {
                 if (column.field === 'source') {
                     return `source:${row.s || '-'};dsadx:${row.ds_adx || '-'};dsbundle:${row.ds_bundle || '-'}`;
@@ -611,7 +611,7 @@ interface TableRow {
 const sortConfig = ref<VxeTablePropTypes.SortConfig<any>>({
   sortMethod ({ sortList }) {
     const sortItem = sortList[0]
-    let datas = JSON.parse(JSON.stringify(tableData.value))
+    let datas = JSON.parse(JSON.stringify(processedData.value))
     // 取出第一个排序的列
     const { field, order } = sortItem
     let list: any[] = []

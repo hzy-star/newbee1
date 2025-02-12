@@ -24,7 +24,7 @@ export default function autoTaskTable() {
     // 定义查询结果
     const result = ref<any[]>([])
     // 表格数据
-    const tableData = ref<any>([]);
+    // const processedData = ref<any>([]);
     // 模糊查询
     const filterName = ref('') // 搜索框内容
 
@@ -33,6 +33,7 @@ export default function autoTaskTable() {
         currentPage: 1,
         pageSize: 10
     })
+    let processedData = ref<any[]>([]);
 
     const searchEvent = ref()
     const findAllHooks = async (type: boolean, num?: number) => {
@@ -40,15 +41,27 @@ export default function autoTaskTable() {
         try {
             
             taskStore.propFrom.etypes == 'all' ? taskStore.propFrom.etypes = '' : taskStore.propFrom.etypes
+            if (taskStore.propFrom) {
+                if (typeof taskStore.propFrom.offerIds === 'string') {
+                  taskStore.propFrom.offerIds = taskStore.propFrom.offerIds.trim();
+                }
+                if (typeof taskStore.propFrom.pkgNames === 'string') {
+                  taskStore.propFrom.pkgNames = taskStore.propFrom.pkgNames.trim();
+                }
+                if (typeof taskStore.propFrom.apps === 'string') {
+                  taskStore.propFrom.apps = taskStore.propFrom.apps.trim();
+                }
+                if (typeof taskStore.propFrom.countries === 'string') {
+                  taskStore.propFrom.countries = taskStore.propFrom.countries.trim();
+                }
+              }
             const res = await reqAutoTaskUrl(taskStore.propFrom)
             result.value = res
-            const processedData = res.map((item: any) => {
+            processedData.value = result.value.map((item: any) => {
                 return {
                     ...item,
                 }
             })
-
-            taskStore.setTableData(processedData)
             if (type) {
                 ElMessage.success('查询成功')
             }
@@ -61,39 +74,35 @@ export default function autoTaskTable() {
     }
 
     const handlePageData = (num?: number) => {
-        loading.value = true
-        setTimeout(() => {
+        // loading.value = true
             const { pageSize } = pageVO
+            const filterVal = String(filterName.value).trim().toLowerCase();
+            // 判断模糊查询是否有值，有值则使用过滤后的数据processedData，无值则使用原始数据result
+            pageVO.total = filterVal != ""
+            ? processedData.value.length
+            : result.value.length;
             // 更新当前页码
             if (num) {
                 pageVO.currentPage = num
             }
             
-            tableData.value = result.value.map((item: any) => {
-                // 返回新的结构，将 matchedOngoing 嵌套到 ongoingData
-                return {
-                    ...item, // 保留原来的字段
-                };
-            });
-            
-            pageVO.total = tableData.value.length
-            tableDataList.value = tableData.value.slice(
-                (pageVO.currentPage - 1) * pageSize, 
+            tableDataList.value = processedData.value.slice(
+                (pageVO.currentPage - 1) * pageSize,
                 pageVO.currentPage * pageSize
-            )
-            searchEvent.value(num)
-            loading.value = false
-        }, 100)
+              );
+              if(filterVal != ""){
+                searchEvent.value(num)
+              }
     }
     const handleSearch = (num?: number) => {
         const filterVal = String(filterName.value).trim().toLowerCase()
         
         const { pageSize } = pageVO
         // 首先过滤数据
-        let filteredData = tableData.value
+        let filteredData = processedData.value
         if (filterVal) {
             // 直接在原始数据上进行过滤
-            filteredData = tableData.value.filter((item: any) => {
+            filteredData = processedData.value.filter((item: any) => {
                 // 构造用于搜索的字符串
                 const searchText = [
                     item.type == 0 ? 'click' : 'imp',
@@ -113,16 +122,27 @@ export default function autoTaskTable() {
 
                 return searchText.includes(filterVal)
             })
-        } 
-        // 更新总数据量
-        pageVO.total = filteredData.length
-        if (num) {
-            pageVO.currentPage = num
+            // 更新总数据量
+            pageVO.total = filteredData.length
+            if (num) {
+                pageVO.currentPage = num
+            }
+            tableDataList.value = filteredData.slice(
+                (pageVO.currentPage - 1) * pageSize, 
+                pageVO.currentPage * pageSize
+            )
+        } else{
+            
+            // 更新总数据量
+            pageVO.total = processedData.value.length
+            if (num) {
+                pageVO.currentPage = num
+            }
+            tableDataList.value = processedData.value.slice(
+                (pageVO.currentPage - 1) * pageSize, 
+                pageVO.currentPage * pageSize
+            )
         }
-        tableDataList.value = filteredData.slice(
-            (pageVO.currentPage - 1) * pageSize, 
-            pageVO.currentPage * pageSize
-        )
     }
     onMounted(() => {
         searchEvent.value = XEUtils.throttle(function (num?: number) {
@@ -146,7 +166,7 @@ export default function autoTaskTable() {
         loading,
         tableDataList,
         pageVO,
-        tableData,
+        processedData,
         filterName,
         searchEvent,
         findAllHooks,

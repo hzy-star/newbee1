@@ -47,7 +47,6 @@ export default function useTable() {
       taskStore.propFrom.etypes == "all"
         ? (taskStore.propFrom.etypes = "")
         : taskStore.propFrom.etypes;
-        debugger
         if (taskStore.propFrom) {
             if (typeof taskStore.propFrom.offerIds === 'string') {
               taskStore.propFrom.offerIds = taskStore.propFrom.offerIds.trim();
@@ -104,10 +103,14 @@ export default function useTable() {
     if (num) {
       pageVO.currentPage = num;
     }
+    debugger
     tableDataList.value = processedData.value.slice(
       (pageVO.currentPage - 1) * pageSize,
       pageVO.currentPage * pageSize
     );
+    if(filterVal != ""){
+      searchEvent.value(num)
+    }
   };
   // 模糊查询
   const handleSearch = (num?: number) => {
@@ -220,7 +223,6 @@ export default function useTable() {
     pageSize: number;
     currentPage: number;
   }) => {
-    debugger;
     pageVO.currentPage = currentPage;
     pageVO.pageSize = pageSize;
     handlePageData();

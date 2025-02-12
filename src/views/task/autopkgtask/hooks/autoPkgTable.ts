@@ -26,7 +26,7 @@ export default function autoPkgTable() {
     // 定义查询结果
     const result = ref<any[]>([])
     // 表格数据
-    const tableData = ref<any>([]);
+    // const processedData = ref<any>([]);
     // 模糊查询
     const filtercontent = ref('')
 
@@ -37,6 +37,7 @@ export default function autoPkgTable() {
     })
 
     const searchEvent = ref()
+    let processedData = ref<any[]>([]);
     const {
         filterStatus
     } = autoRunningStatus()
@@ -46,15 +47,31 @@ export default function autoPkgTable() {
             taskStore.propFrom.status = taskStore.propFrom.ce_pkg_status
             taskStore.propFrom.bsclick == 'all' ? taskStore.propFrom.bsclick = '' : taskStore.propFrom.bsclick
             taskStore.propFrom.etype == 'all' ? taskStore.propFrom.etype = '' : taskStore.propFrom.etype
+            
+            if (taskStore.propFrom) {
+                if (typeof taskStore.propFrom.offerid === 'string') {
+                  taskStore.propFrom.offerid = taskStore.propFrom.offerid.trim();
+                }
+                if (typeof taskStore.propFrom.pkgname === 'string') {
+                  taskStore.propFrom.pkgname = taskStore.propFrom.pkgname.trim();
+                }
+                if (typeof taskStore.propFrom.appid === 'string') {
+                  taskStore.propFrom.appid = taskStore.propFrom.appid.trim();
+                }
+                if (typeof taskStore.propFrom.country === 'string') {
+                  taskStore.propFrom.country = taskStore.propFrom.country.trim();
+                }
+                if (typeof taskStore.propFrom.jobid === 'string') {
+                  taskStore.propFrom.jobid = taskStore.propFrom.jobid.trim();
+                }
+              }
             const res = await reqPkgTaskUrl(taskStore.propFrom)
             result.value = res
-            const processedData = res.map((item: any) => {
+            processedData.value = result.value.map((item: any) => {
                 return {
                     ...item,
                 }
             })
-
-            taskStore.setTableData(processedData)
             if (type) {
                 ElMessage.success('查询成功')
             }
@@ -67,29 +84,26 @@ export default function autoPkgTable() {
     }
 
     const handlePageData = (num?: number) => {
-        loading.value = true
-        setTimeout(() => {
-            const { pageSize } = pageVO
-            // 更新当前页码
-            if (num) {
-                pageVO.currentPage = num
-            }
-            
-            tableData.value = result.value.map((item: any) => {
-                // 返回新的结构，将 matchedOngoing 嵌套到 ongoingData
-                return {
-                    ...item, // 保留原来的字段
-                };
-            });
-            
-            pageVO.total = tableData.value.length
-            tableDataList.value = tableData.value.slice(
-                (pageVO.currentPage - 1) * pageSize, 
-                pageVO.currentPage * pageSize
-            )
+        // loading.value = true
+        const { pageSize } = pageVO
+        const filterVal = String(filtercontent.value).trim().toLowerCase();
+        // 判断模糊查询是否有值，有值则使用过滤后的数据processedData，无值则使用原始数据result
+        pageVO.total = filterVal != ""
+        ? processedData.value.length
+        : result.value.length;
+        // 更新当前页码
+        if (num) {
+            pageVO.currentPage = num
+        }
+        
+        tableDataList.value = processedData.value.slice(
+            (pageVO.currentPage - 1) * pageSize,
+            pageVO.currentPage * pageSize
+          );
+          if(filterVal != ""){
             searchEvent.value(num)
-            loading.value = false
-        }, 100)
+          }
+        // loading.value = false
     }
     // 模糊查询
     const handleSearch = (num?: number) => {
@@ -97,10 +111,10 @@ export default function autoPkgTable() {
         
         const { pageSize } = pageVO
         // 首先过滤数据
-        let filteredData = tableData.value
+        let filteredData = processedData.value
         if (filterVal) {
             // 直接在原始数据上进行过滤
-            filteredData = tableData.value.filter((item: any) => {
+            filteredData = processedData.value.filter((item: any) => {
                 // 构造用于搜索的字符串
                 const searchText = [
                     `${item.etype == null ? "click" : item.etype}`,
@@ -132,16 +146,26 @@ export default function autoPkgTable() {
     
                 return searchText.includes(filterVal)
             })
+            // 更新总数据量
+            pageVO.total = filteredData.length
+            if (num) {
+                pageVO.currentPage = num
+            }
+            tableDataList.value = filteredData.slice(
+                (pageVO.currentPage - 1) * pageSize, 
+                pageVO.currentPage * pageSize
+            )
+        }else{
+            // 更新总数据量
+            pageVO.total = processedData.value.length
+            if (num) {
+                pageVO.currentPage = num
+            }
+            tableDataList.value = processedData.value.slice(
+                (pageVO.currentPage - 1) * pageSize, 
+                pageVO.currentPage * pageSize
+            )
         }
-        // 更新总数据量
-        pageVO.total = filteredData.length
-        if (num) {
-            pageVO.currentPage = num
-        }
-        tableDataList.value = filteredData.slice(
-            (pageVO.currentPage - 1) * pageSize, 
-            pageVO.currentPage * pageSize
-        )
     }
     
     onMounted(() => {
@@ -166,7 +190,7 @@ export default function autoPkgTable() {
         loading,
         tableDataList,
         pageVO,
-        tableData,
+        processedData,
         filtercontent,
         searchEvent,
         findAllHooks,
