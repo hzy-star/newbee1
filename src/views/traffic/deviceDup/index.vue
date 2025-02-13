@@ -394,8 +394,8 @@ const sortConfig = ref<VxeTablePropTypes.SortConfig<any>>({
 }
 
 .compare-item {
-    font-size: 0.8rem;
-    color: #666;
+    font-size: 0.9rem;
+    color: #87888a;
     margin-top: 2px;
 }
 </style>
