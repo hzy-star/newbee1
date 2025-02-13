@@ -4,7 +4,7 @@ import { reqlistUrl } from "@/api/pushtask/index";
 import type { VxeTableInstance } from "vxe-table";
 import { useTaskStore } from "@/store/pushtask/task";
 import listTaskCr from "@/store/common/listTaskCr";
-import { formatDateToSimple } from "@/utils/time";
+import { zeroTime } from "@/utils/time";
 import XEUtils from "xe-utils";
 
 export default function useTable() {
@@ -160,7 +160,7 @@ export default function useTable() {
             4
           )}%`,
           item.bsclick,
-          formatDateToSimple(item?.mdate),
+          zeroTime(item?.mdate),
         ]
           .join(" ")
           .toLowerCase();

@@ -3,7 +3,7 @@ import { ElMessage } from 'element-plus'
 import { reqAutoTaskUrl } from "@/api/pushtask/autoTask"
 import type { VxeTableInstance } from 'vxe-table'
 import { useTaskStore } from '@/store/pushtask/autoTask'
-import {  formatDateToSimple } from "@/utils/time";
+import {  zeroTime } from "@/utils/time";
 import XEUtils from 'xe-utils'
 
 export default function autoTaskTable() {
@@ -117,7 +117,7 @@ export default function autoTaskTable() {
                     `cr:${(((item?.crInfo?.ctr || 0) + (item?.crInfo?.ivr || 0)) * 100).toFixed(4)}`,
                     `ecpc:${((item?.crInfo?.ecpc || 0) * 100).toFixed(4)}`,
                     `roi:${((item?.crInfo?.roi || 0) * 100).toFixed(2)}`,
-                    formatDateToSimple(item.updatedTime)
+                    zeroTime(item.updatedTime)
                 ].join(' ').toLowerCase()
 
                 return searchText.includes(filterVal)

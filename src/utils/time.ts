@@ -71,3 +71,8 @@ export function toDateStr(srcDate: Date | undefined, simpleFormat: boolean = fal
     year + "-" + month + "-" + day + " " + hour + ":" + minutes + ":" + seconds
   );
 }
+
+// 零时区
+export const zeroTime = (dateString: string) => {
+  return dateString.replace(/[.].*$/g, "")
+}

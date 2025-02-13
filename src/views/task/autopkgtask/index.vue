@@ -218,7 +218,7 @@
                     </vxe-column>
                     <vxe-column field="updated" title="updateDate" show-header-overflow sortable align="center" width="90">
                         <template #default="{ row }">
-                            {{ formatDateToSimple(row?.updated) }}
+                            {{ zeroTime(row?.updated) }}
                         </template>
                     </vxe-column>
                     <vxe-column field="Action" align="center" fixed="right" min-width="120">
@@ -273,7 +273,7 @@ import { ElMessage, ElMessageBox } from 'element-plus';
 import autoPkgTable from './hooks/autoPkgTable'
 import autoPkgModal from './hooks/autoPkgModal'
 import autoRunningStatus from './hooks/autoRunningStatus'
-import { formatDateToSimple } from "@/utils/time";
+import { zeroTime } from "@/utils/time";
 import {  reqBatchEnabledOrDisabled,reqTryOrRunUrl } from "@/api/pushtask/autoPkgTask"
 import { useTaskStore } from '@/store/pushtask/autoPkgTask'
 import PkgModal from '@/components/task/AutoPkgTask/PkgModal.vue'
@@ -563,7 +563,7 @@ const exportToCSV = () => {
                     const roi = row?.crInfo?.roi || 0;
                     return `cr:${((ctr + ivr) * 100).toFixed(4)}%;ecpc:${(ecpc * 100).toFixed(4)}%;roi:${(roi * 100).toFixed(2)}%`;
                 } else if(column.field === 'updated') {
-                    return formatDateToSimple(row?.updated);
+                    return zeroTime(row?.updated);
                 }
                 return row[column.field] || ''; // 其他字段正常取值
             });

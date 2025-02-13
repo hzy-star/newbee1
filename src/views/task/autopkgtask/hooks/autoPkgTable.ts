@@ -3,7 +3,7 @@ import { ElMessage } from 'element-plus'
 import { reqPkgTaskUrl } from "@/api/pushtask/autoPkgTask"
 import type { VxeTableInstance } from 'vxe-table'
 import { useTaskStore } from '@/store/pushtask/autoPkgTask'
-import {  formatDateToSimple } from "@/utils/time";
+import {  zeroTime } from "@/utils/time";
 import XEUtils from 'xe-utils'
 import { truncateText } from '@/utils/common'; // 直接导入默认对象并调用truncateText
 import autoRunningStatus from './autoRunningStatus'
@@ -141,7 +141,7 @@ export default function autoPkgTable() {
                     `ecpc:${(((item?.crInfo?.ecpc ? item?.crInfo?.ecpc : 0))* 100).toFixed(4)}%`,
                     `roi:${(((item?.crInfo?.roi ? item?.crInfo?.roi : 0))* 100).toFixed(2)}%`,
                     item.bsclick,
-                    formatDateToSimple(item?.updated)
+                    zeroTime(item?.updated)
                 ].join(' ').toLowerCase()
     
                 return searchText.includes(filterVal)

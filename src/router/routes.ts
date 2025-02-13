@@ -34,16 +34,6 @@ export const constantRoutes = [
         ]
     },
     {
-        path: '/404',
-        component: () => import('@/views/404/index.vue'),
-        name: '404',
-        meta: {
-            title: '404',
-            hidden: true,
-            icon: "Promotion"
-        },
-    },
-    {
         path: '/task',
         component: () => import('@/layout/index.vue'),
         name: 'task',
@@ -133,6 +123,16 @@ export const constantRoutes = [
                 name: 'deviceChart',
                 meta: {
                     title: 'deviceChart',
+                    icon: 'SetUp',
+                    hidden: false
+                }
+            },
+            {
+                path: '/traffic/deviceDup',
+                component: () => import('@/views/traffic/deviceDup/index.vue'),
+                name: 'deviceDup',
+                meta: {
+                    title: 'deviceDup',
                     icon: 'SetUp',
                     hidden: false
                 }

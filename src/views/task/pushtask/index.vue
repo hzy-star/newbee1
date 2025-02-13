@@ -222,7 +222,7 @@
           <vxe-column field="bsclick" title="bsclick" show-header-overflow align="center" width="5%"></vxe-column>
           <vxe-column field="mdate" title="mdate" show-header-overflow sortable align="center" width="90">
             <template #default="{ row }">
-              {{ formatDateToSimple(row?.mdate) }}
+              {{ zeroTime(row?.mdate) }}
             </template>
           </vxe-column>
           <vxe-column field="Action" align="center" show-header-overflow fixed="right" min-width="100">
@@ -271,7 +271,7 @@ import { ElMessage, ElMessageBox } from 'element-plus';
 import useChart from './hooks/useChart'
 import useTable from './hooks/useTable'
 import useModal from './hooks/useModal'
-import { getRelativeDates, formatDateToSimple } from "@/utils/time";
+import { getRelativeDates, zeroTime } from "@/utils/time";
 import { reqOngoing, reqGetBundleKey, reqDelTask, reqEnableTask, reqDisAbleTask, reqBatchEnableTask, reqBatchDisableTask } from "@/api/pushtask/index"
 import listTaskCr from "@/store/common/listTaskCr"
 import TaskModal from '@/components/task/TaskModal.vue'
