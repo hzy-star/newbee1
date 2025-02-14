@@ -1,4 +1,4 @@
-import { ref, reactive, onMounted, onUnmounted, shallowRef } from "vue";
+import { ref, reactive, onMounted, onUnmounted, shallowRef,watch } from "vue";
 import { ElMessage } from "element-plus";
 import { reqlistUrl } from "@/api/pushtask/index";
 import type { VxeTableInstance } from "vxe-table";
@@ -6,6 +6,7 @@ import { useTaskStore } from "@/store/pushtask/task";
 import listTaskCr from "@/store/common/listTaskCr";
 import { zeroTime } from "@/utils/time";
 import XEUtils from "xe-utils";
+import { debounce } from 'lodash';
 
 export default function useTable() {
   interface RowVO {
@@ -40,6 +41,7 @@ export default function useTable() {
   const searchEvent = ref();
   // 在useTable.ts中添加
   let processedData = ref<any[]>([]);
+  let originalData = ref<any[]>([]);
   let taskCrData: any = ref();
   const findAllHooks = async (type: boolean, num?: number) => {
     loading.value = true;
@@ -79,7 +81,7 @@ export default function useTable() {
           taskCrData: taskCrData || null,
         };
       });
-  
+      originalData.value = processedData.value;
       if (type) {
         ElMessage.success("查询成功");
       }
@@ -215,6 +217,22 @@ export default function useTable() {
       searchEvent.value.cancel();
     }
   });
+  watch(filtercontent, debounce((newValue, oldValue) => {
+    // 如果 filtercontent 改变了，并且新的值与旧的值不相等，则将 processedData 设置为 result
+    if (newValue !== oldValue) {
+      processedData.value = result.value.map((item: any) => {
+        const matchedOngoing = taskStore.ongoing.filter(
+          (ongoingItem: any) => ongoingItem.taskId === item.id
+        );
+        taskCrData = getTaskCr.taskCr[item.id]
+        return {
+          ...item,
+          ongoingData: matchedOngoing.length > 0 ? matchedOngoing : null,
+          taskCrData: taskCrData || null,
+        };
+      });
+    }
+  }, 300)); // 300ms 防抖时间，用户停止输入后 300ms 执行处理
   // 分页
   const pageChanges = ({
     pageSize,
@@ -237,7 +255,9 @@ export default function useTable() {
     ongoing,
     filtercontent,
     searchEvent,
+    originalData,
     findAllHooks,
     pageChanges,
+    handlePageData
   };
 }

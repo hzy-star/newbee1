@@ -1,4 +1,4 @@
-import { ref, reactive ,onMounted,onUnmounted} from 'vue'
+import { ref, reactive ,onMounted,onUnmounted,watch} from 'vue'
 import { ElMessage } from 'element-plus'
 import { reqPkgTaskUrl } from "@/api/pushtask/autoPkgTask"
 import type { VxeTableInstance } from 'vxe-table'
@@ -7,9 +7,10 @@ import {  zeroTime } from "@/utils/time";
 import XEUtils from 'xe-utils'
 import { truncateText } from '@/utils/common'; // 直接导入默认对象并调用truncateText
 import autoRunningStatus from './autoRunningStatus'
+import { debounce } from 'lodash';
 
 export default function autoPkgTable() {
-    interface RowVO {
+    interface RowVO { 
         id: number
         name: string
         role: string
@@ -38,6 +39,7 @@ export default function autoPkgTable() {
 
     const searchEvent = ref()
     let processedData = ref<any[]>([]);
+    let originalData = ref<any[]>([]);
     const {
         filterStatus
     } = autoRunningStatus()
@@ -72,6 +74,7 @@ export default function autoPkgTable() {
                     ...item,
                 }
             })
+            originalData.value = processedData.value;
             if (type) {
                 ElMessage.success('查询成功')
             }
@@ -179,6 +182,16 @@ export default function autoPkgTable() {
             searchEvent.value.cancel()
         }
     })
+    watch(filtercontent, debounce((newValue, oldValue) => {
+      // 如果 filtercontent 改变了，并且新的值与旧的值不相等，则将 processedData 设置为 result
+      if (newValue !== oldValue) {
+          processedData.value = result.value.map((item: any) => {
+              return {
+                  ...item,
+              }
+          })
+      }
+    }, 300)); // 300ms 防抖时间，用户停止输入后 300ms 执行处理
     const pageChanges = ({ pageSize, currentPage }: { pageSize: number; currentPage: number }) => {
         pageVO.currentPage = currentPage
         pageVO.pageSize = pageSize
@@ -191,9 +204,11 @@ export default function autoPkgTable() {
         tableDataList,
         pageVO,
         processedData,
+        originalData,
         filtercontent,
         searchEvent,
         findAllHooks,
-        pageChanges
+        pageChanges,
+        handlePageData
     }
 }

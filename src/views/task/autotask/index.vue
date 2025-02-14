@@ -94,7 +94,14 @@
                 <vxe-table border auto-resize height="auto" :column-config="{ resizable: true }"
                     :cell-config="{ verticalAlign: 'center' }" :row-config="{ isCurrent: false, isHover: true, }"
                     :scroll-y="{ enabled: true, gt: 50 }" :data="tableDataList" ref="tableRef"
-                    :custom-config="customConfig" size="mini" round :sort-config="sortConfig">
+                    :custom-config="customConfig" size="mini" round :sort-config="sortConfig"
+                    :pager-config="{
+                        currentPage: pageVO.currentPage,
+                        pageSize: pageVO.pageSize,
+                        total: pageVO.total,
+                    }" 
+                    @sort-change="handleSortChange"
+                    @page-change="handlePageChange">
                     <vxe-column field="#" type="checkbox" title="" align="center" width="2%">
                         <template #header="{ checked, indeterminate }">
                             <span class="custom-checkbox" @click.stop="toggleAllCheckboxEvent">
@@ -291,8 +298,10 @@ const {
     processedData,
     filterName,
     searchEvent,
+    originalData,
     findAllHooks,
-    pageChanges
+    pageChanges,
+    handlePageData
 } = autoTaskTable()
 
 // 查询功能
@@ -497,56 +506,83 @@ interface TableRow {
 }
 
 const sortConfig = ref<VxeTablePropTypes.SortConfig<any>>({
-  sortMethod ({ sortList }) {
-    const sortItem = sortList[0]
-    let datas = JSON.parse(JSON.stringify(processedData.value))
-    // 取出第一个排序的列
-    const { field, order } = sortItem
-    let list: any[] = []
-    if (order === 'asc' || order === 'desc') {
-      if (field === 'offerId') {
-      list = datas.sort((a: TableRow, b: TableRow) => {
-        const aVal = a[field] === 'all' ? Infinity : (isNaN(Number(a[field])) ? Infinity : Number(a[field]))
-        const bVal = b[field] === 'all' ? Infinity : (isNaN(Number(b[field])) ? Infinity : Number(b[field]))
-        return aVal === bVal ? 0 : (aVal > bVal ? 1 : -1)
-      })
-    }else if (field === 'appId') {
-        list = datas.sort((a: TableRow, b: TableRow) => {
-          const aVal = Number(a[field])
-          const bVal = Number(b[field])
-          return aVal === bVal ? 0 : (aVal > bVal ? 1 : -1)
-        })
-      } else if (field === 'country') {
-        list = datas.sort((a: TableRow, b: TableRow) => {
-          const aVal = a[field].toUpperCase()  // 转换为大写
-          const bVal = b[field].toUpperCase()  // 转换为大写
-          return aVal === bVal ? 0 : (aVal > bVal ? 1 : -1)
-        })
-      } else if (field === 'cr') {
-        list = datas.sort((a: TableRow, b: TableRow) => {
-          const aVal = a.crInfo ? ((a.crInfo.ctr + a.crInfo.ivr) * 100) : 0
-          const bVal = b.crInfo ? ((b.crInfo.ctr + b.crInfo.ivr) * 100) : 0
-          return aVal === bVal ? 0 : (aVal > bVal ? 1 : -1)
-        })
-      } else {
-        list = datas.sort((a: TableRow, b: TableRow) => {
-          const aVal = a[field]
-          const bVal = b[field]
-          return aVal === bVal ? 0 : (aVal > bVal ? 1 : -1)
-        })
-      }
-    }
-    if (order === 'desc') {
-      list.reverse()
-    }
+    sortMethod({ sortList }) {
+        // 新增：处理空排序状态
+        if (sortList.length === 0) {
+            // 恢复原始数据
+            processedData.value = [...originalData.value];
+            return true;
+        }
+        const sortItem = sortList[0]
+        let datas = [...processedData.value] // 浅拷贝数组
+        // 取出第一个排序的列
+        const { field, order } = sortItem
+        const sorted = [...processedData.value].sort((a, b) => {
+            if (order === 'asc' || order === 'desc') {
+                if (field === 'offerId') {
+                    const aVal = a[field] === 'all' ? Infinity : (isNaN(Number(a[field])) ? Infinity : Number(a[field]))
+                    const bVal = b[field] === 'all' ? Infinity : (isNaN(Number(b[field])) ? Infinity : Number(b[field]))
+                    return aVal === bVal ? 0 : (aVal > bVal ? 1 : -1)
+                } else if (field === 'appId') {
+                    const aVal = a[field];
+                    const bVal = b[field];
+                    // 如果两个值都是数字，直接比较数字大小
+                    if (!isNaN(Number(aVal)) && !isNaN(Number(bVal))) {
+                        return Number(aVal) - Number(bVal);
+                    }
+                    // 如果一个是数字，另一个是字符串，数字排在前面
+                    if (!isNaN(Number(aVal)) && isNaN(Number(bVal))) {
+                        return -1;
+                    }
+                    if (isNaN(Number(aVal)) && !isNaN(Number(bVal))) {
+                        return 1;
+                    }
+                    // 如果两个值都是字符串，忽略大小写比较
+                    return aVal.localeCompare(bVal, undefined, { sensitivity: 'base' });
+                } else if (field === 'country') {
+                    const aVal = a[field].toUpperCase()  // 转换为大写
+                    const bVal = b[field].toUpperCase()  // 转换为大写
+                    return aVal === bVal ? 0 : (aVal > bVal ? 1 : -1)
+                } else if (field === 'cr') {
+                    const aVal = a.crInfo ? ((a.crInfo.ctr + a.crInfo.ivr) * 100) : 0
+                    const bVal = b.crInfo ? ((b.crInfo.ctr + b.crInfo.ivr) * 100) : 0
+                    return aVal === bVal ? 0 : (aVal > bVal ? 1 : -1)
+                } else {
+                    const aVal = a[field]
+                    const bVal = b[field]
+                    return aVal === bVal ? 0 : (aVal > bVal ? 1 : -1)
+                }
+            }
+        });
+        // 更新全量数据
+        processedData.value = order === 'desc' ? sorted.reverse() : sorted;
+        return true; // 返回true表示已处理排序
 
-    // 返回一个新的数组，而不是直接修改 tableDataList.value
-    return list.slice(
-      (pageVO.currentPage - 1) * pageVO.pageSize, 
-      pageVO.currentPage * pageVO.pageSize
-    )
-  }
+    }
 })
+const handleSortChange = ({ sortList }) => {
+  sortConfig.value.sortMethod({ sortList });
+  handlePageData();
+};
+
+const handlePageChange = ({ currentPage, pageSize }) => {
+  pageVO.currentPage = currentPage;
+  pageVO.pageSize = pageSize;
+  handlePageData();
+};
+watch(
+  () => pageVO.currentPage,
+  () => {
+    handlePageData();
+  }
+);
+
+watch(
+  () => pageVO.pageSize,
+  () => {
+    handlePageData();
+  }
+);
 </script>
 
 <style scoped lang="scss">

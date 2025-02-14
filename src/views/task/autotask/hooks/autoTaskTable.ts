@@ -1,10 +1,11 @@
-import { ref, reactive ,onMounted,onUnmounted} from 'vue'
+import { ref, reactive ,onMounted,onUnmounted,watch} from 'vue'
 import { ElMessage } from 'element-plus'
 import { reqAutoTaskUrl } from "@/api/pushtask/autoTask"
 import type { VxeTableInstance } from 'vxe-table'
 import { useTaskStore } from '@/store/pushtask/autoTask'
 import {  zeroTime } from "@/utils/time";
 import XEUtils from 'xe-utils'
+import { debounce } from 'lodash';
 
 export default function autoTaskTable() {
     interface RowVO {
@@ -34,6 +35,7 @@ export default function autoTaskTable() {
         pageSize: 10
     })
     let processedData = ref<any[]>([]);
+    let originalData = ref<any[]>([]);
 
     const searchEvent = ref()
     const findAllHooks = async (type: boolean, num?: number) => {
@@ -62,6 +64,7 @@ export default function autoTaskTable() {
                     ...item,
                 }
             })
+            originalData.value = processedData.value;
             if (type) {
                 ElMessage.success('查询成功')
             }
@@ -155,6 +158,17 @@ export default function autoTaskTable() {
             searchEvent.value.cancel()
         }
     })
+    
+  watch(filterName, debounce((newValue, oldValue) => {
+    // 如果 filterName 改变了，并且新的值与旧的值不相等，则将 processedData 设置为 result
+    if (newValue !== oldValue) {
+        processedData.value = result.value.map((item: any) => {
+            return {
+                ...item,
+            }
+        })
+    }
+  }, 300)); // 300ms 防抖时间，用户停止输入后 300ms 执行处理
     const pageChanges = ({ pageSize, currentPage }: { pageSize: number; currentPage: number }) => {
         pageVO.currentPage = currentPage
         pageVO.pageSize = pageSize
@@ -168,8 +182,10 @@ export default function autoTaskTable() {
         pageVO,
         processedData,
         filterName,
+        originalData,
         searchEvent,
         findAllHooks,
-        pageChanges
+        pageChanges,
+        handlePageData
     }
 }
