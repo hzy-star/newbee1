@@ -9,7 +9,7 @@ const useCookie = defineStore("setCookie", {
       cookieExpireTime: localCache.getCache("cookie")?.timestamp || 0,
       username: localCache.getCache("username") || "", // 存储用户名
       avatar:
-        "https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif", // 存储头像
+        "https://www.eclicktech.com.cn/static/style/pc/2022/i/favicon.png", // 存储头像
     };
   },
   actions: {
