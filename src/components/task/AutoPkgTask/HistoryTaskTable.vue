@@ -1,5 +1,5 @@
 <template>
-    <el-dialog :model-value="modelValue" :title="title" align-center @close="handleClose" width="60%"
+    <el-dialog :model-value="modelValue" :title="title" align-center @close="handleClose" width="70%"
         :close-on-click-modal="false" draggable>
         <div style="height: 85vh; ">
             <vxe-table border height="100%" auto-resize :cell-config="{ verticalAlign: 'center' }"
@@ -23,7 +23,7 @@
                         </div>
                     </template>
                 </vxe-column>
-                <vxe-column field="Status" title="Status" align="center" width="10%">
+                <vxe-column field="Status" title="Status" align="center" width="6%">
                     <template #default="{ row }">
                         {{ !!row?.status ? filterStatus(row.status) : '' }}
                     </template>
@@ -38,7 +38,7 @@
                         </div>
                     </template>
                 </vxe-column>
-                <vxe-column field="Time" title="Time" align="center" width="20%">
+                <vxe-column field="Time" title="Time" align="center" width="17%">
                     <template #default="{ row }">
                         <div class="device-box">
                             <div class="device-text"><span class="device-span">start:</span> {{ row.startTime || '' }}
@@ -49,14 +49,15 @@
                         </div>
                     </template>
                 </vxe-column>
-                <vxe-column field="Click(Imp)Count" title="Click(Imp)Count" align="center" width="10%">
+                <vxe-column field="Click(Imp)Count" title="Click(Imp)Count" align="center" width="17%">
                     <template #default="{ row }">
                         <div class="device-box">
                             <div class="device-text"><span class="device-span">sent:</span> {{ row.sendCount || '' }}
                             </div>
                             <div class="device-text"><span class="device-span">succ:</span> {{ row.succCount || '' }}
                             </div>
-                            <div class="device-text"><span class="device-span">Details:</span> {{ resultEval(row) }}
+                            <div class="device-text" ><span class="device-span">Details:</span>
+                                <div v-html="resultEval(row)" style="margin-left: 5px;"></div>
                             </div>
                         </div>
                     </template>
@@ -101,11 +102,12 @@ const resultEval = (row: any) => {
         let resultDetail = eval("(" + row.resultDetail + ")");
         for (let i in resultDetail) {
             let fitem = resultDetail[i];
-            curJvmStatusDetail.push("<b>" + i.replaceAll("<", "").replaceAll(">", "") + ":</b>" + fitem);
+            curJvmStatusDetail.push("<b style='color: #878484'>" + i.replaceAll("<", "").replaceAll(">", "") + ":</b>" + fitem);
         }
     }
     return curJvmStatusDetail.join("<br>");
 }
+
 const parseFilters = (row: any) => {
     try {
         const result = [];
