@@ -133,7 +133,17 @@ export const constantRoutes = [
                 name: 'deviceDup',
                 meta: {
                     title: 'deviceDup',
-                    icon: 'SetUp',
+                    icon: 'DocumentCopy',
+                    hidden: false
+                }
+            },
+            {
+                path: '/traffic/pullDevice',
+                component: () => import('@/views/traffic/pullDevice/index.vue'),
+                name: 'pullDevice',
+                meta: {
+                    title: 'pullDevice',
+                    icon: 'Files',
                     hidden: false
                 }
             },

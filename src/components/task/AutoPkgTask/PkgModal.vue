@@ -80,7 +80,7 @@
             </el-row>
             <!-- 第三行 -->
             <el-row :gutter="24" v-if="btnType != 'batchEdit'">
-                <el-col :span="4">
+                <el-col :span="5">
                     <div class="form-item">
                         <div class="form-item-label">status</div>
                         <el-select v-model="formData.status" placeholder="select">

@@ -94,7 +94,7 @@
                 <vxe-table border auto-resize height="auto" :column-config="{ resizable: true }"
                     :cell-config="{ verticalAlign: 'center' }" :row-config="{ isCurrent: false, isHover: true, }"
                     :scroll-y="{ enabled: true, gt: 50 }" :data="tableDataList" ref="tableRef"
-                    :custom-config="customConfig" size="mini" round :sort-config="sortConfig"
+                    :custom-config="customConfig" size="mini" round 
                     :pager-config="{
                         currentPage: pageVO.currentPage,
                         pageSize: pageVO.pageSize,
@@ -500,13 +500,8 @@ onMounted(async () => {
 
 });
 // 排序
-// 定义数据项的类型
-interface TableRow {
-  [key: string]: any; // 根据实际数据结构定义
-}
-
-const sortConfig = ref<VxeTablePropTypes.SortConfig<any>>({
-    sortMethod({ sortList }) {
+const sortConfig = ref({
+    sortMethods({ sortList }: { sortList: { field: string; order: string }[] }) {
         // 新增：处理空排序状态
         if (sortList.length === 0) {
             // 恢复原始数据
@@ -514,7 +509,6 @@ const sortConfig = ref<VxeTablePropTypes.SortConfig<any>>({
             return true;
         }
         const sortItem = sortList[0]
-        let datas = [...processedData.value] // 浅拷贝数组
         // 取出第一个排序的列
         const { field, order } = sortItem
         const sorted = [...processedData.value].sort((a, b) => {
@@ -560,12 +554,12 @@ const sortConfig = ref<VxeTablePropTypes.SortConfig<any>>({
 
     }
 })
-const handleSortChange = ({ sortList }) => {
-  sortConfig.value.sortMethod({ sortList });
+const handleSortChange = ({ sortList }: any) => {
+  sortConfig.value.sortMethods({ sortList });
   handlePageData();
 };
 
-const handlePageChange = ({ currentPage, pageSize }) => {
+const handlePageChange = ({ currentPage, pageSize }: any) => {
   pageVO.currentPage = currentPage;
   pageVO.pageSize = pageSize;
   handlePageData();

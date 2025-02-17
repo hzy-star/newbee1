@@ -15,7 +15,7 @@ let loadingInstance: LoadingInstance | null = null; // 用于存储 loading 实�
 // 创建axios实例
 const request = axios.create({
   baseURL: import.meta.env.VITE_APP_BASE_API, // 基础路径上会携带/api
-  timeout: 20000, // 请求超时时间
+  timeout: 30000, // 请求超时时间
   withCredentials: true, // 确保请求携带 cookies
   headers: {
     'Content-Type': 'application/json', // 默认请求头
