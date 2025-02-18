@@ -149,6 +149,29 @@ export const constantRoutes = [
             },
         ]
     },
+    {
+        path: '/setting',
+        component: () => import('@/layout/index.vue'),
+        name: 'setting',
+        redirect: '/setting/filterRule',
+        meta: {
+            title: 'setting',
+            hidden: false,
+            icon: "Setting"
+        },
+        children: [
+            {
+                path: '/setting/filterRule',
+                component: () => import('@/views/setting/filterRule/index.vue'),
+                name: 'filterRule',
+                meta: {
+                    title: 'filterRule',
+                    icon: 'Filter',
+                    hidden: false
+                }
+            },
+        ]
+    },
 ]
 
 //动态路由
