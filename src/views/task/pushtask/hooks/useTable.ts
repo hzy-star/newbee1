@@ -32,6 +32,9 @@ export default function useTable() {
   const filtercontent = ref("");
   // 初始化获取所有任务
   const ongoing: any = ref();
+  // 储存排序后的规则
+  const sortListConfig = ref<{ field: string; order: string }[]>([]);
+  const sortConfig = ref()
 
   const pageVO = reactive({
     total: 0,
@@ -94,7 +97,8 @@ export default function useTable() {
   };
   
 
-  const handlePageData = (num?: number) => {
+  const handlePageData = (num?: number,type?:boolean) => {
+    debugger
     // loading.value = true
     const { pageSize } = pageVO;
     const filterVal = String(filtercontent.value).trim().toLowerCase();
@@ -105,13 +109,15 @@ export default function useTable() {
     if (num) {
       pageVO.currentPage = num;
     }
-    debugger
     tableDataList.value = processedData.value.slice(
       (pageVO.currentPage - 1) * pageSize,
       pageVO.currentPage * pageSize
     );
     if(filterVal != ""){
       searchEvent.value(num)
+    }
+    if(sortListConfig.value.length > 0 && !type){
+      sortConfig.value.value.sortMethods({ sortList: sortListConfig.value });
     }
   };
   // 模糊查询
@@ -243,7 +249,7 @@ export default function useTable() {
   }) => {
     pageVO.currentPage = currentPage;
     pageVO.pageSize = pageSize;
-    handlePageData();
+    handlePageData(0,true);
   };
 
   return {
@@ -253,6 +259,8 @@ export default function useTable() {
     pageVO,
     processedData,
     ongoing,
+    sortListConfig,
+    sortConfig,
     filtercontent,
     searchEvent,
     originalData,

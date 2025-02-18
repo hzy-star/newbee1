@@ -274,7 +274,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, watch, reactive } from 'vue';
+import { ref, onMounted, watch, reactive,toRaw } from 'vue';
 import type { autoPkgFormInter } from '@/api/pushtask/type'
 import { ElMessage, ElMessageBox } from 'element-plus';
 import autoPkgTable from './hooks/autoPkgTable'
@@ -350,6 +350,8 @@ const {
     pageVO,
     processedData,
     filtercontent,
+    sortListConfig,
+    sortConfig,
     searchEvent,
     findAllHooks,
     originalData,
@@ -612,14 +614,16 @@ onMounted(async () => {
 });
 
 // 排序
-const sortConfig = ref({
+sortConfig.value  = ref({
     sortMethods({ sortList }: { sortList: { field: string; order: string }[] }) {
         // 新增：处理空排序状态
         if (sortList.length === 0) {
             // 恢复原始数据
             processedData.value = [...originalData.value];
+            sortListConfig.value = []
             return true;
         }
+        sortListConfig.value = [...toRaw(sortList)];
         const sortItem = sortList[0]
         // 取出第一个排序的列
         const { field, order } = sortItem
@@ -662,31 +666,36 @@ const sortConfig = ref({
         })
         // 更新全量数据
         processedData.value = order === 'desc' ? sorted.reverse() : sorted;
+        const { pageSize } = pageVO;
+        tableDataList.value = processedData.value.slice(
+        (pageVO.currentPage - 1) * pageSize,
+        pageVO.currentPage * pageSize
+        );
         return true; // 返回true表示已处理排序
 
     }
 })
 const handleSortChange = ({ sortList }: any) => {
-  sortConfig.value.sortMethods({ sortList });
-  handlePageData();
+  sortConfig.value.value.sortMethods({ sortList });
+  handlePageData(0,true);
 };
 
 const handlePageChange = ({ currentPage, pageSize }: any) => {
   pageVO.currentPage = currentPage;
   pageVO.pageSize = pageSize;
-  handlePageData();
+  handlePageData(0,true);
 };
 watch(
   () => pageVO.currentPage,
   () => {
-    handlePageData();
+    handlePageData(0,true);
   }
 );
 
 watch(
   () => pageVO.pageSize,
   () => {
-    handlePageData();
+    handlePageData(0,true);
   }
 );
 </script>

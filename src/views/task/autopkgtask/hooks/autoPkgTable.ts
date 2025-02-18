@@ -30,6 +30,9 @@ export default function autoPkgTable() {
     // const processedData = ref<any>([]);
     // 模糊查询
     const filtercontent = ref('')
+    // 储存排序后的规则
+    const sortListConfig = ref<{ field: string; order: string }[]>([]);
+    const sortConfig = ref()
 
     const pageVO = reactive({
         total: 0,
@@ -86,7 +89,7 @@ export default function autoPkgTable() {
         }
     }
 
-    const handlePageData = (num?: number) => {
+    const handlePageData = (num?: number,type?:boolean) => {
         // loading.value = true
         const { pageSize } = pageVO
         const filterVal = String(filtercontent.value).trim().toLowerCase();
@@ -105,6 +108,9 @@ export default function autoPkgTable() {
           );
           if(filterVal != ""){
             searchEvent.value(num)
+          }
+          if(sortListConfig.value.length > 0 && !type){
+            sortConfig.value.value.sortMethods({ sortList: sortListConfig.value });
           }
         // loading.value = false
     }
@@ -195,7 +201,7 @@ export default function autoPkgTable() {
     const pageChanges = ({ pageSize, currentPage }: { pageSize: number; currentPage: number }) => {
         pageVO.currentPage = currentPage
         pageVO.pageSize = pageSize
-        handlePageData()
+        handlePageData(0,true);
     }
 
     return {
@@ -207,6 +213,8 @@ export default function autoPkgTable() {
         originalData,
         filtercontent,
         searchEvent,
+        sortListConfig,
+        sortConfig,
         findAllHooks,
         pageChanges,
         handlePageData

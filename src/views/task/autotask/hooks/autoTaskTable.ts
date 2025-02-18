@@ -28,6 +28,9 @@ export default function autoTaskTable() {
     // const processedData = ref<any>([]);
     // 模糊查询
     const filterName = ref('') // 搜索框内容
+    // 储存排序后的规则
+    const sortListConfig = ref<{ field: string; order: string }[]>([]);
+    const sortConfig = ref()
 
     const pageVO = reactive({
         total: 0,
@@ -76,7 +79,7 @@ export default function autoTaskTable() {
         }
     }
 
-    const handlePageData = (num?: number) => {
+    const handlePageData = (num?: number,type?:boolean) => {
         // loading.value = true
             const { pageSize } = pageVO
             const filterVal = String(filterName.value).trim().toLowerCase();
@@ -95,6 +98,9 @@ export default function autoTaskTable() {
               );
               if(filterVal != ""){
                 searchEvent.value(num)
+              }
+              if(sortListConfig.value.length > 0 && !type){
+                sortConfig.value.value.sortMethods({ sortList: sortListConfig.value });
               }
     }
     const handleSearch = (num?: number) => {
@@ -172,7 +178,7 @@ export default function autoTaskTable() {
     const pageChanges = ({ pageSize, currentPage }: { pageSize: number; currentPage: number }) => {
         pageVO.currentPage = currentPage
         pageVO.pageSize = pageSize
-        handlePageData()
+        handlePageData(0,true);
     }
 
     return {
@@ -184,6 +190,8 @@ export default function autoTaskTable() {
         filterName,
         originalData,
         searchEvent,
+        sortListConfig,
+        sortConfig,
         findAllHooks,
         pageChanges,
         handlePageData
