@@ -7,16 +7,17 @@
         <div class="button-group">
             <el-button type="info" @click="handleFind(true)">Find</el-button>
             <el-input v-model="form.algConfig" type="textarea" :rows="2" placeholder="Enter content..." clearable />
-            <el-button type="primary" v-if="showBtn" @click="handleSave">Save</el-button>
+            <el-button type="primary" v-if="RolePermissions.showBtn" @click="handleSave">Save</el-button>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref,inject } from 'vue'
+import { ref } from 'vue'
 import { reqAlgconfigGetUrl, reqAlgconfigSaveUrl } from '@/api/setting/filterRule'
 import { ElMessage } from 'element-plus'
-const showBtn = inject('showBtn') as boolean
+import RolePermission from '@/store/modules/rolePermission'
+const RolePermissions = RolePermission()
 
 const form = ref({
     algConfig: ''

@@ -42,17 +42,18 @@
         </div>
 
         <div class="action-buttons">
-            <el-button type="primary" v-if="showBtn" @click="handleConfig">Config</el-button>
+            <el-button type="primary" v-if="RolePermissions.showBtn" @click="handleConfig">Config</el-button>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { reactive ,inject } from 'vue'
+import { reactive  } from 'vue'
 import { reqIfaGetUrl, reqIfaSaveUrl } from '@/api/setting/filterRule'
 import { FilterForm } from '@/api/setting/filterRule/type'
 import { ElMessage } from 'element-plus'
-const showBtn = inject('showBtn') as boolean
+import RolePermission from '@/store/modules/rolePermission'
+const RolePermissions = RolePermission()
 
 
 const form = reactive<FilterForm>({

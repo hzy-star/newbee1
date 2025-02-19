@@ -170,6 +170,16 @@ export const constantRoutes = [
                     hidden: false
                 }
             },
+            {
+                path: '/setting/KvConfig',
+                component: () => import('@/views/setting/KvConfig/index.vue'),
+                name: 'KvConfig',
+                meta: {
+                    title: 'KvConfig',
+                    icon: 'Filter',
+                    hidden: false
+                }
+            },
         ]
     },
 ]

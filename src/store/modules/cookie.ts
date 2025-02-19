@@ -2,6 +2,7 @@
 import { defineStore } from "pinia";
 import { localCache } from "@/utils/cache";
 import { reqGetUserInfo } from "@/api/user";
+import rolePermission from "./rolePermission"
 const useCookie = defineStore("setCookie", {
   state: () => {
     return {
@@ -40,6 +41,9 @@ const useCookie = defineStore("setCookie", {
       this.username = "";
       localCache.removeCache("cookie");
       localCache.removeCache("username");
+      // 清除权限按钮
+      const Permission = rolePermission()
+      Permission.setBtnShow('');
       localStorage.clear();
       this.clearAllCookies(); // 清除所有本地储存的cookie
     },
@@ -47,6 +51,9 @@ const useCookie = defineStore("setCookie", {
     async getUserInfoNew() {
       let res = await reqGetUserInfo();
       this.username = res;
+      // 获取权限按钮
+      const Permission = rolePermission()
+      Permission.setBtnShow(res);
       localCache.setCache("username", res);
       return res;
     },
