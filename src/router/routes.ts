@@ -84,6 +84,16 @@ export const constantRoutes = [
                     hidden: false
                 }
             },
+            {
+                path: '/task/devicequery',
+                component: () => import('@/views/task/devicequery/index.vue'),
+                name: 'devicequery',
+                meta: {
+                    title: 'RTADataMonitor',
+                    icon: 'DataLine',
+                    hidden: true
+                }
+            },
         ]
     },
     {
