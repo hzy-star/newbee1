@@ -37,7 +37,7 @@
                         </vxe-column>
                         <vxe-column title="Operation" width="120"  align="center" :visible="RolePermissions.showBtn">
                             <template #default="{ row }">
-                                <el-button type="primary" @click="editSplit(row)">Edit</el-button>
+                                <el-button type="primary" @click="editSplit(row)" size="small">Edit</el-button>
                             </template>
                         </vxe-column>
                     </vxe-table>
