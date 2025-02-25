@@ -35,7 +35,7 @@
                                 {{ formatDate(row.update_date) }}
                             </template>
                         </vxe-column>
-                        <vxe-column title="Operation" width="120"  align="center">
+                        <vxe-column title="Operation" width="120"  align="center" :visible="RolePermissions.showBtn">
                             <template #default="{ row }">
                                 <el-button type="primary" @click="editSplit(row)">Edit</el-button>
                             </template>
@@ -55,6 +55,8 @@ import { reqAdvTrafficSplitUrl, reqAdvSaveOrNewUrl } from '@/api/setting/advtraf
 import { ElMessage } from 'element-plus'
 import { VxeUI, VxeToolbarPropTypes, VxeToolbarEvents } from 'vxe-table'
 import ModelPage from '@/components/setting/advtrafficSplit/model.vue'
+import RolePermission from '@/store/modules/rolePermission'
+const RolePermissions = RolePermission()
 // 表单数据
 const formData = ref<SplitData>({
     pkg_name: '',
@@ -165,6 +167,9 @@ const formatDate = (dateStr?: string) => {
     return dateStr ? dateStr.substring(0, 19) : ''
 }
 onMounted(() => {
+    if(!RolePermissions.showBtn){
+        toolbarTools.value = [{ name: 'Query', code: 'Query', status: 'success' }]
+    }
 });
 </script>
 
