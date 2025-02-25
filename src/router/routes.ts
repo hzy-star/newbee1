@@ -186,7 +186,17 @@ export const constantRoutes = [
                 name: 'KvConfig',
                 meta: {
                     title: 'KvConfig',
-                    icon: 'Filter',
+                    icon: 'EditPen',
+                    hidden: false
+                }
+            },
+            {
+                path: '/setting/advtrafficSplit',
+                component: () => import('@/views/setting/advtrafficSplit/index.vue'),
+                name: 'AdvtrafficSplit',
+                meta: {
+                    title: 'advtrafficSplit',
+                    icon: 'HelpFilled',
                     hidden: false
                 }
             },
