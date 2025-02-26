@@ -167,7 +167,6 @@ onMounted(() => {
     propFrom.value.dateTime = [new Date(), new Date()];
     console.log(propFrom.value.dateTime); // 打印初始值
     nextTick(()=>{
-        debugger
         propFrom.value.dimensions = ['source']
     })
 });

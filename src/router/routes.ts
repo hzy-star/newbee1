@@ -200,6 +200,16 @@ export const constantRoutes = [
                     hidden: false
                 }
             },
+            {
+                path: '/setting/user',
+                component: () => import('@/views/setting/user/index.vue'),
+                name: 'User',
+                meta: {
+                    title: 'User',
+                    icon: 'User',
+                    hidden: false
+                }
+            },
         ]
     },
 ]

@@ -98,8 +98,6 @@ export default function useTable() {
   
 
   const handlePageData = (num?: number,type?:boolean) => {
-    debugger
-    // loading.value = true
     const { pageSize } = pageVO;
     const filterVal = String(filtercontent.value).trim().toLowerCase();
     // 判断模糊查询是否有值，有值则使用过滤后的数据processedData，无值则使用原始数据result

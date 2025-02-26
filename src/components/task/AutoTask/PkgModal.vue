@@ -144,7 +144,6 @@ const handleSave = (type:string) => {
 }
 // 新增
 const handleNew = (type:string) =>{
-    debugger
     emit('confirm', { ...formData.value, buttonType: type })
 }
 // 清空表单数据

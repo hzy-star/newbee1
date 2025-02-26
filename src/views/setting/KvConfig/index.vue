@@ -121,8 +121,6 @@ const handleSet = (row: TableItem) => {
 
 // 处理删除操作
 const handleDelete = (row: TableItem) => {
-  console.log('删除:', row);
-  debugger
   if (row.k !== null && row.k !== '') {
 
     ElMessageBox.confirm(`确定删除吗？`, '提示', {

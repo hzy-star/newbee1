@@ -1,10 +1,10 @@
 <template>
-    <div class="pushtask">
+    <div class="advtrafficSplit">
         <!-- 数据表格 -->
         <div class="table-header">
             <vxe-toolbar :tools="toolbarTools" @tool-click="toolClickEvent"></vxe-toolbar>
         </div>
-        <div class="pushtask_table">
+        <div class="advtrafficSplit_table">
             <div class="vxe-table-div">
                 <div class="table-body">
                     <vxe-table border auto-resize height="auto" :column-config="{ resizable: true }" show-overflow
@@ -53,7 +53,7 @@ import { ref, onMounted } from 'vue';
 import { SplitData } from '@/api/setting/advtrafficSplit/type'
 import { reqAdvTrafficSplitUrl, reqAdvSaveOrNewUrl } from '@/api/setting/advtrafficSplit'
 import { ElMessage } from 'element-plus'
-import { VxeUI, VxeToolbarPropTypes, VxeToolbarEvents } from 'vxe-table'
+import {  VxeToolbarPropTypes, VxeToolbarEvents } from 'vxe-table'
 import ModelPage from '@/components/setting/advtrafficSplit/model.vue'
 import RolePermission from '@/store/modules/rolePermission'
 const RolePermissions = RolePermission()
@@ -174,13 +174,13 @@ onMounted(() => {
 </script>
 
 <style scoped lang="scss">
-.pushtask {
+.advtrafficSplit {
     width: 100%;
     display: flex;
     flex-direction: column;
     height: calc(100vh - $base-tabbar-height - 10px);
 
-    .pushtask_table {
+    .advtrafficSplit_table {
         width: 100%;
         margin-top: 5px;
         flex: 1;

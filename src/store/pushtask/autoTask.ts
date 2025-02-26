@@ -31,7 +31,6 @@ export const useTaskStore = defineStore("autoTask", {
       this.tableData = data;
     },
     setSelectedIds(ids: string[]) {
-      debugger
       this.selectedIds = ids;
     },
     setCurrentRowData(data: any) {

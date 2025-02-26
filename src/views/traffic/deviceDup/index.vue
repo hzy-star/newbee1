@@ -117,7 +117,6 @@ const cellDatas = ref<any[]>([]);
 // 模糊查询
 const handleSearch = () => {
     const filterVal = String(propFrom.value.searchDup).trim().toLowerCase()
-    debugger
     if (filterVal) {
         const filterRE = new RegExp(filterVal, 'gi')
         const searchProps = ['adx', 'country', 'os', 'count', 'uniq', 'filter', 'uniqRatio']

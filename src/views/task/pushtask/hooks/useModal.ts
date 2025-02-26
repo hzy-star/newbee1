@@ -67,9 +67,6 @@ export default function useModal(tableRef: any, findAllHooks: (type: boolean) =>
     };
 
     const buildTaskInfo = (resformData: any): Record<string, any> => {
-        debugger
-        console.log(resformData);
-        
         return {
             ...resformData,
             autoCrFilterName: (resformData.autoCrFilterName || []).join(','),
