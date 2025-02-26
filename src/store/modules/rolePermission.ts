@@ -12,7 +12,8 @@ const RolePermission = defineStore('RolePermission', {
         setBtnShow(res:string) {
             this.showBtn = ['tom', 'jeff', 'jasmine'].includes(res)
         }
-    }
+    },
+    persist: true
 })
 
 
