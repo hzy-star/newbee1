@@ -361,7 +361,7 @@
 
 
             <div class="form-footer">
-                <el-button type="primary" @click="handleSaveToTask('template')" v-if="btnType === 'createTemplate'">save to task</el-button>
+                <el-button type="primary" @click="handleSaveToTask('template')" v-if="btnType === 'createTemplate' || currentRowData.taskStatus === 'template'">save to task</el-button>
                 <el-button type="primary" @click="handleSave('save')" v-if="btnType != 'addTask'">save</el-button>
                 <el-button type="primary" @click="handleNew('new')">new</el-button>
             </div>

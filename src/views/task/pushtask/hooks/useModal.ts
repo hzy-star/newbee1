@@ -52,6 +52,10 @@ export default function useModal(tableRef: any, findAllHooks: (type: boolean) =>
                     taskInfo.id = '';
                     isTemplate(resformData.taskStatus, taskInfo);
                 },
+                template: () => {
+                    taskInfo.isTemplate = 'no';
+                    taskInfo.id = '';
+                },
             },
         };
 
