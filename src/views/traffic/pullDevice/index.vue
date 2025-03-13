@@ -78,11 +78,11 @@
 
 <script setup lang="ts">
 import { ref, onMounted, nextTick } from 'vue';
-import { ElMessage } from 'element-plus';
 import { propFormInter } from '@/api/traffic/pullDevice/type'
 import { reqPullDeviceUrl } from '@/api/traffic/pullDevice'
 import { getCookies } from '@/utils/common'
 import type { VxeTableInstance } from 'vxe-table'
+import moment from 'moment';
 // 获取group
 const group = ref(getCookies('group'))
 
@@ -106,10 +106,11 @@ const handleQuery = async () => {
     let params: any = {
         metrics: ['recordCount']  // 默认添加 metrics
     };
+    debugger
     // 添加日期范围参数，如果日期为空则不传
     if (propFrom.value.dateTime[0] && propFrom.value.dateTime[1]) {
-        params.startDate = propFrom.value.dateTime[0].toISOString().split('T')[0]; // 格式化日期
-        params.endDate = propFrom.value.dateTime[1].toISOString().split('T')[0]; // 格式化日期
+        params.startDate = moment(propFrom.value.dateTime[0]).format('YYYY-MM-DD'); // 格式化日期
+        params.endDate = moment(propFrom.value.dateTime[1]).format('YYYY-MM-DD'); // 格式化日期
     }
     // 添加其他查询字段，如果为空则不传
     if (propFrom.value.source) params.source = propFrom.value.source;
@@ -164,8 +165,9 @@ const exportToCSV = () => {
 }
 
 onMounted(() => {
-    propFrom.value.dateTime = [new Date(), new Date()];
-    console.log(propFrom.value.dateTime); // 打印初始值
+    // 设置初始日期为当前本地日期（避免时区偏差）
+    const today = new Date();
+    propFrom.value.dateTime = [today, today];
     nextTick(()=>{
         propFrom.value.dimensions = ['source']
     })
