@@ -34,7 +34,8 @@
                 <el-col :span="4">
                     <div class="form-item">
                         <div class="form-item-label">os</div>
-                        <el-select v-model="formData.os" >
+                        <el-select v-model="formData.os"  clearable @clear="formData.os = ''">
+                            <el-option label="all" value="all" />
                             <el-option label="android" value="android" />
                             <el-option label="ios" value="ios" />
                         </el-select>
@@ -179,7 +180,7 @@ const formData = ref<FormDataType>({
     pkgName:'',
     appId:'',
     country:'',
-    os:'android',
+    os:'',
     status:'enabled',
     s:'',
     ds_adx:'',
@@ -212,7 +213,7 @@ const resetData = () => {
         pkgName: '',
         appId: '',
         country: '',
-        os: 'android',   // 同样保持os的默认值
+        os: '',   // 同样保持os的默认值
         status: 'enabled', // 保持status的默认值
         s: '',
         ds_adx: '',
