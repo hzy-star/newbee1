@@ -56,9 +56,14 @@ export default function autoPkgModal(tableRef: any, findAllHooks: (type: boolean
     };
 
     const buildTaskInfo = (resformData: any): Record<string, any> => {
-        return {
-            ...resformData,
-        };
+        const taskInfo: Record<string, any> = {};
+        Object.entries(resformData).forEach(([key, value]) => {
+            // 过滤掉null和undefined值，空字符串保留
+            if (value !== null && value !== undefined) {
+                taskInfo[key] = value;
+            }
+        });
+        return taskInfo;
     };
 
     // 处理响应
