@@ -12,8 +12,8 @@
                     </div>
                     <div class="form-item" style="min-width: 400px;">
                         <div class="form-item-label">searchDup</div>
-                        <!-- <el-input v-model="propFrom.searchDup" placeholder="Search text here" @input="searchDupTable" /> -->
-                        <vxe-input v-model="propFrom.searchDup" type="search" placeholder="Search text here" clearable
+                        <vxe-input v-model="propFrom.searchDup" type="search"
+                            placeholder="country:us,os:android" clearable style="width: 100%"
                             @change="searchEvent"></vxe-input>
                     </div>
                     <div class="form-item">
@@ -109,29 +109,91 @@ onMounted(() => {
         propFrom.value.taskdate = date.value[0];  // 设置默认选中第一个日期
     }
 });
+// 解析搜索条件
+const parseSearchQuery = (query: string) => {
+    const conditions: Record<string, string> = {}
+    const globalSearch: string[] = []
 
+    // 拆分多个条件（支持逗号分隔）
+    query.split(',').forEach(part => {
+        const trimmed = part.trim()
+        if (!trimmed) return
+
+        // 检测是否包含冒号格式
+        const colonIndex = trimmed.indexOf(':')
+        if (colonIndex > 0) {
+            const key = trimmed.slice(0, colonIndex).trim().toLowerCase()
+            const value = trimmed.slice(colonIndex + 1).trim().toLowerCase()
+            if (key && value) {
+                conditions[key] = value
+            }
+        } else {
+            globalSearch.push(trimmed.toLowerCase())
+        }
+    })
+
+    return { conditions, globalSearch }
+}
 /**
  * 处理表格数据
  */
 const cellDatas = ref<any[]>([]);
 // 模糊查询
+// const handleSearch = () => {
+//     const filterVal = String(propFrom.value.searchDup).trim().toLowerCase()
+//     if (filterVal) {
+//         const filterRE = new RegExp(filterVal, 'gi')
+//         const searchProps = ['adx', 'country', 'os', 'count', 'uniq', 'filter', 'uniqRatio']
+//         const rest = cellDatas.value.filter(item => searchProps.some(key => String(item[key]).toLowerCase().indexOf(filterVal) > -1))
+//         tableDataList.value = rest.map(row => {
+//             // 搜索为克隆数据，不会污染源数据
+//             const item = XEUtils.clone(row)
+//             searchProps.forEach(key => {
+//                 item[key] = String(item[key]).replace(filterRE, match => `${match}`)
+//             })
+//             return item
+//         })
+//     } else {
+//         tableDataList.value = cellDatas.value
+//     }
+// }
+// 处理表格数据过滤
 const handleSearch = () => {
-    const filterVal = String(propFrom.value.searchDup).trim().toLowerCase()
-    if (filterVal) {
-        const filterRE = new RegExp(filterVal, 'gi')
-        const searchProps = ['adx', 'country', 'os', 'count', 'uniq', 'filter', 'uniqRatio']
-        const rest = cellDatas.value.filter(item => searchProps.some(key => String(item[key]).toLowerCase().indexOf(filterVal) > -1))
-        tableDataList.value = rest.map(row => {
-            // 搜索为克隆数据，不会污染源数据
-            const item = XEUtils.clone(row)
-            searchProps.forEach(key => {
-                item[key] = String(item[key]).replace(filterRE, match => `${match}`)
-            })
-            return item
-        })
-    } else {
+    const query = String(propFrom.value.searchDup).trim()
+    if (!query) {
         tableDataList.value = cellDatas.value
+        return
     }
+
+    const { conditions, globalSearch } = parseSearchQuery(query)
+    const hasConditions = Object.keys(conditions).length > 0
+    const hasGlobalSearch = globalSearch.length > 0
+
+    // 定义可搜索的列
+    const searchableColumns = ['adx', 'country', 'os', 'count', 'uniq', 'filter', 'uniqratio']
+
+    tableDataList.value = cellDatas.value.filter(item => {
+        // 处理列条件过滤
+        if (hasConditions) {
+            for (const [key, value] of Object.entries(conditions)) {
+                const itemValue = String(item[key] || '').toLowerCase()
+                if (!itemValue.includes(value)) {
+                    return false
+                }
+            }
+        }
+
+        // 处理全局搜索
+        if (hasGlobalSearch) {
+            return globalSearch.every(searchText => {
+                return searchableColumns.some(col => {
+                    return String(item[col] || '').toLowerCase().includes(searchText)
+                })
+            })
+        }
+
+        return true
+    })
 }
 
 // 节流函数,间隔500毫秒触发搜索
