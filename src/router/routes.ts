@@ -157,6 +157,16 @@ export const constantRoutes = [
                     hidden: false
                 }
             },
+            {
+                path: '/traffic/gAgencyToStoreRate',
+                component: () => import('@/views/traffic/gAgencyToStoreRate/index.vue'),
+                name: 'gAgencyToStoreRate',
+                meta: {
+                    title: 'gAgencyToStoreRate',
+                    icon: 'DocumentCopy',
+                    hidden: false
+                }
+            },
         ]
     },
     {
