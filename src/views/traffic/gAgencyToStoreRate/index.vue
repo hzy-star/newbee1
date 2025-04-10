@@ -116,7 +116,7 @@ const handleSearch1 = async () => {
   const res = await reqSummaryUrl(form1.value)
   debugger
   if (res.data.length > 0) {
-    tableData1.value = [...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,]
+    tableData1.value = res.data
     tableColumns1.value = Object.keys(res.data[0])
   } else {
     tableData1.value = []
@@ -135,7 +135,7 @@ const handleSearch2 = async () => {
 
   const res = await reqMultOfferUrl(form2.value)
   if (res.data.length > 0) {
-    tableData2.value = [...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,...res.data,]
+    tableData2.value = res.data
     tableColumns2.value = Object.keys(res.data[0])
   } else {
     tableData2.value = []
