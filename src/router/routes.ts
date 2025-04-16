@@ -91,7 +91,7 @@ export const constantRoutes = [
                 meta: {
                     title: 'RTADataMonitor',
                     icon: 'DataLine',
-                    hidden: true
+                    hidden: false
                 }
             },
         ]
