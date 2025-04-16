@@ -226,7 +226,7 @@ const handleQuery = async () => {
         })
         tableData.value = processedData
         totalItems.value = data.total
-        pagination.current = data.currentPage
+        // pagination.current = data.totalPages
     } catch (error) {
         console.error('查询失败:', error)
         ElMessage.error('查询失败')
@@ -283,6 +283,7 @@ const handlePageChange = (newPage: number) => {
 
 const handleSizeChange = (newSize: number) => {
     pagination.size = newSize
+    pagination.current = 1
     handleQuery()
 }
 
