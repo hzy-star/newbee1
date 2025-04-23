@@ -26,4 +26,3 @@ dist-ssr
 
 # Exclude the 'mock' folder in the root directory
 /mock/
-/pytests/
