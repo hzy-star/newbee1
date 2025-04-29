@@ -220,6 +220,16 @@ export const constantRoutes = [
                     hidden: false
                 }
             },
+            {
+                path: '/setting/UserManagement',
+                component: () => import('@/views/setting/UserManagement/index.vue'),
+                name: 'UserManagement',
+                meta: {
+                    title: 'UserManagement',
+                    icon: 'UserFilled',
+                    hidden: false
+                }
+            },
         ]
     },
 ]

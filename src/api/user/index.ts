@@ -14,4 +14,4 @@ export const reqLogin = (data:any) => request.get<any,string>(API.LOGIN_URL,{par
 // 获取用户信息
 export const reqUserInfo = () => request.get<any,userResponseData>(API.USERINFO_URL)
 // 获取用户信息(新)
-export const reqGetUserInfo = () => request.get<any,string>(API.GETCURRENTUSER_URL)
+export const reqGetUserInfo = () => request.get<any,any>(API.GETCURRENTUSER_URL)

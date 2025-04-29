@@ -9,6 +9,7 @@ const useCookie = defineStore("setCookie", {
       cookie: localCache.getCache("cookie")?.value || "", // 存储cookie
       cookieExpireTime: localCache.getCache("cookie")?.timestamp || 0,
       username: localCache.getCache("username") || "", // 存储用户名
+      userRole: localCache.getCache("userRole") || "", // 存储用户权限
       avatar:
         "https://www.eclicktech.com.cn/static/style/pc/2022/i/favicon.png", // 存储头像
     };
@@ -39,8 +40,10 @@ const useCookie = defineStore("setCookie", {
     clearCookie() {
       this.cookie = "";
       this.username = "";
+      this.userRole = "";
       localCache.removeCache("cookie");
       localCache.removeCache("username");
+      localCache.removeCache("userRole");
       // 清除权限按钮
       const Permission = rolePermission()
       Permission.setBtnShow('');
@@ -50,11 +53,14 @@ const useCookie = defineStore("setCookie", {
     // 获取用户信息(新)
     async getUserInfoNew() {
       let res = await reqGetUserInfo();
-      this.username = res;
+      debugger
+      this.username = res.data.name;
+      this.userRole = res.data.role;
       // 获取权限按钮
       const Permission = rolePermission()
       Permission.setBtnShow(res);
-      localCache.setCache("username", res);
+      localCache.setCache("username", res.data.name);
+      localCache.setCache("userRole", res.data.role);
       return res;
     },
     // 清除所有本地储存的cookie
