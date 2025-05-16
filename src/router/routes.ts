@@ -167,6 +167,16 @@ export const constantRoutes = [
                     hidden: false
                 }
             },
+            {
+                path: '/traffic/trafficStatistics',
+                component: () => import('@/views/traffic/trafficStatistics/index.vue'),
+                name: 'trafficStatistics',
+                meta: {
+                    title: 'trafficStatistics',
+                    icon: 'OfficeBuilding',
+                    hidden: false
+                }
+            },
         ]
     },
     {

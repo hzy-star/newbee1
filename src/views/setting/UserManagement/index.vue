@@ -33,7 +33,7 @@
                     <el-select :disabled="!isSuperAdmin" v-model="form.role" placeholder="请选择角色">
                         <el-option label="管理员" value="admin" />
                         <el-option disabled label="超级管理员" value="superAdmin" />
-                        <el-option label="普通用户" value="user" />
+                        <el-option label="普通用户" value="normal" />
                     </el-select>
                 </el-form-item>
             </el-form>
