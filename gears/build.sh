@@ -29,9 +29,11 @@ else
     echo "-----build-------"
     npm run build:prod
     isError
-    echo "tar -czf gears/newbee-web.tar.gz dist"
+    echo "mkdir -p gears/snapshots/${VERSION}/${GIT_ID}
+tar -czf gears/snapshots/${VERSION}/${GIT_ID}/newbee-web.tar.gz dist"
     pwd
-    tar -czf gears/newbee-web.tar.gz dist
+    mkdir -p gears/snapshots/${VERSION}/${GIT_ID}
+tar -czf gears/snapshots/${VERSION}/${GIT_ID}/newbee-web.tar.gz dist
     ls -al dist/
 fi
 
