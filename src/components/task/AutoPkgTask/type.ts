@@ -23,6 +23,7 @@ export interface FormDataType {
   hour: string;
   startHour: string;
   deviceDays: string;
+  proxyTarget: string;
 }
 // 定义history数据类型
 

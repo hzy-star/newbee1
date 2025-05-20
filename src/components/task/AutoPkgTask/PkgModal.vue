@@ -90,6 +90,14 @@
                         </el-select>
                     </div>
                 </el-col>
+                <el-col :span="7">
+                    <div class="form-item">
+                        <div class="form-item-label">proxyTarget</div>
+                        <el-select v-model="formData.proxyTarget" placeholder="select">
+                            <el-option v-for="item in proxyTargetSelect" :key="item" :label="item" :value="item" />
+                        </el-select>
+                    </div>
+                </el-col>
             </el-row>
             <!-- 第四行 -->
             <el-row :gutter="24">
@@ -152,6 +160,7 @@
 <script lang="ts" setup>
 import { ref, watch, onMounted } from 'vue'
 import type { FormDataType } from './type'
+import {  reqProxyTargetUrl } from "@/api/pushtask/autoPkgTask"
 const props = defineProps({
     modelValue: Boolean,
     title: String,
@@ -172,7 +181,6 @@ const props = defineProps({
     }
 })
 
-
 const emit = defineEmits(['update:modelValue', 'confirm', 'confirmNew'])
 
 const formData = ref<FormDataType>({
@@ -192,7 +200,8 @@ const formData = ref<FormDataType>({
     max:'',
     hour:'',
     startHour:'',
-    deviceDays:''
+    deviceDays:'',
+    proxyTarget:''
 })
 
 const handleClose = () => {
@@ -225,7 +234,8 @@ const resetData = () => {
         max: '',
         hour: '',
         startHour: '',
-        deviceDays: ''
+        deviceDays: '',
+        proxyTarget: ''
     }
 }
 // 存储audience列表数据
@@ -256,7 +266,8 @@ watch(() => props.modelValue, async (newVal) => {
                     max: newData.value.max,
                     hour: newData.value.hour,
                     startHour: newData.value.startHour,
-                    deviceDays: newData.value.deviceDays
+                    deviceDays: newData.value.deviceDays,
+                    proxyTarget: newData.value.proxyTarget,
                 }
             } else {
                 // 如果没有当前行数据，清空表单
@@ -268,8 +279,13 @@ watch(() => props.modelValue, async (newVal) => {
         }
     }
 })
+const proxyTargetSelect = ref() // 用于存储选中的代理目标
 onMounted( async () => {
     console.log('autoBundleKey changed:', props.autoBundleKey)
+    let res = await reqProxyTargetUrl()
+    if(res.success){
+        proxyTargetSelect.value = res.data
+    }
 })
 </script>
 

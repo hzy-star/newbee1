@@ -9,6 +9,7 @@ enum API {
     ENABLEDORDISABLED_URL = '/newbee/ce/pkgtask/batchUpdate', //批量enabled/disabled接口,单独启用禁用接口
     TRYORRUN_URL = '/newbee/ce/pkgtask/trigger', //try/run接口
     HISTORY_URL = '/newbee/ce/pkgtaskrunner/history', //history查询接口
+    PROXYTARGET_URL = '/newbee/ce/pkgtask/proxytarget', //proxytarget查询接口
 }
 
 // 暴露接口
@@ -24,3 +25,5 @@ export const reqBatchEnabledOrDisabled = (param: any) => request.post<any, any>(
 export const reqTryOrRunUrl = (param: any) => request.get<Root,any>(API.TRYORRUN_URL, { params: param })
 // history查询接口
 export const reqHistoryUrl = (param: any) => request.get<Root,any>(API.HISTORY_URL, { params: param })
+// proxytarget查询接口
+export const reqProxyTargetUrl = () => request.post<any, any>(API.PROXYTARGET_URL,null,{ isForm: true })
