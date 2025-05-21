@@ -27,7 +27,7 @@
         <vxe-table auto-resize height="auto" :column-config="{ resizable: true }" show-overflow
           :cell-config="{ verticalAlign: 'center' }" :row-config="{ isCurrent: false, isHover: true }"
           :scroll-y="{ enabled: true, gt: 0 }" :data="tableData1" ref="summaryTable" size="mini" round>
-          <vxe-column type="seq" width="70" title="csv" >
+          <vxe-column type="seq" width="70" title="csv">
             <template #header>
               <div style="display: flex; align-items: center; justify-content: center;">
                 <span>序号</span>
@@ -58,11 +58,12 @@
         <vxe-table auto-resize height="auto" :column-config="{ resizable: true }" show-overflow
           :cell-config="{ verticalAlign: 'center' }" :row-config="{ isCurrent: false, isHover: true }"
           :scroll-y="{ enabled: true, gt: 0 }" :data="tableData2" ref="detailMultOfferTable" size="mini" round>
-          <vxe-column type="seq" width="70" title="csv" >
+          <vxe-column type="seq" width="70" title="csv">
             <template #header>
               <div style="display: flex; align-items: center; justify-content: center;">
                 <span>序号</span>
-                <svg-icon name="csvExport" width="15px" height="15px" @click="ExportdetailMultOffer" title="csv"></svg-icon>
+                <svg-icon name="csvExport" width="15px" height="15px" @click="ExportdetailMultOffer"
+                  title="csv"></svg-icon>
               </div>
             </template>
           </vxe-column>
@@ -78,7 +79,7 @@
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { reqSummaryUrl, reqMultOfferUrl } from '@/api/traffic/gAgencyToStoreRate'
-import type { VxeColumnPropTypes,VxeTableInstance } from 'vxe-table'
+import type { VxeColumnPropTypes, VxeTableInstance } from 'vxe-table'
 const formatColumn: VxeColumnPropTypes.Formatter = ({ column, cellValue }) => {
   return formatField(column.field, cellValue)
 }
@@ -190,7 +191,7 @@ const ExportSummary = () => {
 }
 const detailMultOfferTable = ref<VxeTableInstance>()
 // 导出detailMultOffer
-const ExportdetailMultOffer = () =>{
+const ExportdetailMultOffer = () => {
   const rows = tableData2.value;
   if (!rows || rows.length === 0) {
     ElMessage.error('暂无数据可导出');
@@ -206,7 +207,7 @@ const ExportdetailMultOffer = () =>{
 
 </script>
 
-<style scoped lang="scss">
+<!-- <style scoped lang="scss">
 .tabs {
   margin: 0;
   padding: 0;
@@ -228,5 +229,54 @@ const ExportdetailMultOffer = () =>{
 
 .mb-4 {
   margin-bottom: 1rem;
+}
+</style> -->
+<style scoped lang="scss">
+.tabs {
+  margin: 0;
+  padding: 0;
+  height: calc(100vh - #{$base-tabbar-height} - 10px);
+
+  :deep(.el-tabs__content) {
+    flex: 1;
+    overflow: hidden;
+
+    .el-tab-pane {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+  }
+
+  .tabs-1,
+  .tabs-2 {
+    flex: 1;
+    padding: 0 20px;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+
+    .el-form {
+      flex-shrink: 0; // 防止表单被压缩
+    }
+
+    .overflow-x-auto {
+      flex: 1;
+      min-height: 100px; // 最小高度防止内容过少时挤压
+      display: flex;
+      flex-direction: column;
+
+      .vxe-table {
+        flex: 1;
+
+        :deep(.vxe-table--body-wrapper) {
+          flex: 1;
+        }
+      }
+    }
+  }
+}
+
+.mb-4 {
 }
 </style>
