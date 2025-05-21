@@ -1,7 +1,7 @@
 <template>
-  <el-tabs v-model="activeTab">
+  <el-tabs v-model="activeTab" class="tabs">
     <!-- Tab 1 -->
-    <el-tab-pane label="summary" name="tab1">
+    <el-tab-pane label="summary" name="tab1" class="tabs-1">
       <el-form :inline="true" :model="form1" class="mb-4">
         <el-form-item label="App">
           <el-input v-model="form1.app" placeholder="App" />
@@ -23,18 +23,25 @@
         </el-form-item>
       </el-form>
 
-      <el-table :data="tableData1" style="width: 100%" border >
-        <el-table-column
-          v-for="col in tableColumns1"
-          :key="col"
-          :prop="col"
-          :label="fieldMap[col] || col"
-        />
-      </el-table>
+      <div class="overflow-x-auto">
+        <vxe-table auto-resize height="auto" :column-config="{ resizable: true }" show-overflow
+          :cell-config="{ verticalAlign: 'center' }" :row-config="{ isCurrent: false, isHover: true }"
+          :scroll-y="{ enabled: true, gt: 0 }" :data="tableData1" ref="summaryTable" size="mini" round>
+          <vxe-column type="seq" width="70" title="csv" >
+            <template #header>
+              <div style="display: flex; align-items: center; justify-content: center;">
+                <span>序号</span>
+                <svg-icon name="csvExport" width="15px" height="15px" @click="ExportSummary" title="csv"></svg-icon>
+              </div>
+            </template>
+          </vxe-column>
+          <vxe-column v-for="col in tableColumns1" :key="col" :field="col" :title="fieldMap[col] || col"></vxe-column>
+        </vxe-table>
+      </div>
     </el-tab-pane>
 
     <!-- Tab 2 -->
-    <el-tab-pane label="detailMultOffer" name="tab2">
+    <el-tab-pane label="detailMultOffer" name="tab2" class="tabs-2">
       <el-form :inline="true" :model="form2" class="mb-4">
         <el-form-item label="OfferIds">
           <el-input v-model="form2.offerIds" placeholder="OfferIds" />
@@ -47,15 +54,22 @@
         </el-form-item>
       </el-form>
 
-      <el-table :data="tableData2" style="width: 100%" border >
-        <el-table-column
-          v-for="col in tableColumns2"
-          :key="col"
-          :prop="col"
-          :label="fieldMap[col] || col"
-          :formatter="(row: Record<string, any>) => formatField(col, row[col])"
-        />
-      </el-table>
+      <div class="overflow-x-auto">
+        <vxe-table auto-resize height="auto" :column-config="{ resizable: true }" show-overflow
+          :cell-config="{ verticalAlign: 'center' }" :row-config="{ isCurrent: false, isHover: true }"
+          :scroll-y="{ enabled: true, gt: 0 }" :data="tableData2" ref="detailMultOfferTable" size="mini" round>
+          <vxe-column type="seq" width="70" title="csv" >
+            <template #header>
+              <div style="display: flex; align-items: center; justify-content: center;">
+                <span>序号</span>
+                <svg-icon name="csvExport" width="15px" height="15px" @click="ExportdetailMultOffer" title="csv"></svg-icon>
+              </div>
+            </template>
+          </vxe-column>
+          <vxe-column v-for="col in tableColumns2" :key="col" :field="col" :title="fieldMap[col] || col"
+            :formatter="formatColumn"></vxe-column>
+        </vxe-table>
+      </div>
     </el-tab-pane>
   </el-tabs>
 </template>
@@ -64,7 +78,10 @@
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { reqSummaryUrl, reqMultOfferUrl } from '@/api/traffic/gAgencyToStoreRate'
-
+import type { VxeColumnPropTypes,VxeTableInstance } from 'vxe-table'
+const formatColumn: VxeColumnPropTypes.Formatter = ({ column, cellValue }) => {
+  return formatField(column.field, cellValue)
+}
 const activeTab = ref('tab1')
 
 // 表单数据
@@ -114,8 +131,7 @@ const fieldMap: Record<string, string> = {
 // 查询 summary 接口
 const handleSearch1 = async () => {
   const res = await reqSummaryUrl(form1.value)
-  debugger
-  if (res.data.length > 0) {
+  if (res && res?.data.length > 0) {
     tableData1.value = res.data
     tableColumns1.value = Object.keys(res.data[0])
   } else {
@@ -134,7 +150,7 @@ const handleSearch2 = async () => {
   }
 
   const res = await reqMultOfferUrl(form2.value)
-  if (res.data.length > 0) {
+  if (res && res?.data.length > 0) {
     tableData2.value = res.data
     tableColumns2.value = Object.keys(res.data[0])
   } else {
@@ -157,14 +173,60 @@ const formatField = (key: string, value: any) => {
   }
   return value
 }
+const summaryTable = ref<VxeTableInstance>()
+// 导出summary
+const ExportSummary = () => {
+  const rows = tableData1.value;
+  if (!rows || rows.length === 0) {
+    ElMessage.error('暂无数据可导出');
+    return;
+  }
+  const $table = summaryTable.value
+  if ($table) {
+    $table.exportData({
+      type: 'csv'
+    })
+  }
+}
+const detailMultOfferTable = ref<VxeTableInstance>()
+// 导出detailMultOffer
+const ExportdetailMultOffer = () =>{
+  const rows = tableData2.value;
+  if (!rows || rows.length === 0) {
+    ElMessage.error('暂无数据可导出');
+    return;
+  }
+  const $table = detailMultOfferTable.value
+  if ($table) {
+    $table.exportData({
+      type: 'csv'
+    })
+  }
+}
 
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+.tabs {
+  margin: 0;
+  padding: 0;
+
+  .tabs-1,
+  .tabs-2 {
+    width: 100%;
+    padding: 0 20px;
+    background: #fff;
+    border-radius: 0;
+    height: 100%;
+
+    .overflow-x-auto {
+      height: calc(100vh - 250px);
+    }
+  }
+
+}
+
 .mb-4 {
   margin-bottom: 1rem;
-}
-.el-table .cell {
-  white-space: pre-line; /* 支持换行显示 */
 }
 </style>
