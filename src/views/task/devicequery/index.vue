@@ -138,39 +138,9 @@ const tableData = ref<TableDataItem[]>([])
 const totalItems = ref(0)
 const currentSorts = ref<SortItem[]>([])
 
-const sortConfig = reactive<VxeTablePropTypes.SortConfig>({
-    trigger: 'default',
+const sortConfig = ref<VxeTablePropTypes.SortConfig>({
     multiple: true,
-    defaultSort: { field: '', order: 'asc' },
-    orders: ['asc', 'desc', null],
-    sortMethod: ({ sortList }) => {
-        debugger
-        if (sortList.length === 0) {
-            return tableData.value
-        }
-
-        const sorted = [...tableData.value].sort((a, b) => {
-            for (const sortItem of sortList) {
-                const field = sortItem.field
-                const order = sortItem.order
-
-                const aValue = (a as any)[field]
-                const bValue = (b as any)[field]
-
-                if (aValue === bValue) continue
-
-                if (order === 'asc') {
-                    return aValue > bValue ? 1 : -1
-                } else if (order === 'desc') {
-                    return aValue < bValue ? 1 : -1
-                }
-            }
-            return 0
-        })
-
-
-        return sorted
-    }
+    chronological: true
 })
 
 const pagination = reactive<Pagination>({
@@ -188,7 +158,6 @@ const groupOptions = [
 
 // 计算当前列配置
 const currentColumns = computed(() => {
-    debugger
     if (tableData.value.length === 0) return []
 
     const firstRow = tableData.value[0]
@@ -271,7 +240,6 @@ const handleSortChange: VxeTableEvents.SortChange = ({ field, order }) => {
     } else if (order) {
         currentSorts.value.push({ field, order })
     }
-
     handleQuery()
 }
 
