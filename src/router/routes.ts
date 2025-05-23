@@ -242,6 +242,29 @@ export const constantRoutes = [
             },
         ]
     },
+    {
+        path:'/docDownload',
+        component: () => import('@/layout/index.vue'),
+        name:'docDownload',
+        redirect:'/docDownload/ossDownload',
+        meta:{
+            title:'doc_download',
+            icon:'Document',
+            hidden:false
+        },
+        children:[
+            {
+                path:'/docDownload/ossDownload',
+                component:()=>import('@/views/docDownload/ossDownload/index.vue'),
+                name:'ossDownload',
+                meta:{
+                    title:'ossDownload',
+                    icon:'Document',
+                    hidden:false
+                }
+            }
+        ]
+    }
 ]
 
 //动态路由

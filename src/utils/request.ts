@@ -70,6 +70,10 @@ request.interceptors.response.use(
       loadingInstance.close();
       loadingInstance = null;
     }
+    // 处理二进制流响应（下载文件）
+    if (response.config.responseType === 'blob') {
+      return response; // 返回完整响应对象
+    }
     return response.data;
   },
   (error) => {

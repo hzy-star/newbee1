@@ -179,8 +179,7 @@ const initChart = () => {
             data: sortedData.map(item => item.hour)
         },
         yAxis: [
-            { type: 'value', name: 'UV' },
-            { type: 'value', name: 'PV' }
+            { type: 'value', name: '' },
         ],
         series: [
             {
@@ -190,8 +189,7 @@ const initChart = () => {
             },
             {
                 name: 'PV',
-                type: 'line',
-                yAxisIndex: 1,
+                type: 'bar',
                 data: sortedData.map(item => item.pv)
             }
         ]
