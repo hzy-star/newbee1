@@ -264,7 +264,30 @@ export const constantRoutes = [
                 }
             }
         ]
-    }
+    },
+    {
+        path:'/dataPresentation',
+        component: () => import('@/layout/index.vue'),
+        name:'dataPresentation',
+        redirect:'/dataPresentation/dataStatistics',
+        meta:{
+            title:'doc_download',
+            icon:'Document',
+            hidden:false
+        },
+        children:[
+            {
+                path:'/dataPresentation/dataStatistics',
+                component:()=>import('@/views/dataPresentation/dataStatistics/index.vue'),
+                name:'dataStatistics',
+                meta:{
+                    title:'dataStatistics',
+                    icon:'DataLine',
+                    hidden:false
+                }
+            }
+        ]
+    },
 ]
 
 //动态路由
