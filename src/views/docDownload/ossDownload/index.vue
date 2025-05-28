@@ -5,9 +5,10 @@
             <vxe-table ref="tableRef" :loading="loading" :data="tableData" auto-resize height="auto"
                 :column-config="{ resizable: true }" show-overflow :cell-config="{ verticalAlign: 'center' }"
                 :row-config="{ isCurrent: false, isHover: true }" :scroll-y="{ enabled: true, gt: 0 }" round>
-                <vxe-column type="seq" width="70"></vxe-column>
-                <vxe-column field="k" title="K"></vxe-column>
-                <vxe-column field="v" title="V"></vxe-column>
+                <vxe-column type="seq" width="5%"></vxe-column>
+                <vxe-column field="k" title="策略" width="10%"></vxe-column>
+                <vxe-column field="v" title="路径" width="40%"></vxe-column>
+                <vxe-column field="kvdesc" title="描述" width="30%"></vxe-column>
                 <vxe-column field="Download" title="Download" align="center">
                     <template #default="{ row }">
                         <svg-icon name="csvDownload" width="20px" height="20px" @click="downloadUrl(row)"

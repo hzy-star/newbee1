@@ -19,6 +19,7 @@ enum API {
     COUNTTASKHOUR_URL = '/newbee/counttaskhour',    // 图表任务量统计接口
     AUTOCRHISGET_URL = '/newbee/autoCrHis/get',    // 图表自动CR统计接口
     SORTCR_URL = '/newbee/autosendplan/get_history_status_chart',    // 获取sortCR统计接口
+    PROXYLIST_URL = '/newbee/proxytype',    // 获取proxy列表
 
 }
 
@@ -58,3 +59,5 @@ export const reqCounttaskhour = (param: any) => request.get<any, any>(API.COUNTT
 export const reqAutoCrHisGet = (param: any) => request.get<any, any>(API.AUTOCRHISGET_URL, { params: param})
 // 获取sortCR统计接口
 export const reqSortCr = (param: any) => request.get<any, any>(API.SORTCR_URL, { params: param})
+// 获取proxy列表
+export const reqProxyList = (param: any) => request.get<any, any>(API.PROXYLIST_URL, { params:param,noloading: true })

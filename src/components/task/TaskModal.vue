@@ -27,7 +27,7 @@
                 <el-col :span="4">
                     <div class="form-item">
                         <div class="form-item-label">appid</div>
-                        <el-input v-model="formData.appId" />
+                        <el-input v-model="formData.appId" @blur="handleAppIdBlur" />
                     </div>
                 </el-col>
                 <el-col :span="4">
@@ -72,6 +72,16 @@
                         <el-select v-model="formData.bsclick" placeholder="select" clearable>
                             <el-option label="true" value="true" />
                             <el-option label="false" value="false" />
+                        </el-select>
+                    </div>
+                </el-col>
+                <!-- 新增的代理类型选择器 -->
+                <el-col :span="4" v-if="showProxySelector">
+                    <div class="form-item">
+                        <div class="form-item-label">proxyType</div>
+                        <el-select v-model="formData.proxyType" placeholder="" clearable>
+                            <el-option v-for="(item) in availableProxyTypes" :key="item.value"
+                                :label="item.label" :value="item.value" />
                         </el-select>
                     </div>
                 </el-col>
@@ -372,7 +382,7 @@
 
 <script lang="ts" setup>
 import { ref, watch, onMounted } from 'vue'
-import { reqAudienceList, reqTaskget } from "@/api/pushtask/index"
+import { reqAudienceList, reqTaskget ,reqProxyList} from "@/api/pushtask/index"
 import type { FormDataType } from './type'
 const audienceListRes = ref<any[]>([])
 const selectedAudience = ref<string[]>([])
@@ -438,6 +448,7 @@ const formData = ref<FormDataType>({
     eraseifa:false,
     noipuadup:false,
     taskStatus: '',
+    proxyType: '' // 新增代理类型字段
 })
 
 const handleClose = () => {
@@ -507,8 +518,10 @@ const resetData = () => {
         // audienceList: [],
         eraseifa:false,
         noipuadup:false,
-        taskStatus:''
+        taskStatus:'',
+        proxyType: '' // 新增代理类型字段
     }
+    showProxySelector.value = false
 }
 // 存储audience列表数据
 const newData = ref<any>(null)
@@ -519,6 +532,8 @@ watch(() => props.modelValue, async (newVal) => {
     if (newVal) {  // 当弹层显示时
         try {
             newData.value = props.currentRowData
+            console.log(newData.value);
+            
             if (newData.value) {
                 const resTaskData = await reqTaskget({ taskId: props.currentRowData.id })
                 resTask.value = resTaskData
@@ -582,6 +597,7 @@ watch(() => props.modelValue, async (newVal) => {
                     noipuadup: String(resTask.value?.attr?.noipuadup) === 'true',
                     // audienceList: [],
                     taskStatus: newData.value.taskStatus || '',
+                    proxyType: newData.value.proxyType || '' // 新增代理类型字段
                 }
                 
             } else {
@@ -594,6 +610,80 @@ watch(() => props.modelValue, async (newVal) => {
         }
     }
 })
+
+// 增加代理类型选择器
+const showProxySelector = ref(true)
+// 定义代理类型选项
+const availableProxyTypes = ref()
+const proxyStaticData = ref([
+    { value: 'netnutgrid', label: 'netnut移动' },
+    { value: 'netnutgrid2', label: 'netnut住宅' },
+    { value: 'netnutgrid3', label: 'netnutUS定制' },
+    { value: 'lumigrid', label: 'lumi住宅' },
+    { value: 'lumigrid2', label: 'lumi数据中心' },
+    { value: 'lumigrid3', label: 'lumi移动' },
+    { value: 'ipidea2', label: 'ipidea住宅' },
+    { value: 'ipidea3', label: 'ipidea数据中心' },
+])
+const proxyTypeData = ref()
+const handleAppIdBlur = async () => {
+    const appId = formData.value.appId
+    const bsclick = formData.value.bsclick
+
+    if (appId && bsclick === 'true') {
+        try {
+            const params = {
+                appId: appId
+            }
+            // Call API to get proxy types
+            const data = await reqProxyList(params)
+            if (Array.isArray(data)) {
+                // ... rest of your existing logic for handling the response ...
+                const filteredProxyTypes = proxyStaticData.value.filter(opt =>
+                    data.includes(opt.value)
+                )
+                const existingValues = new Set(filteredProxyTypes.map(opt => opt.value))
+                const newItems = data.filter((item: string) => !existingValues.has(item))
+                availableProxyTypes.value = [
+                    ...filteredProxyTypes,
+                    ...newItems.map((item: string) => ({ value: item, label: item }))
+                ]
+                console.log(availableProxyTypes.value);
+                
+                proxyTypeData.value = data
+                showProxySelector.value = true
+            } else {
+                showProxySelector.value = true
+                availableProxyTypes.value = []
+                proxyTypeData.value = []
+            }
+        } catch (error) {
+            showProxySelector.value = false
+        }
+    } else {
+        showProxySelector.value = false
+    }
+}
+watch(
+    () => formData.value.bsclick,
+    (newBsclick) => {
+        if (newBsclick === 'true' && formData.value.appId) {
+            handleAppIdBlur()
+        } else {
+            showProxySelector.value = false
+        }
+    }
+)
+// 清空proxyType
+watch(
+    () => formData.value.proxyType,
+    (newAppId) => {
+        debugger
+        if (!newAppId) {
+            formData.value.proxyType = ''
+        }
+    }
+)
 onMounted(async () => {
     // 弹层打开就调用一次  设备受众列表
     const res = await reqAudienceList()

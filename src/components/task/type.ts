@@ -44,4 +44,5 @@ export interface  FormDataType {
     noipuadup: boolean;
     taskStatus: string;
     buttonType?: string;
+    proxyType: string;
 };
