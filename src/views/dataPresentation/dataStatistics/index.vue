@@ -7,7 +7,7 @@
                 <!-- 日期选择 -->
                 <el-date-picker v-model="dateRange" type="daterange" range-separator="To" start-placeholder="Start date"
                     end-placeholder="End date" :clearable="false" :disabled-date="disabledDate"
-                    @change="handleDateChange" />
+                    @change="handleDateChange"  />
                 <!-- 单选按钮组 -->
                 <el-radio-group v-model="radioValue" @change="handleRadioChange">
                     <el-radio-button value="byProxyType">按代理类型</el-radio-button>
@@ -82,13 +82,17 @@ const tableColumns = computed(() => {
 
 // 方法定义
 function getDefaultDateRange(): string[] {
-    const date = new Date();
-    date.setDate(date.getDate() - 1);
-    return [formatDate(date), formatDate(date)];
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  const formattedDate = formatDate(yesterday);
+  return [formattedDate, formattedDate];
 }
-
-function formatDate(date: Date): string {
-    return date.toISOString().split('T')[0];
+// 新增辅助函数：格式化日期为 YYYY-MM-DD
+function formatDate(date: any): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 function disabledDate(time: Date): boolean {
@@ -98,6 +102,7 @@ function disabledDate(time: Date): boolean {
 async function handleQuery() {
     try {
         const params = {
+            // 直接使用字符串格式的日期
             startDay: dateRange.value[0],
             endDay: dateRange.value[1],
             groupBy: GROUP_BY_MAP[radioValue.value]
@@ -215,8 +220,14 @@ function renderChart(data: TableDataItem[]) {
     window.addEventListener('resize', () => chartInstance?.resize());
 }
 
-function handleDateChange(val: string[]) {
-    console.log('日期变化:', val);
+function handleDateChange(val: Date[] | string[]) {
+  // 统一转换为字符串数组
+  if (Array.isArray(val) && val[0] instanceof Date) {
+    debugger
+    dateRange.value = val.map(d => formatDate(d));
+  } else {
+    dateRange.value = val as string[];
+  }
 }
 
 function handleRadioChange(val: 'byProxyType' | 'byDay' | 'sendType') {
