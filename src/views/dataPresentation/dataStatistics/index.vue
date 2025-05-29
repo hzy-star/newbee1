@@ -223,7 +223,6 @@ function renderChart(data: TableDataItem[]) {
 function handleDateChange(val: Date[] | string[]) {
   // 统一转换为字符串数组
   if (Array.isArray(val) && val[0] instanceof Date) {
-    debugger
     dateRange.value = val.map(d => formatDate(d));
   } else {
     dateRange.value = val as string[];

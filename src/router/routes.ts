@@ -79,7 +79,7 @@ export const constantRoutes = [
                 component: () => import('@/views/task/autopkgtask/index.vue'),
                 name: 'Autopkgtask',
                 meta: {
-                    title: 'autopkgtask',
+                    title: 'Autopkgtask',
                     icon: 'DataLine',
                     hidden: false
                 }
@@ -89,7 +89,7 @@ export const constantRoutes = [
                 component: () => import('@/views/task/devicequery/index.vue'),
                 name: 'devicequery',
                 meta: {
-                    title: 'RTADataMonitor',
+                    title: 'RtaDataMonitor',
                     icon: 'DataLine',
                     hidden: false
                 }
@@ -112,7 +112,7 @@ export const constantRoutes = [
                 component: () => import('@/views/traffic/pushtaskchart/index.vue'),
                 name: 'pushtaskchart',
                 meta: {
-                    title: 'pushtaskchart',
+                    title: 'PushTaskChart',
                     icon: 'Connection',
                     hidden: false
                 }
@@ -122,7 +122,7 @@ export const constantRoutes = [
                 component: () => import('@/views/traffic/pulltaskchart/index.vue'),
                 name: 'Pulltaskchart',
                 meta: {
-                    title: 'pulltaskchart',
+                    title: 'PullTaskChart',
                     icon: 'Discount',
                     hidden: false
                 }
@@ -132,7 +132,7 @@ export const constantRoutes = [
                 component: () => import('@/views/traffic/deviceChart/index.vue'),
                 name: 'deviceChart',
                 meta: {
-                    title: 'deviceChart',
+                    title: 'DeviceChart',
                     icon: 'SetUp',
                     hidden: false
                 }
@@ -142,37 +142,83 @@ export const constantRoutes = [
                 component: () => import('@/views/traffic/deviceDup/index.vue'),
                 name: 'deviceDup',
                 meta: {
-                    title: 'deviceDup',
+                    title: 'DeviceDup',
                     icon: 'DocumentCopy',
                     hidden: false
                 }
             },
+        ]
+    },
+    {
+        path:'/docDownload',
+        component: () => import('@/layout/index.vue'),
+        name:'docDownload',
+        redirect:'/docDownload/ossDownload',
+        meta:{
+            title:'doc_download',
+            icon:'Document',
+            hidden:false
+        },
+        children:[
             {
-                path: '/traffic/pullDevice',
-                component: () => import('@/views/traffic/pullDevice/index.vue'),
+                path:'/docDownload/ossDownload',
+                component:()=>import('@/views/docDownload/ossDownload/index.vue'),
+                name:'ossDownload',
+                meta:{
+                    title:'OssDownload',
+                    icon:'Document',
+                    hidden:false
+                }
+            }
+        ]
+    },
+    {
+        path:'/dataPresentation',
+        component: () => import('@/layout/index.vue'),
+        name:'dataPresentation',
+        redirect:'/dataPresentation/dataStatistics',
+        meta:{
+            title:'STATISTICS',
+            icon:'DataLine',
+            hidden:false
+        },
+        children:[
+            {
+                path:'/dataPresentation/dataStatistics',
+                component:()=>import('@/views/dataPresentation/dataStatistics/index.vue'),
+                name:'dataStatistics',
+                meta:{
+                    title:'ProxyStatistics',
+                    icon:'DataLine',
+                    hidden:false
+                }
+            },
+            {
+                path: '/dataPresentation/pullDevice',
+                component: () => import('@/views/dataPresentation/pullDevice/index.vue'),
                 name: 'pullDevice',
                 meta: {
-                    title: 'pullDevice',
+                    title: 'EsPullDevice',
                     icon: 'Files',
                     hidden: false
                 }
             },
             {
-                path: '/traffic/gAgencyToStoreRate',
-                component: () => import('@/views/traffic/gAgencyToStoreRate/index.vue'),
+                path: '/dataPresentation/gAgencyToStoreRate',
+                component: () => import('@/views/dataPresentation/gAgencyToStoreRate/index.vue'),
                 name: 'gAgencyToStoreRate',
                 meta: {
-                    title: 'gAgencyToStoreRate',
+                    title: 'AgencyStoreRate',
                     icon: 'DocumentCopy',
                     hidden: false
                 }
             },
             {
-                path: '/traffic/trafficStatistics',
-                component: () => import('@/views/traffic/trafficStatistics/index.vue'),
+                path: '/dataPresentation/trafficStatistics',
+                component: () => import('@/views/dataPresentation/trafficStatistics/index.vue'),
                 name: 'trafficStatistics',
                 meta: {
-                    title: 'trafficStatistics',
+                    title: 'GatewayDeviceStatistics',
                     icon: 'OfficeBuilding',
                     hidden: false
                 }
@@ -185,7 +231,7 @@ export const constantRoutes = [
         name: 'setting',
         redirect: '/setting/filterRule',
         meta: {
-            title: 'setting',
+            title: 'SETTING',
             hidden: false,
             icon: "Setting"
         },
@@ -195,7 +241,7 @@ export const constantRoutes = [
                 component: () => import('@/views/setting/filterRule/index.vue'),
                 name: 'filterRule',
                 meta: {
-                    title: 'filterRule',
+                    title: 'FilterRule',
                     icon: 'Filter',
                     hidden: false
                 }
@@ -215,7 +261,7 @@ export const constantRoutes = [
                 component: () => import('@/views/setting/advtrafficSplit/index.vue'),
                 name: 'AdvtrafficSplit',
                 meta: {
-                    title: 'advtrafficSplit',
+                    title: 'AdvTrafficSplit',
                     icon: 'HelpFilled',
                     hidden: false
                 }
@@ -240,52 +286,6 @@ export const constantRoutes = [
                     hidden: false
                 }
             },
-        ]
-    },
-    {
-        path:'/docDownload',
-        component: () => import('@/layout/index.vue'),
-        name:'docDownload',
-        redirect:'/docDownload/ossDownload',
-        meta:{
-            title:'doc_download',
-            icon:'Document',
-            hidden:false
-        },
-        children:[
-            {
-                path:'/docDownload/ossDownload',
-                component:()=>import('@/views/docDownload/ossDownload/index.vue'),
-                name:'ossDownload',
-                meta:{
-                    title:'ossDownload',
-                    icon:'Document',
-                    hidden:false
-                }
-            }
-        ]
-    },
-    {
-        path:'/dataPresentation',
-        component: () => import('@/layout/index.vue'),
-        name:'dataPresentation',
-        redirect:'/dataPresentation/dataStatistics',
-        meta:{
-            title:'doc_download',
-            icon:'Document',
-            hidden:false
-        },
-        children:[
-            {
-                path:'/dataPresentation/dataStatistics',
-                component:()=>import('@/views/dataPresentation/dataStatistics/index.vue'),
-                name:'dataStatistics',
-                meta:{
-                    title:'dataStatistics',
-                    icon:'DataLine',
-                    hidden:false
-                }
-            }
         ]
     },
 ]
