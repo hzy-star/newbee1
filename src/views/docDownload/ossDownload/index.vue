@@ -76,7 +76,7 @@ const downloadUrl = async (row: RowVO) => {
         window.URL.revokeObjectURL(url);
     } catch (error) {
         console.error('Error downloading URL:', error);
-        ElMessage.error('文件下载失败');
+        ElMessage.error('文件路径不存在');
     }
 };
 // 查询接口
