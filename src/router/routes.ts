@@ -223,6 +223,16 @@ export const constantRoutes = [
                     hidden: false
                 }
             },
+            {
+                path:'/dataPresentation/syncAsyncWarn',
+                component: () => import('@/views/dataPresentation/syncAsyncWarn/index.vue'),
+                name:'syncAsyncWarn',
+                meta:{
+                    title:'SyncAsyncWarn',
+                    icon:'Warning',
+                    hidden:false
+                }
+            }
         ]
     },
     {
