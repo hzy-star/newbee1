@@ -232,7 +232,17 @@ export const constantRoutes = [
                     icon:'Warning',
                     hidden:false
                 }
-            }
+            },
+            {
+                path: '/dataPresentation/clickhouseDevice',
+                component: () => import('@/views/dataPresentation/clickhouseDevice/index.vue'),
+                name: 'clickhouseDevice',
+                meta: {
+                    title: 'ClickHouseDevice',
+                    icon: 'Files',
+                    hidden: false
+                }
+            },
         ]
     },
     {
