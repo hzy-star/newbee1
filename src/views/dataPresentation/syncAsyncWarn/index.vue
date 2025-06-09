@@ -6,8 +6,8 @@
                 <el-date-picker v-model="day" type="date" placeholder="选择日期" format="YYYY-MM-DD"
                     value-format="YYYY-MM-DD" :disabled-date="disabledDate" />
             </div>
-            <div class="filter-item">
-                <el-input v-model="percent" controls-position="right" placeholder="请输入转化率" />
+            <div class="filter-item"><el-input-number v-model="percent" controls-position="right" placeholder="请输入差异比"
+                    :min="0" :step="0.1" :precision="1" />
             </div>
             <div class="filter-item">
                 <el-button type="primary" @click="queryData">查询</el-button>
@@ -55,7 +55,7 @@ interface TableRow {
 
 // 定义响应式变量
 const day = ref('');
-const percent = ref(1);
+const percent = ref(0.5);
 const responseData = ref<ResponseData[]>([]);
 const tableData = ref<TableRow[]>([]);
 
@@ -90,7 +90,7 @@ const queryData = async () => {
         return;
     }
     if (percent.value <= 0) {
-        ElMessage.warning('转化率必须大于0');
+        ElMessage.warning('差异比必须大于0');
         return;
     }
 
@@ -119,7 +119,7 @@ const processTableData = () => {
         ElMessage.warning('暂无数据');
         tableData.value = [];
         return;
-    }else{
+    } else {
         ElMessage.success('数据加载成功');
     }
     responseData.value.forEach((item, index) => {
@@ -184,7 +184,8 @@ onMounted(async () => {
 
 /* 自定义斑马纹样式 */
 :deep(.even-row) {
-    background-color: #f5f7fa;
+    background-color: #70a8aa;
+    color: #ffffff;
 }
 
 :deep(.odd-row) {

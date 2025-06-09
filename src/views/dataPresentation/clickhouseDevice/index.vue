@@ -40,7 +40,7 @@
                             <el-option label="Os" value="os" />
                             <el-option label="Adx" value="adx" />
                             <el-option label="source" value="s" />
-                            <el-option label="PkgName" value="pkgName" />
+                            <el-option label="PkgName" value="pkg_name" />
                             <!-- <el-option label="Day" value="day" /> -->
                         </el-select>
                     </div>
