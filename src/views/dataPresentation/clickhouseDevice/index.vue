@@ -41,7 +41,7 @@
                             <el-option label="Adx" value="adx" />
                             <el-option label="source" value="s" />
                             <el-option label="PkgName" value="pkgName" />
-                            <el-option label="Day" value="day" />
+                            <!-- <el-option label="Day" value="day" /> -->
                         </el-select>
                     </div>
                     <div class="form-item">
