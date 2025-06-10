@@ -24,6 +24,7 @@ export interface FormDataType {
   startHour: string;
   deviceDays: string;
   proxyTarget: string;
+  rtaName: string;
 }
 // 定义history数据类型
 

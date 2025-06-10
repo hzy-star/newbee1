@@ -42,8 +42,7 @@
                     <div class="form-item">
                         <el-form-item label="RTA-Name">
                             <el-select v-model="formData.rta_name">
-                                <el-option label="Aliexpress" value="Aliexpress" />
-                                <el-option label="Tiktok" value="Tiktok" />
+                                <el-option v-for="option in RTA_OPTIONS" :key="option.value" :label="option.label" :value="option.value" />
                             </el-select>
                         </el-form-item>
                     </div>
@@ -92,6 +91,7 @@ import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import { reqRtaData } from '@/api/pushtask/rta_data'
 import type { VxeTablePropTypes, VxeTableEvents } from 'vxe-pc-ui'
+import { RTA_NAMES, RTA_OPTIONS } from '@/utils/constants' // 添加这一行导入常量
 
 interface QueryForm {
     baseDate: string
@@ -123,6 +123,7 @@ interface TableDataItem {
 }
 
 // 响应式数据
+// 响应式数据
 const formData = reactive<QueryForm>({
     baseDate: '',
     dayStep: '-1',
@@ -130,7 +131,7 @@ const formData = reactive<QueryForm>({
     adx: '',
     country: '',
     channel: '',
-    rta_name: 'Aliexpress',
+    rta_name: RTA_NAMES.ALIEXPRESS, // 使用常量
     groupby: ['day']
 })
 

@@ -98,6 +98,14 @@
                         </el-select>
                     </div>
                 </el-col>
+                <el-col :span="7">
+                    <div class="form-item">
+                        <div class="form-item-label">RTA-Name</div>
+                        <el-select v-model="formData.rtaName" placeholder="select">
+                            <el-option v-for="option in RTA_OPTIONS" :key="option.value" :label="option.label" :value="option.value" clearable />
+                        </el-select>
+                    </div>
+                </el-col>
             </el-row>
             <!-- 第四行 -->
             <el-row :gutter="24">
@@ -161,6 +169,7 @@
 import { ref, watch, onMounted } from 'vue'
 import type { FormDataType } from './type'
 import {  reqProxyTargetUrl } from "@/api/pushtask/autoPkgTask"
+import { RTA_NAMES, RTA_OPTIONS } from '@/utils/constants' // 添加这一行导入常量
 const props = defineProps({
     modelValue: Boolean,
     title: String,
@@ -201,7 +210,8 @@ const formData = ref<FormDataType>({
     hour:'',
     startHour:'',
     deviceDays:'',
-    proxyTarget:''
+    proxyTarget:'',
+    rtaName:'',
 })
 
 const handleClose = () => {
@@ -235,7 +245,8 @@ const resetData = () => {
         hour: '',
         startHour: '',
         deviceDays: '',
-        proxyTarget: ''
+        proxyTarget: '',
+        rtaName: '',
     }
 }
 // 存储audience列表数据
@@ -268,6 +279,7 @@ watch(() => props.modelValue, async (newVal) => {
                     startHour: newData.value.startHour,
                     deviceDays: newData.value.deviceDays,
                     proxyTarget: newData.value.proxyTarget,
+                    rtaName: newData.value.rtaName,
                 }
             } else {
                 // 如果没有当前行数据，清空表单
