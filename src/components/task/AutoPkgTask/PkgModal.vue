@@ -101,8 +101,8 @@
                 <el-col :span="7">
                     <div class="form-item">
                         <div class="form-item-label">RTA-Name</div>
-                        <el-select v-model="formData.rtaName" placeholder="select">
-                            <el-option v-for="option in RTA_OPTIONS" :key="option.value" :label="option.label" :value="option.value" clearable />
+                        <el-select v-model="formData.rtaName" placeholder="select" clearable>
+                            <el-option v-for="option in RTA_OPTIONS" :key="option.value" :label="option.label" :value="option.value"  />
                         </el-select>
                     </div>
                 </el-col>
