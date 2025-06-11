@@ -4,6 +4,14 @@
             <!-- 查询条件 -->
             <div class="flex-row">
                 <div class="flex-row-div">
+                    <div class="form-item" style="min-width: 200px;">
+                        <div class="form-item-label">Range</div>
+                        <el-select v-model="propFrom.range">
+                            <el-option label="7天" value="day" />
+                            <el-option label="三小时" value="hour" />
+                            <el-option label="一个月" value="month" />
+                        </el-select>
+                    </div>
                     <div class="form-item">
                         <div class="form-item-label">Source</div>
                         <el-input v-model="propFrom.source" placeholder="Source" />
@@ -19,14 +27,6 @@
                     <div class="form-item">
                         <div class="form-item-label">Os</div>
                         <el-input v-model="propFrom.os" placeholder="Os" />
-                    </div>
-                    <div class="form-item" style="min-width: 200px;">
-                        <div class="form-item-label">Range</div>
-                        <el-select v-model="propFrom.range">
-                            <el-option label="day" value="day" />
-                            <el-option label="hour" value="hour" />
-                            <el-option label="month" value="month" />
-                        </el-select>
                     </div>
                     <div class="form-item">
                         <div class="form-item-label">Pkg</div>

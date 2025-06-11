@@ -22,12 +22,13 @@
                 <el-col :span="18">
                     <el-radio-group :model-value="formData.groupBys[0]" @update:model-value="handleRadioChange"
                         :disabled="formData.byHour">
-                        <el-radio-button v-for="item in radioItems" :key="item" :value="item" :disabled="formData.byHour">{{
+                        <el-radio-button v-for="item in radioItems" :key="item" :value="item"
+                            :disabled="formData.byHour">{{
                             item }}</el-radio-button>
                     </el-radio-group>
                 </el-col>
                 <el-col :span="4">
-                    <el-form-item label=" " >
+                    <el-form-item label=" ">
                         <el-checkbox v-model="formData.byHour" class="mr-4">byHour</el-checkbox>
                         <el-button type="primary" @click="handleQuery" style="margin-left: 16px">QUERY</el-button>
                     </el-form-item>
@@ -46,13 +47,17 @@
 
             <!-- 表格展示 -->
             <el-table v-show="activeTab === 'table'" :data="tableData" border>
-                <el-table-column 
-                  v-for="col in tableColumns" 
-                  :key="col" 
-                  :prop="col" 
-                  :label="col" 
-                  :sort-method="col === 'uv' || col === 'pv' ? sortNumber : null" 
-                  sortable/>
+                <el-table-column v-for="col in tableColumns" :key="col" :prop="col" :label="col"
+                    :sort-method="col === 'uv' || col === 'pv' ? sortNumber : null" sortable>
+                    <!-- 自定义表头，添加 tooltip -->
+                    <template #header="{ column }">
+                        <el-tooltip v-if="col === 'uv' || col === 'pv'" effect="dark"
+                            :content="col === 'uv' ? '设备独立数' : '设备数'" placement="top">
+                            <span>{{ column.label }}</span>
+                        </el-tooltip>
+                        <span v-else>{{ column.label }}</span>
+                    </template>
+                </el-table-column>
             </el-table>
 
             <!-- 图表展示 -->
@@ -111,14 +116,8 @@ const activeTab = ref('table')
 const tableData = ref<Array<Record<string, any>>>([])
 const tableColumns = computed(() => {
     if (!tableData.value.length) return []
-
     const fields = Object.keys(tableData.value[0])
-
-    if (formData.value.byHour) {
-        return fields.sort((a) => a === 'uv' ? -1 : a === 'pv' ? 0 : 1)
-    }
-
-    const priorityFields = ['uv', 'pv']
+    const priorityFields = ['uv', 'pv', 'uvRatio'];
     return [
         ...priorityFields,
         ...fields.filter(f => !priorityFields.includes(f))

@@ -30,6 +30,9 @@ export default defineConfig(({ mode }) => {
     },
     // 代理跨域
     server: {
+      host: '0.0.0.0', // 允许所有网络访问（包括局域网）
+      port: 5173,      // 默认端口（可选，如果冲突可修改）
+      strictPort: true, // 如果端口被占用，直接报错（可选）
       proxy: {
         [env.VITE_APP_BASE_API]: {
           target: env.VITE_SERVE,
