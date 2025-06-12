@@ -101,7 +101,7 @@
                 <el-col :span="7">
                     <div class="form-item">
                         <div class="form-item-label">RTA-Name</div>
-                        <el-select v-model="formData.rtaName" placeholder="select" clearable>
+                        <el-select v-model="formData.rtaName" placeholder="select" >
                             <el-option v-for="option in RTA_OPTIONS" :key="option.value" :label="option.label" :value="option.value"  />
                         </el-select>
                     </div>
@@ -170,6 +170,8 @@ import { ref, watch, onMounted } from 'vue'
 import type { FormDataType } from './type'
 import {  reqProxyTargetUrl } from "@/api/pushtask/autoPkgTask"
 import { RTA_NAMES, RTA_OPTIONS } from '@/utils/constants' // 添加这一行导入常量
+console.log(RTA_OPTIONS);
+RTA_OPTIONS.unshift({ label: '', value: '' }) // 添加一个选项用于选择所有RTA
 const props = defineProps({
     modelValue: Boolean,
     title: String,

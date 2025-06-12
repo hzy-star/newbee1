@@ -55,6 +55,7 @@
 </template>
 
 <script setup lang="ts">
+// Pushnode 网关流量监控
 import { ref, onMounted, watch, onUnmounted } from 'vue'
 import { toDateStr } from '@/utils/time'
 import { formatData, paramsData } from '@/api/traffic/deviceChart/type'

@@ -6,4 +6,4 @@ enum API {
 }
 
 // 暴露接口
-export const reqConvWarnUrl = (params: any) => request.get<any, any>(API.CONVWARN_URL, { params });
+export const reqConvWarnUrl = (params: any) => request.post<any, any>(API.CONVWARN_URL,  params );

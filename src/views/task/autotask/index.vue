@@ -219,6 +219,7 @@
 </template>
 
 <script lang="ts" setup>
+//  AutoTask 功能（自动化点击平台的task管理入口）
 import { ref, onMounted, watch, reactive,toRaw } from 'vue';
 import type { autoTaskFormInter } from '@/api/pushtask/type'
 import { ElMessage, ElMessageBox } from 'element-plus';

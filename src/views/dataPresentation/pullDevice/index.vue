@@ -77,6 +77,7 @@
 </template>
 
 <script setup lang="ts">
+// 离线设备查询统计
 import { ref, onMounted, nextTick } from 'vue';
 import { propFormInter } from '@/api/traffic/pullDevice/type'
 import { reqPullDeviceUrl } from '@/api/traffic/pullDevice'
