@@ -3,7 +3,7 @@ import request from "@/utils/request";
 // import { paramsData } from "./type";
 // 统一管理用户接口
 enum API {
-    LISTBYKVGROUP_URL = '/newbee/listbykvgroup',  //get方法   kvgroup 请求参数固定为ossdir
+    LISTBYKVGROUP_URL = '/newbee/kvconfig/listbykvgroup',  //get方法   kvgroup 请求参数固定为ossdir
     DOWNLOAD_URL = '/newbee/oss/download',  //download 请求参数 objectName 就是之前的v值
 }
 
