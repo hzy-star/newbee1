@@ -146,18 +146,16 @@ const handleClose = () => {
 }
 watch(() => props.modelValue, async (val) => {
     if (val) {
-        let params = {
-            pkgTaskId: props.historyId,
-            days: 2
-        }
+        let params = { pkgTaskId: props.historyId, days: 2 }
         let res = await reqHistoryUrl(params)
-        tableDataList.length = 0
-        tableDataList.push(...res.data)
-        tableDataList.sort(function (x, y) {
-            return x.startTime == y.startTime ? 0 : (
-                x.startTime > y.startTime ? -1 : 1
-            );
-        });
+        
+        // 正确写法：创建新数组替换原数组
+        const newData = [...res.data].sort((x, y) => 
+            x.startTime === y.startTime ? 0 : x.startTime > y.startTime ? -1 : 1
+        );
+        
+        // 直接替换整个数组
+        tableDataList.splice(0, tableDataList.length, ...newData);
     }
 })
 </script>
