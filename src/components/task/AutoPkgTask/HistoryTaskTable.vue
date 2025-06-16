@@ -65,7 +65,7 @@
                 <vxe-column field="Filter" title="Filter" header-align="center" width="20%">
                     <template #default="{ row }">
                         <div class="filter-container">
-                            <template v-for="(item) in parseFilters(row)" :key="index">
+                            <template v-for="(item, index) in parseFilters(row)" :key="index">
                                 <div class="filter-item">
                                     <span class="filter-label">{{ item.key }}:</span>
                                     <span class="filter-value">{{ item.value }}</span>
@@ -80,7 +80,7 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, watch } from 'vue';
+import { ref, watch } from 'vue';
 import { reqHistoryUrl } from '@/api/pushtask/autoPkgTask';
 import { historyDataType } from './type';
 import { truncateText } from '@/utils/common'; // 直接导入默认对象并调用truncateText
@@ -139,23 +139,21 @@ const parseFilters = (row: any) => {
         return [];
     }
 }
-const tableDataList = reactive<historyDataType[]>([])
+const tableDataList = ref<historyDataType[]>([])
 const emit = defineEmits(['update:modelValue'])
 const handleClose = () => {
     emit('update:modelValue', false)
 }
 watch(() => props.modelValue, async (val) => {
+    tableDataList.value = [];
     if (val) {
         let params = { pkgTaskId: props.historyId, days: 2 }
         let res = await reqHistoryUrl(params)
         
         // 正确写法：创建新数组替换原数组
-        const newData = [...res.data].sort((x, y) => 
+        tableDataList.value = [...res.data].sort((x, y) => 
             x.startTime === y.startTime ? 0 : x.startTime > y.startTime ? -1 : 1
         );
-        
-        // 直接替换整个数组
-        tableDataList.splice(0, tableDataList.length, ...newData);
     }
 })
 </script>
