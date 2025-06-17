@@ -9,8 +9,8 @@ const RolePermission = defineStore('RolePermission', {
     },
     actions: {
         // 控制按钮显示
-        setBtnShow(res:string) {
-            this.showBtn = ['tom', 'jeff', 'jasmine'].includes(res)
+        setBtnShow(res: any) {
+            this.showBtn = ['tom', 'jeff', 'jasmine'].includes(res?.data?.name || '')
         }
     },
     persist: true

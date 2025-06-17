@@ -29,6 +29,7 @@ export default function useModal(tableRef: any, findAllHooks: (type: boolean) =>
                     // taskInfo.id = '';
                     taskInfo.ids = taskStore.selectedIds.join(',');
                     taskInfo.isBatchEdit = 'yes';
+                    taskInfo = removeEmptyFields(taskInfo);
                 },
             },
             createTemplate: {
@@ -78,8 +79,8 @@ export default function useModal(tableRef: any, findAllHooks: (type: boolean) =>
             topLtBundle: (resformData.topLtBundle || []).join(','),
             attr: JSON.stringify({
                 autoCrClickMin: resformData.autoCrClickMin || '',
-                eraseifa: (resformData.eraseifa).toString(),
-                noipuadup: (resformData.noipuadup).toString(),
+                eraseifa: resformData.eraseifa ? (resformData.eraseifa).toString() : '',
+                noipuadup: resformData.noipuadup ? (resformData.noipuadup).toString() : '',
             }),
             audiences: JSON.stringify({
                 // ifaAudience: ['', resformData.ifaAudience || '1'],
@@ -166,28 +167,51 @@ export default function useModal(tableRef: any, findAllHooks: (type: boolean) =>
     }
     // 删除 taskInfo 对象中所有值为空的字段
     const removeEmptyFields = (taskInfo: Record<string, any>) => {
-        for (const key in taskInfo) {
-            if (taskInfo[key] === "" || taskInfo[key] === null || taskInfo[key] === undefined) {
-                delete taskInfo[key];
-            } else if (typeof taskInfo[key] === 'object' && taskInfo[key] !== null) {
-                // 递归处理对象字段
-                removeEmptyFields(taskInfo[key]);
+      for (const key in taskInfo) {
+        if (
+          taskInfo[key] === "" ||
+          taskInfo[key] === null ||
+          taskInfo[key] === undefined
+        ) {
+          delete taskInfo[key];
+        } else if (
+          typeof taskInfo[key] === "object" &&
+          taskInfo[key] !== null
+        ) {
+          removeEmptyFields(taskInfo[key]);
+        }
+      }
+
+      if (taskInfo.attr) {
+        try {
+          let attr = JSON.parse(taskInfo.attr); // 解析成对象
+          let attrNullFlag = true;
+
+          for (const i in attr) {
+            if (
+              attr[i] === "" ||
+              attr[i] === null ||
+              attr[i] === undefined ||
+              attr[i] == "false"
+            ) {
+              delete attr[i];
+            } else {
+              attrNullFlag = false;
             }
+          }
+
+          if (attrNullFlag) {
+            delete taskInfo.attr; // 如果所有字段都为空，删除整个 attr
+          } else {
+            taskInfo.attr = JSON.stringify(attr); // 🔥 关键修复：重新赋值给 taskInfo.attr
+          }
+        } catch (e) {
+          delete taskInfo.attr; // 解析失败，直接删除
         }
-        let attr = JSON.parse(taskInfo.attr)
-        let attrNullFlag = true
-        for (const i in attr){
-            if (attr[i] === "" || attr[i] === null || attr[i] === undefined || attr[i] == 'false') {
-                delete attr[i];
-            }else{
-                attrNullFlag = false
-            }
-        }
-        if (attrNullFlag) {
-            delete taskInfo.attr
-        }
-        return taskInfo;
-    }
+      }
+
+      return taskInfo;
+    };
     
     return {
         showModal,
