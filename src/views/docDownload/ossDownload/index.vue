@@ -83,7 +83,7 @@ const downloadUrl = async (row: RowVO) => {
 const queryList = async () => {
     try {
         const response = await reqlistByKvGroup({ kvgroup: 'ossdir' })
-        tableData.value = response
+        tableData.value = response.data || []
     } catch (error) {
         console.error('Error fetching data:', error)
     } finally {
