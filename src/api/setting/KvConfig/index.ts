@@ -18,4 +18,4 @@ export const reqSaveKvUrl = (param: saveKv) =>
   request.post<saveKv,any>(API.SAVEKV_URL, param);
 // delete
 export const reqDelKvUrl = (param: delKv) =>
-  request.post<delKv>(API.DELKV_URL, param,{isForm: true});
+  request.post<delKv,any>(API.DELKV_URL, param,{isForm: true});

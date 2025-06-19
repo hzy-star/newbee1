@@ -51,8 +51,14 @@
           </template>
         </vxe-column>
         <vxe-column field="cdate" title="cdate" show-header-overflow align="center">
+          <template #default="{ row }">
+            <el-text>{{ formatDate(row.cdate) }}</el-text>
+          </template>
         </vxe-column>
         <vxe-column field="mdate" title="mdate" show-header-overflow align="center">
+          <template #default="{ row }">
+            <el-text>{{ formatDate(row.mdate) }}</el-text>
+          </template>
         </vxe-column>
         <!-- Action列 -->
         <vxe-column field="Action" title="Action" show-header-overflow align="center" width="150">
@@ -65,12 +71,7 @@
     </div>
 
     <!-- 新增/编辑弹出框 -->
-    <el-dialog
-      v-model="dialogVisible"
-      :title="isEdit ? '编辑' : '新增'"
-      width="500px"
-      :close-on-click-modal="false"
-    >
+    <el-dialog v-model="dialogVisible" :title="isEdit ? '编辑' : '新增'" width="500px" :close-on-click-modal="false">
       <el-form :model="formData" label-width="80px">
         <el-form-item label="k">
           <el-input v-model="formData.k" placeholder="请输入k" />
@@ -113,6 +114,7 @@
 import { ref } from 'vue'
 import { reqListKvUrl, reqSaveKvUrl, reqDelKvUrl } from '@/api/setting/KvConfig'
 import { ElMessage, ElMessageBox } from 'element-plus';
+import dayjs from 'dayjs'
 
 
 // 转换原始数据，处理null值
@@ -207,26 +209,26 @@ const handleSave = async () => {
       kvgroup: formData.value.kvgroup ?? '',
       status: formData.value.status ?? '0',
     }
-    
+
     // 如果是编辑模式，需要传递id
     if (isEdit.value && formData.value.id) {
       Object.assign(params, { id: formData.value.id })
     }
-    
+
     // 调用保存接口
     let data = await reqSaveKvUrl(params)
-    
-    if(data.code !== 200) {
+
+    if (data.code !== 200) {
       ElMessage.error(data.errMsg || '保存失败，请重试')
       return
 
     }
     // 提示成功
     ElMessage.success(isEdit.value ? '保存成功' : '新增成功')
-    
+
     // 关闭弹窗
     dialogVisible.value = false
-    
+
     // 重新查询数据
     queryData()
   } catch (error) {
@@ -241,7 +243,7 @@ const handleDelete = (row: TableItem) => {
     ElMessage.warning('无效的记录，无法删除')
     return
   }
-  
+
   ElMessageBox.confirm(
     '确定要删除这条记录吗？',
     '警告',
@@ -253,8 +255,11 @@ const handleDelete = (row: TableItem) => {
   ).then(async () => {
     try {
       // 调用删除接口
-      await reqDelKvUrl({ id: row.id !== null && row.id !== undefined ? row.id : undefined }) // 根据API定义，这里应该使用id而不是k
-      ElMessage.success('删除成功')
+      let data = await reqDelKvUrl({ id: row.id !== null && row.id !== undefined ? row.id : undefined }) // 根据API定义，这里应该使用id而不是k
+      if (data.code !== 200) {
+        ElMessage.error(data.errMsg || '删除失败')
+        return
+      }
       // 重新查询数据
       queryData()
     } catch (error) {
@@ -264,6 +269,10 @@ const handleDelete = (row: TableItem) => {
   }).catch(() => {
     // 用户取消删除
   })
+}
+// dayjs格式化时间
+const formatDate = (date: string | null) => {
+  return date ? dayjs(date).format('YYYY-MM-DD HH:mm:ss') : ''
 }
 </script>
 
