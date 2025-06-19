@@ -10,10 +10,15 @@
                     <el-table-column type="index" width="50" />
                     <el-table-column prop="id" label="用户名" />
                     <el-table-column prop="role" label="角色" />
-                    <el-table-column prop="cdate" label="创建时间" />
+                    <el-table-column prop="cdate" label="创建时间">
+                        <template #default="scope">
+                            <el-text>{{ dayjsDate(scope.row.cdate) }}</el-text>
+                        </template>
+                    </el-table-column>
                     <el-table-column label="操作" fixed="right" width="200">
                         <template #default="scope">
-                            <el-button :disabled="!isSuperAdmin" type="danger" @click="handleDelete(scope.row)">删除</el-button>
+                            <el-button :disabled="!isSuperAdmin" type="danger"
+                                @click="handleDelete(scope.row)">删除</el-button>
                             <el-button :disabled="!isAdmin" type="primary" @click="handleEdit(scope.row)">编辑</el-button>
                         </template>
                     </el-table-column>
@@ -51,6 +56,7 @@
 <script setup lang="ts">
 import { ref, reactive, computed } from 'vue';
 import useCookie from "@/store/modules/cookie";
+import { dayjsDate } from "@/utils/time";
 const useCookies = useCookie()
 const userRole = useCookies.userRole
 console.log(userRole, 'userRole');
@@ -173,7 +179,7 @@ const handleDelete = async (user: UserInfo) => {
             type: 'warning',
         });
         debugger
-        const  data = await reqDelUser({ id: user.id });  // 修改这里
+        const data = await reqDelUser({ id: user.id });  // 修改这里
         if (data.code === 200) {  // 修改这里
             ElMessage.success('删除成功');
             fetchUsers();

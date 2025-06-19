@@ -19,7 +19,7 @@
         </div>
       </div>
       <div class="right-section">
-        <el-button type="primary" @click="addbtn">Add</el-button>
+        <el-button type="primary" @click="addbtn" v-if="RolePermissions.showBtn">Add</el-button>
         <el-button type="primary" @click="queryData">Query</el-button>
       </div>
     </div>
@@ -52,41 +52,44 @@
         </vxe-column>
         <vxe-column field="cdate" title="cdate" show-header-overflow align="center">
           <template #default="{ row }">
-            <el-text>{{ formatDate(row.cdate) }}</el-text>
+            <el-text>{{ dayjsDate(row.cdate) }}</el-text>
           </template>
         </vxe-column>
         <vxe-column field="mdate" title="mdate" show-header-overflow align="center">
           <template #default="{ row }">
-            <el-text>{{ formatDate(row.mdate) }}</el-text>
+            <el-text>{{ dayjsDate(row.mdate) }}</el-text>
           </template>
         </vxe-column>
         <!-- Action列 -->
         <vxe-column field="Action" title="Action" show-header-overflow align="center" width="150">
-          <template #default="{ row }">
+          <template #default="{ row }" v-if="RolePermissions.showBtn">
             <el-button type="success" @click="handleEdit(row)" size="small">Edit</el-button>
             <el-button type="danger" @click="handleDelete(row)" size="small">Delete</el-button>
+          </template>
+          <template #default="{ row }" v-else>
+            <el-button type="primary" @click="handleView(row)" size="small">View</el-button>
           </template>
         </vxe-column>
       </vxe-table>
     </div>
 
     <!-- 新增/编辑弹出框 -->
-    <el-dialog v-model="dialogVisible" :title="isEdit ? '编辑' : '新增'" width="500px" :close-on-click-modal="false">
+    <el-dialog v-model="dialogVisible" :title="isView ? '查看' : (isEdit ? '编辑' : '新增')" width="500px" :close-on-click-modal="false">
       <el-form :model="formData" label-width="80px">
         <el-form-item label="k">
-          <el-input v-model="formData.k" placeholder="请输入k" />
+          <el-input v-model="formData.k" placeholder="请输入k" :disabled="isView ? true : false"/>
         </el-form-item>
         <el-form-item label="v">
-          <el-input v-model="formData.v" placeholder="请输入v" type="textarea" :autosize="{ minRows: 4, maxRows: 6 }" />
+          <el-input v-model="formData.v" placeholder="请输入v" type="textarea" :autosize="{ minRows: 4, maxRows: 6 }" :disabled="isView ? true : false" />
         </el-form-item>
         <el-form-item label="kvdesc">
-          <el-input v-model="formData.kvdesc" placeholder="请输入kvdesc" />
+          <el-input v-model="formData.kvdesc" placeholder="请输入kvdesc" :disabled="isView ? true : false" />
         </el-form-item>
         <el-form-item label="kvgroup">
-          <el-input v-model="formData.kvgroup" placeholder="请输入kvgroup" />
+          <el-input v-model="formData.kvgroup" placeholder="请输入kvgroup" :disabled="isView ? true : false"/>
         </el-form-item>
         <el-form-item label="status">
-          <el-select v-model="formData.status" placeholder="请选择状态">
+          <el-select v-model="formData.status" placeholder="请选择状态" :disabled="isView ? true : false">
             <el-option label="启用" value="1" />
             <el-option label="禁用" value="0" />
           </el-select>
@@ -98,7 +101,7 @@
           <el-input v-model="formData.mdate" disabled />
         </el-form-item>
       </el-form>
-      <template #footer>
+      <template #footer v-if="RolePermissions.showBtn">
         <span class="dialog-footer">
           <el-button @click="dialogVisible = false">取消</el-button>
           <el-button type="primary" @click="handleSave">
@@ -106,6 +109,11 @@
           </el-button>
         </span>
       </template>
+      <template #footer v-else>
+        <span class="dialog-footer">
+          <el-button @click="dialogVisible = false">关闭</el-button>
+        </span>
+        </template>
     </el-dialog>
   </div>
 </template>
@@ -114,7 +122,9 @@
 import { ref } from 'vue'
 import { reqListKvUrl, reqSaveKvUrl, reqDelKvUrl } from '@/api/setting/KvConfig'
 import { ElMessage, ElMessageBox } from 'element-plus';
-import dayjs from 'dayjs'
+import { dayjsDate } from "@/utils/time";
+import RolePermission from '@/store/modules/rolePermission'
+const RolePermissions = RolePermission()
 
 
 // 转换原始数据，处理null值
@@ -137,6 +147,7 @@ let status = ref()
 // 弹出框相关
 const dialogVisible = ref(false)
 const isEdit = ref(false)
+const isView = ref(false)
 const formData = ref<TableItem>({
   k: '',
   v: '',
@@ -184,6 +195,23 @@ const addbtn = () => {
 // 编辑按钮点击
 const handleEdit = (row: TableItem) => {
   isEdit.value = true
+  // 复制行数据到表单
+  formData.value = {
+    k: row.k || '',
+    v: row.v || '',
+    kvdesc: row.kvdesc || '',
+    mdate: row.mdate,
+    cdate: row.cdate,
+    kvgroup: row.kvgroup || '',
+    status: row.status || '1',
+    id: row.id || null
+  }
+  dialogVisible.value = true
+}
+// 查看按钮点击
+const handleView = (row: TableItem) => {
+  isEdit.value = false
+  isView.value = true
   // 复制行数据到表单
   formData.value = {
     k: row.k || '',
@@ -269,10 +297,6 @@ const handleDelete = (row: TableItem) => {
   }).catch(() => {
     // 用户取消删除
   })
-}
-// dayjs格式化时间
-const formatDate = (date: string | null) => {
-  return date ? dayjs(date).format('YYYY-MM-DD HH:mm:ss') : ''
 }
 </script>
 

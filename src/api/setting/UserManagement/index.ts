@@ -31,12 +31,12 @@ export const reqQueryall = async () => {
 
 // 新增用户
 export const reqAddUser = (params: CreateUserParams) => 
-  request.post<CreateUserResponse>(API.ADDUSER_URL, params);
+  request.post<CreateUserResponse,any>(API.ADDUSER_URL, params);
 
 // 删除用户
 export const reqDelUser = (params: DeleteUserParams) => 
-  request.post<DeleteUserResponse>(API.DELETEUSER_URL, params, { isForm: true });
+  request.post<DeleteUserResponse,any>(API.DELETEUSER_URL, params, { isForm: true });
 
 // 修改用户
 export const reqEditUser = (params: UpdateUserParams) => 
-  request.post<UpdateUserResponse>(API.EDITUSER_URL, params);
+  request.post<UpdateUserResponse,any>(API.EDITUSER_URL, params);

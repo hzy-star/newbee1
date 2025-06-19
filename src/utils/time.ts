@@ -1,3 +1,4 @@
+import dayjs from "dayjs";
 // 获取时间封装问候语
 export const getTime = (): string => {
   let message = "";
@@ -75,4 +76,13 @@ export function toDateStr(srcDate: Date | undefined, simpleFormat: boolean = fal
 // 零时区
 export const zeroTime = (dateString: string) => {
   return dateString.replace(/[.].*$/g, "")
+}
+
+// dayjs格式化时间
+//**
+// * 将日期字符串转换为 "YYYY-MM-DD HH:mm:ss" 格式
+// * @param date - 日期字符串，格式为 "YYYY-MM-DD HH:mm:ss"
+//  */
+export const dayjsDate = (date: string | null) => {
+  return date ? dayjs(date).format('YYYY-MM-DD HH:mm:ss') : ''
 }
