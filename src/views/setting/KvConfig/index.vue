@@ -288,6 +288,7 @@ const handleDelete = (row: TableItem) => {
         ElMessage.error(data.errMsg || '删除失败')
         return
       }
+      ElMessage.success('删除成功')
       // 重新查询数据
       queryData()
     } catch (error) {
