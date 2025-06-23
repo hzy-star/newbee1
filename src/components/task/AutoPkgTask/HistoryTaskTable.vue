@@ -2,9 +2,9 @@
     <el-dialog :model-value="modelValue" :title="title" align-center @close="handleClose" width="70%"
         :close-on-click-modal="false" draggable>
         <div style="height: 85vh; ">
-            <vxe-table border height="100%" auto-resize :cell-config="{ verticalAlign: 'center' }"
-                 :data="tableDataList" ref="tableRef">
-                <vxe-column field="TaskInfo" title="TaskInfo" align="center" width="20%">
+            <vxe-table border height="100%" auto-resize :cell-config="{ verticalAlign: 'center' }" :data="tableDataList"
+                ref="tableRef">
+                <vxe-column field="TaskInfo" title="TaskInfo" align="center" width="12%">
                     <template #default="{ row }">
                         <div class="device-box">
                             <div class="device-text" :title="!!row.pkgtaskId ? (row.pkgtaskId) : '-'"><span
@@ -16,10 +16,10 @@
                             </div>
                             <div class="device-text" :title="!!row.pkgName ? (row.pkgName) : '-'"><span
                                     class="device-span">pkgName:</span> {{ !!row.pkgName ?
-                                        truncateText(row.pkgName) : '-' }}</div>
+                                truncateText(row.pkgName) : '-' }}</div>
                             <div class="device-text" :title="!!row.offers ? (row.offers) : '-'"><span
                                     class="device-span">offers:</span> {{ !!row.offers ?
-                                        truncateText(row.offers) : '-' }}</div>
+                                truncateText(row.offers) : '-' }}</div>
                         </div>
                     </template>
                 </vxe-column>
@@ -28,7 +28,19 @@
                         {{ !!row?.status ? filterStatus(row.status) : '' }}
                     </template>
                 </vxe-column>
-                <vxe-column field="max" title="Max" align="center" width="10%"></vxe-column>
+                <vxe-column field="sendType" title="sendType" align="center" width="7%">
+                    <template #default="{ row }">
+                        {{ sendTypefun(row?.activeTimeFlag) }}
+                    </template>
+                </vxe-column>
+                <vxe-column field="dualhour" title="dualhour" align="center" width="7%">
+                    <template #default="{ row }">
+                        {{ row?.activeTimeFlag === '0' || row?.activeTimeFlag === '1'
+                            ? row?.timeInterval
+                            : row?.hour }}
+                    </template>
+                </vxe-column>
+                <vxe-column field="max" title="Max" align="center" width="8%"></vxe-column>
                 <vxe-column field="DeviceCount" title="DeviceCount" align="center" width="10%">
                     <template #default="{ row }">
                         <div class="device-box">
@@ -38,7 +50,7 @@
                         </div>
                     </template>
                 </vxe-column>
-                <vxe-column field="Time" title="Time" align="center" width="17%">
+                <vxe-column field="Time" title="Time" align="center" width="15%">
                     <template #default="{ row }">
                         <div class="device-box">
                             <div class="device-text"><span class="device-span">start:</span> {{ row.startTime || '' }}
@@ -56,13 +68,13 @@
                             </div>
                             <div class="device-text"><span class="device-span">succ:</span> {{ row.succCount || '' }}
                             </div>
-                            <div class="device-text" ><span class="device-span">Details:</span>
+                            <div class="device-text"><span class="device-span">Details:</span>
                                 <div v-html="resultEval(row)" style="margin-left: 5px;"></div>
                             </div>
                         </div>
                     </template>
                 </vxe-column>
-                <vxe-column field="Filter" title="Filter" header-align="center" width="20%">
+                <vxe-column field="Filter" title="Filter" header-align="center" width="18%">
                     <template #default="{ row }">
                         <div class="filter-container">
                             <template v-for="(item, index) in parseFilters(row)" :key="index">
@@ -83,7 +95,7 @@
 import { ref, watch } from 'vue';
 import { reqHistoryUrl } from '@/api/pushtask/autoPkgTask';
 import { historyDataType } from './type';
-import { truncateText } from '@/utils/common'; // 直接导入默认对象并调用truncateText
+import { truncateText, sendTypefun } from '@/utils/common'; // 直接导入默认对象并调用truncateText
 import autoRunningStatus from '@/views/task/autopkgtask/hooks/autoRunningStatus'
 const {
     filterStatus

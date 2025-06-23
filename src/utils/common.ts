@@ -33,3 +33,24 @@ export const getCookies = ( name:string ) => {
   }
   return null;
 }
+
+//**
+// 0：非活跃时间送量
+// 1: 活跃时间送量
+// 2：pm定制送量
+// 3：默认送量
+//  */
+export const sendTypefun = (data: string) => {
+    switch (data) {
+        case '0':
+            return '非活跃时间送量';
+        case '1':
+            return '活跃时间送量';
+        case '2':
+            return 'pm定制送量';
+        case '3':
+            return '默认送量';
+        default:
+            return '';
+    }
+}

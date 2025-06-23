@@ -150,7 +150,7 @@
                     <vxe-column field="country" title="country" show-header-overflow sortable align="center" width="4%"></vxe-column>
                     <vxe-column field="offers" title="offers" show-header-overflow show-overflow sortable align="center" width="6%"></vxe-column>
                     <vxe-column field="deviceDays" title="deviceDays" show-header-overflow align="center" width="5%"></vxe-column>
-                    <vxe-column field="source" title="source" show-header-overflow  align="center" width="12%">
+                    <vxe-column field="source" title="source" show-header-overflow  align="center" width="10%">
                         <template #default="{ row }">
                             <div class="device-box">
                                 <div class="device-text" :title="!!row.s ? (row.s) : '-'"><span
@@ -169,7 +169,18 @@
                     </vxe-column>
                     <vxe-column field="bsclick" title="bsclick" show-header-overflow align="center" width="4%"></vxe-column>
                     <vxe-column field="max" title="max" show-header-overflow show-overflow align="center" width="4%"></vxe-column>
-                    <vxe-column field="hour" title="hour" show-header-overflow align="center" width="4%"></vxe-column>
+                    <vxe-column field="sendType" title="sendType" show-header-overflow align="center" width="4%">
+                        <template #default="{ row }">
+                            {{ sendTypefun(row?.runnerStatus?.activeTimeFlag) }}
+                        </template>
+                    </vxe-column>
+                    <vxe-column field="dualhour" title="dualhour" show-header-overflow align="center" width="4%">
+                        <template #default="{ row }">
+                            {{ row?.runnerStatus?.activeTimeFlag === '0' || row?.runnerStatus?.activeTimeFlag === '1'
+                                ? row.runnerStatus?.timeInterval
+                                : row.runnerStatus?.hour }}
+                        </template>
+                    </vxe-column>
                     <vxe-column field="startHour" title="startHour" show-header-overflow align="center" width="5%"></vxe-column>
                     <vxe-column field="runningStatus" title="runningStatus" show-header-overflow align="center" width="8%">
                         <template #default="{ row }">
@@ -288,6 +299,7 @@ import HistoryTaskTable from '@/components/task/AutoPkgTask/HistoryTaskTable.vue
 import type { FormDataType } from '@/components/task/AutoPkgTask/type'
 import { truncateText } from '@/utils/common'; // 直接导入默认对象并调用truncateText
 import type { VxeToolbarInstance ,VxeTablePropTypes} from 'vxe-table'
+import { sendTypefun } from '@/utils/common'
 const arrowupOrDown = ref(true)
 // 折叠展开
 const clickarrow = () => {
@@ -541,7 +553,6 @@ const generateStatusDetail = (data: any) => {
     // 拼接最终的 HTML 内容
     return statusDetailArr.join('');
 }
-
 // 导出csv
 const exportToCSV = () => {
     const rows = processedData.value;
