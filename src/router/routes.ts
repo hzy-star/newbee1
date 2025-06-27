@@ -243,6 +243,16 @@ export const constantRoutes = [
                     hidden: false
                 }
             },
+            {
+                path: '/dataPresentation/blackWhiteList',
+                component: () => import('@/views/dataPresentation/blackWhiteList/index.vue'),
+                name: 'blackWhiteList',
+                meta: {
+                    title: 'BlackWhiteList',
+                    icon: 'Files',
+                    hidden: false
+                }
+            },
         ]
     },
     {
