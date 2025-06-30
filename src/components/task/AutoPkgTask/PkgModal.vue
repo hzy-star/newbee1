@@ -152,6 +152,21 @@
                     </div>
                 </el-col>
             </el-row>
+            <!-- 第七行 -->
+            <el-row :gutter="24">
+                <el-col :span="12">
+                    <div class="form-item">
+                        <div class="form-item-label">topLtBundle</div>
+                        <el-input v-model="formData.top_lt_bundle" placeholder="eg: A:B:C"/>
+                    </div>
+                </el-col>
+                <el-col :span="12">
+                    <div class="form-item">
+                        <div class="form-item-label">abTestVersion</div>
+                        <el-input v-model="formData.abtest_version" placeholder="eg: base or v1 or v2" />
+                    </div>
+                </el-col>
+            </el-row>
 
             
 
@@ -214,6 +229,8 @@ const formData = ref<FormDataType>({
     deviceDays:'',
     proxyTarget:'',
     rtaName:'',
+    top_lt_bundle: '',
+    abtest_version: '',
 })
 
 const handleClose = () => {
@@ -249,6 +266,8 @@ const resetData = () => {
         deviceDays: '',
         proxyTarget: '',
         rtaName: '',
+        top_lt_bundle: '', // 新增字段
+        abtest_version: '', // 新增字段
     }
 }
 // 存储audience列表数据
@@ -282,6 +301,8 @@ watch(() => props.modelValue, async (newVal) => {
                     deviceDays: newData.value.deviceDays,
                     proxyTarget: newData.value.proxyTarget,
                     rtaName: newData.value.rtaName,
+                    top_lt_bundle: newData.value.top_lt_bundle || '', // 新增字段
+                    abtest_version: newData.value.abtest_version || '', // 新增字段
                 }
             } else {
                 // 如果没有当前行数据，清空表单
