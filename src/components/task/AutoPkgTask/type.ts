@@ -25,8 +25,8 @@ export interface FormDataType {
   deviceDays: string;
   proxyTarget: string;
   rtaName: string;
-  top_lt_bundle: string; // 新增字段
-  abtest_version: string; // 新增字段
+  // top_lt_bundle: string; // 新增字段
+  // abtest_version: string; // 新增字段
 }
 // 定义history数据类型
 
