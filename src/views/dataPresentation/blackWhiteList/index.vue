@@ -3,38 +3,38 @@
         <!-- 顶部搜索条件区 -->
         <div class="search-form-container">
             <el-form :inline="true" :model="searchForm" :rules="searchRules" ref="searchFormRef" class="search-form">
-                <el-form-item label="etype" prop="etype" class="flex-item">
+                <el-form-item label="etype" prop="etype" class="flex-item flex-etype">
                     <el-select v-model="searchForm.etype" placeholder="请选择" class="flex-select">
                         <el-option label="click" value="click" />
                         <el-option label="imp" value="imp" />
                     </el-select>
                 </el-form-item>
-                <el-form-item label="listtype" prop="listType" class="flex-item">
+                <el-form-item label="listtype" prop="listType" class="flex-item flex-listtype">
                     <el-select v-model="searchForm.listtype" placeholder="请选择" class="flex-select">
                         <el-option label="黑名单" value="blacklist" />
                         <el-option label="白名单" value="whitelist" />
                     </el-select>
                 </el-form-item>
-                <el-form-item label="country" prop="country" class="flex-item">
+                <el-form-item label="country" prop="country" class="flex-item flex-country">
                     <el-input v-model="searchForm.country" placeholder="请输入国家" clearable class="flex-select" />
                 </el-form-item>
-                <el-form-item label="pkgname" prop="pkgname" class="flex-item">
+                <el-form-item label="pkgname" prop="pkgname" class="flex-item flex-pkgname">
                     <el-input v-model="searchForm.pkgname" placeholder="请输入包名" clearable class="flex-select" />
                 </el-form-item>
-                <el-form-item label="field" class="flex-item">
+                <el-form-item label="field" class="flex-item flex-field">
                     <el-select v-model="searchForm.field" placeholder="请选择" class="flex-select" clearable>
                         <el-option label="adx" value="adx" />
                         <el-option label="bundle" value="bundle" />
                     </el-select>
                 </el-form-item>
-                <el-form-item label="os" class="flex-item">
+                <el-form-item label="os" class="flex-item flex-os">
                     <!-- <el-input v-model="searchForm.os" placeholder="请输入os" clearable class="flex-select" /> -->
                     <el-select v-model="searchForm.os" placeholder="请选择os" class="flex-select" clearable>
                         <el-option label="ios" value="ios" />
                         <el-option label="android" value="android" />
                     </el-select>
                 </el-form-item>
-                <el-form-item label="tag" class="flex-item">
+                <el-form-item label="tag" class="flex-item flex-tag">
                     <!-- <el-input v-model="searchForm.tag" placeholder="请输入tag" clearable class="flex-select" /> -->
                      
                     <el-select v-model="searchForm.tag" placeholder="请选择tag" class="flex-select" clearable>
@@ -52,17 +52,17 @@
         <!-- 中间表格区 -->
         <div class="table-container">
             <el-table :data="tableData"  height="100%" border>
-                <el-table-column type="index" :index="indexMethod" min-width="5%" />
-                <el-table-column prop="etype" label="etype" min-width="10%" />
-                <el-table-column prop="listtype" label="listtype" min-width="10%" />
-                <el-table-column prop="country" label="country" min-width="10%" />
-                <el-table-column prop="pkgname" label="pkgname" min-width="15%" />
+                <el-table-column type="index" :index="indexMethod" width="30" />
+                <!-- <el-table-column prop="etype" label="etype" min-width="10%" />
+                <el-table-column prop="listtype" label="listtype" min-width="10%" /> -->
+                <el-table-column prop="country" label="country" min-width="5%" />
+                <el-table-column prop="pkgname" label="pkgname" min-width="20%" />
                 <el-table-column prop="field" label="field" min-width="10%" />
+                <el-table-column prop="value" label="value" min-width="30%" />
                 <el-table-column prop="os" label="os" min-width="10%" />
                 <el-table-column prop="tag" label="tag" min-width="10%" />
-                <el-table-column prop="rate" label="rate" min-width="10%" />
-                <el-table-column prop="value" label="value" min-width="10%" />
-                <el-table-column label="操作" width="130">
+                <el-table-column prop="rate" label="rate" min-width="5%" />
+                <el-table-column label="操作" width="130" >
                     <template #default="scope">
                         <el-button type="success" text size="small" @click="openEditDialog(scope.row,'edit')">修改</el-button>
                         <el-button type="danger" text size="small" @click="deleteBtn(scope.row)">删除</el-button>
@@ -501,13 +501,33 @@ const isDialogFieldDisabled = (field: string) => {
             align-items: flex-start;
 
             .flex-item {
-                flex: 1 1 160px;
-                min-width: 120px;
                 margin-right: 12px;
-
                 .flex-select {
                     width: 100%;
                 }
+            }
+            // 合并宽度相同的项
+            .flex-etype,
+            .flex-listtype {
+                flex: 0.5 1 120px;
+                min-width: 100px;
+            }
+            .flex-country {
+                flex: 1 1 50px;
+                min-width: 50px;
+            }
+            .flex-pkgname {
+                flex: 1 1 250px;
+                min-width: 250px;
+            }
+            .flex-field {
+                flex: 1 1 100px;
+                min-width: 100px;
+            }
+            .flex-os,
+            .flex-tag {
+                flex: 0.5 1 80px;
+                min-width: 80px;
             }
         }
     }
