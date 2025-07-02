@@ -32,8 +32,8 @@ const listTaskCr = defineStore('setTask', {
 
         // 检查是否需要重新加载数据
         shouldFetchData() {
-            // 数据为空或者数据超过一定时间阈值才重新加载（例如超过半天）
-            if (!this.taskCr || (this.lastUpdated && Date.now() - this.lastUpdated > 12 * 60 * 60 * 1000)) {
+            // 数据为空或者数据超过一定时间阈值才重新加载（例如超过4小时）
+            if (!this.taskCr || (this.lastUpdated && Date.now() - this.lastUpdated > 4 * 60 * 60 * 1000)) {
                 return true;
             }
             return false;
