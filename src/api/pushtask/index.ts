@@ -3,6 +3,7 @@ import request from "@/utils/request";
 // 统一管理用户接口
 enum API {
     LIST_URL = '/newbee/list',
+    LISTPAGE_URL = '/newbee/listpage',
     LISTONGGOING_URL = '/newbee/listongoing',
     LISTTASKCR_URL = '/newbee/listTaskCr',
     GETBUNDLEKEY_URL = '/newbee/getAutoTopBundleKeyNames',
@@ -26,6 +27,7 @@ enum API {
 // 暴露接口
 // 查询pushTask
 export const reqlistUrl = (param: any) => request.get<any, any>(API.LIST_URL, { params: param })
+export const reqlistPageUrl = (param: any) => request.get<any, any>(API.LISTPAGE_URL, { params: param })
 // 查询listongoing
 export const reqOngoing = (param: any) => request.get<any, any>(API.LISTONGGOING_URL, { params: param })
 // 查询listTaskCr

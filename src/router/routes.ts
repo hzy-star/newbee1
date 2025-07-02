@@ -55,6 +55,16 @@ export const constantRoutes = [
                 }
             },
             {
+                path: '/task/pushtask1',
+                component: () => import('@/views/task/pushtask1/index.vue'),
+                name: 'Pushtask1',
+                meta: {
+                    title: 'Pushtask1',
+                    icon: 'Monitor',
+                    hidden: true
+                }
+            },
+            {
                 path: '/task/pulltask',
                 component: () => import('@/views/task/pulltask/index.vue'),
                 name: 'Pulltask',
