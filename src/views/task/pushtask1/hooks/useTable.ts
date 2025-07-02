@@ -1,12 +1,12 @@
-import { ref, reactive, onMounted, onUnmounted, shallowRef,watch } from "vue";
+import { ref, reactive, onMounted, onUnmounted, watch } from "vue";
 import { ElMessage } from "element-plus";
-import { reqlistUrl } from "@/api/pushtask/index";
+import { reqlistPageUrl } from "@/api/pushtask/index";
 import type { VxeTableInstance } from "vxe-table";
 import { useTaskStore } from "@/store/pushtask/task";
 import listTaskCr from "@/store/common/listTaskCr";
 import { zeroTime } from "@/utils/time";
 import XEUtils from "xe-utils";
-import { debounce } from 'lodash';
+import { debounce } from "lodash";
 
 export default function useTable() {
   interface RowVO {
@@ -34,7 +34,7 @@ export default function useTable() {
   const ongoing: any = ref();
   // 储存排序后的规则
   const sortListConfig = ref<{ field: string; order: string }[]>([]);
-  const sortConfig = ref()
+  const sortConfig = ref();
 
   const pageVO = reactive({
     total: 0,
@@ -46,38 +46,46 @@ export default function useTable() {
   let processedData = ref<any[]>([]);
   let originalData = ref<any[]>([]);
   let taskCrData: any = ref();
-  const findAllHooks = async (type: boolean, num?: number) => {
+  const findAllHooks = async (type: boolean, num?: number | null) => {
     loading.value = true;
     try {
       taskStore.propFrom.etypes == "all"
         ? (taskStore.propFrom.etypes = "")
         : taskStore.propFrom.etypes;
-        if (taskStore.propFrom) {
-            if (typeof taskStore.propFrom.offerIds === 'string') {
-              taskStore.propFrom.offerIds = taskStore.propFrom.offerIds.trim();
-            }
-            if (typeof taskStore.propFrom.pkgNames === 'string') {
-              taskStore.propFrom.pkgNames = taskStore.propFrom.pkgNames.trim();
-            }
-            if (typeof taskStore.propFrom.appIds === 'string') {
-              taskStore.propFrom.appIds = taskStore.propFrom.appIds.trim();
-            }
-            if (typeof taskStore.propFrom.countries === 'string') {
-              taskStore.propFrom.countries = taskStore.propFrom.countries.trim();
-            }
-            if (typeof taskStore.propFrom.taskIds === 'string') {
-              taskStore.propFrom.taskIds = taskStore.propFrom.taskIds.trim();
-            }
-          }
-      const res = await reqlistUrl(taskStore.propFrom);
-      result.value = res;
-  
+      if (taskStore.propFrom) {
+        if (typeof taskStore.propFrom.offerIds === "string") {
+          taskStore.propFrom.offerIds = taskStore.propFrom.offerIds.trim();
+        }
+        if (typeof taskStore.propFrom.pkgNames === "string") {
+          taskStore.propFrom.pkgNames = taskStore.propFrom.pkgNames.trim();
+        }
+        if (typeof taskStore.propFrom.appIds === "string") {
+          taskStore.propFrom.appIds = taskStore.propFrom.appIds.trim();
+        }
+        if (typeof taskStore.propFrom.countries === "string") {
+          taskStore.propFrom.countries = taskStore.propFrom.countries.trim();
+        }
+        if (typeof taskStore.propFrom.taskIds === "string") {
+          taskStore.propFrom.taskIds = taskStore.propFrom.taskIds.trim();
+        }
+      }
+      if(type){
+        taskStore.propFrom.page = 1; // 重置页码
+        // taskStore.propFrom.size = 10; // 重置每页条数
+      }
+      // if(sort) {
+      //   taskStore.propFrom.sort = sort; // 设置排序规则
+      // }
+      const res = await reqlistPageUrl(taskStore.propFrom);
+      result.value = res.data.pageListData;
+      await taskStore.setTableData(res.data);
+      await taskStore.setOngoing(res.data.countStatistics)
       // 直接赋值 processedData，减少后续计算
       processedData.value = result.value.map((item: any) => {
         const matchedOngoing = taskStore.ongoing.filter(
           (ongoingItem: any) => ongoingItem.taskId === item.id
         );
-        taskCrData = getTaskCr.taskCr[item.id]
+        taskCrData = getTaskCr.taskCr[item.id];
         return {
           ...item,
           ongoingData: matchedOngoing.length > 0 ? matchedOngoing : null,
@@ -95,27 +103,18 @@ export default function useTable() {
       loading.value = false;
     }
   };
-  
 
-  const handlePageData = (num?: number,type?:boolean) => {
-    const { pageSize } = pageVO;
+  const handlePageData = (num?: number | null) => {
     const filterVal = String(filtercontent.value).trim().toLowerCase();
     // 判断模糊查询是否有值，有值则使用过滤后的数据processedData，无值则使用原始数据result
-    pageVO.total = filterVal != ""
-    ? processedData.value.length
-    : result.value.length;
+    pageVO.total =
+      filterVal != "" ? processedData.value.length : taskStore.tableData.total;
     if (num) {
       pageVO.currentPage = num;
     }
-    tableDataList.value = processedData.value.slice(
-      (pageVO.currentPage - 1) * pageSize,
-      pageVO.currentPage * pageSize
-    );
-    if(filterVal != ""){
-      searchEvent.value(num)
-    }
-    if(sortListConfig.value.length > 0 && !type){
-      sortConfig.value.value.sortMethods({ sortList: sortListConfig.value });
+    tableDataList.value = processedData.value
+    if (filterVal != "") {
+      searchEvent.value(num);
     }
   };
   // 模糊查询
@@ -221,22 +220,25 @@ export default function useTable() {
       searchEvent.value.cancel();
     }
   });
-  watch(filtercontent, debounce((newValue, oldValue) => {
-    // 如果 filtercontent 改变了，并且新的值与旧的值不相等，则将 processedData 设置为 result
-    if (newValue !== oldValue) {
-      processedData.value = result.value.map((item: any) => {
-        const matchedOngoing = taskStore.ongoing.filter(
-          (ongoingItem: any) => ongoingItem.taskId === item.id
-        );
-        taskCrData = getTaskCr.taskCr[item.id]
-        return {
-          ...item,
-          ongoingData: matchedOngoing.length > 0 ? matchedOngoing : null,
-          taskCrData: taskCrData || null,
-        };
-      });
-    }
-  }, 300)); // 300ms 防抖时间，用户停止输入后 300ms 执行处理
+  watch(
+    filtercontent,
+    debounce((newValue, oldValue) => {
+      // 如果 filtercontent 改变了，并且新的值与旧的值不相等，则将 processedData 设置为 result
+      if (newValue !== oldValue) {
+        processedData.value = result.value.map((item: any) => {
+          const matchedOngoing = taskStore.ongoing.filter(
+            (ongoingItem: any) => ongoingItem.taskId === item.id
+          );
+          taskCrData = getTaskCr.taskCr[item.id];
+          return {
+            ...item,
+            ongoingData: matchedOngoing.length > 0 ? matchedOngoing : null,
+            taskCrData: taskCrData || null,
+          };
+        });
+      }
+    }, 300)
+  ); // 300ms 防抖时间，用户停止输入后 300ms 执行处理
   // 分页
   const pageChanges = ({
     pageSize,
@@ -247,7 +249,10 @@ export default function useTable() {
   }) => {
     pageVO.currentPage = currentPage;
     pageVO.pageSize = pageSize;
-    handlePageData(0,true);
+    // handlePageData(0, true);
+    taskStore.propFrom.page = currentPage;
+    taskStore.propFrom.size = pageSize;
+    findAllHooks(false, currentPage);
   };
 
   return {
@@ -264,6 +269,6 @@ export default function useTable() {
     originalData,
     findAllHooks,
     pageChanges,
-    handlePageData
+    handlePageData,
   };
 }
