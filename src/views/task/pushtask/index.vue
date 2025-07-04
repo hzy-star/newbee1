@@ -218,7 +218,7 @@
             </template>
 
           </vxe-column>
-          <vxe-column field="cr/ecpc(0.285%)/roi(65%)" show-header-overflow  sortable title="cr/ecpc(0.285%)/roi(65%)" align="center" width="10%">
+          <vxe-column field="cr/ecpc(0.285%)/roi(65%)" show-header-overflow   title="cr/ecpc(0.285%)/roi(65%)" align="center" width="10%">
             <template #default="{ row }">
               <!-- 检查 taskCr 是否存在且不为 null -->
               <div v-if="row?.taskCrData">
@@ -257,7 +257,7 @@
     <div class="pushtask_footer">
 
       <!-- 分页 -->
-      <vxe-pager v-model:currentPage="pageVO.currentPage" v-model:pageSize="pageVO.pageSize" :total="pageVO.total"
+      <vxe-pager v-model:currentPage="pageVO.currentPage" v-model:pageSize="pageVO.pageSize" :total="pageVO.total" :pageSizes="[10, 20, 50, 100,99999999]" 
         :layouts="['Home',  'PrevPage', 'Number', 'NextPage',  'End', 'Sizes', 'FullJump', 'Total']"
         @page-change="pageChange">
       </vxe-pager>
@@ -272,14 +272,14 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, watch, reactive,toRaw  } from 'vue';
+import { ref, onMounted, watch, reactive} from 'vue';
 import type { propFormInter } from '@/api/pushtask/type'
 import { ElMessage, ElMessageBox } from 'element-plus';
 import useChart from './hooks/useChart'
 import useTable from './hooks/useTable'
 import useModal from './hooks/useModal'
 import { getRelativeDates, zeroTime } from "@/utils/time";
-import { reqOngoing, reqGetBundleKey, reqDelTask, reqEnableTask, reqDisAbleTask, reqBatchEnableTask, reqBatchDisableTask } from "@/api/pushtask/index"
+import { reqGetBundleKey, reqDelTask, reqEnableTask, reqDisAbleTask, reqBatchEnableTask, reqBatchDisableTask } from "@/api/pushtask/index"
 import listTaskCr from "@/store/common/listTaskCr"
 import TaskModal from '@/components/task/TaskModal.vue'
 import ChartModal from '@/components/task/ChartModal.vue'
@@ -371,16 +371,11 @@ const handleshowTaskSortChart = async (row: any) => {
 // -------------------查询功能-------------------
 const {
   tableRef,
-  // loading,
   tableDataList,
   pageVO,
   processedData,
-  ongoing,
-  sortListConfig,
-  sortConfig,
   filtercontent,
   searchEvent,
-  originalData,
   findAllHooks,
   pageChanges,
   handlePageData
@@ -398,9 +393,9 @@ const handleStatusChange = async () => {
 }
 // 通用的获取任务并更新状态逻辑
 const fetchTasks = async (hooksParam: boolean) => {
-  const taskdate = { taskid: '', taskdate: propFrom.value.taskdate }
-  ongoing.value = await reqOngoing(taskdate)
-  taskStore.setOngoing(ongoing.value)
+  // const taskdate = { taskid: '', taskdate: propFrom.value.taskdate }
+  // ongoing.value = await reqOngoing(taskdate)
+  // taskStore.setOngoing(ongoing.value)
   findAllHooks(hooksParam, 1)
 }
 
@@ -732,89 +727,100 @@ onMounted(async () => {
 
 });
 // 排序
-sortConfig.value = ref({
-  sortMethods ({ sortList }: { sortList: { field: string; order: string }[] }) {
-    // 新增：处理空排序状态
-    if (sortList.length === 0) {
-      // 恢复原始数据
-      processedData.value = [...originalData.value]; 
-      sortListConfig.value = []
-      return true;
-    }
-    sortListConfig.value = [...toRaw(sortList)];
-    const sortItem = sortList[0]
-    // 取出第一个排序的列
-    const { field, order } = sortItem
-    // 对全量数据排序
-    const sorted = [...processedData.value].sort((a, b) => {
-      // ...保持你原有的排序逻辑...
-      if (order === 'asc' || order === 'desc') {
-        if (field === 'offers') {
-          const aVal = a[field] === 'all' ? Infinity : (isNaN(Number(a[field])) ? Infinity : Number(a[field]))
-          const bVal = b[field] === 'all' ? Infinity : (isNaN(Number(b[field])) ? Infinity : Number(b[field]))
-          return aVal === bVal ? 0 : (aVal > bVal ? 1 : -1)
-        } else if (field === 'appId') {
-          const aVal = a[field];
-          const bVal = b[field];
-          // 如果两个值都是数字，直接比较数字大小
-          if (!isNaN(Number(aVal)) && !isNaN(Number(bVal))) {
-            return Number(aVal) - Number(bVal);
-          }
-          // 如果一个是数字，另一个是字符串，数字排在前面
-          if (!isNaN(Number(aVal)) && isNaN(Number(bVal))) {
-            return -1;
-          }
-          if (isNaN(Number(aVal)) && !isNaN(Number(bVal))) {
-            return 1;
-          }
-          // 如果两个值都是字符串，忽略大小写比较
-          return aVal.localeCompare(bVal, undefined, { sensitivity: 'base' });
-        } else if (field === 'country' || field === 'urlparam') {
-          const aVal = a[field].toUpperCase()  // 转换为大写
-          const bVal = b[field].toUpperCase()  // 转换为大写
-          return aVal === bVal ? 0 : (aVal > bVal ? 1 : -1)
-        } else if (field === 'cr/ecpc(0.285%)/roi(65%)') {
-          const aVal = a.taskCrData ? ((a.taskCrData.ctr + a.taskCrData.ivr) * 100) : 0
-          const bVal = b.taskCrData ? ((b.taskCrData.ctr + b.taskCrData.ivr) * 100) : 0
-          return aVal === bVal ? 0 : (aVal > bVal ? 1 : -1)
-        } else {
-          const aVal = a[field]
-            const bVal = b[field]
-            return aVal === bVal ? 0 : (aVal > bVal ? 1 : -1)
-        }
-      }
-    });
-     // 更新全量数据
-     processedData.value = order === 'desc' ? sorted.reverse() : sorted;
-     const { pageSize } = pageVO;
-     tableDataList.value = processedData.value.slice(
-      (pageVO.currentPage - 1) * pageSize,
-      pageVO.currentPage * pageSize
-    );
-    return true; // 返回true表示已处理排序
+// sortConfig.value = ref({
+//   sortMethods ({ sortList }: { sortList: { field: string; order: string }[] }) {
+//     // 新增：处理空排序状态
+//     if (sortList.length === 0) {
+//       // 恢复原始数据
+//       processedData.value = [...originalData.value]; 
+//       sortListConfig.value = []
+//       return true;
+//     }
+//     sortListConfig.value = [...toRaw(sortList)];
+//     const sortItem = sortList[0]
+//     // 取出第一个排序的列
+//     const { field, order } = sortItem
+//     // 对全量数据排序
+//     const sorted = [...processedData.value].sort((a, b) => {
+//       // ...保持你原有的排序逻辑...
+//       if (order === 'asc' || order === 'desc') {
+//         if (field === 'offers') {
+//           const aVal = a[field] === 'all' ? Infinity : (isNaN(Number(a[field])) ? Infinity : Number(a[field]))
+//           const bVal = b[field] === 'all' ? Infinity : (isNaN(Number(b[field])) ? Infinity : Number(b[field]))
+//           return aVal === bVal ? 0 : (aVal > bVal ? 1 : -1)
+//         } else if (field === 'appId') {
+//           const aVal = a[field];
+//           const bVal = b[field];
+//           // 如果两个值都是数字，直接比较数字大小
+//           if (!isNaN(Number(aVal)) && !isNaN(Number(bVal))) {
+//             return Number(aVal) - Number(bVal);
+//           }
+//           // 如果一个是数字，另一个是字符串，数字排在前面
+//           if (!isNaN(Number(aVal)) && isNaN(Number(bVal))) {
+//             return -1;
+//           }
+//           if (isNaN(Number(aVal)) && !isNaN(Number(bVal))) {
+//             return 1;
+//           }
+//           // 如果两个值都是字符串，忽略大小写比较
+//           return aVal.localeCompare(bVal, undefined, { sensitivity: 'base' });
+//         } else if (field === 'country' || field === 'urlparam') {
+//           const aVal = a[field].toUpperCase()  // 转换为大写
+//           const bVal = b[field].toUpperCase()  // 转换为大写
+//           return aVal === bVal ? 0 : (aVal > bVal ? 1 : -1)
+//         } else if (field === 'cr/ecpc(0.285%)/roi(65%)') {
+//           const aVal = a.taskCrData ? ((a.taskCrData.ctr + a.taskCrData.ivr) * 100) : 0
+//           const bVal = b.taskCrData ? ((b.taskCrData.ctr + b.taskCrData.ivr) * 100) : 0
+//           return aVal === bVal ? 0 : (aVal > bVal ? 1 : -1)
+//         } else {
+//           const aVal = a[field]
+//             const bVal = b[field]
+//             return aVal === bVal ? 0 : (aVal > bVal ? 1 : -1)
+//         }
+//       }
+//     });
+//      // 更新全量数据
+//      processedData.value = order === 'desc' ? sorted.reverse() : sorted;
+//      const { pageSize } = pageVO;
+//      tableDataList.value = processedData.value.slice(
+//       (pageVO.currentPage - 1) * pageSize,
+//       pageVO.currentPage * pageSize
+//     );
+//     return true; // 返回true表示已处理排序
+//   }
+// })
+const handleSortChange = (sortList: any) => {
+  const { field, order } = sortList;
+  // 清除旧的排序字段（响应式安全的方式）
+  taskStore.propFrom.sort = undefined;
+
+  // 如果有有效的排序规则，则设置新值
+  if (order !== null) {
+    taskStore.propFrom.sort = order === 'desc' 
+      ? `${field} desc` 
+      : field;
   }
-})
-const handleSortChange = ({ sortList }: any) => {
-  sortConfig.value.value.sortMethods({ sortList });
-  handlePageData(0,true);
+
+  // 重新加载数据（不传递额外参数，直接从 propFrom 读取）
+  findAllHooks(false, null);
 };
 
 const handlePageChange = ({ currentPage, pageSize }:any) => {
   pageVO.currentPage = currentPage;
   pageVO.pageSize = pageSize;
-  handlePageData(0,true);
+  handlePageData(0);
 };
 watch(
   () => pageVO.currentPage,
   () => {
-    handlePageData(0,true);
+    handlePageData(0);
   }
 );
 
 watch(
   () => pageVO.pageSize,
   () => {
-    handlePageData(0,true);
+    handlePageData(0);
   }
 );
 </script>
