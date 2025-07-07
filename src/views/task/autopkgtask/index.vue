@@ -99,6 +99,7 @@
 
                 <!-- 右侧按钮 -->
                 <div  class="form-item-right">
+                    <el-button type="primary" @click="batchRun">Batch Run</el-button>
                     <el-button type="primary" @click="addJob">Add Job</el-button>
                     <el-button type="primary" @click="findJob(true)">Find Job</el-button>
                 </div>
@@ -292,7 +293,7 @@ import autoPkgTable from './hooks/autoPkgTable'
 import autoPkgModal from './hooks/autoPkgModal'
 import autoRunningStatus from './hooks/autoRunningStatus'
 import { zeroTime } from "@/utils/time";
-import {  reqBatchEnabledOrDisabled,reqTryOrRunUrl } from "@/api/pushtask/autoPkgTask"
+import {  reqBatchEnabledOrDisabled,reqTryOrRunUrl,reqTriggerBatchUrl } from "@/api/pushtask/autoPkgTask"
 import { useTaskStore } from '@/store/pushtask/autoPkgTask'
 import PkgModal from '@/components/task/AutoPkgTask/PkgModal.vue'
 import HistoryTaskTable from '@/components/task/AutoPkgTask/HistoryTaskTable.vue'
@@ -455,6 +456,44 @@ const tryTask = (row: any) => {
 const runTask = (row: any) => {
   handleTask(row, 0, 'Confirm to run task','run')
 }
+// 批量run
+const batchRun = async () => {
+    const $table = tableRef.value;
+    if (!$table) return;
+
+    const selectRecords = $table.getCheckboxRecords();
+    if (!selectRecords || selectRecords.length < 1) {
+        ElMessage.warning('请选择要批量运行的任务');
+        return;
+    }
+
+    const params = {
+        pkgTaskIds: selectRecords.map(({ id }) => id).join(','),
+    };
+
+    try {
+        await ElMessageBox.confirm('确定要批量运行选中的任务吗？', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning',
+        });
+        const res = await reqTriggerBatchUrl(params);
+        if (res?.success) {
+            ElMessage.success('批量运行成功');
+            findAllHooks(false);
+        } else {
+            ElMessage.error(res?.message || '批量运行失败');
+        }
+    } catch (error: any) {
+        if (error === 'cancel' || error === 'close') {
+            ElMessage.info('批量运行取消');
+        } else {
+            ElMessage.error('批量运行异常');
+        }
+    }
+};
+
+
 const showHistoryModal = ref<boolean>(false)
 const historyTitle = ref<string>('')
 const historyId = ref<string>('')
