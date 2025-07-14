@@ -646,7 +646,12 @@ const BatchDisable = () => {
 
 // -------------------处理弹窗确认-------------------
 const handleModalConfirm = async (formData: FormDataType): Promise<void> => {
-  handleModals(formData)
+  // 确保包含 scorePolicy 数据
+  const submitData = {
+    ...formData,
+    scorePolicy: formData.scorePolicy || ''
+  }
+  handleModals(submitData)
 };
 // -------------------处理弹窗确认结束-------------------
 

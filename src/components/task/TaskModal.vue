@@ -1,6 +1,6 @@
 <template>
     <el-dialog :model-value="modelValue" :title="title" align-center @close="handleClose" width="80%"
-        :close-on-click-modal="false" >
+        :close-on-click-modal="false">
         <div class="task-form">
             <!-- 第一行 -->
             <el-row :gutter="20">
@@ -80,8 +80,8 @@
                     <div class="form-item">
                         <div class="form-item-label">proxyType</div>
                         <el-select v-model="formData.proxyType" placeholder="" clearable>
-                            <el-option v-for="(item) in availableProxyTypes" :key="item.value"
-                                :label="item.label" :value="item.value" />
+                            <el-option v-for="(item) in availableProxyTypes" :key="item.value" :label="item.label"
+                                :value="item.value" />
                         </el-select>
                     </div>
                 </el-col>
@@ -136,12 +136,12 @@
                 </el-col>
             </el-row>
             <!-- 第四行 -->
-             <el-row :gutter="24">
+            <el-row :gutter="24">
                 <el-col :span="24">
                     <div class="form-item">
                         <div class="form-item-label">crFilter</div>
-                        <el-select v-model="formData.autoCrFilterName" placeholder="select" :max-collapse-tags="8" multiple collapse-tags
-                        collapse-tags-tooltip  style="width: 240px" clearable>
+                        <el-select v-model="formData.autoCrFilterName" placeholder="select" :max-collapse-tags="8"
+                            multiple collapse-tags collapse-tags-tooltip style="width: 240px" clearable>
                             <!-- 添加选项 -->
                             <el-option label="topBundle3dayCr" value="top_bo_cr_3"></el-option>
                             <el-option label="topBundle7dayCr" value="top_bo_cr_7"></el-option>
@@ -161,18 +161,18 @@
                         </el-select>
                     </div>
                 </el-col>
-             </el-row>
-             <el-row :gutter="24">
+            </el-row>
+            <el-row :gutter="24">
                 <el-col :span="24">
                     <div class="form-item">
                         <div class="form-item-label">crValue</div>
                         <el-input v-model="formData.autoCrFilterVal" />
                     </div>
                 </el-col>
-             </el-row>
+            </el-row>
             <!-- 第四行 -->
             <el-row :gutter="20">
-                
+
                 <el-col :span="10">
                     <div class="form-item">
                         <div class="form-item-label">clickMin</div>
@@ -293,15 +293,25 @@
 
             <!-- 第七行 -->
             <el-row :gutter="20">
-                <el-col :span="16">
+                <el-col :span="12">
                     <div class="form-item">
                         <div class="form-item-label">autoTopBundle</div>
-                        <el-select v-model="formData.autoTopBundle" :max-collapse-tags="4" multiple collapse-tags
+                        <el-select v-model="formData.autoTopBundle" :max-collapse-tags="3" multiple collapse-tags
                             collapse-tags-tooltip placeholder="Select" style="width: 240px" clearable>
                             <!-- 添加 "全部" 选项 -->
                             <el-option label="All" value="all" />
                             <!-- 动态添加其他选项 -->
                             <el-option v-for="item in props.autoBundleKey" :key="item" :label="item" :value="item" />
+                        </el-select>
+                    </div>
+                </el-col>
+
+                <el-col :span="4">
+                    <div class="form-item">
+                        <div class="form-item-label">scorePolicy</div>
+                        <el-select v-model="formData.scorePolicy" placeholder="select" clearable>
+                            <el-option v-for="item in scorePolicyOptions" :label="item" :value="item"
+                                :key="item"></el-option>
                         </el-select>
                     </div>
                 </el-col>
@@ -365,14 +375,17 @@
                     <el-select v-model="selectedAudience" :max-collapse-tags="4" multiple collapse-tags
                         collapse-tags-tooltip placeholder="Select" style="width: 240px" filterable clearable>
                         <!-- 动态添加其他选项 -->
-                        <el-option v-for="item in audienceListRes" :key="item.id" :label="item.name" :value="item.name" />
+                        <el-option v-for="item in audienceListRes" :key="item.id" :label="item.name"
+                            :value="item.name" />
                     </el-select>
                 </div>
             </div>
 
 
             <div class="form-footer">
-                <el-button type="primary" @click="handleSaveToTask('template')" v-if="btnType === 'createTemplate' || currentRowData?.taskStatus === 'template'">save to task</el-button>
+                <el-button type="primary" @click="handleSaveToTask('template')"
+                    v-if="btnType === 'createTemplate' || currentRowData?.taskStatus === 'template'">save to
+                    task</el-button>
                 <el-button type="primary" @click="handleSave('save')" v-if="btnType != 'addTask'">save</el-button>
                 <el-button type="primary" @click="handleNew('new')">new</el-button>
             </div>
@@ -382,7 +395,7 @@
 
 <script lang="ts" setup>
 import { ref, watch, onMounted } from 'vue'
-import { reqAudienceList, reqTaskget ,reqProxyList} from "@/api/pushtask/index"
+import { reqAudienceList, reqTaskget, reqProxyList, reqScorePolicy } from "@/api/pushtask/index"
 import type { FormDataType } from './type'
 const audienceListRes = ref<any[]>([])
 const selectedAudience = ref<string[]>([])
@@ -408,7 +421,7 @@ const props = defineProps({
 
 
 const emit = defineEmits(['update:modelValue', 'confirm', 'confirmNew'])
-
+const scorePolicyOptions = ref<string[]>([])
 const formData = ref<FormDataType>({
     etype: '',
     offers: '',
@@ -426,7 +439,7 @@ const formData = ref<FormDataType>({
     checkservice: '',
     sendPlan: '',
     autoCrFilterName: [] as string[],
-    autoCrFilterVal:'',
+    autoCrFilterVal: '',
     autoCrClickMin: '',
     autoCr: false,
     bundleSizeFilter: '',
@@ -439,14 +452,15 @@ const formData = ref<FormDataType>({
     abTestVersion: '',
     topLtBundle: '',
     autoTopBundle: [],
+    scorePolicy: '', // 添加 scorePolicy 字段
     autoTestVersion: '',
     base64Info: '',
     filter: '',
     urlparams: '',
-    clickTimeDelay:'',
+    clickTimeDelay: '',
     // audienceList: [],
-    eraseifa:false,
-    noipuadup:false,
+    eraseifa: false,
+    noipuadup: false,
     taskStatus: '',
     proxyType: '' // 新增代理类型字段
 })
@@ -455,15 +469,15 @@ const handleClose = () => {
     emit('update:modelValue', false)
 }
 // 保存模板
-const handleSaveToTask = (type:string) => {
+const handleSaveToTask = (type: string) => {
     emit('confirm', { ...formData.value, buttonType: type })
 }
 // 保存
-const handleSave = (type:string) => {
+const handleSave = (type: string) => {
     emit('confirm', { ...formData.value, buttonType: type })
 }
 // 新增
-const handleNew = (type:string) =>{
+const handleNew = (type: string) => {
     emit('confirm', { ...formData.value, buttonType: type })
 }
 interface AutoFilters {
@@ -480,6 +494,7 @@ const resTask = ref({
 })
 // 清空表单数据
 const resetData = () => {
+    const currentScorePolicy = formData.value.scorePolicy
     formData.value = {
         etype: '',
         offers: '',
@@ -497,7 +512,7 @@ const resetData = () => {
         checkservice: '',
         sendPlan: '',
         autoCrFilterName: [],
-        autoCrFilterVal:'',
+        autoCrFilterVal: '',
         autoCrClickMin: '',
         autoCr: false,
         bundleSizeFilter: '',
@@ -508,17 +523,18 @@ const resetData = () => {
         clickRetry: '',
         randomClick: '',
         abTestVersion: '',
+        scorePolicy: '',
         topLtBundle: '',
         autoTopBundle: [],
         autoTestVersion: '',
         base64Info: '',
         filter: '',
         urlparams: '',
-        clickTimeDelay:'',
+        clickTimeDelay: '',
         // audienceList: [],
-        eraseifa:false,
-        noipuadup:false,
-        taskStatus:'',
+        eraseifa: false,
+        noipuadup: false,
+        taskStatus: '',
         proxyType: '' // 新增代理类型字段
     }
     showProxySelector.value = false
@@ -533,7 +549,7 @@ watch(() => props.modelValue, async (newVal) => {
         try {
             newData.value = props.currentRowData
             console.log(newData.value);
-            
+
             if (newData.value) {
                 const resTaskData = await reqTaskget({ taskId: props.currentRowData.id })
                 resTask.value = resTaskData
@@ -556,7 +572,7 @@ watch(() => props.modelValue, async (newVal) => {
                         autoCrFilterValues.push(crVString);
                     }
                 });
-                
+
                 // 如果有当前行数据，填充表单
                 formData.value = {
                     etype: newData.value.etype || '',
@@ -575,7 +591,7 @@ watch(() => props.modelValue, async (newVal) => {
                     checkservice: newData.value.ifadupcheck.split(":")[1] || '',
                     sendPlan: newData.value.sendPlan || '',
                     autoCrFilterName: autoCrFilterNames.length > 0 ? autoCrFilterNames.join(",").split(',') : [],
-                    autoCrFilterVal:autoCrFilterValues?.join(",") || '',
+                    autoCrFilterVal: autoCrFilterValues?.join(",") || '',
                     autoCrClickMin: resTask.value?.attr?.autoCrClickMin || '',
                     autoCr: !!auto_cr || false,
                     bundleSizeFilter: newData.value.bundleSizeFilter || '',
@@ -589,6 +605,7 @@ watch(() => props.modelValue, async (newVal) => {
                     topLtBundle: newData.value.topLtBundle.length > 0 ? newData.value.topLtBundle.split(',') : [],
                     autoTopBundle: newData.value.autoTopBundle.length > 0 ? newData.value.autoTopBundle.split(',') : [],
                     autoTestVersion: newData.value.autoTestVersion || '',
+                    scorePolicy: newData.value.scorePolicy || '',
                     base64Info: newData.value.base64Info || '',
                     filter: newData.value.filter || '',
                     urlparams: newData.value.urlparams || '',
@@ -599,7 +616,7 @@ watch(() => props.modelValue, async (newVal) => {
                     taskStatus: newData.value.taskStatus || '',
                     proxyType: newData.value.proxyType || '' // 新增代理类型字段
                 }
-                
+
             } else {
                 // 如果没有当前行数据，清空表单
                 resetData()
@@ -649,7 +666,7 @@ const handleAppIdBlur = async () => {
                     ...newItems.map((item: string) => ({ value: item, label: item }))
                 ]
                 console.log(availableProxyTypes.value);
-                
+
                 proxyTypeData.value = data
                 showProxySelector.value = true
             } else {
@@ -689,6 +706,9 @@ onMounted(async () => {
     const res = await reqAudienceList()
     audienceListRes.value = res.data || []
     selectedAudience.value = []
+
+    // 加载 scorePolicy 选项
+    scorePolicyOptions.value = await reqScorePolicy()
 })
 </script>
 

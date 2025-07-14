@@ -21,6 +21,7 @@ enum API {
     AUTOCRHISGET_URL = '/newbee/autoCrHis/get',    // 图表自动CR统计接口
     SORTCR_URL = '/newbee/autosendplan/get_history_status_chart',    // 获取sortCR统计接口
     PROXYLIST_URL = '/newbee/proxytype',    // 获取proxy列表
+    SCOREPOLICY_URL = '/newbee/scorePolicies',    // 获取scorePolicy
 
 }
 
@@ -52,6 +53,8 @@ export const reqDisAbleTask = (param: any) => request.get<any, any>(API.DISABLET
 export const reqBatchEnableTask = (taskIds: string) => request.post<any, any>(API.BATCHENABLETASK_URL, { taskIds }, { isForm: true });
 // 批量禁用接口
 export const reqBatchDisableTask = (taskIds: string) => request.post<any, any>(API.BATCHDISABLETASK_URL, { taskIds }, { isForm: true });
+// 查询scorePolicy
+export const reqScorePolicy = () => request.get<any, any>(API.SCOREPOLICY_URL,{ noloading: true });
 
 
 

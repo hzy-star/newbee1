@@ -35,6 +35,8 @@ export interface  FormDataType {
     abTestVersion: string;
     topLtBundle: string;
     autoTopBundle: string[];
+    scorePolicy?: string;
+    scorePolicyOptions?: string[];
     autoTestVersion: string;
     base64Info: string;
     filter: string;
