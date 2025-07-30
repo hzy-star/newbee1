@@ -293,10 +293,10 @@
 
             <!-- 第七行 -->
             <el-row :gutter="20">
-                <el-col :span="12">
+                <el-col :span="8">
                     <div class="form-item">
                         <div class="form-item-label">autoTopBundle</div>
-                        <el-select v-model="formData.autoTopBundle" :max-collapse-tags="3" multiple collapse-tags
+                        <el-select v-model="formData.autoTopBundle" :max-collapse-tags="2" multiple collapse-tags
                             collapse-tags-tooltip placeholder="Select" style="width: 240px" clearable>
                             <!-- 添加 "全部" 选项 -->
                             <el-option label="All" value="all" />
@@ -311,6 +311,15 @@
                         <div class="form-item-label">scorePolicy</div>
                         <el-select v-model="formData.scorePolicy" placeholder="select" clearable>
                             <el-option v-for="item in scorePolicyOptions" :label="item" :value="item"
+                                :key="item"></el-option>
+                        </el-select>
+                    </div>
+                </el-col>
+                <el-col :span="4">
+                    <div class="form-item">
+                        <div class="form-item-label">modelPolicy</div>
+                        <el-select v-model="formData.modelPolicy" placeholder="select" clearable>
+                            <el-option v-for="item in modelPolicyOptions" :label="item" :value="item"
                                 :key="item"></el-option>
                         </el-select>
                     </div>
@@ -395,7 +404,7 @@
 
 <script lang="ts" setup>
 import { ref, watch, onMounted } from 'vue'
-import { reqAudienceList, reqTaskget, reqProxyList, reqScorePolicy } from "@/api/pushtask/index"
+import { reqAudienceList, reqTaskget, reqProxyList, reqScorePolicy,reqModelPolicy } from "@/api/pushtask/index"
 import type { FormDataType } from './type'
 const audienceListRes = ref<any[]>([])
 const selectedAudience = ref<string[]>([])
@@ -422,6 +431,7 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue', 'confirm', 'confirmNew'])
 const scorePolicyOptions = ref<string[]>([])
+const modelPolicyOptions = ref<string[]>([])
 const formData = ref<FormDataType>({
     etype: '',
     offers: '',
@@ -453,6 +463,7 @@ const formData = ref<FormDataType>({
     topLtBundle: '',
     autoTopBundle: [],
     scorePolicy: '', // 添加 scorePolicy 字段
+    modelPolicy: '', // 添加 modelPolicy 字段
     autoTestVersion: '',
     base64Info: '',
     filter: '',
@@ -494,7 +505,6 @@ const resTask = ref({
 })
 // 清空表单数据
 const resetData = () => {
-    const currentScorePolicy = formData.value.scorePolicy
     formData.value = {
         etype: '',
         offers: '',
@@ -524,6 +534,7 @@ const resetData = () => {
         randomClick: '',
         abTestVersion: '',
         scorePolicy: '',
+        modelPolicy: '',
         topLtBundle: '',
         autoTopBundle: [],
         autoTestVersion: '',
@@ -606,6 +617,7 @@ watch(() => props.modelValue, async (newVal) => {
                     autoTopBundle: newData.value.autoTopBundle.length > 0 ? newData.value.autoTopBundle.split(',') : [],
                     autoTestVersion: newData.value.autoTestVersion || '',
                     scorePolicy: newData.value.scorePolicy || '',
+                    modelPolicy: newData.value.modelPolicy || '',
                     base64Info: newData.value.base64Info || '',
                     filter: newData.value.filter || '',
                     urlparams: newData.value.urlparams || '',
@@ -709,6 +721,8 @@ onMounted(async () => {
 
     // 加载 scorePolicy 选项
     scorePolicyOptions.value = await reqScorePolicy()
+    // 加载 modelPolicy 选项
+    modelPolicyOptions.value = await reqModelPolicy()
 })
 </script>
 
