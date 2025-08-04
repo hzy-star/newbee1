@@ -160,6 +160,29 @@ export const constantRoutes = [
         ]
     },
     {
+        path:'/strategyAutoDelivery',
+        component:()=> import('@/layout/index.vue'),
+        name:'strategyAutoDelivery',
+        redirect:'/strategyAutoDelivery/autoStrategy',
+        meta:{
+            title:'ALGCONFIG',
+            icon:'DocumentCopy',
+            hidden:false
+        },
+        children:[
+             {
+                path: '/strategyAutoDelivery/algConfig',
+                component: () => import('@/views/strategyAutoDelivery/algConfig/index.vue'),
+                name: 'algConfig',
+                meta: {
+                    title: 'ALGCONFIG',  // algconfig页面
+                    icon: 'Coin',
+                    hidden: false
+                }
+            },
+        ]
+    },
+    {
         path:'/docDownload',
         component: () => import('@/layout/index.vue'),
         name:'docDownload',

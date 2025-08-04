@@ -1,0 +1,51 @@
+<template>
+  <el-tabs v-model="activeTab" class="tabs">
+    <!-- 策略 -->
+    <el-tab-pane label="strategy" name="tab1" class="tabs-1">
+        <StrategyPage />
+    </el-tab-pane>
+
+    <!-- groups -->
+    <el-tab-pane label="groups" name="tab2" class="tabs-2">
+        <GroupsPage />
+    </el-tab-pane>
+    <!-- flow -->
+    <el-tab-pane label="flow" name="tab3" class="tabs-3">
+        <FlowPage />
+    </el-tab-pane>
+    <!-- config -->
+    <el-tab-pane label="config" name="tab4" class="tabs-4">
+        <FlowConfigPage />
+    </el-tab-pane>
+  </el-tabs>
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue'
+import  StrategyPage  from '@/components/strategyAutoDelivery/strategyPage/index.vue';
+import  GroupsPage  from '@/components/strategyAutoDelivery/groups/index.vue';
+import  FlowPage  from '@/components/strategyAutoDelivery/flow/index.vue';
+import  FlowConfigPage  from '@/components/strategyAutoDelivery/flowConfig/index.vue';
+const activeTab = ref('tab1')
+
+
+</script>
+
+<style scoped lang="scss">
+.tabs {
+  margin: 0;
+  padding: 0;
+  height: calc(100vh - #{$base-tabbar-height} - 10px); // 计算高度减去底部栏
+  /* 各个标签页内容区域通用样式 */
+  .tabs-1,
+  .tabs-2,
+  .tabs-3,
+  .tabs-4 {
+    flex: 1; // 填充剩余空间
+    padding: 0 20px; // 左右内边距
+    background: #fff; // 白色背景
+    overflow: auto; // 内容溢出时显示滚动条
+  }
+}
+
+</style>
