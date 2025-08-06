@@ -40,9 +40,9 @@
             </vxe-column>
             <vxe-column title="操作" width="200" fixed="right" align="center">
                 <template #default="{ row }">
-                    <el-button size="small" @click="handleView(row)">查看</el-button>
-                    <el-button size="small" type="primary" @click="handleEditFlowConfig(row)">编辑</el-button>
-                    <el-button size="small" type="danger" @click="handleDelete(row)">删除</el-button>
+                    <el-button size="small" type="primary" plain @click="handleView(row)">查看</el-button>
+                    <el-button size="small" type="success" plain  @click="handleEditFlowConfig(row)">编辑</el-button>
+                    <el-button size="small" type="danger"  plain @click="handleDelete(row)">删除</el-button>
                 </template>
             </vxe-column>
         </vxe-table>

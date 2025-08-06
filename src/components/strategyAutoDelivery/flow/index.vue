@@ -10,19 +10,14 @@
             size="small" stripe height="90%">
             <vxe-column field="xh" type="seq" align="center" title="序号" width="5%" ></vxe-column>
             <vxe-column field="name" title="Flow名称" min-width="50" align="center" />
-            <vxe-column field="status" title="状态" min-width="20" align="center">
+            <vxe-column field="status" title="状态" width="80" align="center">
                 <template #default="{ row }">
                     <el-tag v-if="row.status" :type="row.status === 'enabled' ? 'success' : 'danger'">
                         {{ row.status === 'enabled' ? '启用' : '禁用' }}
                     </el-tag>
                 </template>
             </vxe-column>
-            <vxe-column field="pkgName" title="pkg" min-width="20" align="center" />
-            <vxe-column field="country" title="国家" min-width="20" align="center" />
-            <vxe-column field="os" title="操作系统" min-width="20" align="center" />
-            <vxe-column field="returnType" title="返回类型" min-width="30" align="center" />
-            <vxe-column field="cutoff" title="截止值" min-width="50" align="center" />
-            <vxe-column field="formula" title="公式配置" min-width="300" align="left">
+            <vxe-column field="formula" title="公式配置" min-width="300" align="center">
                 <template #default="{ row }">
                     <div v-if="row.formula" class="formula-container">
                         <div v-for="(item, index) in parseFormula(row.formula)" :key="index" class="formula-item">
@@ -60,9 +55,9 @@
             </vxe-column>
             <vxe-column title="操作" width="200" fixed="right" align="center">
                 <template #default="{ row }">
-                    <el-button size="small" @click="handleView(row)">查看</el-button>
-                    <el-button size="small" type="primary" @click="handleEditFlow(row)">编辑</el-button>
-                    <el-button size="small" type="danger" @click="handleDelete(row)">删除</el-button>
+                    <el-button size="small" type="primary" plain @click="handleView(row)">查看</el-button>
+                    <el-button size="small" type="success" plain @click="handleEditFlow(row)">编辑</el-button>
+                    <el-button size="small" type="danger" plain @click="handleDelete(row)">删除</el-button>
                 </template>
             </vxe-column>
         </vxe-table>
@@ -206,7 +201,7 @@ onMounted(() => {
 
 .formula-grid {
   display: grid;
-  grid-template-columns: 150px 80px 80px; /* 三列固定宽度 */
+  grid-template-columns: 260px 200px 200px; /* 三列固定宽度 */
   gap: 10px;
   align-items: center;
 }
@@ -232,7 +227,7 @@ onMounted(() => {
 
 .text-ellipsis {
   display: inline-block;
-  max-width: 100px;
+//   max-width: 100px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
