@@ -4,22 +4,27 @@
       <el-button type="primary" @click="handleSearch">查询</el-button>
       <el-button type="primary" @click="handleAdd">新增</el-button>
     </div>
-
-    <!-- 策略列表表格 -->
-    <vxe-table :data="strategyList" border style="width: 100%" size="small" stripe height="90%">
-      <vxe-column field="xh" type="seq" align="center" title="序号" width="5%"></vxe-column>
-      <vxe-column field="name" title="策略名称" min-width="50" align="center" />
-      <vxe-column field="ruleFile" title="规则文件" min-width="220" />
-      <vxe-column field="returnType" title="返回类型" min-width="30" align="center" />
-      <vxe-column field="description" title="描述" min-width="110" show-header-overflow show-overflow />
-      <vxe-column title="操作" width="200" fixed="right" align="center">
-        <template #default="{ row }">
-          <el-button size="small" type="primary" plain @click="handleView(row)">查看</el-button>
-          <el-button size="small" type="success" plain @click="handleEdit(row)">编辑</el-button>
-          <el-button size="small" type="danger"  plain @click="handleDelete(row)">删除</el-button>
-        </template>
-      </vxe-column>
-    </vxe-table>
+    <div class="page-content">
+      <p>
+        <vxe-input v-model="filterName" type="search" placeholder="模糊搜索strategy名称" clearable
+          @change="searchEvent" size="mini"></vxe-input>
+      </p>
+      <!-- 策略列表表格 -->
+      <vxe-table :data="strategyList" border round style="width: 100%" size="small" height="90%">
+        <vxe-column field="xh" type="seq" align="center" title="序号" width="5%"></vxe-column>
+        <vxe-column field="name" title="策略名称" min-width="50" align="center" />
+        <vxe-column field="ruleFile" title="规则文件" min-width="220" />
+        <vxe-column field="returnType" title="返回类型" min-width="30" align="center" />
+        <vxe-column field="description" title="描述" min-width="110" show-header-overflow show-overflow />
+        <vxe-column title="操作" width="200" fixed="right" align="center">
+          <template #default="{ row }">
+            <el-button size="small" type="primary" plain @click="handleView(row)">查看</el-button>
+            <el-button size="small" type="success" plain @click="handleEdit(row)">编辑</el-button>
+            <el-button size="small" type="danger" plain @click="handleDelete(row)">删除</el-button>
+          </template>
+        </vxe-column>
+      </vxe-table>
+    </div>
 
     <!-- 新增/编辑策略弹窗 -->
     <el-dialog v-model="dialogVisible" :title="dialogTitle" width="500px" :before-close="handleClose">
@@ -54,9 +59,11 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { reqStrategyList, reqCreateOrUpdate, reqDeleteStrategy } from '@/api/strategyAutoDelivery/strategyPage/index'
 import type { Strategy } from '@/api/strategyAutoDelivery/strategyPage/type'
 import type { FormInstance, FormRules } from 'element-plus'
+import XEUtils from 'xe-utils'
 
 // 响应式数据
 const strategyList = ref<Strategy[]>([])
+const strategyListBackUp = ref<Strategy[]>([])
 const dialogVisible = ref(false)
 const dialogTitle = ref('')
 const isView = ref(false)
@@ -89,6 +96,7 @@ const getStrategyList = async () => {
   try {
     const response = await reqStrategyList()
     strategyList.value = response.data || []
+    strategyListBackUp.value = response.data || []
   } catch (error) {
     ElMessage.error('获取策略列表失败')
   }
@@ -198,6 +206,35 @@ const handleSearch = () => {
   getStrategyList()
 }
 
+
+
+
+
+const filterName = ref('')
+const handleSearchInput = () => {
+  const filterVal = String(filterName.value).trim().toLowerCase()
+  if (filterVal) {
+    const filterRE = new RegExp(filterVal, 'gi')
+    const searchProps = ['name', 'ruleFile', 'returnType', 'description']
+    const rest = strategyListBackUp.value.filter((item: any) => searchProps.some(key => String(item[key]).toLowerCase().indexOf(filterVal) > -1))
+    strategyList.value = rest.map(row => {
+      // 搜索为克隆数据，不会污染源数据
+      const item = XEUtils.clone(row) as any
+      searchProps.forEach((key: any) => {
+        item[key] = String(item[key]).replace(filterRE, match => `${match}`)
+      })
+      return item
+    })
+  } else {
+    strategyList.value = strategyListBackUp.value
+  }
+}
+
+// 节流函数,间隔500毫秒触发搜索
+const searchEvent = XEUtils.throttle(function () {
+  handleSearchInput()
+}, 500, { trailing: true, leading: true })
+
 // 页面初始化
 onMounted(() => {
   getStrategyList()
@@ -213,12 +250,16 @@ onMounted(() => {
     display: flex;
     justify-content: end;
     align-items: center;
-    margin-bottom: 10px;
+    height: 5%;
 
     h2 {
       margin: 0;
       color: #303133;
     }
+  }
+
+  .page-content {
+    height: 95%;
   }
 }
 </style>

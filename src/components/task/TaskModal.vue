@@ -157,7 +157,7 @@
                             <el-option label="adx7dayCrMax" value="adx_cr_7_max"></el-option>
                             <el-option label="city7dayCr" value="top_city_cr"></el-option>
                             <el-option label="makeModel7dayCr" value="top_make_model_cr"></el-option>
-                            <el-option label="OutAffAdxBundle" value="out_aff_adx_bundle"></el-option>
+                            <!-- <el-option label="OutAffAdxBundle" value="out_aff_adx_bundle"></el-option> -->
                         </el-select>
                     </div>
                 </el-col>

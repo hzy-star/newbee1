@@ -4,49 +4,53 @@
             <el-button type="primary" @click="handleSearch">查询</el-button>
             <el-button type="primary" @click="handleAddFlowConfig">新增</el-button>
         </div>
+        <div class="page-content">
+            <p>
+                <vxe-input v-model="filterName" type="search" placeholder="搜索pkg, country, config" clearable
+                    @change="searchEvent" size="mini"></vxe-input>
+            </p>
+            <!-- FlowConfig列表表格 -->
+            <vxe-table :data="strategyList" border round style="width: 100%" size="small" stripe height="90%">
+                <vxe-column field="xh" type="seq" align="center" title="序号" width="5%"></vxe-column>
+                <vxe-column field="pkgName" title="pkg" min-width="20" align="center" />
+                <vxe-column field="country" title="国家" min-width="20" align="center" />
+                <vxe-column field="config" title="config" min-width="300" align="center">
+                    <template #default="{ row }">
+                        <div v-if="row.config" class="config-container">
+                            <div v-for="(item, index) in parseFormula(row.config)" :key="index" class="config-item">
+                                <div class="config-grid">
+                                    <!-- 公式字段 -->
+                                    <div class="config-cell">
+                                        <span class="config-label">flow:</span>
+                                        <el-tooltip :content="item.flowName" placement="top"
+                                            :disabled="!item.flowName || item.flowName.length <= 15">
+                                            <span class="config-value text-ellipsis">
+                                                {{ item.flowName }}
+                                            </span>
+                                        </el-tooltip>
+                                    </div>
 
-        <!-- FlowConfig列表表格 -->
-        <vxe-table :data="strategyList" border style="width: 100%" size="small" stripe height="90%">
-            <vxe-column field="xh" type="seq" align="center" title="序号" width="5%"></vxe-column>
-            <vxe-column field="pkgName" title="pkg" min-width="20" align="center" />
-            <vxe-column field="country" title="国家" min-width="20" align="center" />
-            <vxe-column field="config" title="config" min-width="300" align="center">
-                <template #default="{ row }">
-                    <div v-if="row.config" class="config-container">
-                        <div v-for="(item, index) in parseFormula(row.config)" :key="index" class="config-item">
-                            <div class="config-grid">
-                                <!-- 公式字段 -->
-                                <div class="config-cell">
-                                    <span class="config-label">flow:</span>
-                                    <el-tooltip :content="item.flowName" placement="top"
-                                        :disabled="!item.flowName || item.flowName.length <= 15">
-                                        <span class="config-value text-ellipsis">
-                                            {{ item.flowName }}
-                                        </span>
-                                    </el-tooltip>
+                                    <!-- 截止值字段 -->
+                                    <div class="config-cell">
+                                        <span class="config-label">config:</span>
+                                        <span class="config-value">{{ item.flowConfig }}</span>
+                                    </div>
                                 </div>
-
-                                <!-- 截止值字段 -->
-                                <div class="config-cell">
-                                    <span class="config-label">config:</span>
-                                    <span class="config-value">{{ item.flowConfig }}</span>
-                                </div>
+                                <el-divider v-if="index < parseFormula(row.config).length - 1" />
                             </div>
-                            <el-divider v-if="index < parseFormula(row.config).length - 1" />
                         </div>
-                    </div>
-                    <span v-else>-</span>
-                </template>
-            </vxe-column>
-            <vxe-column title="操作" width="200" fixed="right" align="center">
-                <template #default="{ row }">
-                    <el-button size="small" type="primary" plain @click="handleView(row)">查看</el-button>
-                    <el-button size="small" type="success" plain  @click="handleEditFlowConfig(row)">编辑</el-button>
-                    <el-button size="small" type="danger"  plain @click="handleDelete(row)">删除</el-button>
-                </template>
-            </vxe-column>
-        </vxe-table>
-
+                        <span v-else>-</span>
+                    </template>
+                </vxe-column>
+                <vxe-column title="操作" width="200" fixed="right" align="center">
+                    <template #default="{ row }">
+                        <el-button size="small" type="primary" plain @click="handleView(row)">查看</el-button>
+                        <el-button size="small" type="success" plain @click="handleEditFlowConfig(row)">编辑</el-button>
+                        <el-button size="small" type="danger" plain @click="handleDelete(row)">删除</el-button>
+                    </template>
+                </vxe-column>
+            </vxe-table>
+        </div>
         <!-- 新增/编辑弹窗 -->
         <ConfigModel v-model="dialogVisible" :title="dialogTitle" :form="currentFlowConfig" :is-view="isView"
             @submit="handleSubmit" />
@@ -58,9 +62,11 @@ import { ref, onMounted, nextTick } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { reqCreateOrUpdatFlowConfig, reqFlowConfig, reqFlowConfigId, reqDeleteFlowConfig } from '@/api/strategyAutoDelivery/flowConfig/index';
 import ConfigModel from './model.vue'
+import XEUtils from 'xe-utils'
 
 // 响应式数据
 const strategyList = ref<any[]>([])
+const strategyListBackUp = ref<any[]>([])
 const dialogVisible = ref(false)
 const dialogTitle = ref('')
 const isView = ref(false)
@@ -71,6 +77,7 @@ const getStrategyFlowConfigsList = async () => {
     try {
         const response = await reqFlowConfig()
         strategyList.value = response.data || []
+        strategyListBackUp.value = response.data || []
     } catch (error) {
         ElMessage.error('获取FlowConfig列表失败')
     }
@@ -145,6 +152,35 @@ const handleSubmit = () => {
 const handleSearch = () => {
     getStrategyFlowConfigsList()
 }
+
+
+
+
+const filterName = ref('')
+const handleSearchInput = () => {
+    const filterVal = String(filterName.value).trim().toLowerCase()
+    if (filterVal) {
+        const filterRE = new RegExp(filterVal, 'gi')
+        const searchProps = ['pkgName', 'country', 'config']
+        const rest = strategyListBackUp.value.filter((item: any) => searchProps.some(key => String(item[key]).toLowerCase().indexOf(filterVal) > -1))
+        strategyList.value = rest.map(row => {
+            // 搜索为克隆数据，不会污染源数据
+            const item = XEUtils.clone(row) as any
+            searchProps.forEach((key: any) => {
+                item[key] = String(item[key]).replace(filterRE, match => `${match}`)
+            })
+            return item
+        })
+    } else {
+        strategyList.value = strategyListBackUp.value
+    }
+}
+
+// 节流函数,间隔500毫秒触发搜索
+const searchEvent = XEUtils.throttle(function () {
+    handleSearchInput()
+}, 500, { trailing: true, leading: true })
+
 </script>
 
 <style lang="scss" scoped>
@@ -155,19 +191,23 @@ const handleSearch = () => {
         display: flex;
         justify-content: end;
         align-items: center;
-        margin-bottom: 10px;
+        // margin-bottom: 10px;
+        height: 5%;
 
         h2 {
             margin: 0;
             color: #303133;
         }
     }
+    .page-content {
+        height: 95%;
+    }
 }
 
 .config-container {
     padding: 8px;
-    .config-item{
-    }
+
+    .config-item {}
 }
 
 .config-grid {
