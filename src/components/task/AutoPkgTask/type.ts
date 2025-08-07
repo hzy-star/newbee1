@@ -27,6 +27,7 @@ export interface FormDataType {
   rtaName: string;
   top_lt_bundle: string; // 新增字段
   abtest_version: string; // 新增字段
+  extra_filter: string; // 新增字段
 }
 // 定义history数据类型
 

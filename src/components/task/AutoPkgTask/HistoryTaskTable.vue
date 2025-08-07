@@ -7,8 +7,8 @@
                 <vxe-column field="TaskInfo" title="TaskInfo" align="center" width="12%">
                     <template #default="{ row }">
                         <div class="device-box">
-                            <div class="device-text" :title="!!row.pkgtaskId ? (row.pkgtaskId) : '-'"><span
-                                    class="device-span">task:</span> {{ !!row.pkgtaskId ? (row.pkgtaskId) : '-'
+                            <div class="device-text" :title="!!row.id ? (row.id) : '-'"><span
+                                    class="device-span">runId:</span> {{ !!row.id ? (row.id) : '-'
                                 }}</div>
                             <div class="device-text" :title="!!row.appId ? (row.appId) : '-'"><span
                                     class="device-span">app:</span> {{ !!row.appId ? truncateText(row.appId) : '-'

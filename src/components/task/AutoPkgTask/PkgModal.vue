@@ -1,13 +1,13 @@
 <template>
     <el-dialog :model-value="modelValue" :title="title" align-center @close="handleClose" width="60%"
-        :close-on-click-modal="false" >
+        :close-on-click-modal="false">
         <div class="task-form">
             <!-- 第一行 -->
             <el-row :gutter="20">
                 <el-col :span="4">
                     <div class="form-item">
                         <div class="form-item-label">etype</div>
-                        <el-select v-model="formData.etype" >
+                        <el-select v-model="formData.etype">
                             <el-option label="click" value="click" />
                             <el-option label="imp" value="imp" />
                         </el-select>
@@ -34,7 +34,7 @@
                 <el-col :span="4">
                     <div class="form-item">
                         <div class="form-item-label">os</div>
-                        <el-select v-model="formData.os"  clearable @clear="formData.os = ''">
+                        <el-select v-model="formData.os" clearable @clear="formData.os = ''">
                             <el-option label="all" value="all" />
                             <el-option label="android" value="android" />
                             <el-option label="ios" value="ios" />
@@ -48,7 +48,7 @@
                 <el-col :span="4">
                     <div class="form-item">
                         <div class="form-item-label">bsclick</div>
-                        <el-select v-model="formData.bsclick"  >
+                        <el-select v-model="formData.bsclick">
                             <el-option label="false" value="0" />
                             <el-option label="true" value="1" />
                         </el-select>
@@ -57,7 +57,7 @@
                 <el-col :span="6">
                     <div class="form-item">
                         <div class="form-item-label">max</div>
-                        <el-input v-model="formData.max"  placeholder="2000000" />
+                        <el-input v-model="formData.max" placeholder="2000000" />
                     </div>
                 </el-col>
                 <el-col :span="4">
@@ -101,24 +101,10 @@
                 <el-col :span="7">
                     <div class="form-item">
                         <div class="form-item-label">RTA-Name</div>
-                        <el-select v-model="formData.rtaName" placeholder="select" >
-                            <el-option v-for="option in RTA_OPTIONS" :key="option.value" :label="option.label" :value="option.value"  />
+                        <el-select v-model="formData.rtaName" placeholder="select">
+                            <el-option v-for="option in RTA_OPTIONS" :key="option.value" :label="option.label"
+                                :value="option.value" />
                         </el-select>
-                    </div>
-                </el-col>
-            </el-row>
-            <!-- 第四行 -->
-            <el-row :gutter="24">
-                <el-col :span="12">
-                    <div class="form-item">
-                        <div class="form-item-label">source</div>
-                        <el-input v-model="formData.s" placeholder="eg: google:xiaomi"/>
-                    </div>
-                </el-col>
-                <el-col :span="12">
-                    <div class="form-item">
-                        <div class="form-item-label">ds_adx</div>
-                        <el-input v-model="formData.ds_adx" placeholder="eg: google:xiaomi" />
                     </div>
                 </el-col>
             </el-row>
@@ -126,54 +112,80 @@
             <el-row :gutter="24">
                 <el-col :span="12">
                     <div class="form-item">
-                        <div class="form-item-label">ds_bundle</div>
-                        <el-input v-model="formData.ds_bundle" placeholder="eg: com.test.bundle1:com.test.bundle2"/>
-                    </div>
-                </el-col>
-                <el-col :span="12">
-                    <div class="form-item">
                         <div class="form-item-label">urlparam</div>
                         <el-input v-model="formData.urlparam" placeholder="eg: sub_affiliate_id=base&aff_sub7=yyyy" />
                     </div>
                 </el-col>
-            </el-row>
-            <!-- 第六行 -->
-            <el-row :gutter="24">
                 <el-col :span="12">
                     <div class="form-item">
                         <div class="form-item-label">offers</div>
-                        <el-input v-model="formData.offers" placeholder="eg: offer1:offer2:offer3"/>
-                    </div>
-                </el-col>
-                <el-col :span="12">
-                    <div class="form-item">
-                        <div class="form-item-label">target_pkg</div>
-                        <el-input v-model="formData.target_pkg_name" placeholder="eg: com.shopee.br" />
-                    </div>
-                </el-col>
-            </el-row>
-            <!-- 第七行 -->
-            <el-row :gutter="24">
-                <el-col :span="12">
-                    <div class="form-item">
-                        <div class="form-item-label">topLtBundle</div>
-                        <el-input v-model="formData.top_lt_bundle" placeholder="eg: A:B:C"/>
-                    </div>
-                </el-col>
-                <el-col :span="12">
-                    <div class="form-item">
-                        <div class="form-item-label">abTestVersion</div>
-                        <el-input v-model="formData.abtest_version" placeholder="eg: base or v1 or v2" />
+                        <el-input v-model="formData.offers" placeholder="eg: offer1:offer2:offer3" />
                     </div>
                 </el-col>
             </el-row>
 
-            
+            <!-- 分割 -->
+            <el-divider border-style="dashed" content-position="left">deviceFilter</el-divider>
+            <div class="elClass">
+                <el-row :gutter="24">
+                    <el-col :span="12">
+                        <div class="form-item">
+                            <div class="form-item-label">source</div>
+                            <el-input v-model="formData.s" placeholder="eg: google:xiaomi" />
+                        </div>
+                    </el-col>
+                    <el-col :span="12">
+                        <div class="form-item">
+                            <div class="form-item-label">ds_adx</div>
+                            <el-input v-model="formData.ds_adx" placeholder="eg: google:xiaomi" />
+                        </div>
+                    </el-col>
+                </el-row>
+                <el-row :gutter="24">
+
+                    <el-col :span="12">
+                        <div class="form-item">
+                            <div class="form-item-label">ds_bundle</div>
+                            <el-input v-model="formData.ds_bundle"
+                                placeholder="eg: com.test.bundle1:com.test.bundle2" />
+                        </div>
+                    </el-col>
+                    <el-col :span="12">
+                        <div class="form-item">
+                            <div class="form-item-label">target_pkg</div>
+                            <el-input v-model="formData.target_pkg_name" placeholder="eg: com.shopee.br" />
+                        </div>
+                    </el-col>
+                </el-row>
+                <el-row :gutter="24">
+                    <el-col :span="12">
+                        <div class="form-item">
+                            <div class="form-item-label">topLtBundle</div>
+                            <el-input v-model="formData.top_lt_bundle" placeholder="eg: A:B:C" />
+                        </div>
+                    </el-col>
+                    <el-col :span="12">
+                        <div class="form-item">
+                            <div class="form-item-label">abTestVersion</div>
+                            <el-input v-model="formData.abtest_version" placeholder="eg: base or v1 or v2" />
+                        </div>
+                    </el-col>
+                </el-row>
+                <el-row :gutter="24">
+                    <el-col :span="24">
+                        <div class="form-item">
+                            <div class="form-item-label">extra_filter</div>
+                            <el-input v-model="formData.extra_filter"
+                                placeholder="eg: alg_rank>60&event=signup,af_app_opened&category=Applications" />
+                        </div>
+                    </el-col>
+                </el-row>
+            </div>
 
 
 
             <div class="form-footer">
-                <el-button type="primary" @click="handleSave('save')" >save</el-button>
+                <el-button type="primary" @click="handleSave('save')">save</el-button>
                 <el-button type="primary" @click="handleNew('new')" v-if="btnType != 'batchEdit'">new</el-button>
             </div>
         </div>
@@ -183,7 +195,7 @@
 <script lang="ts" setup>
 import { ref, watch, onMounted } from 'vue'
 import type { FormDataType } from './type'
-import {  reqProxyTargetUrl } from "@/api/pushtask/autoPkgTask"
+import { reqProxyTargetUrl } from "@/api/pushtask/autoPkgTask"
 import { RTA_NAMES, RTA_OPTIONS } from '@/utils/constants' // 添加这一行导入常量
 console.log(RTA_OPTIONS);
 RTA_OPTIONS.unshift({ label: '', value: '' }) // 添加一个选项用于选择所有RTA
@@ -211,37 +223,38 @@ const emit = defineEmits(['update:modelValue', 'confirm', 'confirmNew'])
 
 const formData = ref<FormDataType>({
     etype: 'click',
-    pkgName:'',
-    appId:'',
-    country:'',
-    os:'',
-    status:'enabled',
-    s:'',
-    ds_adx:'',
-    ds_bundle:'',
-    urlparam:'',
-    offers:'',
-    target_pkg_name:'',
-    bsclick:'0',
-    max:'',
-    hour:'',
-    startHour:'',
-    deviceDays:'',
-    proxyTarget:'',
-    rtaName:'',
+    pkgName: '',
+    appId: '',
+    country: '',
+    os: '',
+    status: 'enabled',
+    s: '',
+    ds_adx: '',
+    ds_bundle: '',
+    urlparam: '',
+    offers: '',
+    target_pkg_name: '',
+    bsclick: '0',
+    max: '',
+    hour: '',
+    startHour: '',
+    deviceDays: '',
+    proxyTarget: '',
+    rtaName: '',
     top_lt_bundle: '',
     abtest_version: '',
+    extra_filter: '', // 新增字段
 })
 
 const handleClose = () => {
     emit('update:modelValue', false)
 }
 // 保存
-const handleSave = (type:string) => {
+const handleSave = (type: string) => {
     emit('confirm', { ...formData.value, buttonType: type })
 }
 // 新增
-const handleNew = (type:string) =>{
+const handleNew = (type: string) => {
     emit('confirm', { ...formData.value, buttonType: type })
 }
 // 清空表单数据
@@ -268,6 +281,7 @@ const resetData = () => {
         rtaName: '',
         top_lt_bundle: '', // 新增字段
         abtest_version: '', // 新增字段
+        extra_filter: '', // 新增字段
     }
 }
 // 存储audience列表数据
@@ -283,17 +297,17 @@ watch(() => props.modelValue, async (newVal) => {
                 // 如果有当前行数据，填充表单
                 formData.value = {
                     etype: newData.value.etype,
-                    pkgName:newData.value.pkgName,
-                    appId:newData.value.appId,
-                    country:newData.value.country,
-                    os:newData.value.os,
-                    status:newData.value.status,
-                    s:newData.value.s,
-                    ds_adx:newData.value.ds_adx,
-                    ds_bundle:newData.value.ds_bundle,
-                    urlparam:newData.value.urlparam,
-                    offers:newData.value.offers,
-                    target_pkg_name:newData.value.target_pkg_name,
+                    pkgName: newData.value.pkgName,
+                    appId: newData.value.appId,
+                    country: newData.value.country,
+                    os: newData.value.os,
+                    status: newData.value.status,
+                    s: newData.value.s,
+                    ds_adx: newData.value.ds_adx,
+                    ds_bundle: newData.value.ds_bundle,
+                    urlparam: newData.value.urlparam,
+                    offers: newData.value.offers,
+                    target_pkg_name: newData.value.target_pkg_name,
                     bsclick: newData.value.bsclick.toString(),
                     max: newData.value.max,
                     hour: newData.value.hour,
@@ -303,6 +317,7 @@ watch(() => props.modelValue, async (newVal) => {
                     rtaName: newData.value.rtaName,
                     top_lt_bundle: newData.value.top_lt_bundle || '', // 新增字段
                     abtest_version: newData.value.abtest_version || '', // 新增字段
+                    extra_filter: newData.value.extra_filter || '', // 新增字段
                 }
             } else {
                 // 如果没有当前行数据，清空表单
@@ -315,10 +330,10 @@ watch(() => props.modelValue, async (newVal) => {
     }
 })
 const proxyTargetSelect = ref() // 用于存储选中的代理目标
-onMounted( async () => {
+onMounted(async () => {
     console.log('autoBundleKey changed:', props.autoBundleKey)
     let res = await reqProxyTargetUrl()
-    if(res.success){
+    if (res.success) {
         proxyTargetSelect.value = res.data
     }
 })
@@ -469,6 +484,13 @@ onMounted( async () => {
         .no-radius {
             border-radius: 0;
         }
+    }
+    .elClass{
+        padding: 10px;
+        border: 0.5px solid #f1efef;
+        border-radius: 4px;
+        // margin-bottom: 10px;
+        background-color: #f1efef;
     }
 }
 </style>

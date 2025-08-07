@@ -52,6 +52,7 @@ export default function autoPkgModal(tableRef: any, findAllHooks: (type: boolean
             Object.entries(taskInfo).forEach(([key, value]) => params.append(key, String(value)));
             res.value = await (btnType.value === 'batchEdit' ? reqBatchEdits(params) : reqNewSaveTask(params));
         }
+        debugger
         res.value && handleResponse(res.value);
     };
 
