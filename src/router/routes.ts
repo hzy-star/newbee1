@@ -134,7 +134,7 @@ export const constantRoutes = [
                 meta: {
                     title: 'PullTaskChart',
                     icon: 'Discount',
-                    hidden: false
+                    hidden: true
                 }
             },
             {
@@ -233,7 +233,7 @@ export const constantRoutes = [
                 meta: {
                     title: 'EsPullDevice',
                     icon: 'Files',
-                    hidden: false
+                    hidden: true
                 }
             },
             {
