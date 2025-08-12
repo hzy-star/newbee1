@@ -129,15 +129,12 @@
       <div class="vxe-table-div">
         <vxe-table border auto-resize height="auto" :column-config="{ resizable: true }"
           :cell-config="{ verticalAlign: 'center' }" :row-config="{ isCurrent: false, isHover: true, }"
-          :scroll-y="{ enabled: true, gt: 50 }" :data="tableDataList" ref="tableRef" :custom-config="customConfig" size="mini" round
-           
-          :pager-config="{
+          :scroll-y="{ enabled: true, gt: 50 }" :data="tableDataList" ref="tableRef" :custom-config="customConfig"
+          size="mini" round :pager-config="{
               currentPage: pageVO.currentPage,
               pageSize: pageVO.pageSize,
               total: pageVO.total,
-            }" 
-            @sort-change="handleSortChange"
-            @page-change="handlePageChange">
+            }" @sort-change="handleSortChange" @page-change="handlePageChange">
           <vxe-column field="#" type="checkbox" title="" align="center" width="6%">
             <template #header="{ checked, indeterminate }">
               <span class="custom-checkbox" @click.stop="toggleAllCheckboxEvent">
@@ -165,25 +162,29 @@
           </vxe-column>
           <vxe-column field="xh" type="seq" align="center" title=" " width="3%"></vxe-column>
           <vxe-column field="etype" title="event" show-header-overflow align="center" width="4%"></vxe-column>
-          <vxe-column field="offers" title="offer" show-header-overflow  sortable align="center" width="6%"></vxe-column>
-          <vxe-column field="appId" title="appid" show-header-overflow   sortable align="center" width="6%"></vxe-column>
-          <vxe-column field="weight" title="weight" show-header-overflow align="center" width="5%" :visible="false"></vxe-column>
+          <vxe-column field="offers" title="offer" show-header-overflow sortable align="center" width="6%"></vxe-column>
+          <vxe-column field="appId" title="appid" show-header-overflow sortable align="center" width="6%"></vxe-column>
+          <vxe-column field="weight" title="weight" show-header-overflow align="center" width="5%"
+            :visible="false"></vxe-column>
           <vxe-column field="scope" title="scope" show-header-overflow align="center" width="5%" :visible="false">
             <template #default="{ row }">
               {{ row.gt + "->" + row.lt }}
             </template>
           </vxe-column>
-          <vxe-column field="country" title="country" show-header-overflow sortable align="center" width="5%"></vxe-column>
-          <vxe-column field="usealg" title="usealg" show-header-overflow align="center" width="5%" :visible="false"></vxe-column>
-          <vxe-column field="urlparams" title="urlparam" show-header-overflow sortable align="center" width="10%"></vxe-column>
+          <vxe-column field="country" title="country" show-header-overflow sortable align="center"
+            width="5%"></vxe-column>
+          <vxe-column field="usealg" title="usealg" show-header-overflow align="center" width="5%"
+            :visible="false"></vxe-column>
+          <vxe-column field="urlparams" title="urlparam" show-header-overflow sortable align="center"
+            width="10%"></vxe-column>
           <vxe-column field="sendPlan" title="sendPlan" show-header-overflow align="center" width="8%"></vxe-column>
           <vxe-column field="pkgName" title="pkg" show-header-overflow align="center" width="9%">
             <template #default="{ row }">
               {{ row.pkgName != 'null' ? row.pkgName : '' }}
             </template>
           </vxe-column>
-          <vxe-column field="succ/total/status/dcsuccss/sent" show-header-overflow   align="center" title="succ/total/status/dcsuccss/sent"
-            width="12%">
+          <vxe-column field="succ/total/status/dcsuccss/sent" show-header-overflow align="center"
+            title="succ/total/status/dcsuccss/sent" width="12%">
             <template #default="{ row }">
               <div>
                 <div>
@@ -218,7 +219,8 @@
             </template>
 
           </vxe-column>
-          <vxe-column field="cr/ecpc(0.285%)/roi(65%)" show-header-overflow   title="cr/ecpc(0.285%)/roi(65%)" align="center" width="10%">
+          <vxe-column field="cr/ecpc(0.285%)/roi(65%)" show-header-overflow title="cr/ecpc(0.285%)/roi(65%)"
+            align="center" width="10%">
             <template #default="{ row }">
               <!-- 检查 taskCr 是否存在且不为 null -->
               <div v-if="row?.taskCrData">
@@ -241,12 +243,16 @@
             </template>
             <template #default="scope">
               <div class="action-icons">
-                <svg-icon class="action-icon-svg" name="view" width="15px" height="15px" @click="showTask(scope.row)" title="show"></svg-icon>
-                <svg-icon class="action-icon-svg" name="delete" width="15px" height="15px" @click="delTask(scope.row)" title="delete"></svg-icon>
-                <svg-icon class="action-icon-svg" v-if="scope.row.taskStatus == 'disable' && scope.row.taskStatus != 'template'" name="enabled"
+                <svg-icon class="action-icon-svg" name="view" width="15px" height="15px" @click="showTask(scope.row)"
+                  title="show"></svg-icon>
+                <svg-icon class="action-icon-svg" name="delete" width="15px" height="15px" @click="delTask(scope.row)"
+                  title="delete"></svg-icon>
+                <svg-icon class="action-icon-svg"
+                  v-if="scope.row.taskStatus == 'disable' && scope.row.taskStatus != 'template'" name="enabled"
                   width="15px" height="15px" @click="enableTask(scope.row)" title="enabled"></svg-icon>
-                <svg-icon class="action-icon-svg" v-else-if="scope.row.taskStatus == 'enable' && scope.row.taskStatus != 'template'"
-                  name="disabled" width="15px" height="15px" @click="disableTask(scope.row)" title="disabled"></svg-icon>
+                <svg-icon class="action-icon-svg"
+                  v-else-if="scope.row.taskStatus == 'enable' && scope.row.taskStatus != 'template'" name="disabled"
+                  width="15px" height="15px" @click="disableTask(scope.row)" title="disabled"></svg-icon>
               </div>
             </template>
           </vxe-column>
@@ -257,9 +263,16 @@
     <div class="pushtask_footer">
 
       <!-- 分页 -->
-      <vxe-pager v-model:currentPage="pageVO.currentPage" v-model:pageSize="pageVO.pageSize" :total="pageVO.total" :pageSizes="[10, 20, 50, 100,99999999]" 
-        :layouts="['Home',  'PrevPage', 'Number', 'NextPage',  'End', 'Sizes', 'FullJump', 'Total']"
+      <vxe-pager v-model:currentPage="pageVO.currentPage" v-model:pageSize="pageVO.pageSize" :total="pageVO.total"
+        :pageSizes="[10, 20, 50, 100, 99999999]"
+        :layouts="['Home', 'PrevPage', 'Number', 'NextPage', 'End', 'Sizes', 'FullJump', 'Total']"
         @page-change="pageChange">
+        <template #left>
+          <span class="page-size-label">每页显示：</span>
+          <vxe-input v-model="customPageSize" type="text" size="mini" min="1"
+            @change="handleCustomSizeChange" style="width: 60px;"></vxe-input>
+          <span class="page-size-label">条</span>
+        </template>
       </vxe-pager>
     </div>
     <!-- 添加在 template 最后 -->
@@ -286,6 +299,7 @@ import ChartModal from '@/components/task/ChartModal.vue'
 import type { FormDataType } from '@/components/task/type'
 import { useTaskStore } from '@/store/pushtask/task'
 import type { VxeToolbarInstance ,VxeTablePropTypes} from 'vxe-table'
+import { debounce } from 'lodash';
 const arrowupOrDown = ref(true)
 // 折叠展开
 const clickarrow = () => {
@@ -386,6 +400,7 @@ const findAll = async (type: boolean) => {
 };
 const pageChange = ({ currentPage, pageSize }: any) => {
   pageChanges({ pageSize, currentPage })
+  customPageSize.value = pageSize
 }
 // 点击单选框，直接查询数据
 const handleStatusChange = async () => {
@@ -828,6 +843,20 @@ watch(
     handlePageData(0);
   }
 );
+const customPageSize = ref(pageVO.pageSize);
+// 加上debounce防抖
+const handleCustomSizeChange = debounce(() => {
+  if (customPageSize.value > 0) {
+    pageVO.pageSize = Number(customPageSize.value);
+    pageChange({ currentPage: pageVO.currentPage, pageSize: pageVO.pageSize });
+  } else {
+    // ElMessage.error('每页显示条数必须大于0');
+
+
+    pageChange({ currentPage: pageVO.currentPage, pageSize: 10 }); // 重置为默认值
+    customPageSize.value = 10; // 更新输入框的值
+  }
+}, 500);
 </script>
 
 <style scoped lang="scss">
