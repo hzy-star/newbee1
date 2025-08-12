@@ -4,12 +4,21 @@
             <!-- 查询条件 -->
             <div class="flex-row">
                 <div class="flex-row-div">
-                    <div class="form-item" style="min-width: 200px;">
-                        <div class="form-item-label">Range</div>
+                    <div class="form-item" style="min-width: 300px;">
+                        <div class="form-item-label">Table</div>
                         <el-select v-model="propFrom.range">
-                            <el-option label="7天" value="day" />
+                            <!-- <el-option label="7天" value="day" />
                             <el-option label="三小时" value="hour" />
-                            <el-option label="一个月" value="month" />
+                            <el-option label="一个月" value="month" /> -->
+                            <!-- 旧表 -->
+                            <el-option label="ym_device_data_day" value="ym_device_data_day" />
+                            <el-option label="ym_device_data_hour" value="ym_device_data_hour" />
+                            <el-option label="ym_device_data_month" value="ym_device_data_month" />
+                            <!-- 新表 -->
+                            <el-option label="ym_alg_device_data_day" value="ym_alg_device_data_day" />
+                            <el-option label="ym_alg_device_data_hour" value="ym_alg_device_data_hour" />
+                            <el-option label="ym_alg_device_data_month" value="ym_alg_device_data_month" />
+
                         </el-select>
                     </div>
                     <div class="form-item">
@@ -32,16 +41,22 @@
                         <div class="form-item-label">Pkg</div>
                         <el-input v-model="propFrom.pkg_name" placeholder="Pkg" />
                     </div>
-                    <div class="form-item" style="min-width: 200px;">
+                    <div class="form-item" style="min-width: 300px;">
                         <div class="form-item-label">Dimension</div>
                         <el-select v-model="propFrom.dimensions" filterable multiple :multiple-limit="2" placeholder="Select"
-                            style="width: 240px" >
+                            style="width: 280px" >
                             <el-option label="Country" value="country" />
                             <el-option label="Os" value="os" />
                             <el-option label="Adx" value="adx" />
                             <el-option label="source" value="s" />
                             <el-option label="PkgName" value="pkg_name" />
                             <!-- <el-option label="Day" value="day" /> -->
+
+                            <el-option label="alg_rank" value="alg_rank" :disabled=disabledOptions />
+                            <el-option label="event" value="event" :disabled=disabledOptions />
+                            <el-option label="category" value="category" :disabled=disabledOptions />
+                            <el-option label="sub_category" value="sub_category" :disabled=disabledOptions />
+
                         </el-select>
                     </div>
                     <div class="form-item">
@@ -73,7 +88,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, nextTick } from 'vue';
+import { ref, onMounted, nextTick ,computed} from 'vue';
 import { propFormInter } from '@/api/dataPresentation/clickhouseDevice/type'
 import { reqPullDeviceUrl } from '@/api/dataPresentation/clickhouseDevice'
 import type { VxeTableInstance } from 'vxe-table'
@@ -84,7 +99,7 @@ const propFrom = ref<propFormInter>({
     adx: '',
     country: '',
     os: '',
-    range: 'day',
+    range: 'ym_device_data_day',
     pkg_name: '',
     dimensions: []
 });
@@ -147,6 +162,10 @@ const exportToCSV = () => {
     })
   }
 }
+const disabledOptions = computed(() => {
+    return propFrom.value.range === 'ym_device_data_day' || propFrom.value.range === 'ym_device_data_hour' || propFrom.value.range === 'ym_device_data_month '
+})
+console.log('disabledOptions:', disabledOptions.value);
 
 onMounted(() => {
     // 设置初始日期为当前本地日期（避免时区偏差）
