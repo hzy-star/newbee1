@@ -1,6 +1,10 @@
-// scripts/write-version.js
-const fs = require('fs')
-const path = require('path')
+import fs from 'fs'
+import path from 'path'
+import { fileURLToPath } from 'url'
+
+// 获取当前文件的目录路径（ESM 方式）
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 // 生成版本号：时间戳 + 随机值（避免缓存）
 const now = new Date()
