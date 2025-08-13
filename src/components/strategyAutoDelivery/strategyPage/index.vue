@@ -36,7 +36,12 @@
           <el-input v-model="formData.ruleFile" placeholder="请输入规则文件路径" :disabled="isView" />
         </el-form-item>
         <el-form-item label="返回类型" prop="returnType">
-          <el-input v-model="formData.returnType" placeholder="请输入返回类型" :disabled="isView" />
+          <!-- <el-input v-model="formData.returnType" placeholder="请输入返回类型" :disabled="isView" /> -->
+           <el-select v-model="formData.returnType" placeholder="请选择返回类型" :disabled="isView">
+            <el-option label="RANK" value="rank" />
+            <el-option label="FLAG" value="flag" />
+            <el-option label="SCORE" value="score" />
+          </el-select>
         </el-form-item>
         <el-form-item label="描述">
           <el-input v-model="formData.description" type="textarea" placeholder="请输入描述" :disabled="isView" />

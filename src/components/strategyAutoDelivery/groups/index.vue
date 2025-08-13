@@ -89,7 +89,7 @@ const getStrategyGroupsList = async () => {
 
 // 添加Group
 const handleAddGroup = () => {
-    currentGroup.value = { operator: 'big', status: 'enabled', cutoff: 0, formula: 'and' } // 默认操作符
+    currentGroup.value = { operator: 'big', returnType:'rank',status: 'enabled', cutoff: 0, } // 默认操作符
     dialogTitle.value = '新增Group'
     isView.value = false
     dialogVisible.value = true

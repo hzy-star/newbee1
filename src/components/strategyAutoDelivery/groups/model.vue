@@ -13,7 +13,12 @@
                 </el-select>
             </el-form-item>
             <el-form-item label="返回类型" prop="returnType">
-                <el-input v-model="formData.returnType" placeholder="请输入返回类型" :disabled="isView" />
+                <!-- <el-input v-model="formData.returnType" placeholder="请输入返回类型" :disabled="isView" /> -->
+                 <el-select v-model="formData.returnType" placeholder="请选择返回类型" :disabled="isView" @change="returnTypeHand" >
+                    <el-option label="RANK" value="rank" />
+                    <el-option label="FLAG" value="flag" />
+                    <el-option label="SCORE" value="score" />
+                </el-select>
             </el-form-item>
             <el-form-item label="状态" prop="status">
                 <el-select v-model="formData.status" :disabled="isView">
@@ -26,11 +31,11 @@
             </el-form-item>
             <el-form-item label="公式" >
                 <el-select v-model="formData.formula" :disabled="isView">
-                    <el-option label="and" value="and" />
-                    <el-option label="or" value="or" />
-                    <el-option label="min" value="min" />
-                    <el-option label="max" value="max" />
-                    <el-option label="avg" value="avg" />
+                    <el-option label="and" value="and" :disabled="formData.returnType != 'flag'" />
+                    <el-option label="or" value="or" :disabled="formData.returnType != 'flag'" />
+                    <el-option label="min" value="min" :disabled="formData.returnType === 'flag'"/>
+                    <el-option label="max" value="max" :disabled="formData.returnType === 'flag'"/>
+                    <el-option label="avg" value="avg" :disabled="formData.returnType === 'flag'"/>
                 </el-select>
             </el-form-item>
             <el-form-item label="策略选择" prop="selectedStrategies">
@@ -90,7 +95,7 @@ const dialogVisible = computed({
 // 表单相关
 const formRef = ref<FormInstance>()
 const submitLoading = ref(false)
-const formData = ref<Partial<Groups>>({ operator: 'big', status: 'enabled',cutoff:0,formula:'and', ...props.form })
+const formData = ref<Partial<Groups>>({ operator: 'big',returnType:'rank', status: 'enabled',cutoff:0, ...props.form })
 const selectedStrategies = ref<string[]>([])
 
 // 策略列表
@@ -117,7 +122,7 @@ const getStrategiesList = async () => {
 const handleClose = () => {
     dialogVisible.value = false
     formRef.value?.resetFields()  // 新增重置表单
-    formData.value = { operator: 'big', status: 'enabled',cutoff: 0,formula:'and'}  // 清空表单数据
+    formData.value = { operator: 'big',returnType:'rank', status: 'enabled',cutoff: 0}  // 清空表单数据
     selectedStrategies.value = []
 }
 
@@ -179,4 +184,12 @@ watch(
         }
     }
 )
+
+const returnTypeHand = (val: string) => {
+    if (val === 'flag') {
+        formData.value.formula = 'and' // 默认公式为and
+    } else {
+        formData.value.formula = 'min' // 其他类型默认公式为min
+    }
+}
 </script>
