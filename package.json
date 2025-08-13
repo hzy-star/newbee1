@@ -8,6 +8,7 @@
     "build": "vite build",
     "prebuild": "node scripts/write-version.js",
     "build:test": "vue-tsc --noEmit && vite build --mode test",
+    "prebuild:prod": "node scripts/write-version.js",
     "build:prod": "vue-tsc --noEmit && vite build --mode production",
     "preview": "vite preview"
   },
