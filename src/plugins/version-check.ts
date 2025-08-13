@@ -25,7 +25,7 @@ export default {
 
         if (currentVersion !== text) {
           ElMessageBox.confirm(
-            '检测到新版本，是否刷新页面？',
+            '检测到前端新版本，是否刷新页面？',
             '更新提示',
             { confirmButtonText: '刷新', cancelButtonText: '稍后', type: 'warning' }
           ).then(() => {
