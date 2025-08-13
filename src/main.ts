@@ -14,6 +14,7 @@ import VxeUI from 'vxe-pc-ui'
 import 'vxe-pc-ui/lib/style.css'
 import VxeUITable from 'vxe-table'
 import 'vxe-table/lib/style.css'
+import VersionCheck from './plugins/version-check'
 
 
 // 引入路由
@@ -31,6 +32,11 @@ app.use(pinia)
 app.use(router)
 app.use(VxeUI)
 app.use(VxeUITable)
+app.use(VersionCheck, {
+  url: '/version.txt',   // 可省略
+  interval: 60000        // 可省略，默认1分钟
+})
+
 import './permisstion'
 //引入自定义指令文件
 import { isHasButton } from '@/directive/has'

@@ -21,4 +21,4 @@ export const reqStrategy = (param: string) => request.get<any>(API.STRATEGY_URL,
 // 删除某个策略
 export const reqDeleteStrategy = (param: any) => request.get<any,dataType>(API.DELETESTRATEGY_URL,{ params: param })
 // 根据IDs获取策略列表
-export const reqStrategys = (param: any) => request.get<any,dataType>(API.STRATEGYS_URL,{ params: param })
+export const reqStrategys = (param: any,noloading?: boolean) => request.get<any,dataType>(API.STRATEGYS_URL,{ params: param ,noloading})

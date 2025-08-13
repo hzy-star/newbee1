@@ -16,7 +16,7 @@ export const reqCreateOrUpdate = (param: Groups) => request.post<any,dataType>(A
 // 查询
 export const reqStrategyGroupList = () => request.get(API.STRATEGYGROUPList_URL);
 // 查询某个策略
-export const reqStrategyGroup = (param: any) => request.get<any>(API.GETSTRATEGYGROUP_URL,{ params: param });
+export const reqStrategyGroup = (param: any,noloading?:boolean) => request.get<any>(API.GETSTRATEGYGROUP_URL,{ params: param ,noloading});
 // 删除某个策略
 export const reqDeleteStrategyGroup = (param: any) => request.get<any,dataType>(API.DELETESTRATEGYGROUP_URL, { params: param });
 // 根据IDs获取策略列表

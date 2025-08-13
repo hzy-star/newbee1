@@ -2,9 +2,12 @@
     <div class="strategy-page">
         <div class="page-header">
             <el-button type="primary" @click="handleSearch">查询</el-button>
-            <el-button type="primary" @click="handleAddFlow">新增</el-button>
+            <el-button type="primary" @click="handleAddFlow" v-if="!showDetail" >新增</el-button>
+            <el-button type="success" @click="toggleDetail">
+                {{ showDetail ? '返回列表' : '切换详情' }}
+            </el-button>
         </div>
-        <div class="page-content">
+        <div class="page-content"  v-show="!showDetail">
             <p>
                 <vxe-input v-model="filterName" type="search" placeholder="模糊搜索flow名称" clearable @change="searchEvent"
                     size="mini"></vxe-input>
@@ -137,6 +140,11 @@
                 </vxe-column>
             </vxe-table>
         </div>
+        <div class="page-content" v-show="showDetail">
+            <KeepAlive>
+                <DetailPage  ref="detailRef"/>
+            </KeepAlive>
+        </div>
 
         <!-- 新增/编辑弹窗 -->
         <FlowModel v-model="dialogVisible" :title="dialogTitle" :form="currentFlow" :is-view="isView"
@@ -154,7 +162,8 @@ import { reqStrategys } from '@/api/strategyAutoDelivery/strategyPage/index'
 import FlowModel from './model.vue'
 import type { VxeTablePropTypes } from 'vxe-table'
 import XEUtils from 'xe-utils'
-
+import DetailPage from './detail.vue' // 新建的详情组件
+import type Detail from './detail.vue'
 
 
 // 响应式数据
@@ -164,6 +173,11 @@ const dialogVisible = ref(false)
 const dialogTitle = ref('')
 const isView = ref(false)
 const currentFlow = ref<Partial<Flows>>({})
+const showDetail = ref(false)
+
+const toggleDetail = () => {
+  showDetail.value = !showDetail.value
+}
 
 // 获取Flow列表
 const getStrategyFlowsList = async () => {
@@ -225,10 +239,16 @@ const handleDelete = async (row: Flows) => {
 const handleSubmit = () => {
     getStrategyFlowsList()
 }
-
+const detailRef = ref<InstanceType<typeof Detail>>()
 // 查询Flow列表
 const handleSearch = () => {
-    getStrategyFlowsList()
+    if (!showDetail.value) {
+        getStrategyFlowsList()
+        // detailRef.value?.loadDataProgressively()
+    }else{
+        // loadDataProgressively()
+        detailRef.value?.loadDataProgressively() // 调用子组件的方法
+    }
 }
 // 添加的方法
 const parseFormula = (formulaStr: string) => {
@@ -395,6 +415,7 @@ onMounted(() => {
 
     .page-content {
         height: 95%;
+        overflow: auto;
     }
 }
 
