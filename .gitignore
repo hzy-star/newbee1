@@ -27,4 +27,4 @@ dist-ssr
 # Exclude the 'mock' folder in the root directory
 /mock/
 # Exclude build-time generated version file
-/public/version.txt
+# /public/version.txt
