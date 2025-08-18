@@ -124,6 +124,16 @@
                                             {{ formatOperator(item.operator) }}
                                         </span>
                                     </div>
+                                    <!-- 阈值配置字段 -->
+                                    <div class="formula-cell">
+                                        <span class="formula-label">阈值配置:</span>
+                                        <el-tooltip :content="thresholdMap[item.thresholdId]" placement="top"
+                                            :disabled="!thresholdMap[item.thresholdId] || thresholdMap[item.thresholdId].length <= 15">
+                                            <span class="formula-value text-ellipsis">
+                                                {{ thresholdMap[item.thresholdId] || '-' }}
+                                            </span>
+                                        </el-tooltip>
+                                    </div>
                                 </div>
                                 <el-divider v-if="index < parseFormula(row.formula).length - 1" border-style="dashed" />
                             </div>
@@ -153,7 +163,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted,computed  } from 'vue'
 import type { Flows } from '@/api/strategyAutoDelivery/flow/type'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { reqFlow, reqDeleteFlow, reqFlowId, } from '@/api/strategyAutoDelivery/flow/index'
@@ -164,6 +174,8 @@ import type { VxeTablePropTypes } from 'vxe-table'
 import XEUtils from 'xe-utils'
 import DetailPage from './detail.vue' // 新建的详情组件
 import type Detail from './detail.vue'
+import { ThresholdPinia } from '@/store/strategyAutoDelivery/threshold'
+const thresholdStore = ThresholdPinia()
 
 
 // 响应式数据
@@ -388,6 +400,15 @@ const headerCellStyleStrategy: VxeTablePropTypes.HeaderCellStyle<any> = ({ colum
         backgroundColor: '#fffbf4',
     }
 }
+
+const thresholdMap = computed(() => {
+  const map: Record<string, string> = {}
+  thresholdStore.ThresholdList.forEach((item: any) => {
+    map[item.ruleFile] = item.name
+  })
+  return map
+})
+
 // 页面初始化
 onMounted(() => {
     // getStrategyFlowsList()

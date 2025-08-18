@@ -24,20 +24,27 @@
             <div class="formula-configs-container">
               <div class="formula-configs" :class="{ 'has-scroll': formulaConfigs.length > 3 }">
                 <div v-for="(config, index) in formulaConfigs" :key="index" class="formula-config-item">
-                  <el-row :gutter="10">
-                    <el-col :span="8">
+                  <el-row :gutter="24">
+                    <el-col :span="4">
                       <el-input v-model="config.formula" placeholder="公式" size="small" :disabled="isView" />
                     </el-col>
                     <el-col :span="6">
                       <el-input-number v-model="config.cutoff" placeholder="截止值" size="small" style="width: 100%"
                         :disabled="isView" />
                     </el-col>
-                    <el-col :span="6">
+                    <el-col :span="3">
                       <el-select v-model="config.operator" placeholder="操作符" size="small" style="width: 100%"
                         :disabled="isView">
                         <el-option label=">" value="big" />
                         <el-option label="<" value="small" />
                         <el-option label="=" value="equal" />
+                      </el-select>
+                    </el-col>
+                    <el-col :span="6">
+                      <el-select v-model="config.thresholdId" placeholder="阈值配置" size="small" style="width: 100%"
+                        :disabled="isView">
+                        <el-option v-for="item in thresholdList" :key="item.id" :label="item.name"
+                            :value="item.ruleFile" />
                       </el-select>
                     </el-col>
                     <el-col :span="4" v-if="!isView">
@@ -84,6 +91,9 @@ import type { FormInstance, FormRules } from 'element-plus'
 import { reqCreateOrUpdatFlow } from '@/api/strategyAutoDelivery/flow'
 import type { Flows } from '@/api/strategyAutoDelivery/flow/type'
 import { reqStrategyGroupList } from '@/api/strategyAutoDelivery/groups'
+import type { StrategyThreshold } from '@/api/strategyAutoDelivery/threshold/type'
+import { ThresholdPinia } from '@/store/strategyAutoDelivery/threshold'
+const thresholdStore = ThresholdPinia()
 
 const props = defineProps({
   modelValue: {
@@ -116,7 +126,7 @@ const flowForm = ref<Partial<Flows>>({
 })
 
 const formulaConfigs = ref([
-  { formula: '', cutoff: 0, operator: 'big' }
+  { formula: '', cutoff: 0, operator: 'big', thresholdId: ''}
 ])
 
 // 表单验证规则
@@ -154,7 +164,7 @@ const rules = ref<FormRules>({
 
 // 动态配置项操作
 const addFormulaConfig = () => {
-  formulaConfigs.value.push({ formula: '', cutoff: 0, operator: 'big' })
+  formulaConfigs.value.push({ formula: '', cutoff: 0, operator: 'big', thresholdId: '' })
 }
 
 const removeFormulaConfig = (index: number) => {
@@ -231,8 +241,22 @@ const dialogVisible = computed({
 const handleClose = () => {
   dialogVisible.value = false
   formRef.value?.resetFields()  // 新增重置表单
-  formulaConfigs.value = [{ formula: '', cutoff: 0, operator: 'big' }]
+  formulaConfigs.value = [{ formula: '', cutoff: 0, operator: 'big', thresholdId: ''}] // 重置公式配置
 }
+
+
+
+// 获取阈值列表
+const thresholdList = ref<StrategyThreshold[]>([])
+watch(() => thresholdStore.ThresholdList, (newVal, oldVal) => {
+    if (newVal !== oldVal) {
+        thresholdList.value = newVal
+    }
+    // 如果阈值列表为空，则调用接口
+    // if (newVal.length === 0) {
+    //     thresholdStore.getThreshold()
+    // }
+}, { immediate: true })
 </script>
 
 <style scoped>
