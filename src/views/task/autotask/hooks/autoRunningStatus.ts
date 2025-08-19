@@ -13,7 +13,8 @@ export default function autoRunningStatus() {
         { label: '无offer', value: '-4' },
         { label: '程序关闭', value: '-5' },
         { label: '启动失败', value: '-6' },
-        { label: '点击失败', value: '-7' }
+        { label: '点击失败', value: '-7' },
+        { label: '没有需要发送的offer', value: '-9' }
     ]  
     // 过滤条件
     const filterStatus = (status: string) => { 

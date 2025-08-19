@@ -32,10 +32,10 @@ app.use(pinia)
 app.use(router)
 app.use(VxeUI)
 app.use(VxeUITable)
-app.use(VersionCheck, {
-  url: '/version.txt',   // 可省略
-  interval: 60000        // 可省略，默认1分钟
-})
+// app.use(VersionCheck, {
+//   url: '/version.txt',   // 可省略
+//   interval: 60000        // 可省略，默认1分钟
+// })
 
 import './permisstion'
 //引入自定义指令文件
