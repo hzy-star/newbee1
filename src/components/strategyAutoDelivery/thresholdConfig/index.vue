@@ -133,6 +133,26 @@ const indexMethod = (index: number) => {
 
 const searchRules = {
     ruleFile: [{ required: true, message: '请选择ruleFile', trigger: 'change' }],
+    country: [{
+        validator: (rule: any, value: any, callback: any) => {
+            if (!value && !searchForm.pkgName) {
+                callback(new Error('国家或包名必须填写一个'));
+            } else {
+                callback();
+            }
+        },
+        trigger: 'blur'
+    }],
+    pkgName: [{
+        validator: (rule: any, value: any, callback: any) => {
+            if (!value && !searchForm.country) {
+                callback(new Error('国家或包名必须填写一个'));
+            } else {
+                callback();
+            }
+        },
+        trigger: 'blur'
+    }]
 }
 
 // 表格数据
@@ -142,25 +162,31 @@ const saveSearchForm = ref<any>(null)
 const ruleFileObj = ref<any>(null)
 // 查询方法
 const onSearch = async () => {
-    searchFormRef.value.validate((valid: boolean) => {
-        if (!valid) return
-        saveSearchForm.value = null // 清除保存的搜索条件
-        ruleFileObj.value = null // 清除ruleFile保存
-        reqThresholdConfigUrl(searchForm).then((res: any) => {
-            if (res.code === 200) {
-                tableData.value = res.data || []
-                saveSearchForm.value = _.cloneDeep(searchForm) // 保存当前搜索条件
-                ruleFileObj.value = searchForm.ruleFile // 保存当前ruleFile
-            } else {
-                ElMessage.error(res.errMsg || '查询失败')
-            }
-        }).catch((error: any) => {
-            ElMessage.error(error.errMsg || '查询失败')
-        }).finally(() => {
-            // 可以在这里添加任何需要的清理操作
-        })
-    })
-}
+    try {
+        await searchFormRef.value.validate();
+        
+        if (!searchForm.country && !searchForm.pkgName) {
+            ElMessage.error('国家或包名必须填写一个');
+            return;
+        }
+
+        saveSearchForm.value = null; // 清除保存的搜索条件
+        ruleFileObj.value = null; // 清除ruleFile保存
+        const res = await reqThresholdConfigUrl(searchForm);
+        
+        if (res.code === 200) {
+            tableData.value = res.data || [];
+            saveSearchForm.value = _.cloneDeep(searchForm); // 保存当前搜索条件
+            ruleFileObj.value = searchForm.ruleFile; // 保存当前ruleFile
+        } else {
+            ElMessage.error(res.errMsg || '查询失败');
+        }
+    } catch (error: any) {
+        if (error !== 'cancel') {
+            ElMessage.error(error.errMsg || '请求输入正确的查询条件');
+        }
+    }
+};
 
 // 弹窗相关
 const dialogVisible = ref(false)

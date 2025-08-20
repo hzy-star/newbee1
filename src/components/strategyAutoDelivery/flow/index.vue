@@ -204,6 +204,7 @@ const getStrategyFlowsList = async () => {
 
 // 添加Flow
 const handleAddFlow = () => {
+    // currentFlow.value = { operator: 'big', status: 'enabled', cutoff: 0,writeToDisk:'n' } // 默认操作符
     currentFlow.value = { operator: 'big', status: 'enabled', cutoff: 0 } // 默认操作符
     dialogTitle.value = '新增Flow'
     isView.value = false
@@ -404,7 +405,7 @@ const headerCellStyleStrategy: VxeTablePropTypes.HeaderCellStyle<any> = ({ colum
 const thresholdMap = computed(() => {
   const map: Record<string, string> = {}
   thresholdStore.ThresholdList.forEach((item: any) => {
-    map[item.ruleFile] = item.name
+    map[item.id] = item.name
   })
   return map
 })

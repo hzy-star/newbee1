@@ -15,4 +15,5 @@ export interface Groups {
   status: string;
   cutoff: any;
   formula: string;
+  writeToDisk: string; // 是否落盘
 }

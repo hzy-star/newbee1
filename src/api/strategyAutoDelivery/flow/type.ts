@@ -12,6 +12,7 @@ export interface Flows {
   end: number;
   operator: string;
   returnType?: string;
+  writeToDisk?: string; // 是否落盘
 }
 // 接口返回值
 export interface dataType<T = any> {

@@ -43,8 +43,7 @@
                     <el-col :span="6">
                       <el-select v-model="config.thresholdId" placeholder="阈值配置" size="small" style="width: 100%"
                         :disabled="isView">
-                        <el-option v-for="item in thresholdList" :key="item.id" :label="item.name"
-                            :value="item.ruleFile" />
+                        <el-option v-for="item in thresholdList" :key="item.id" :label="item.name" :value="item.id" />
                       </el-select>
                     </el-col>
                     <el-col :span="4" v-if="!isView">
@@ -66,6 +65,12 @@
               </div>
             </div>
           </el-form-item>
+          <!-- <el-form-item label="是否落盘" prop="writeToDisk">
+            <el-select v-model="flowForm.writeToDisk" :disabled="isView">
+              <el-option label="是" value="y" />
+              <el-option label="否" value="n" />
+            </el-select>
+          </el-form-item> -->
 
           <el-form-item label="关联Groups">
             <el-select v-model="flowForm.strategyGroupIds" multiple placeholder="选择Groups" :disabled="isView"
@@ -122,11 +127,12 @@ const flowForm = ref<Partial<Flows>>({
   name: '',
   status: 'enabled',
   strategyGroupIds: [], // 确保初始化为空数组
-  formula: ''
+  formula: '',
+  // writeToDisk: 'n',
 })
 
 const formulaConfigs = ref([
-  { formula: '', cutoff: 0, operator: 'big', thresholdId: ''}
+  { formula: '', cutoff: 0, operator: 'big', thresholdId: '' }
 ])
 
 // 表单验证规则
@@ -158,7 +164,8 @@ const rules = ref<FormRules>({
       },
       trigger: 'change'
     }
-  ]
+  ],
+  // writeToDisk: [{ required: true, message: '请选择是否落盘', trigger: 'change' }]
 })
 
 
@@ -181,12 +188,12 @@ const handleSubmit = async () => {
       ElMessage.warning('至少需要添加一个公式')
       return
     }
-    
+
     if (formulaConfigs.value.some(item => !item.formula.trim())) {
       ElMessage.warning('公式不能为空')
       return
     }
-    
+
     // 手动校验Groups选择
     if (!flowForm.value.strategyGroupIds || flowForm.value.strategyGroupIds.length === 0) {
       ElMessage.warning('至少需要选择一个Group')
@@ -196,6 +203,7 @@ const handleSubmit = async () => {
       id: flowForm.value.id,
       name: flowForm.value.name,
       status: flowForm.value.status,
+      // writeToDisk: flowForm.value.writeToDisk,
       formula: JSON.stringify(formulaConfigs.value),
       strategyGroupIds: flowForm.value.strategyGroupIds?.join(',') || '', // 添加空数组回退
     }
@@ -213,7 +221,7 @@ const handleSubmit = async () => {
 }
 
 // 获取groups列表
-const strategyList = ref<Array<{id: number, name: string}>>([])
+const strategyList = ref<Array<{ id: number, name: string }>>([])
 const getGroupsList = async () => {
   const response = await reqStrategyGroupList()
   response.data = response.data.filter((item: any) => item.status === 'enabled') // 只显示启用的Groups
@@ -222,9 +230,9 @@ const getGroupsList = async () => {
 }
 // 初始化表单数据时处理groupIds
 watch(() => props.form, (newVal) => {
-  flowForm.value = { 
+  flowForm.value = {
     ...newVal,
-    strategyGroupIds:newVal.strategyGroupIds ? newVal.strategyGroupIds.split(',').map(Number) : []// 添加空数组回退
+    strategyGroupIds: newVal.strategyGroupIds ? newVal.strategyGroupIds.split(',').map(Number) : []// 添加空数组回退
   }
   if (newVal.formula) {
     formulaConfigs.value = JSON.parse(newVal.formula)
@@ -241,7 +249,7 @@ const dialogVisible = computed({
 const handleClose = () => {
   dialogVisible.value = false
   formRef.value?.resetFields()  // 新增重置表单
-  formulaConfigs.value = [{ formula: '', cutoff: 0, operator: 'big', thresholdId: ''}] // 重置公式配置
+  formulaConfigs.value = [{ formula: '', cutoff: 0, operator: 'big', thresholdId: '' }] // 重置公式配置
 }
 
 
@@ -249,13 +257,13 @@ const handleClose = () => {
 // 获取阈值列表
 const thresholdList = ref<StrategyThreshold[]>([])
 watch(() => thresholdStore.ThresholdList, (newVal, oldVal) => {
-    if (newVal !== oldVal) {
-        thresholdList.value = newVal
-    }
-    // 如果阈值列表为空，则调用接口
-    // if (newVal.length === 0) {
-    //     thresholdStore.getThreshold()
-    // }
+  if (newVal !== oldVal) {
+    thresholdList.value = newVal
+  }
+  // 如果阈值列表为空，则调用接口
+  // if (newVal.length === 0) {
+  //     thresholdStore.getThreshold()
+  // }
 }, { immediate: true })
 </script>
 

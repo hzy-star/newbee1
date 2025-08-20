@@ -157,6 +157,16 @@ export const constantRoutes = [
                     hidden: false
                 }
             },
+            {
+                path: '/traffic/pkgTaskChart',
+                component: () => import('@/views/traffic/pkgTaskChart/index.vue'),
+                name: 'pkgTaskChart',
+                meta: {
+                    title: 'PkgTaskChart',
+                    icon: 'Tickets',
+                    hidden: false
+                }
+            },
         ]
     },
     {
