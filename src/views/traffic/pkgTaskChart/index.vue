@@ -163,7 +163,7 @@ const ShowChart = async () => {
             etype: FormData.etype,
             country: FormData.country.toLocaleUpperCase(),
             os: FormData.os,
-            pkgname: FormData.pkgname,
+            pkg_name: FormData.pkgname,
             def_sub4: FormData.def_sub4,
             s: FormData.s,
             // ds_adx: FormData.ds_adx,
