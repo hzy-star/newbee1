@@ -365,16 +365,28 @@ const isDialogFieldDisabled = (field: string) => {
 
 // 获取阈值列表
 const thresholdList = ref<StrategyThreshold[]>([])
-watch(() => thresholdStore.ThresholdList, (newVal, oldVal) => {
-    if (newVal !== oldVal) {
-        thresholdList.value = newVal
-    }
-    // 如果阈值列表为空，则调用接口
-    if (newVal.length === 0) {
-        thresholdStore.getThreshold()
+// 监听 dataUpdated 状态
+watch(() => thresholdStore.dataUpdated, (newVal) => {
+    if (newVal) {
+        // 重置状态，避免重复触发
+        if (thresholdStore.ThresholdList.length === 0 && thresholdStore.dataUpdated === false) {
+            thresholdStore.getThreshold()
+        } else {
+            thresholdList.value = thresholdStore.ThresholdList
+            thresholdStore.dataUpdated = true
+
+        }
+    } else {
+        if (thresholdStore.ThresholdList.length === 0 && thresholdStore.dataUpdated === false) {
+            thresholdStore.getThreshold()
+        }
     }
 }, { immediate: true })
 
+// 原有的监听可以保留，但可以简化
+watch(() => thresholdStore.ThresholdList, (newVal) => {
+  thresholdList.value = newVal
+})
 
 // 切阈值
 const selectedItem = ref<any>()

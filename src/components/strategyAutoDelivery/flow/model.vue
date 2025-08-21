@@ -193,6 +193,11 @@ const handleSubmit = async () => {
       ElMessage.warning('公式不能为空')
       return
     }
+    // 截止值不能为空
+    if (formulaConfigs.value.some(item => item.cutoff === undefined || item.cutoff === null)) {
+      ElMessage.warning('截止值不能为空')
+      return
+    }
 
     // 手动校验Groups选择
     if (!flowForm.value.strategyGroupIds || flowForm.value.strategyGroupIds.length === 0) {
