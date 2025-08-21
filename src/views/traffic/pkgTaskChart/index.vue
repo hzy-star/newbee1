@@ -193,10 +193,18 @@ const renderChart = (rawData: any[]) => {
         return;
     }
     ElMessage.success('查询成功!');
+    // 过滤掉乱码 code，只保留正常字符（字母/数字/下划线/点/横线等）
+    // 允许: 英文 / 数字 / 下划线 / 点 / 横杠 / 空格
+    const validData = rawData.filter(item => /^[a-zA-Z0-9._\- ]+$/.test(item.code));
 
+
+    if (validData.length === 0) {
+        ElMessage.warning('全是垃圾 code，没数据能画');
+        return;
+    }
     // 1. 提取所有唯一的code和dayhour
-    const codes = [...new Set(rawData.map((item: any) => item.code))] as string[];
-    const dayhours = [...new Set(rawData.map((item: any) => item.dayhour))].sort();
+    const codes = [...new Set(validData.map((item: any) => item.code))] as string[];
+    const dayhours = [...new Set(validData.map((item: any) => item.dayhour))].sort();
 
     // 2. 按code分组数据
     const groupedData: Record<string, Array<{ dayhour: string; cnt: number }>> = {};
@@ -209,7 +217,7 @@ const renderChart = (rawData: any[]) => {
     });
 
     // 3. 填充实际数据
-    rawData.forEach((item: any) => {
+    validData.forEach((item: any) => {
         const dayhour = item.dayhour;
         const code = item.code;
 
@@ -367,23 +375,6 @@ const renderChart = (rawData: any[]) => {
                 }
             }
         },
-        dataZoom: [
-            {
-                type: 'slider',
-                show: true,
-                xAxisIndex: 0,
-                start: 0,
-                end: xAxisData.length > 24 ? (24 / xAxisData.length) * 100 : 100,
-                height: 24,
-                bottom: 0
-            },
-            {
-                type: 'inside',
-                xAxisIndex: 0,
-                start: 0,
-                end: xAxisData.length > 24 ? (24 / xAxisData.length) * 100 : 100
-            }
-        ],
 
         series: series,
         animationEasing: 'cubicOut',
