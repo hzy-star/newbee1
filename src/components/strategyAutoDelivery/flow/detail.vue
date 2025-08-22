@@ -246,7 +246,8 @@ const loadDataProgressively = async () => {
                     const strategyResults = await Promise.all(
                         strategyIdArr.map(async (id: string) => {
                             if (!id) return null
-                            const strategyRes: any = await reqStrategys({ ids: id }, true)
+                            const p: any = id.split(',').map((item: any) => (item as any).split(':')[0]).join(',')
+                            const strategyRes: any = await reqStrategys({ ids: p }, true)
                             return strategyRes?.data || null
                         })
                     )

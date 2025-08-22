@@ -161,8 +161,9 @@ const findSubInfoChild = async (ids: number) => {
 const expandConfig = ref<VxeTablePropTypes.ExpandConfig<any>>({
     lazy: true,
     loadMethod({ row }) {
+        const p: any = (row as any).strategyIds.split(',').map((item: any) => (item as any).split(':')[0]).join(',')
         // 调用接口
-        return findSubInfoChild(row.strategyIds).then(data => {
+        return findSubInfoChild(p).then(data => {
             row.subInfoChild = data
         })
     }

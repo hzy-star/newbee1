@@ -53,28 +53,32 @@
         <el-table :data="formData.strategySelections" border style="width: 100%">
           <el-table-column label="策略" prop="strategyId">
             <template #default="{ row }">
-              <el-select v-model="row.strategyId" placeholder="选择策略" :disabled="isView" style="width: 100%">
-                <el-option
-                  v-for="strategy in strategiesList"
-                  :key="strategy.id"
-                  :label="strategy.name"
-                  :value="String(strategy.id)"
-                  :disabled="isStrategyDisabled(strategy.id, row)"
-                />
-              </el-select>
+              <el-tooltip :content="getStrategyLabel(row.strategyId)" placement="top">
+                <el-select v-model="row.strategyId" placeholder="选择策略" :disabled="isView" style="width: 100%">
+                  <el-option
+                    v-for="strategy in strategiesList"
+                    :key="strategy.id"
+                    :label="strategy.name"
+                    :value="String(strategy.id)"
+                    :disabled="isStrategyDisabled(strategy.id, row)"
+                  />
+                </el-select>
+              </el-tooltip>
             </template>
           </el-table-column>
 
           <el-table-column label="阈值" prop="thresholdId">
             <template #default="{ row }">
-              <el-select v-model="row.thresholdId" placeholder="可选阈值" clearable :disabled="isView" style="width: 100%">
-                <el-option
-                  v-for="th in thresholdStore.ThresholdList"
-                  :key="th.id"
-                  :label="th.name"
-                  :value="String(th.id)"
-                />
-              </el-select>
+              <el-tooltip :content="getThresholdLabel(row.thresholdId)" placement="top">
+                <el-select v-model="row.thresholdId" placeholder="可选阈值" clearable :disabled="isView" style="width: 100%">
+                  <el-option
+                    v-for="th in thresholdStore.ThresholdList"
+                    :key="th.id"
+                    :label="th.name"
+                    :value="String(th.id)"
+                  />
+                </el-select>
+              </el-tooltip>
             </template>
           </el-table-column>
 
@@ -255,5 +259,18 @@ watch(
 
 const returnTypeHand = (val: string) => {
   formData.value.formula = val === 'flag' ? 'and' : 'min'
+}
+
+// helper: 根据选中的 id 返回对应的 label，用于 el-tooltip 的 content
+const getStrategyLabel = (id: any) => {
+  if (!id) return ''
+  const s = strategiesList.value.find((it: any) => String(it.id) === String(id))
+  return s ? s.name : ''
+}
+
+const getThresholdLabel = (id: any) => {
+  if (!id) return ''
+  const th = (thresholdStore.ThresholdList || []).find((it: any) => String(it.id) === String(id))
+  return th ? th.name : ''
 }
 </script>

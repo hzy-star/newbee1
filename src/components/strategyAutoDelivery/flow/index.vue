@@ -300,7 +300,8 @@ const expandConfig = ref<VxeTablePropTypes.ExpandConfig<any>>({
             })
         } else if (row.strategyIds) { // 判断row里面是否包含strategyIds字段
             // 调用接口
-            return findSubInfoChild(row.strategyIds).then(data => {
+            const p: any = (row as any).strategyIds.split(',').map((item: any) => (item as any).split(':')[0]).join(',')
+            return findSubInfoChild(p).then(data => {
                 row.subInfoChild = data
             })
         }
