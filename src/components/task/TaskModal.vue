@@ -306,25 +306,31 @@
                     </div>
                 </el-col>
 
-                <el-col :span="4">
+                <el-col :span="6">
                     <div class="form-item">
                         <div class="form-item-label">scorePolicy</div>
                         <el-select v-model="formData.scorePolicy" placeholder="select" clearable>
                             <el-option v-for="item in scorePolicyOptions" :label="item" :value="item"
                                 :key="item"></el-option>
                         </el-select>
+                        <el-select v-model="formData.scorePolicyThresholdId" placeholder="select" clearable>
+                            <el-option v-for="item in thresholdOptions" :label="item.name" :value="String(item.id)" :key="item.id" />
+                        </el-select>
                     </div>
                 </el-col>
-                <el-col :span="4">
+                <el-col :span="6">
                     <div class="form-item">
                         <div class="form-item-label">modelPolicy</div>
                         <el-select v-model="formData.modelPolicy" placeholder="select" clearable>
                             <el-option v-for="item in modelPolicyOptions" :label="item" :value="item"
                                 :key="item"></el-option>
                         </el-select>
+                        <el-select v-model="formData.modelPolicyThresholdId" placeholder="select" clearable>
+                            <el-option v-for="item in thresholdOptions" :label="item.name" :value="String(item.id)" :key="item.id" />
+                        </el-select>
                     </div>
                 </el-col>
-                <el-col :span="8">
+                <el-col :span="4">
                     <div class="form-item">
                         <div class="form-item-label">autoTopVer</div>
                         <el-select v-model="formData.autoTestVersion" placeholder="select" clearable>
@@ -405,7 +411,11 @@
 <script lang="ts" setup>
 import { ref, watch, onMounted } from 'vue'
 import { reqAudienceList, reqTaskget, reqProxyList, reqScorePolicy,reqModelPolicy } from "@/api/pushtask/index"
+import { reqStrategyThresholdList } from '@/api/strategyAutoDelivery/threshold'
 import type { FormDataType } from './type'
+import type { StrategyThreshold } from '@/api/strategyAutoDelivery/threshold/type'
+import { ThresholdPinia } from '@/store/strategyAutoDelivery/threshold'
+const thresholdStore = ThresholdPinia()
 const audienceListRes = ref<any[]>([])
 const selectedAudience = ref<string[]>([])
 const props = defineProps({
@@ -432,6 +442,8 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue', 'confirm', 'confirmNew'])
 const scorePolicyOptions = ref<string[]>([])
 const modelPolicyOptions = ref<string[]>([])
+// 阈值策略列表（接口返回 data 数组）
+// const thresholdOptions = ref<any[]>([])
 const formData = ref<FormDataType>({
     etype: '',
     offers: '',
@@ -463,7 +475,9 @@ const formData = ref<FormDataType>({
     topLtBundle: '',
     autoTopBundle: [],
     scorePolicy: '', // 添加 scorePolicy 字段
+    scorePolicyThresholdId: '', // 选中项的 id（字符串形式，便于与 el-option value 匹配）
     modelPolicy: '', // 添加 modelPolicy 字段
+    modelPolicyThresholdId: '', // 添加 modelPolicyThresholdId 字段
     autoTestVersion: '',
     base64Info: '',
     filter: '',
@@ -534,7 +548,9 @@ const resetData = () => {
         randomClick: '',
         abTestVersion: '',
         scorePolicy: '',
+        scorePolicyThresholdId: '',
         modelPolicy: '',
+        modelPolicyThresholdId: '',
         topLtBundle: '',
         autoTopBundle: [],
         autoTestVersion: '',
@@ -617,7 +633,10 @@ watch(() => props.modelValue, async (newVal) => {
                     autoTopBundle: newData.value.autoTopBundle.length > 0 ? newData.value.autoTopBundle.split(',') : [],
                     autoTestVersion: newData.value.autoTestVersion || '',
                     scorePolicy: newData.value.scorePolicy || '',
+                    // 回显时统一转成字符串，确保与下拉选项 :value 类型一致
+                    scorePolicyThresholdId: newData.value.scorePolicyThresholdId !== 'undefined' && newData.value.scorePolicyThresholdId !== null ? String(newData.value.scorePolicyThresholdId) : '',
                     modelPolicy: newData.value.modelPolicy || '',
+                    modelPolicyThresholdId: newData.value.modelPolicyThresholdId !== 'undefined' && newData.value.modelPolicyThresholdId !== null ? String(newData.value.modelPolicyThresholdId) : '',
                     base64Info: newData.value.base64Info || '',
                     filter: newData.value.filter || '',
                     urlparams: newData.value.urlparams || '',
@@ -707,12 +726,37 @@ watch(
 watch(
     () => formData.value.proxyType,
     (newAppId) => {
-        debugger
         if (!newAppId) {
             formData.value.proxyType = ''
         }
     }
 )
+
+// 获取阈值列表
+const thresholdOptions = ref<StrategyThreshold[]>([])
+// 监听 dataUpdated 状态
+watch(() => thresholdStore.dataUpdated, (newVal) => {
+    if (newVal) {
+        // 重置状态，避免重复触发
+        if (thresholdStore.ThresholdList.length === 0 && thresholdStore.dataUpdated === false) {
+            thresholdStore.getThreshold()
+        } else {
+            thresholdOptions.value = thresholdStore.ThresholdList
+            thresholdStore.dataUpdated = true
+
+        }
+    } else {
+        if (thresholdStore.ThresholdList.length === 0 && thresholdStore.dataUpdated === false) {
+            thresholdStore.getThreshold()
+        }
+    }
+}, { immediate: true })
+
+// 原有的监听可以保留，但可以简化
+watch(() => thresholdStore.ThresholdList, (newVal) => {
+  thresholdOptions.value = newVal
+})
+
 onMounted(async () => {
     // 弹层打开就调用一次  设备受众列表
     const res = await reqAudienceList()

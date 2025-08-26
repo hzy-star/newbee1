@@ -36,7 +36,9 @@ export interface  FormDataType {
     topLtBundle: string;
     autoTopBundle: string[];
     scorePolicy?: string;
+    scorePolicyThresholdId?: string;
     modelPolicy?: string; // 新增 modelPolicy 字段
+    modelPolicyThresholdId?: string; // 新增 modelPolicyThresholdId 字段
     scorePolicyOptions?: string[];
     autoTestVersion: string;
     base64Info: string;
