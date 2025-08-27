@@ -25,7 +25,8 @@
                 </vxe-column>
                 <vxe-column field="Status" title="Status" align="center" width="6%">
                     <template #default="{ row }">
-                        {{ !!row?.status ? filterStatus(row.status) : '' }}
+                        <div>{{ !!row?.status ? filterStatus(row.status) : '' }}</div>
+                        <el-button @click="handleStop(row.id)" type="danger" size="small" >Stop</el-button>
                     </template>
                 </vxe-column>
                 <vxe-column field="sendType" title="sendType" align="center" width="7%">
@@ -93,10 +94,12 @@
 
 <script lang="ts" setup>
 import { ref, watch } from 'vue';
-import { reqHistoryUrl } from '@/api/pushtask/autoPkgTask';
+import { reqHistoryUrl ,reqStopTask} from '@/api/pushtask/autoPkgTask';
 import { historyDataType } from './type';
 import { truncateText, sendTypefun } from '@/utils/common'; // 直接导入默认对象并调用truncateText
 import autoRunningStatus from '@/views/task/autopkgtask/hooks/autoRunningStatus'
+// 提示
+import { ElMessage } from 'element-plus';
 const {
     filterStatus
 } = autoRunningStatus()
@@ -168,6 +171,25 @@ watch(() => props.modelValue, async (val) => {
         );
     }
 })
+// 停止发送
+const handleStop = (id: string) => {
+    // 发送停止请求
+    // 假设有一个 API 方法可以停止任务
+    reqStopTask({pkgTaskRunnerId: id}).then(async () => {
+        // 处理停止成功的逻辑
+        ElMessage.success('已停止');
+        let params = { pkgTaskId: props.historyId, days: 2 }
+        let res = await reqHistoryUrl(params)
+        
+        // 正确写法：创建新数组替换原数组
+        tableDataList.value = [...res.data].sort((x, y) => 
+            x.startTime === y.startTime ? 0 : x.startTime > y.startTime ? -1 : 1
+        );
+    }).catch((error) => {
+        // 处理停止失败的逻辑
+        console.error(`Failed to stop task ${id}:`, error);
+    });
+}
 </script>
 
 <style scoped lang="scss">

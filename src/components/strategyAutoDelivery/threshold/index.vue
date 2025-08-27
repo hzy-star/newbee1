@@ -14,7 +14,7 @@
         <vxe-column field="xh" type="seq" align="center" title="序号" width="5%"></vxe-column>
         <vxe-column field="name" title="阈值名称" min-width="50" align="center" />
         <vxe-column field="ruleFile" title="规则文件" min-width="220" />
-        <vxe-column field="returnType" title="返回类型" min-width="30" align="center" />
+        <vxe-column field="returnType" title="文件类型" min-width="30" align="center" />
         <vxe-column field="description" title="描述" min-width="110" show-header-overflow show-overflow />
         <vxe-column title="操作" width="200" fixed="right" align="center">
           <template #default="{ row }">

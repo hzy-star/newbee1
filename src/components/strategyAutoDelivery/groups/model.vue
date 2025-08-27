@@ -41,12 +41,12 @@
           <el-option label="avg" value="avg" :disabled="formData.returnType === 'flag'" />
         </el-select>
       </el-form-item>
-      <!-- <el-form-item label="是否落盘" prop="writeToDisk">
-        <el-select v-model="formData.writeToDisk" :disabled="isView">
-          <el-option label="是" value="y" />
-          <el-option label="否" value="n" />
+      <el-form-item label="是否落盘" prop="groupType">
+        <el-select v-model="formData.groupType" :disabled="isView">
+          <el-option label="是" value="writeToDisk" />
+          <el-option label="否" value="normal" active />
         </el-select>
-      </el-form-item> -->
+      </el-form-item>
 
       <!-- 策略 + 阈值绑定（放到 formData.strategySelections 里，方便 rules 校验） -->
       <el-form-item label="策略与阈值" prop="strategySelections">
@@ -131,7 +131,7 @@ const formData = ref<any>({
   returnType: 'rank',
   status: 'enabled',
   cutoff: 0,
-  // writeToDisk: 'n',
+  groupType: 'normal',
   strategySelections: [] as any[],
   ...props.form
 })
@@ -142,7 +142,7 @@ const formRules: any = {
   name: [{ required: true, message: '请输入Group名称', trigger: 'blur' }],
   returnType: [{ required: true, message: '请输入返回类型', trigger: 'change' }],
   formula: [{ required: true, message: '请输入公式', trigger: 'change' }],
-  // writeToDisk: [{ required: true, message: '请选择是否落盘', trigger: 'change' }],
+  groupType: [{ required: true, message: '请选择是否落盘', trigger: 'blur' }],
   strategySelections: [
     {
       required: true,
@@ -183,7 +183,7 @@ const handleClose = () => {
     returnType: 'rank',
     status: 'enabled',
     cutoff: 0,
-    // writeToDisk: 'n',
+    groupType: 'normal',
     strategySelections: []
   }
 }
@@ -233,7 +233,7 @@ watch(
       returnType: 'rank',
       status: 'enabled',
       cutoff: 0,
-      // writeToDisk: 'n',
+      groupType: 'normal',
       strategySelections: [],
       ...newVal
     }

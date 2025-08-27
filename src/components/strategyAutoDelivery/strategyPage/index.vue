@@ -8,13 +8,14 @@
       <p>
         <vxe-input v-model="filterName" type="search" placeholder="模糊搜索strategy名称" clearable
           @change="searchEvent" size="mini"></vxe-input>
+        <vxe-input v-model="returnType" type="search" placeholder="搜索文件类型" clearable size="mini"></vxe-input>
       </p>
       <!-- 策略列表表格 -->
       <vxe-table :data="strategyList" border round style="width: 100%" size="small" height="90%">
         <vxe-column field="xh" type="seq" align="center" title="序号" width="5%"></vxe-column>
         <vxe-column field="name" title="策略名称" min-width="50" align="center" />
         <vxe-column field="ruleFile" title="规则文件" min-width="220" />
-        <vxe-column field="returnType" title="返回类型" min-width="30" align="center" />
+        <vxe-column field="returnType" title="文件类型" min-width="30" align="center" />
         <vxe-column field="description" title="描述" min-width="110" show-header-overflow show-overflow />
         <vxe-column title="操作" width="200" fixed="right" align="center">
           <template #default="{ row }">
@@ -41,6 +42,7 @@
             <el-option label="RANK" value="rank" />
             <el-option label="FLAG" value="flag" />
             <el-option label="SCORE" value="score" />
+            <el-option label="S2S" value="s2s" />
           </el-select>
         </el-form-item>
         <el-form-item label="描述">
@@ -95,11 +97,11 @@ const formRules: FormRules = {
     { required: true, message: '请输入返回类型', trigger: 'blur' }
   ]
 }
-
+const returnType = ref('')
 // 获取策略列表
 const getStrategyList = async () => {
   try {
-    const response = await reqStrategyList()
+    const response = await reqStrategyList({returnType:returnType.value})
     strategyList.value = response.data || []
     strategyListBackUp.value = response.data || []
   } catch (error) {
@@ -239,6 +241,7 @@ const handleSearchInput = () => {
 const searchEvent = XEUtils.throttle(function () {
   handleSearchInput()
 }, 500, { trailing: true, leading: true })
+
 
 // 页面初始化
 onMounted(() => {

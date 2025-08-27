@@ -204,8 +204,8 @@ const getStrategyFlowsList = async () => {
 
 // 添加Flow
 const handleAddFlow = () => {
-    // currentFlow.value = { operator: 'big', status: 'enabled', cutoff: 0,writeToDisk:'n' } // 默认操作符
-    currentFlow.value = { operator: 'big', status: 'enabled', cutoff: 0 } // 默认操作符
+    currentFlow.value = { operator: 'big', status: 'enabled', cutoff: 0,flowType:'normal',syncFile: '' } // 默认操作符
+    // currentFlow.value = { operator: 'big', status: 'enabled', cutoff: 0 } // 默认操作符
     dialogTitle.value = '新增Flow'
     isView.value = false
     dialogVisible.value = true
@@ -213,7 +213,7 @@ const handleAddFlow = () => {
 
 // 查看Flow
 const handleView = (row: Flows) => {
-    currentFlow.value = { ...row }
+    currentFlow.value = { ...row,syncFile: row.syncFile ? row.syncFile : '' }
     dialogTitle.value = '查看Flow'
     isView.value = true
     dialogVisible.value = true
@@ -221,7 +221,7 @@ const handleView = (row: Flows) => {
 
 // 编辑Flow
 const handleEditFlow = (row: Flows) => {
-    currentFlow.value = { ...row }
+    currentFlow.value = { ...row ,syncFile: row.syncFile ? row.syncFile : ''}
     dialogTitle.value = '编辑Flow'
     isView.value = false
     dialogVisible.value = true

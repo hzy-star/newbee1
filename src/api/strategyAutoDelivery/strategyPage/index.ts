@@ -15,7 +15,7 @@ enum API {
 // 创建策略
 export const reqCreateOrUpdate = (param: createorupdate) => request.post<any,dataType>(API.CREATEORUPDATE_URL,param,{isForm: true})
 // 查询
-export const reqStrategyList = () => request.get(API.STRATEGYList_URL)
+export const reqStrategyList = (param?: any) => request.get(API.STRATEGYList_URL,{ params: param })
 // 查询某个策略
 export const reqStrategy = (param: string) => request.get<any>(API.STRATEGY_URL,{ params: param })
 // 删除某个策略

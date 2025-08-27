@@ -65,12 +65,17 @@
               </div>
             </div>
           </el-form-item>
-          <!-- <el-form-item label="是否落盘" prop="writeToDisk">
-            <el-select v-model="flowForm.writeToDisk" :disabled="isView">
-              <el-option label="是" value="y" />
-              <el-option label="否" value="n" />
+          <el-form-item label="是否落盘" prop="flowType">
+            <el-select v-model="flowForm.flowType" :disabled="isView">
+              <el-option label="是" value="writeToDisk" />
+              <el-option label="否" value="normal" />
             </el-select>
-          </el-form-item> -->
+          </el-form-item>
+          <el-form-item label="同异步策略" prop="syncFile">
+            <el-select v-model="flowForm.syncFile" placeholder="选择同异步策略" :disabled="isView">
+              <el-option v-for="item in syncFileOptions" :key="item.id" :label="item.name" :value="item.id" />
+            </el-select>
+          </el-form-item>
 
           <el-form-item label="关联Groups">
             <el-select v-model="flowForm.strategyGroupIds" multiple placeholder="选择Groups" :disabled="isView"
@@ -90,7 +95,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch, computed } from 'vue'
+import { ref, watch, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
 import { reqCreateOrUpdatFlow } from '@/api/strategyAutoDelivery/flow'
@@ -98,6 +103,7 @@ import type { Flows } from '@/api/strategyAutoDelivery/flow/type'
 import { reqStrategyGroupList } from '@/api/strategyAutoDelivery/groups'
 import type { StrategyThreshold } from '@/api/strategyAutoDelivery/threshold/type'
 import { ThresholdPinia } from '@/store/strategyAutoDelivery/threshold'
+import { reqStrategyList} from '@/api/strategyAutoDelivery/strategyPage/index'
 const thresholdStore = ThresholdPinia()
 
 const props = defineProps({
@@ -128,7 +134,8 @@ const flowForm = ref<Partial<Flows>>({
   status: 'enabled',
   strategyGroupIds: [], // 确保初始化为空数组
   formula: '',
-  // writeToDisk: 'n',
+  flowType: 'normal',
+  syncFile: ''
 })
 
 const formulaConfigs = ref([
@@ -165,7 +172,19 @@ const rules = ref<FormRules>({
       trigger: 'change'
     }
   ],
-  // writeToDisk: [{ required: true, message: '请选择是否落盘', trigger: 'change' }]
+  flowType: [{ required: true, message: '请选择是否落盘', trigger: 'blur' }],
+  syncFile: [
+    {
+      validator: (rule, value, callback) => {
+        if (!value || value.length === 0) {
+          callback(new Error('至少需要选择一个同异步策略'))
+        } else {
+          callback()
+        }
+      },
+      trigger: 'change'
+    }
+  ]
 })
 
 
@@ -204,13 +223,19 @@ const handleSubmit = async () => {
       ElMessage.warning('至少需要选择一个Group')
       return
     }
+    // 校验同步/异步策略选择
+    if (!flowForm.value.syncFile || flowForm.value.syncFile.length === 0) {
+      ElMessage.warning('至少需要选择一个同异步策略')
+      return
+    }
     const submitData = {
       id: flowForm.value.id,
       name: flowForm.value.name,
       status: flowForm.value.status,
-      // writeToDisk: flowForm.value.writeToDisk,
+      flowType: flowForm.value.flowType,
       formula: JSON.stringify(formulaConfigs.value),
       strategyGroupIds: flowForm.value.strategyGroupIds?.join(',') || '', // 添加空数组回退
+      syncFile: flowForm.value.syncFile
     }
 
     const response = await reqCreateOrUpdatFlow(submitData)
@@ -254,6 +279,15 @@ const dialogVisible = computed({
 const handleClose = () => {
   dialogVisible.value = false
   formRef.value?.resetFields()  // 新增重置表单
+  flowForm.value = {
+    id: undefined,
+    name: '',
+    status: '',
+    flowType: '',
+    formula: '',
+    strategyGroupIds: [],
+    syncFile: ''
+  }
   formulaConfigs.value = [{ formula: '', cutoff: 0, operator: 'big', thresholdId: '' }] // 重置公式配置
 }
 
@@ -270,6 +304,23 @@ watch(() => thresholdStore.ThresholdList, (newVal, oldVal) => {
   //     thresholdStore.getThreshold()
   // }
 }, { immediate: true })
+// 获取同异步策略
+const syncFileOptions = ref()
+watch(() => dialogVisible.value, (val) => {
+  if (val) {
+    // 每次打开都请求；如果只想第一次可加： if(!syncFileOptions.value?.length){...}
+    fetchSyncFileOptions()
+  }
+})
+// 抽取成函数，方便复用
+const fetchSyncFileOptions = async () => {
+  try {
+    const data = await reqStrategyList({ returnType: 's2s' })
+    syncFileOptions.value = data.data || []
+  } catch (e) {
+    console.error('获取s2s策略失败', e)
+  }
+}
 </script>
 
 <style scoped>

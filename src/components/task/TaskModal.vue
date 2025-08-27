@@ -314,7 +314,7 @@
                                 :key="item"></el-option>
                         </el-select>
                         <el-select v-model="formData.scorePolicyThresholdId" placeholder="select" clearable>
-                            <el-option v-for="item in thresholdOptions" :label="item.name" :value="String(item.id)" :key="item.id" />
+                            <el-option v-for="item in rankThresholdOptions" :label="item.name" :value="String(item.id)" :key="item.id" />
                         </el-select>
                     </div>
                 </el-col>
@@ -326,7 +326,7 @@
                                 :key="item"></el-option>
                         </el-select>
                         <el-select v-model="formData.modelPolicyThresholdId" placeholder="select" clearable>
-                            <el-option v-for="item in thresholdOptions" :label="item.name" :value="String(item.id)" :key="item.id" />
+                            <el-option v-for="item in scoreThresholdOptions" :label="item.name" :value="String(item.id)" :key="item.id" />
                         </el-select>
                     </div>
                 </el-col>
@@ -409,7 +409,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch, onMounted ,computed} from 'vue'
 import { reqAudienceList, reqTaskget, reqProxyList, reqScorePolicy,reqModelPolicy } from "@/api/pushtask/index"
 import { reqStrategyThresholdList } from '@/api/strategyAutoDelivery/threshold'
 import type { FormDataType } from './type'
@@ -731,7 +731,14 @@ watch(
         }
     }
 )
-
+// 只保留 returnType = 'rank'
+const rankThresholdOptions = computed(() =>
+  thresholdOptions.value.filter(item => item.returnType === 'rank')
+)
+// 只保留 returnType = 'score'
+const scoreThresholdOptions = computed(() =>
+  thresholdOptions.value.filter(item => item.returnType === 'score')
+)
 // 获取阈值列表
 const thresholdOptions = ref<StrategyThreshold[]>([])
 // 监听 dataUpdated 状态

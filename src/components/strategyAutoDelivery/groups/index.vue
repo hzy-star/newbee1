@@ -43,12 +43,12 @@
                 <vxe-column field="returnType" title="返回类型" min-width="30" align="center" />
                 <vxe-column field="cutoff" title="截止值" mwidth="150" align="center" />
                 <vxe-column field="formula" title="公式" width="200" align="center" />
-                <!-- <vxe-column field="writeToDisk" title="是否落盘" width="100" align="center">
+                <vxe-column field="groupType" title="是否落盘" width="100" align="center">
                     <template #default="{ row }">
-                        <el-tag v-if="row.writeToDisk === 'y'" type="success">是</el-tag>
+                        <el-tag v-if="row.groupType === 'writeToDisk'" type="success">是</el-tag>
                         <el-tag v-else type="info">否</el-tag>
                     </template>
-                </vxe-column> -->
+                </vxe-column>
                 <vxe-column title="操作" width="200" fixed="right" align="center">
                     <template #default="{ row }">
                         <el-button size="small" type="primary" plain @click="handleView(row)">查看</el-button>
@@ -95,8 +95,8 @@ const getStrategyGroupsList = async () => {
 
 // 添加Group
 const handleAddGroup = () => {
-    // currentGroup.value = { operator: 'big', returnType:'rank',status: 'enabled', cutoff: 0,writeToDisk: 'n'} // 默认操作符
-    currentGroup.value = { operator: 'big', returnType:'rank',status: 'enabled', cutoff: 0} // 默认操作符
+    currentGroup.value = { operator: 'big', returnType:'rank',status: 'enabled', cutoff: 0,groupType: 'normal'} // 默认操作符
+    // currentGroup.value = { operator: 'big', returnType:'rank',status: 'enabled', cutoff: 0} // 默认操作符
     dialogTitle.value = '新增Group'
     isView.value = false
     dialogVisible.value = true

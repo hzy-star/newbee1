@@ -11,6 +11,7 @@ enum API {
     TRIGGERBATCH_URL = '/newbee/ce/pkgtask/triggerBatch', //批量run接口
     HISTORY_URL = '/newbee/ce/pkgtaskrunner/history', //history查询接口
     PROXYTARGET_URL = '/newbee/ce/pkgtask/proxytarget', //proxytarget查询接口
+    STOPRUNNER_URL = '/newbee/ce/pkgtaskrunner/stop', //停止任务接口
 }
 
 // 暴露接口
@@ -36,3 +37,5 @@ export const reqTriggerBatchUrl = (param: any) => request.get<Root,any>(API.TRIG
 export const reqHistoryUrl = (param: any) => request.get<Root,any>(API.HISTORY_URL, { params: param })
 // proxytarget查询接口
 export const reqProxyTargetUrl = () => request.post<any, any>(API.PROXYTARGET_URL,null,{ isForm: true })
+// 停止任务接口
+export const reqStopTask = (param: any) => request.get<any, any>(API.STOPRUNNER_URL,   { params: param })
