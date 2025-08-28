@@ -26,7 +26,7 @@
                 <vxe-column field="Status" title="Status" align="center" width="6%">
                     <template #default="{ row }">
                         <div>{{ !!row?.status ? filterStatus(row.status) : '' }}</div>
-                        <el-button @click="handleStop(row.id)" type="danger" size="small" >Stop</el-button>
+                        <el-button v-if="row?.status === 4" @click="handleStop(row.id)" type="danger" size="small" >Stop</el-button>
                     </template>
                 </vxe-column>
                 <vxe-column field="sendType" title="sendType" align="center" width="7%">
