@@ -222,19 +222,19 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue', 'confirm', 'confirmNew'])
 
 const formData = ref<FormDataType>({
-    etype: 'click',
+    etype: '',
     pkgName: '',
     appId: '',
     country: '',
     os: '',
-    status: 'enabled',
+    status: '',
     s: '',
     ds_adx: '',
     ds_bundle: '',
     urlparam: '',
     offers: '',
     target_pkg_name: '',
-    bsclick: '0',
+    bsclick: '',
     max: '',
     hour: '',
     startHour: '',
@@ -260,19 +260,19 @@ const handleNew = (type: string) => {
 // 清空表单数据
 const resetData = () => {
     formData.value = {
-        etype: 'click',
+        etype: '',
         pkgName: '',
         appId: '',
         country: '',
         os: '',   // 同样保持os的默认值
-        status: 'enabled', // 保持status的默认值
+        status: '', // 保持status的默认值
         s: '',
         ds_adx: '',
         ds_bundle: '',
         urlparam: '',
         offers: '',
         target_pkg_name: '',
-        bsclick: '0',
+        bsclick: '',
         max: '',
         hour: '',
         startHour: '',

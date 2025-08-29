@@ -168,7 +168,11 @@
                             </div>
                         </template>
                     </vxe-column>
-                    <vxe-column field="bsclick" title="bsclick" show-header-overflow align="center" width="4%"></vxe-column>
+                    <vxe-column field="bsclick" title="bsclick" show-header-overflow align="center" width="4%">
+                        <template #default="{ row }">
+                            {{ row.bsclick == '1' ? 'true' : (row.bsclick == '0' ? 'false' : 'all') }}
+                        </template>
+                    </vxe-column>
                     <vxe-column field="max" title="max" show-header-overflow show-overflow align="center" width="4%"></vxe-column>
                     <vxe-column field="sendType" title="sendType" show-header-overflow align="center" width="4%">
                         <template #default="{ row }">
