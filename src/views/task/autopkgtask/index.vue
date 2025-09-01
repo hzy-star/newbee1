@@ -99,6 +99,7 @@
 
                 <!-- 右侧按钮 -->
                 <div  class="form-item-right">
+                    <el-button type="primary" @click="exportToCSV">Export</el-button>
                     <el-button type="primary" @click="batchRun">Batch Run</el-button>
                     <el-button type="primary" @click="addJob">Add Job</el-button>
                     <el-button type="primary" @click="findJob(true)">Find Job</el-button>
@@ -248,7 +249,7 @@
                         <template #header>
                             <div style="display: flex; align-items: center; justify-content: center;">
                                 <span>Action</span>
-                                <svg-icon name="csvExport" width="15px" height="15px" @click="exportToCSV" title="csv"></svg-icon>
+                                <!-- <svg-icon name="csvExport" width="15px" height="15px" @click="exportToCSV" title="csv"></svg-icon> -->
                             </div>
                         </template>
                         <template #default="scope">

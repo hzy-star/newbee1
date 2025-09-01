@@ -60,6 +60,7 @@
                         </el-select>
                     </div>
                     <div class="form-item">
+                        <el-button type="primary" @click="exportToCSV">Export</el-button>
                         <el-button type="primary" @click="handleQuery">Query</el-button>
                     </div>
                 </div>
@@ -74,7 +75,7 @@
                     <vxe-column v-if="tableDataList.length > 0" field="xh" type="seq" align="center" show-header-overflow width="6%">
                         <template #header>
                         <div style="display: flex; align-items: center; justify-content: center;">
-                            <svg-icon name="csvExport" width="15px" height="15px" @click="exportToCSV" title="csv"></svg-icon>
+                            <!-- <svg-icon name="csvExport" width="15px" height="15px" @click="exportToCSV" title="csv"></svg-icon> -->
                         </div>
                         </template>
                     </vxe-column>

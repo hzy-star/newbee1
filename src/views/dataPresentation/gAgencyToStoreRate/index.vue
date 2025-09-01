@@ -20,6 +20,7 @@
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="handleSearch1">查询</el-button>
+          <el-button type="primary" @click="ExportSummary">导出</el-button>
         </el-form-item>
       </el-form>
 
@@ -31,7 +32,7 @@
             <template #header>
               <div style="display: flex; align-items: center; justify-content: center;">
                 <span>序号</span>
-                <svg-icon name="csvExport" width="15px" height="15px" @click="ExportSummary" title="csv"></svg-icon>
+                <!-- <svg-icon name="csvExport" width="15px" height="15px" @click="ExportSummary" title="csv"></svg-icon> -->
               </div>
             </template>
           </vxe-column>
@@ -51,6 +52,7 @@
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="handleSearch2">查询</el-button>
+          <el-button type="primary" @click="ExportdetailMultOffer">导出</el-button>
         </el-form-item>
       </el-form>
 
@@ -62,8 +64,8 @@
             <template #header>
               <div style="display: flex; align-items: center; justify-content: center;">
                 <span>序号</span>
-                <svg-icon name="csvExport" width="15px" height="15px" @click="ExportdetailMultOffer"
-                  title="csv"></svg-icon>
+                <!-- <svg-icon name="csvExport" width="15px" height="15px" @click="ExportdetailMultOffer"
+                  title="csv"></svg-icon> -->
               </div>
             </template>
           </vxe-column>
