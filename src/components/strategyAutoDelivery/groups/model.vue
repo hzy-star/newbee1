@@ -1,5 +1,5 @@
 <template>
-  <el-dialog v-model="dialogVisible" :title="title" width="600px" :before-close="handleClose">
+  <el-dialog v-model="dialogVisible" :title="title" width="800px" :before-close="handleClose">
     <el-form ref="formRef" :model="formData" :rules="formRules" label-width="100px">
       <el-form-item label="Group名称" prop="name">
         <el-input v-model="formData.name" placeholder="请输入Group名称" :disabled="isView" />
@@ -55,13 +55,8 @@
             <template #default="{ row }">
               <el-tooltip :content="getStrategyLabel(row.strategyId)" placement="top">
                 <el-select v-model="row.strategyId" placeholder="选择策略" :disabled="isView" style="width: 100%">
-                  <el-option
-                    v-for="strategy in strategiesList"
-                    :key="strategy.id"
-                    :label="strategy.name"
-                    :value="String(strategy.id)"
-                    :disabled="isStrategyDisabled(strategy.id, row)"
-                  />
+                  <el-option v-for="strategy in strategiesList" :key="strategy.id" :label="strategy.name"
+                    :value="String(strategy.id)" :disabled="isStrategyDisabled(strategy.id, row)" />
                 </el-select>
               </el-tooltip>
             </template>
@@ -70,15 +65,42 @@
           <el-table-column label="阈值" prop="thresholdId">
             <template #default="{ row }">
               <el-tooltip :content="getThresholdLabel(row.thresholdId)" placement="top">
-                <el-select v-model="row.thresholdId" placeholder="可选阈值" clearable :disabled="isView" style="width: 100%">
-                  <el-option
-                    v-for="th in thresholdStore.ThresholdList"
-                    :key="th.id"
-                    :label="th.name"
-                    :value="String(th.id)"
-                  />
+                <el-select v-model="row.thresholdId" placeholder="可选阈值" clearable :disabled="isView"
+                  style="width: 100%">
+                  <el-option v-for="th in thresholdStore.ThresholdList" :key="th.id" :label="th.name"
+                    :value="String(th.id)" />
                 </el-select>
               </el-tooltip>
+            </template>
+          </el-table-column>
+          <el-table-column prop="leftRank"  >
+            <template #header>
+              <span class="col-label">
+                leftRank
+                <el-tooltip content="Rank压缩值" placement="top">
+                  <el-icon class="tip-icon">
+                    <WarningFilled />
+                  </el-icon>
+                </el-tooltip>
+              </span>
+            </template>
+            <template #default="{ row }">
+              <el-input v-model="row.leftRank" placeholder="leftRank" :disabled="isView" style="width: 100%"  />
+            </template>
+          </el-table-column>
+          <el-table-column prop="rightRank"  >
+            <template #header>
+              <span class="col-label">
+                rightRank
+                <el-tooltip content="Rank压缩值" placement="top">
+                  <el-icon class="tip-icon">
+                    <WarningFilled />
+                  </el-icon>
+                </el-tooltip>
+              </span>
+            </template>
+            <template #default="{ row }">
+              <el-input v-model="row.rightRank" placeholder="rightRank" :disabled="isView" style="width: 100%" />
             </template>
           </el-table-column>
 
@@ -105,6 +127,7 @@ import { ElMessage } from 'element-plus'
 import { reqStrategyList } from '@/api/strategyAutoDelivery/strategyPage/index'
 import { reqCreateOrUpdate } from '@/api/strategyAutoDelivery/groups'
 import { ThresholdPinia } from '@/store/strategyAutoDelivery/threshold'
+import { WarningFilled } from '@element-plus/icons-vue'
 
 // 一刀切 any，眼不见为净
 const thresholdStore: any = ThresholdPinia()
@@ -155,6 +178,32 @@ const formRules: any = {
         if (ids.length !== set.size) {
           return callback(new Error('不能选择重复的策略'))
         }
+        // 2. 每行校验 leftRank / rightRank
+        for (let i = 0; i < value.length; i++) {
+          const row = value[i]
+          const lr = row.leftRank
+          const rr = row.rightRank
+          const hasL = lr !== '' && lr !== undefined && lr !== null
+          const hasR = rr !== '' && rr !== undefined && rr !== null
+          if (hasL || hasR) {
+            // 必须两者都填写
+            if (!hasL || !hasR) {
+              return callback(new Error(`第 ${i + 1} 行：leftRank 和 rightRank 需要同时填写`))
+            }
+            // 数字 & 范围
+            const lrNum = Number(lr)
+            const rrNum = Number(rr)
+            if (!Number.isInteger(lrNum) || !Number.isInteger(rrNum)) {
+              return callback(new Error(`第 ${i + 1} 行：leftRank / rightRank 需为整数`))
+            }
+            if (lrNum < 1 || lrNum > 100 || rrNum < 1 || rrNum > 100) {
+              return callback(new Error(`第 ${i + 1} 行：leftRank / rightRank 需在 1-100 范围内`))
+            }
+            if (lrNum > rrNum) {
+              return callback(new Error(`第 ${i + 1} 行：leftRank 不可大于 rightRank`))
+            }
+          }
+        }
         callback()
       },
       trigger: 'change'
@@ -172,7 +221,12 @@ const getStrategiesList = async () => {
 }
 
 const addStrategyRow = () => {
-  formData.value.strategySelections.push({ strategyId: '', thresholdId: undefined })
+  formData.value.strategySelections.push({
+    strategyId: '',
+    thresholdId: undefined,
+    leftRank: '',
+    rightRank: ''
+  })
 }
 
 const handleClose = () => {
@@ -200,9 +254,28 @@ const handleSubmit = async () => {
     if (!valid) return
 
     // 拼接 strategyIds: "1:1,2:2,3,4:4"
-    const parts = (formData.value.strategySelections || []).map((item: any) =>
-      item.thresholdId ? `${item.strategyId}:${item.thresholdId}` : String(item.strategyId)
-    )
+    // const parts = (formData.value.strategySelections || []).map((item: any) =>
+    //   item.thresholdId ? `${item.strategyId}:${item.thresholdId}` : String(item.strategyId)
+    // )
+     const parts = (formData.value.strategySelections || []).map((item: any) => {
+      const hasL = item.leftRank !== '' && item.leftRank !== undefined && item.leftRank !== null
+      const hasR = item.rightRank !== '' && item.rightRank !== undefined && item.rightRank !== null
+      const bothRank = hasL && hasR
+      let seg = String(item.strategyId)
+
+      if (item.thresholdId && !bothRank) {
+        // 只有阈值
+        seg += `:${item.thresholdId}`
+      } else if (item.thresholdId && bothRank) {
+        // 阈值 + rank 区间
+        seg += `:${item.thresholdId}:${item.leftRank}:${item.rightRank}`
+      } else if (!item.thresholdId && bothRank) {
+        // 没有阈值但有 rank 区间 -> strategyId::leftRank:rightRank
+        seg += `::${item.leftRank}:${item.rightRank}`
+      }
+      // 仅策略时 seg 保持 strategyId
+      return seg
+    })
     const formToSubmit: any = {
       ...formData.value,
       strategyIds: parts.join(',')
@@ -238,12 +311,34 @@ watch(
       ...newVal
     }
     if (newVal?.strategyIds) {
+      // formData.value.strategySelections = String(newVal.strategyIds)
+      //   .split(',')
+      //   .filter((s: string) => s !== '')
+      //   .map((str: string) => {
+      //     const [sid, tid] = str.split(':')
+      //     return { strategyId: sid, thresholdId: tid }
+      //   })
       formData.value.strategySelections = String(newVal.strategyIds)
         .split(',')
         .filter((s: string) => s !== '')
         .map((str: string) => {
-          const [sid, tid] = str.split(':')
-          return { strategyId: sid, thresholdId: tid }
+          const arr = str.split(':')
+            // arr 长度可能为 1 / 2 / 4
+          if (arr.length === 1) {
+            return { strategyId: arr[0], thresholdId: undefined, leftRank: '', rightRank: '' }
+          } else if (arr.length === 2) {
+            return { strategyId: arr[0], thresholdId: arr[1], leftRank: '', rightRank: '' }
+          } else if (arr.length === 4) {
+            return {
+              strategyId: arr[0],
+              thresholdId: arr[1],
+              leftRank: arr[2],
+              rightRank: arr[3]
+            }
+          } else {
+            // 异常格式回退
+            return { strategyId: arr[0], thresholdId: arr[1], leftRank: '', rightRank: '' }
+          }
         })
     }
   },
@@ -274,3 +369,15 @@ const getThresholdLabel = (id: any) => {
   return th ? th.name : ''
 }
 </script>
+<style scoped>
+.col-label {
+  display: inline-flex;
+  align-items: center;
+}
+.tip-icon {
+  margin-left: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  color: #e6a23c;
+}
+</style>
