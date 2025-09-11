@@ -127,7 +127,7 @@ const parseFilters = (row: any) => {
     try {
         const result = [];
         const filters = JSON.parse(row.filters || '{}');
-
+        debugger
         Object.entries(filters).forEach(([key, value]) => {
             if (typeof value === 'string' && value.startsWith('{')) {
                 try {
@@ -147,8 +147,10 @@ const parseFilters = (row: any) => {
         // 添加额外的字段
         result.push({ key: 'bsClick', value: row.bsclick });
         result.push({ key: 'dualHour', value: row.hour });
+        // 删除result中key =="searchPageMap" 和 key == ""tableSourceSentCount"的项"
+        return result.filter(item => item.key !== 'searchPageMap' && item.key !== 'tableSourceSentCount');
 
-        return result;
+        // return result;
     } catch (error) {
         console.error('Error parsing filters:', error);
         return [];
