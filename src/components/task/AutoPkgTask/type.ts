@@ -28,6 +28,7 @@ export interface FormDataType {
   top_lt_bundle: string; // 新增字段
   abtest_version: string; // 新增字段
   extra_filter: string; // 新增字段
+  batchCreate?: number; // 新增字段，批量创建标识
 }
 // 定义history数据类型
 

@@ -186,7 +186,7 @@
 
             <div class="form-footer">
                 <el-button type="primary" @click="handleSave('save')">save</el-button>
-                <el-button type="primary" @click="handleNew('new')" v-if="btnType != 'batchEdit'">new</el-button>
+                <el-button type="primary" @click="handleNew('new')" >new</el-button>
             </div>
         </div>
     </el-dialog>
@@ -251,10 +251,21 @@ const handleClose = () => {
 }
 // 保存
 const handleSave = (type: string) => {
+    // 把batchCreate字段删除
+    if(props.btnType === 'batchEdit'){
+        delete formData.value.batchCreate
+    }
     emit('confirm', { ...formData.value, buttonType: type })
 }
 // 新增
 const handleNew = (type: string) => {
+    debugger
+    if(props.btnType === 'batchEdit'){
+        // formData.value中新增一个batchCreate=1字段
+        formData.value.batchCreate = 1
+        emit('confirm', { ...formData.value, buttonType: type })
+        return
+    }
     emit('confirm', { ...formData.value, buttonType: type })
 }
 // 清空表单数据

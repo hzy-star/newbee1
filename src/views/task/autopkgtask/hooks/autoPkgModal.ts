@@ -25,6 +25,11 @@ export default function autoPkgModal(tableRef: any, findAllHooks: (type: boolean
                     delete taskInfo.status
                     taskInfo.task_ids = taskStore.selectedIds.join(',');
                 },
+                new: () => {
+                    // taskInfo.id = '';
+                    taskInfo.task_ids = taskStore.selectedIds.join(',');
+                }
+
             },
             // 新增任务--save和new方法
             addJob: {
@@ -46,13 +51,11 @@ export default function autoPkgModal(tableRef: any, findAllHooks: (type: boolean
                 },
             },
         };
-
         if (actions[btnType.value] && actions[btnType.value][buttonType as string]) {
             actions[btnType.value][buttonType as string]();
             Object.entries(taskInfo).forEach(([key, value]) => params.append(key, String(value)));
             res.value = await (btnType.value === 'batchEdit' ? reqBatchEdits(params) : reqNewSaveTask(params));
         }
-        debugger
         res.value && handleResponse(res.value);
     };
 

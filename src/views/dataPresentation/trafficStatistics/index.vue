@@ -77,7 +77,7 @@ import { reqStatistic } from '@/api/traffic/trafficStatistics'
 const defaultDate = new Date(Date.now() - 86400000);
 
 // 定义过滤项联合类型
-type FilterKey = 'adx' | 'country' | 'os' | 'bundle' | 'make'
+type FilterKey = 'adx' | 'country' | 'os' | 'bundle' | 'make'|'city';
 
 // 使用映射类型定义Filters
 type Filters = {
@@ -97,7 +97,8 @@ const formData = ref<{
         country: '',
         os: '',
         bundle: '',
-        make: ''
+        make: '',
+        city: ''
     } as Filters,
     groupBys: ['adx'],
     byHour: false
@@ -108,8 +109,8 @@ const handleRadioChange = (value: FilterKey) => {
 }
 
 // 可选项配置
-const filterItems: FilterKey[] = ['adx', 'country', 'os', 'bundle', 'make']
-const radioItems: FilterKey[] = ['adx', 'country', 'os', 'bundle', 'make']
+const filterItems: FilterKey[] = ['adx', 'country', 'os', 'bundle', 'make','city']
+const radioItems: FilterKey[] = ['adx', 'country', 'os', 'bundle', 'make','city']
 
 // 表格相关
 const activeTab = ref('table')
