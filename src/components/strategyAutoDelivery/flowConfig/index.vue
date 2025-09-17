@@ -12,8 +12,8 @@
             <!-- FlowConfig列表表格 -->
             <vxe-table :data="strategyList" border round style="width: 100%" size="small" stripe height="90%">
                 <vxe-column field="xh" type="seq" align="center" title="序号" width="5%"></vxe-column>
-                <vxe-column field="pkgName" title="pkg" min-width="20" align="center" />
-                <vxe-column field="country" title="国家" min-width="20" align="center" />
+                <vxe-column field="pkgName" title="pkg" min-width="20" width="100" align="center" />
+                <vxe-column field="country" title="国家" min-width="20" width="100" align="center" />
                 <vxe-column field="config" title="config" min-width="300" align="center">
                     <template #default="{ row }">
                         <div v-if="row.config" class="config-container">
@@ -22,8 +22,7 @@
                                     <!-- 公式字段 -->
                                     <div class="config-cell">
                                         <span class="config-label">flow:</span>
-                                        <el-tooltip :content="item.flowName" placement="top"
-                                            :disabled="!item.flowName || item.flowName.length <= 15">
+                                        <el-tooltip :content="item.flowName" placement="top">
                                             <span class="config-value text-ellipsis">
                                                 {{ item.flowName }}
                                             </span>
@@ -33,8 +32,51 @@
                                     <!-- 截止值字段 -->
                                     <div class="config-cell">
                                         <span class="config-label">config:</span>
-                                        <span class="config-value">{{ item.flowConfig }}</span>
+                                        <el-tooltip :content="item.flowConfig" placement="top">
+                                            <span class="config-value text-ellipsis">
+                                                {{ item.flowConfig }}
+                                            </span>
+                                        </el-tooltip>
                                     </div>
+                                    <!-- kp:pid kp系数-->
+                                    <div class="config-cell">
+                                        <span class="config-label">kp:</span>
+                                        <el-tooltip :content="item.kp" placement="top">
+                                            <span class="config-value text-ellipsis">{{ item.kp }}</span>
+                                        </el-tooltip>
+                                    </div>
+                                    <!-- ki: pid ki系数 -->
+                                    <div class="config-cell">
+                                        <span class="config-label">ki:</span>
+                                        <el-tooltip :content="item.ki" placement="top">
+                                            <span class="config-value text-ellipsis">{{ item.ki }}</span>
+                                        </el-tooltip>
+                                    </div>
+                                    <!-- kd: pid kd系数 -->
+                                    <div class="config-cell">
+                                        <span class="config-label">kd:</span>
+                                        <el-tooltip :content="item.kd" placement="top">
+                                            <span class="config-value text-ellipsis">{{ item.kd }}</span>
+                                        </el-tooltip>
+                                    </div>
+                                    <!-- step:pid 调整步长 -->
+                                    <div class="config-cell">
+                                        <span class="config-label">step:</span>
+                                        <el-tooltip :content="item.step" placement="top">
+                                            <span class="config-value text-ellipsis">{{ item.step }}</span>
+                                        </el-tooltip>
+                                    </div>
+                                    <!-- isAuto，是否开启自动化调量，传false和true  -->
+                                    <!-- 如果isAuto自动化开启，则kp:ki:kd:step必填 -->
+                                    <div class="config-cell">
+                                        <span class="config-label">isAuto:</span>
+                                        <span class="config-value">{{ item.isAuto == 'true' ? '开启' : '关闭' }}</span>
+                                    </div>
+                                    <!-- 监控按钮 -->
+                                    
+                                    <svg-icon name="monitoring" width="20px" height="20px" @click="handleMonitor(row)"
+                                        title="监控" class="monitor-icon"></svg-icon>
+
                                 </div>
                                 <el-divider v-if="index < parseFormula(row.config).length - 1" />
                             </div>
@@ -54,20 +96,24 @@
         <!-- 新增/编辑弹窗 -->
         <ConfigModel v-model="dialogVisible" :title="dialogTitle" :form="currentFlowConfig" :is-view="isView"
             @submit="handleSubmit" />
+        <!-- 监控弹窗 -->
+        <MonitorModel v-model="monitorVisible" :data="currentFlowConfig" />
     </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, nextTick } from 'vue';
+import { ref } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { reqCreateOrUpdatFlowConfig, reqFlowConfig, reqFlowConfigId, reqDeleteFlowConfig } from '@/api/strategyAutoDelivery/flowConfig/index';
+import { reqFlowConfig, reqDeleteFlowConfig } from '@/api/strategyAutoDelivery/flowConfig/index';
 import ConfigModel from './model.vue'
+import MonitorModel from './monitorModel.vue'
 import XEUtils from 'xe-utils'
 
 // 响应式数据
 const strategyList = ref<any[]>([])
 const strategyListBackUp = ref<any[]>([])
 const dialogVisible = ref(false)
+const monitorVisible = ref(false)
 const dialogTitle = ref('')
 const isView = ref(false)
 const currentFlowConfig = ref<Partial<any>>({})
@@ -133,10 +179,15 @@ const parseFormula = (formulaStr: string) => {
 
     try {
         return formulaStr.split(',').map(item => {
-            const [flowName, flowConfig] = item.split(':');
+            const [flowName, flowConfig,kp, ki, kd, step, isAuto] = item.split(':');
             return {
                 flowName: flowName || '-',
-                flowConfig: flowConfig || '-'
+                flowConfig: flowConfig || '-',
+                kp: kp || '-',
+                ki: ki || '-',
+                kd: kd || '-',
+                step: step || '-',
+                isAuto: isAuto || '-'
             };
         });
     } catch (e) {
@@ -181,6 +232,14 @@ const searchEvent = XEUtils.throttle(function () {
     handleSearchInput()
 }, 500, { trailing: true, leading: true })
 
+// 监控按钮点击事件
+const handleMonitor = (row: any) => { 
+    console.log('监控按钮点击，row数据:', row);
+    // 打开弹窗
+    // currentFlowConfig.value = { ...row }
+    // monitorVisible.value = true
+
+}
 </script>
 
 <style lang="scss" scoped>
@@ -211,10 +270,8 @@ const searchEvent = XEUtils.throttle(function () {
 }
 
 .config-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    align-items: center;
+    display: flex;
+    justify-content: space-between;
 }
 
 .config-cell {
@@ -222,6 +279,7 @@ const searchEvent = XEUtils.throttle(function () {
     align-items: center;
     gap: 5px;
     min-height: 28px;
+    width: 120px;
 }
 
 .config-label {
@@ -246,5 +304,8 @@ const searchEvent = XEUtils.throttle(function () {
 
 :deep(.el-divider) {
     margin: 6px 0;
+}
+.monitor-icon {
+    cursor: pointer;
 }
 </style>

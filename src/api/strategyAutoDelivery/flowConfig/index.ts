@@ -8,6 +8,9 @@ enum API {
     GETFLOWID_URL = '/newbee/ce/strategyFlowConfig/get',  //获取某个FlowConfig
     CREATEORUPDATEFLOW_URL = '/newbee/ce/strategyFlowConfig/createOrUpdate',  // 创建或更新FlowConfig
     DELETEFLOW_URL = '/newbee/ce/strategyFlowConfig/delete',  // 删除FlowConfig
+    // 监控接口
+    HISTORYDATA = '/newbee/ce//strategyFlowCutoff/historyData',  // 获取监控接口
+
     
 }
 
@@ -20,3 +23,5 @@ export const reqFlowConfig = () => request.get(API.GETFLOWLIST_URL)
 export const reqFlowConfigId = (param: string) => request.get<any>(API.GETFLOWID_URL,{ params: param })
 // 删除 FlowConfig
 export const reqDeleteFlowConfig = (param: any) => request.get<any,dataType>(API.DELETEFLOW_URL,{ params: param })
+// 监控接口 POST
+export const reqHistoryData = (param: any) => request.post<any,dataType>(API.HISTORYDATA,param)
