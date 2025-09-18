@@ -1,0 +1,240 @@
+<template>
+    <el-dialog :model-value="modelValue" :title="title" align-center @close="handleClose" width="70%"
+        :close-on-click-modal="false" draggable>
+        <div style="height: 85vh; ">
+            <vxe-table border height="100%" auto-resize :cell-config="{ verticalAlign: 'center' }" :data="tableDataList"
+                ref="tableRef">
+                <vxe-column field="TaskInfo" title="TaskInfo" align="center" width="12%">
+                    <template #default="{ row }">
+                        <div class="device-box">
+                            <div class="device-text" :title="!!row.id ? (row.id) : '-'"><span
+                                    class="device-span">runId:</span> {{ !!row.id ? (row.id) : '-'
+                                }}</div>
+                            <div class="device-text" :title="!!row.appId ? (row.appId) : '-'"><span
+                                    class="device-span">app:</span> {{ !!row.appId ? truncateText(row.appId) : '-'
+                                }}
+                            </div>
+                            <div class="device-text" :title="!!row.pkgName ? (row.pkgName) : '-'"><span
+                                    class="device-span">pkgName:</span> {{ !!row.pkgName ?
+                                truncateText(row.pkgName) : '-' }}</div>
+                            <div class="device-text" :title="!!row.offers ? (row.offers) : '-'"><span
+                                    class="device-span">offers:</span> {{ !!row.offers ?
+                                truncateText(row.offers) : '-' }}</div>
+                        </div>
+                    </template>
+                </vxe-column>
+                <vxe-column field="Status" title="Status" align="center" width="6%">
+                    <template #default="{ row }">
+                        <div>{{ !!row?.status ? filterStatus(row.status) : '' }}</div>
+                        <el-button v-if="row?.status === 4" @click="handleStop(row.id)" type="danger" size="small" >Stop</el-button>
+                    </template>
+                </vxe-column>
+                <vxe-column field="sendType" title="sendType" align="center" width="7%">
+                    <template #default="{ row }">
+                        {{ sendTypefun(row?.activeTimeFlag) }}
+                    </template>
+                </vxe-column>
+                <vxe-column field="dualhour" title="dualhour" align="center" width="7%">
+                    <template #default="{ row }">
+                        {{ row?.activeTimeFlag === '0' || row?.activeTimeFlag === '1'
+                            ? row?.timeInterval
+                            : row?.hour }}
+                    </template>
+                </vxe-column>
+                <vxe-column field="max" title="Max" align="center" width="8%"></vxe-column>
+                <vxe-column field="DeviceCount" title="DeviceCount" align="center" width="10%">
+                    <template #default="{ row }">
+                        <div class="device-box">
+                            <div class="device-text"><span class="device-span">hit:</span> {{ row.hitCount }}</div>
+                            <div class="device-text"><span class="device-span">query:</span> {{ row.queryCount }}</div>
+                            <div class="device-text"><span class="device-span">valid:</span> {{ row.validCount }}</div>
+                        </div>
+                    </template>
+                </vxe-column>
+                <vxe-column field="Time" title="Time" align="center" width="15%">
+                    <template #default="{ row }">
+                        <div class="device-box">
+                            <div class="device-text"><span class="device-span">start:</span> {{ row.startTime || '' }}
+                            </div>
+                            <div class="device-text"><span class="device-span">send:</span> {{ row.sendTime || '' }}
+                            </div>
+                            <div class="device-text"><span class="device-span">end:</span> {{ row.endTime || '' }}</div>
+                        </div>
+                    </template>
+                </vxe-column>
+                <vxe-column field="Click(Imp)Count" title="Click(Imp)Count" align="center" width="17%">
+                    <template #default="{ row }">
+                        <div class="device-box">
+                            <div class="device-text"><span class="device-span">sent:</span> {{ row.sendCount || '' }}
+                            </div>
+                            <div class="device-text"><span class="device-span">succ:</span> {{ row.succCount || '' }}
+                            </div>
+                            <div class="device-text"><span class="device-span">Details:</span>
+                                <div v-html="resultEval(row)" style="margin-left: 5px;"></div>
+                            </div>
+                        </div>
+                    </template>
+                </vxe-column>
+                <vxe-column field="Filter" title="Filter" header-align="center" width="18%">
+                    <template #default="{ row }">
+                        <div class="filter-container">
+                            <template v-for="(item, index) in parseFilters(row)" :key="index">
+                                <div class="filter-item">
+                                    <span class="filter-label">{{ item.key }}:</span>
+                                    <span class="filter-value">{{ item.value }}</span>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+                </vxe-column>
+            </vxe-table>
+        </div>
+    </el-dialog>
+</template>
+
+<script lang="ts" setup>
+import { ref, watch } from 'vue';
+import { reqHistoryUrl ,reqStopTask} from '@/api/pushtask/autoPkgTask';
+import { historyDataType } from './type';
+import { truncateText, sendTypefun } from '@/utils/common'; // 直接导入默认对象并调用truncateText
+import autoRunningStatus from '@/views/task/autopkgtask/hooks/autoRunningStatus'
+// 提示
+import { ElMessage } from 'element-plus';
+const {
+    filterStatus
+} = autoRunningStatus()
+const props = defineProps({
+    modelValue: Boolean,
+    title: String,
+    historyId: {
+        type: String,
+        default: () => '',
+    },
+})
+const resultEval = (row: any) => {
+    let curJvmStatusDetail = []
+    if (!!row.resultDetail) {
+        let resultDetail = eval("(" + row.resultDetail + ")");
+        for (let i in resultDetail) {
+            let fitem = resultDetail[i];
+            curJvmStatusDetail.push("<b style='color: #878484'>" + i.replaceAll("<", "").replaceAll(">", "") + ":</b>" + fitem);
+        }
+    }
+    return curJvmStatusDetail.join("<br>");
+}
+
+const parseFilters = (row: any) => {
+    try {
+        const result = [];
+        const filters = JSON.parse(row.filters || '{}');
+        debugger
+        Object.entries(filters).forEach(([key, value]) => {
+            if (typeof value === 'string' && value.startsWith('{')) {
+                try {
+                    const nestedValue = JSON.parse(value);
+                    const formattedValue = Object.entries(nestedValue)
+                        .map(([k, v]) => `${k}:${v}`)
+                        .join(',');
+                    result.push({ key, value: formattedValue !== 'null' ? formattedValue : '-' });
+                } catch {
+                    result.push({ key, value: value !== 'null' ? value : '-' });
+                }
+            } else {
+                result.push({ key, value: value !== 'null' ? value : '-' });
+            }
+        });
+
+        // 添加额外的字段
+        result.push({ key: 'bsClick', value: row.bsclick });
+        result.push({ key: 'dualHour', value: row.hour });
+        // 删除result中key =="searchPageMap" 和 key == ""tableSourceSentCount"的项"
+        return result.filter(item => item.key !== 'searchPageMap' && item.key !== 'tableSourceSentCount');
+
+        // return result;
+    } catch (error) {
+        console.error('Error parsing filters:', error);
+        return [];
+    }
+}
+const tableDataList = ref<historyDataType[]>([])
+const emit = defineEmits(['update:modelValue'])
+const handleClose = () => {
+    emit('update:modelValue', false)
+}
+watch(() => props.modelValue, async (val) => {
+    tableDataList.value = [];
+    if (val) {
+        let params = { pkgTaskId: props.historyId, days: 2 }
+        let res = await reqHistoryUrl(params)
+        
+        // 正确写法：创建新数组替换原数组
+        tableDataList.value = [...res.data].sort((x, y) => 
+            x.startTime === y.startTime ? 0 : x.startTime > y.startTime ? -1 : 1
+        );
+    }
+})
+// 停止发送
+const handleStop = (id: string) => {
+    // 发送停止请求
+    // 假设有一个 API 方法可以停止任务
+    reqStopTask({pkgTaskRunnerId: id}).then(async () => {
+        // 处理停止成功的逻辑
+        ElMessage.success('已停止');
+        let params = { pkgTaskId: props.historyId, days: 2 }
+        let res = await reqHistoryUrl(params)
+        
+        // 正确写法：创建新数组替换原数组
+        tableDataList.value = [...res.data].sort((x, y) => 
+            x.startTime === y.startTime ? 0 : x.startTime > y.startTime ? -1 : 1
+        );
+    }).catch((error) => {
+        // 处理停止失败的逻辑
+        console.error(`Failed to stop task ${id}:`, error);
+    });
+}
+</script>
+
+<style scoped lang="scss">
+:deep(.filter-label) {
+    font-size: 15px;
+    font-weight: bold;
+    display: inline-block;
+}
+
+.device-box {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    text-align: left;
+
+    .device-text {}
+
+    .device-span {
+        font-weight: bold;
+    }
+}
+
+.filter-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 8px;
+    padding: 8px;
+}
+
+.filter-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.filter-label {
+    font-weight: bold;
+    color: #606266;
+    min-width: 80px;
+}
+
+.filter-value {
+    color: #333;
+    text-overflow: ellipsis;
+}
+</style>
