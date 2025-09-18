@@ -48,7 +48,8 @@
                                             <el-input v-model="config.configStep" placeholder="configStep" size="small" style="width: 100%" :disabled="isView" />
                                         </el-col>
                                         <!-- isAuto是Switch开关 如果isAuto自动化开启，则kp:ki:kd:step必填 -->
-                                        <el-col :span="9">
+                                        <el-col :span="14" style="display: flex; align-items: center;">
+                                            <span>是否开启自动化PID控量：</span>
                                             <el-switch
                                                 v-model="config.isAuto"
                                                 active-value="true"

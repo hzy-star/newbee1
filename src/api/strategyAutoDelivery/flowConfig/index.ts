@@ -24,4 +24,4 @@ export const reqFlowConfigId = (param: string) => request.get<any>(API.GETFLOWID
 // 删除 FlowConfig
 export const reqDeleteFlowConfig = (param: any) => request.get<any,dataType>(API.DELETEFLOW_URL,{ params: param })
 // 监控接口 POST
-export const reqHistoryData = (param: any) => request.post<any,dataType>(API.HISTORYDATA,param)
+export const reqHistoryData = (param: any) => request.post<any,dataType>(API.HISTORYDATA,param,{isForm: true})
