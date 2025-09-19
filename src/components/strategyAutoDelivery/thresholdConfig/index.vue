@@ -124,7 +124,7 @@ const dialogFormRef = ref()
 // 搜索表单
 const searchForm = reactive({
     ruleFile: '',
-    country: '',
+    country: '*',
     pkgName: '',
 })
 const indexMethod = (index: number) => {

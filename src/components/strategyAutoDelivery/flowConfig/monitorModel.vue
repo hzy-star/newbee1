@@ -1,11 +1,12 @@
 <!-- 监控弹窗页面 -->
 <template>
   <el-dialog
+    class="monitor-dialog"
     v-model="innerVisible"
     :fullscreen="isFullscreen"
     title="监控"
     width="90%"
-    top="10vh"
+    top="2vh"
     :close-on-click-modal="false"
     :before-close="onClose"
   >
@@ -109,11 +110,28 @@
         </div>
       </div>
 
+      <!-- 图一：通过量/网关量/目标量 -->
       <div class="chart-card">
         <div v-if="!hasData && !loading" class="empty">
           暂无数据，请调整查询条件后重试
         </div>
-        <div ref="chartRef" class="chart" :style="{ height: chartHeight }" />
+        <div ref="chartRef1" class="chart" :style="{ height: chartHeight }" />
+      </div>
+
+      <!-- 图二：阈值 -->
+      <div class="chart-card">
+        <div v-if="!hasData && !loading" class="empty">
+          暂无数据，请调整查询条件后重试
+        </div>
+        <div ref="chartRef2" class="chart" :style="{ height: chartHeight }" />
+      </div>
+
+      <!-- 图三：通过率 -->
+      <div class="chart-card">
+        <div v-if="!hasData && !loading" class="empty">
+          暂无数据，请调整查询条件后重试
+        </div>
+        <div ref="chartRef3" class="chart" :style="{ height: chartHeight }" />
       </div>
     </div>
 
@@ -177,13 +195,14 @@ const innerVisible = computed({
 
 // 全屏控制
 const isFullscreen = ref(false)
-const chartHeight = computed(() => (isFullscreen.value ? '78vh' : '520px'))
+// 三个图表的高度做适配：全屏时每个~30vh，非全屏时320px
+const chartHeight = computed(() => (isFullscreen.value ? '30vh' : '320px'))
 function toggleFullscreen() {
   isFullscreen.value = !isFullscreen.value
   // 切换全屏后重算图表尺寸
   nextTick(() => {
-    ensureChart()
-    chart?.resize()
+    ensureCharts()
+    resizeCharts()
   })
 }
 
@@ -222,30 +241,55 @@ const hasData = ref(false)
 // 是否首次（打开弹窗后的第一次查询）
 const initialLoad = ref(true)
 
-// echart
-const chartRef = ref<HTMLDivElement | null>(null)
-let chart: echarts.ECharts | null = null
+// echart: 三个图表
+const chartRef1 = ref<HTMLDivElement | null>(null) // 通过量/网关量/目标量
+const chartRef2 = ref<HTMLDivElement | null>(null) // 阈值
+const chartRef3 = ref<HTMLDivElement | null>(null) // 通过率
+let chart1: echarts.ECharts | null = null
+let chart2: echarts.ECharts | null = null
+let chart3: echarts.ECharts | null = null
+let resizeBound = false
 
-function ensureChart() {
-  if (chartRef.value) {
-    if (!chart) {
-      chart = echarts.init(chartRef.value)
-      window.addEventListener('resize', resizeChart)
-    }
+function ensureCharts() {
+  if (chartRef1.value && !chart1) {
+    chart1 = echarts.init(chartRef1.value)
+  }
+  if (chartRef2.value && !chart2) {
+    chart2 = echarts.init(chartRef2.value)
+  }
+  if (chartRef3.value && !chart3) {
+    chart3 = echarts.init(chartRef3.value)
+  }
+  if (!resizeBound && (chart1 || chart2 || chart3)) {
+    window.addEventListener('resize', resizeCharts)
+    resizeBound = true
   }
 }
-function resizeChart() {
-  chart?.resize()
+function resizeCharts() {
+  chart1?.resize()
+  chart2?.resize()
+  chart3?.resize()
 }
-function disposeChart() {
-  if (chart) {
-    chart.dispose()
-    chart = null
-    window.removeEventListener('resize', resizeChart)
+function disposeCharts() {
+  if (chart1) {
+    chart1.dispose()
+    chart1 = null
+  }
+  if (chart2) {
+    chart2.dispose()
+    chart2 = null
+  }
+  if (chart3) {
+    chart3.dispose()
+    chart3 = null
+  }
+  if (resizeBound) {
+    window.removeEventListener('resize', resizeCharts)
+    resizeBound = false
   }
 }
 onBeforeUnmount(() => {
-  disposeChart()
+  disposeCharts()
 })
 
 // pkgName 联想提示池
@@ -388,10 +432,10 @@ async function fetchHistory() {
       }
     }
 
-    // 渲染图
+    // 渲染图（改为三个图表）
     await nextTick()
-    ensureChart()
-    renderChart(data.flowTraceData || {})
+    ensureCharts()
+    renderCharts(data.flowTraceData || {})
   } catch (e) {
     console.error(e)
     ElMessage.error('查询异常')
@@ -401,56 +445,80 @@ async function fetchHistory() {
   }
 }
 
-// 图仅用 5 个指标 legend
-function renderChart(flowTraceData: FlowTraceData) {
-  if (!chart) return
+// 渲染三个图表
+function renderCharts(flowTraceData: FlowTraceData) {
+  if (!chart1 || !chart2 || !chart3) return
 
-  // 聚合所有时间点
-  const timeSet = new Set<string>()
+  // 聚合所有时间点（根据当前选中国家）
   const chosen = selectedCountries.value
+  const timeSet = new Set<string>()
   for (const c of chosen) {
     const one = (flowTraceData?.[c] || {}) as FlowTraceCountry
     Object.keys(one).forEach(t => timeSet.add(t))
   }
   const timeKeys = Array.from(timeSet).sort((a, b) => (a > b ? 1 : -1))
 
+  const makeEmptyOption = (title: string): echarts.EChartsOption => ({
+    title: { text: `${title} (${header.value.pkgName || 'ALL'} / ${header.value.flow})` },
+    xAxis: { type: 'category', data: [] },
+    yAxis: { type: 'value' },
+    series: [],
+    legend: { data: [] }
+  })
+
   if (timeKeys.length === 0) {
     hasData.value = false
-    chart.clear()
-    chart.setOption({
-      title: { text: '无数据' },
-      xAxis: { type: 'category', data: [] },
-      yAxis: { type: 'value' },
-      series: [],
-      legend: { data: ['pass','count','dayClicks','cutoff','passRatio'] }
-    } as echarts.EChartsOption)
+    chart1.clear(); chart2.clear(); chart3.clear()
+    chart1.setOption(makeEmptyOption('通过量/网关量/目标量'))
+    chart2.setOption(makeEmptyOption('阈值'))
+    chart3.setOption(makeEmptyOption('通过率'))
     return
   }
 
   hasData.value = true
 
-  const metrics: Array<{ key: keyof FlowTracePoint; label: string }> = [
-    { key: 'pass', label: 'pass' },
-    { key: 'count', label: 'count' },
-    { key: 'dayClicks', label: 'dayClicks' },
-    { key: 'cutoff', label: 'cutoff' },
-    { key: 'passRatio', label: 'passRatio' },
+  // 公共坐标轴配置
+  const commonXAxis: echarts.XAXisComponentOption = {
+    type: 'category',
+    boundaryGap: false,
+    data: timeKeys,
+    axisLabel: {
+      formatter: (val: string) => {
+        if (/^\d{10}$/.test(val)) {
+          const MM = val.slice(4, 6)
+          const DD = val.slice(6, 8)
+          const HH = val.slice(8, 10)
+          return `${MM}-${DD} ${HH}`
+        }
+        return val
+      },
+    },
+  }
+  const commonDataZoom: echarts.DataZoomComponentOption[] = [
+    { type: 'inside', start: 0, end: 100 },
+    { type: 'slider', start: 0, end: 100, bottom: 2 },
   ]
+  const commonGrid: echarts.GridComponentOption = { top: 70, left: 80, right: 30, bottom: 60 }
 
-  const series: echarts.SeriesOption[] = []
-  const seriesMeta: Array<{ country: string; metric: string }> = []
-
+  // 图一：通过量/网关量/目标量
+  const metrics1: Array<{ key: keyof FlowTracePoint; label: string }> = [
+    { key: 'pass', label: '通过量' },
+    { key: 'count', label: '网关量' },
+    { key: 'dayClicks', label: '目标量' },
+  ]
+  const series1: echarts.SeriesOption[] = []
+  const seriesMeta1: Array<{ country: string; metric: string }> = []
   for (const c of chosen) {
     const one = (flowTraceData?.[c] || {}) as FlowTraceCountry
-    for (const m of metrics) {
+    for (const m of metrics1) {
       const dataArr = timeKeys.map(t => {
         const v = one?.[t]?.[m.key]
         return typeof v === 'number' ? v : (v ?? null)
       })
-      seriesMeta.push({ country: c, metric: m.label })
-      series.push({
+      seriesMeta1.push({ country: c, metric: m.label })
+      series1.push({
         type: 'line',
-        name: m.label,               // 图例仅 5 项
+        name: m.label,
         id: `${m.label}|${c}`,
         data: dataArr,
         symbol: 'circle',
@@ -461,22 +529,20 @@ function renderChart(flowTraceData: FlowTraceData) {
       })
     }
   }
-
-  const option: echarts.EChartsOption = {
+  const option1: echarts.EChartsOption = {
     title: {
-      text: `Flow Trace (${header.value.pkgName || 'ALL'} / ${header.value.flow})`,
+      text: `通过量/网关量/目标量 (${header.value.pkgName || 'ALL'} / ${header.value.flow})`,
       left: 'center',
       textStyle: { fontSize: 14 },
     },
     tooltip: {
       trigger: 'axis',
       axisPointer: { type: 'cross' },
-      // 使用 any 以避免 TS 类型签名不匹配问题
       formatter: (params: any) => {
         const arr = Array.isArray(params) ? params : [params]
         const head = (arr[0] as any).axisValueLabel ?? String(arr[0]?.axisValue ?? '')
         const lines = arr.map((p: any) => {
-          const meta = seriesMeta[p.seriesIndex]
+          const meta = seriesMeta1[p.seriesIndex]
           const val = p.value
           const textVal = Array.isArray(val) ? val[1] : (val ?? '-')
           return `${p.marker}[${meta?.country || '-'}] ${meta?.metric || p.seriesName}: ${textVal}`
@@ -487,48 +553,101 @@ function renderChart(flowTraceData: FlowTraceData) {
     legend: {
       type: 'scroll',
       top: 28,
-      data: metrics.map(m => m.label),
+      data: metrics1.map(m => m.label),
     },
-    grid: { top: 70, left: 60, right: 30, bottom: 60 },
-    dataZoom: [
-      { type: 'inside', start: 0, end: 100 },
-      { type: 'slider', start: 0, end: 100, bottom: 2 },
-    ],
-    xAxis: {
-      type: 'category',
-      boundaryGap: false,
-      data: timeKeys,
-      axisLabel: {
-        formatter: (val: string) => {
-          if (/^\d{10}$/.test(val)) {
-            const MM = val.slice(4, 6)
-            const DD = val.slice(6, 8)
-            const HH = val.slice(8, 10)
-            return `${MM}-${DD} ${HH}`
-          }
-          return val
-        },
-      },
-    },
-    yAxis: {
-      type: 'value',
-      name: '值',
-      axisLabel: { formatter: '{value}' },
-      splitLine: { show: true },
-    },
-    series,
+    grid: commonGrid,
+    dataZoom: commonDataZoom,
+    xAxis: commonXAxis,
+    yAxis: { type: 'value', name: '值', axisLabel: { formatter: '{value}' }, splitLine: { show: true } },
+    series: series1,
     animation: false,
   }
 
-  chart.clear()
-  chart.setOption(option, true)
+  // 图二：阈值（按国家）
+  const series2: echarts.SeriesOption[] = []
+  for (const c of chosen) {
+    const one = (flowTraceData?.[c] || {}) as FlowTraceCountry
+    const dataArr = timeKeys.map(t => {
+      const v = one?.[t]?.cutoff
+      return typeof v === 'number' ? v : (v ?? null)
+    })
+    series2.push({
+      type: 'line',
+      name: c,
+      id: `阈值|${c}`,
+      data: dataArr,
+      symbol: 'circle',
+      smooth: true,
+      showSymbol: false,
+      emphasis: { focus: 'series' },
+      connectNulls: true,
+    })
+  }
+  const option2: echarts.EChartsOption = {
+    title: {
+      text: `阈值 (${header.value.pkgName || 'ALL'} / ${header.value.flow})`,
+      left: 'center',
+      textStyle: { fontSize: 14 },
+    },
+    tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
+    // legend: { type: 'scroll', top: 28, data: chosen },
+    legend: { show: false }, // 修改：不显示 legend
+    grid: commonGrid,
+    dataZoom: commonDataZoom,
+    xAxis: commonXAxis,
+    yAxis: { type: 'value', name: '阈值', axisLabel: { formatter: '{value}' }, splitLine: { show: true } },
+    series: series2,
+    animation: false,
+  }
+
+  // 图三：通过率（按国家）
+  const series3: echarts.SeriesOption[] = []
+  for (const c of chosen) {
+    const one = (flowTraceData?.[c] || {}) as FlowTraceCountry
+    const dataArr = timeKeys.map(t => {
+      const v = one?.[t]?.passRatio
+      return typeof v === 'number' ? v : (v ?? null)
+    })
+    series3.push({
+      type: 'line',
+      name: c,
+      id: `通过率|${c}`,
+      data: dataArr,
+      symbol: 'circle',
+      smooth: true,
+      showSymbol: false,
+      emphasis: { focus: 'series' },
+      connectNulls: true,
+    })
+  }
+  const option3: echarts.EChartsOption = {
+    title: {
+      text: `通过率 (${header.value.pkgName || 'ALL'} / ${header.value.flow})`,
+      left: 'center',
+      textStyle: { fontSize: 14 },
+    },
+    tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
+    // legend: { type: 'scroll', top: 28, data: chosen },
+    legend: { show: false }, // 修改：不显示 legend
+    grid: commonGrid,
+    dataZoom: commonDataZoom,
+    xAxis: commonXAxis,
+    yAxis: { type: 'value', name: '通过率', axisLabel: { formatter: '{value}' }, splitLine: { show: true } },
+    series: series3,
+    animation: false,
+  }
+
+  chart1.clear(); chart2.clear(); chart3.clear()
+  chart1.setOption(option1, true)
+  chart2.setOption(option2, true)
+  chart3.setOption(option3, true)
 }
 
 function onClose() {
   innerVisible.value = false
   // 关闭时自动退出全屏，避免下次打开仍是全屏
   isFullscreen.value = false
-  nextTick(() => chart?.resize())
+  nextTick(() => resizeCharts())
 }
 
 // 查询：将本次输入的 pkgName 和当前选中的 country 作为参数发起请求
@@ -580,8 +699,10 @@ watch(
       await fetchAllPkgNames()
 
       await nextTick()
-      ensureChart()
-      chart?.clear()
+      ensureCharts()
+      chart1?.clear()
+      chart2?.clear()
+      chart3?.clear()
 
       // 首次加载：使用入口参数
       initialLoad.value = true
@@ -594,7 +715,7 @@ watch(
 
 onMounted(() => {
   if (innerVisible.value) {
-    ensureChart()
+    ensureCharts()
   }
 })
 </script>
@@ -609,6 +730,27 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 6px;
+}
+
+/* 让弹窗有固定高度，body 区域可滚动 */
+:deep(.el-dialog.monitor-dialog) {
+  display: flex;
+  flex-direction: column;
+  /* 非全屏时的整体高度，可按需调整 */
+  height: 86vh;
+}
+:deep(.el-dialog.monitor-dialog.is-fullscreen) {
+  height: 100vh; /* 全屏时铺满，可在 body 内滚动 */
+}
+:deep(.el-dialog.monitor-dialog .el-dialog__header) {
+  flex: 0 0 auto;
+}
+:deep(.el-dialog.monitor-dialog .el-dialog__body) {
+  flex: 1 1 auto;
+  overflow: auto; /* 关键：内容超出时出现滚动条 */
+}
+:deep(.el-dialog.monitor-dialog .el-dialog__footer) {
+  flex: 0 0 auto;
 }
 
 .monitor-wrap {
@@ -649,7 +791,7 @@ onMounted(() => {
   border: 1px solid var(--el-border-color);
   border-radius: 6px;
   padding: 8px;
-  min-height: 320px;
+  min-height: 240px;
   background: #fff;
 
   .chart {

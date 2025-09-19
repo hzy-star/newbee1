@@ -12,12 +12,12 @@
             </p>
             <!-- Group列表表格 -->
             <vxe-table :data="strategyList" border round style="width: 100%" size="small" height="90%"
-                :seq-config="seqConfigGroups" :expand-config="expandConfig">
+                :seq-config="seqConfigGroups" :expand-config="expandConfig" :row-style="rowStyleGroups" :header-cell-style="headerCellStyleGroups">
                 <vxe-column field="xh" type="seq" align="center" title="序号" width="80"></vxe-column>
                 <vxe-column type="expand" width="40">
                     <template #content="{ row }">
                         <div class="expand-wrapper">
-                            <vxe-table :data="row.subInfoChild" :seq-config="seqConfigStrategy" :show-header="false">
+                            <vxe-table :data="row.subInfoChild" :seq-config="seqConfigStrategy" :show-header="false" :row-style="rowStyleStrategy" :header-cell-style="headerCellStyleStrategy">
                                 <vxe-column field="xh" type="seq" align="center" title="序号" width="120"></vxe-column>
                                 <vxe-column field="name" title="策略名称" width="150" align="center" />
                                 <vxe-column field="ruleFile" title="规则文件" min-width="220" />
@@ -208,6 +208,28 @@ const searchEvent = XEUtils.throttle(function () {
   handleSearchInput()
 }, 500, { trailing: true, leading: true })
 
+const rowStyleGroups: VxeTablePropTypes.RowStyle<any> = ({ rowIndex }) => {
+    return {
+        backgroundColor: '#f0f9eb',
+        // background: 'linear-gradient(to left, #f0f9eb, #d8edc8, #c0e1a5)'
+    }
+}
+const headerCellStyleGroups: VxeTablePropTypes.HeaderCellStyle<any> = ({ column }) => {
+    return {
+        backgroundColor: '#f0f9eb',
+    }
+}
+const rowStyleStrategy: VxeTablePropTypes.RowStyle<any> = ({ rowIndex }) => {
+    return {
+        backgroundColor: '#fffbf4',
+        // background: 'linear-gradient(to left, #f0f9eb, #f8f7f0, #fffbf4)'
+    }
+}
+const headerCellStyleStrategy: VxeTablePropTypes.HeaderCellStyle<any> = ({ column }) => {
+    return {
+        backgroundColor: '#fffbf4',
+    }
+}
 // 页面初始化
 onMounted(() => {
     // getStrategyGroupsList()

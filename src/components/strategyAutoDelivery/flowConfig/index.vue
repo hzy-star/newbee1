@@ -110,8 +110,8 @@
         <!-- 新增/编辑弹窗 -->
         <ConfigModel v-model="dialogVisible" :title="dialogTitle" :form="currentFlowConfig" :is-view="isView"
             @submit="handleSubmit" />
-        <!-- 监控弹窗 -->
-        <MonitorModel v-model="monitorVisible" :data="monitorData" />
+        <!-- 监控弹窗 设置宽高 -->
+        <MonitorModel v-model="monitorVisible" :data="monitorData" :style="{ height: '90vh', overflowY: 'auto' }" />
     </div>
 </template>
 
