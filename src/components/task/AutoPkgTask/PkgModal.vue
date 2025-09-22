@@ -80,8 +80,8 @@
                 </el-col>
             </el-row>
             <!-- 第三行 -->
-            <el-row :gutter="24" v-if="btnType != 'batchEdit'">
-                <el-col :span="5">
+            <el-row :gutter="24" >
+                <el-col :span="5" v-if="btnType != 'batchEdit'">
                     <div class="form-item">
                         <div class="form-item-label">status</div>
                         <el-select v-model="formData.status" placeholder="select">
@@ -98,7 +98,7 @@
                         </el-select>
                     </div>
                 </el-col>
-                <el-col :span="7">
+                <el-col :span="7" v-if="btnType != 'batchEdit'">
                     <div class="form-item">
                         <div class="form-item-label">RTA-Name</div>
                         <el-select v-model="formData.rtaName" placeholder="select">
