@@ -3,6 +3,8 @@ import App from '@/App.vue'
 // 引入element-plus插件与样式
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
+// 开启暗色模式支持（基于 CSS 变量）
+import 'element-plus/theme-chalk/dark/css-vars.css'
 // 引入element-plus的中文语言包
 // @ts-ignore
 import zhCn from 'element-plus/dist/locale/zh-cn.mjs'

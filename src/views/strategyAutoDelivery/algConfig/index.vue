@@ -1,28 +1,28 @@
 <template>
   <el-tabs v-model="activeTab" class="tabs">
     <!-- 策略 -->
-    <el-tab-pane label="strategy" name="tab1" class="tabs-1 paneTab">
+    <el-tab-pane label="策略" name="tab1" class="tabs-1 paneTab">
         <StrategyPage />
     </el-tab-pane>
     <!-- 阈值 -->
-    <el-tab-pane label="threshold" name="tab5" class="tabs-5 paneTab">
+    <el-tab-pane label="阈值管理" name="tab5" class="tabs-5 paneTab">
         <StrategythresholdPage />
     </el-tab-pane>
     <!-- 阈值配置 -->
-    <el-tab-pane label="thresholdConfig" name="tab6" class="tabs-6 paneTab">
+    <el-tab-pane label="阈值配置" name="tab6" class="tabs-6 paneTab">
         <StrategythresholdConfigPage />
     </el-tab-pane>
 
     <!-- groups -->
-    <el-tab-pane label="groups" name="tab2" class="tabs-2 paneTab">
+    <el-tab-pane label="GROUP组" name="tab2" class="tabs-2 paneTab">
         <GroupsPage />
     </el-tab-pane>
     <!-- flow -->
-    <el-tab-pane label="flow" name="tab3" class="tabs-3 paneTab">
+    <el-tab-pane label="FLOW任务流" name="tab3" class="tabs-3 paneTab">
         <FlowPage />
     </el-tab-pane>
     <!-- config -->
-    <el-tab-pane label="config" name="tab4" class="tabs-4 paneTab">
+    <el-tab-pane label="AB分流" name="tab4" class="tabs-4 paneTab">
         <FlowConfigPage />
     </el-tab-pane>
   </el-tabs>

@@ -1,6 +1,7 @@
 <template>
     <div class="strategy-page">
         <div class="page-header">
+            <el-button type="primary" @click="handleDataeye">DATAEYE</el-button>
             <el-button type="primary" @click="handleSearch">查询</el-button>
             <el-button type="primary" @click="handleAddFlow" v-if="!showDetail" >新增</el-button>
             <el-button type="success" @click="toggleDetail">
@@ -411,6 +412,10 @@ const thresholdMap = computed(() => {
   return map
 })
 
+// 打开dataeye
+const handleDataeye = async() => {
+    await thresholdStore.openDataeye()
+}
 // 页面初始化
 onMounted(() => {
     // getStrategyFlowsList()
