@@ -13,7 +13,7 @@
     <template #header="{ titleId, titleClass }">
       <div class="dialog-header">
         <span :id="titleId" :class="titleClass">监控</span>
-        <div class="header-actions">
+        <!-- <div class="header-actions">
           <el-tooltip v-if="!isFullscreen" content="全屏" placement="top">
             <el-button circle text @click="toggleFullscreen">
               <el-icon><FullScreen /></el-icon>
@@ -24,7 +24,7 @@
               <el-icon><ScaleToOriginal /></el-icon>
             </el-button>
           </el-tooltip>
-        </div>
+        </div> -->
       </div>
     </template>
 
@@ -197,14 +197,14 @@ const innerVisible = computed({
 const isFullscreen = ref(false)
 // 三个图表的高度做适配：全屏时每个~30vh，非全屏时320px
 const chartHeight = computed(() => (isFullscreen.value ? '30vh' : '320px'))
-function toggleFullscreen() {
-  isFullscreen.value = !isFullscreen.value
-  // 切换全屏后重算图表尺寸
-  nextTick(() => {
-    ensureCharts()
-    resizeCharts()
-  })
-}
+// function toggleFullscreen() {
+//   isFullscreen.value = !isFullscreen.value
+//   // 切换全屏后重算图表尺寸
+//   nextTick(() => {
+//     ensureCharts()
+//     resizeCharts()
+//   })
+// }
 
 // 顶部展示信息
 const header = ref<{ pkgName: string; flow: string }>({ pkgName: '', flow: '' })

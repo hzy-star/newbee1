@@ -1,6 +1,7 @@
 <template>
     <div class="strategy-page">
         <div class="page-header">
+            <el-button type="primary" @click="handleDataeye">DATAEYE</el-button>
             <el-button type="primary" @click="handleSearch">查询</el-button>
             <el-button type="primary" @click="handleAddFlowConfig">新增</el-button>
         </div>
@@ -123,6 +124,8 @@ import ConfigModel from './model.vue'
 import MonitorModel from './monitorModel.vue'
 import XEUtils from 'xe-utils'
 import { CircleCheck, CircleClose } from '@element-plus/icons-vue' // 新增：图标
+import { ThresholdPinia } from '@/store/strategyAutoDelivery/threshold'
+const thresholdStore = ThresholdPinia()
 
 // 响应式数据
 const strategyList = ref<any[]>([])
@@ -253,6 +256,10 @@ const handleMonitor = (row: any, flowName: string) => {
     debugger
     monitorVisible.value = true
 
+}
+// 打开dataeye
+const handleDataeye = async() => {
+    await thresholdStore.openDataeye()
 }
 </script>
 
