@@ -22,12 +22,13 @@
         <vxe-column field="ruleFile" title="规则文件" min-width="220" />
         <vxe-column field="returnType" title="文件类型" min-width="30" align="center" />
         <vxe-column field="description" title="描述" min-width="110" show-header-overflow show-overflow />
-        <vxe-column title="操作" width="260" fixed="right" align="center">
+        <vxe-column title="操作" width="320" fixed="right" align="center">
           <template #default="{ row }">
             <el-button size="small" type="primary" plain @click="handleView(row)">查看</el-button>
             <el-button size="small" type="success" plain @click="handleEdit(row)">编辑</el-button>
             <el-button size="small" type="danger" plain @click="handleDelete(row)">删除</el-button>
             <el-button size="small" type="warning" plain @click="handlePreview(row)">预览</el-button>
+            <el-button size="small" color="#626aef" :dark="isDark" plain @click="handleDownload(row)">下载</el-button>
           </template>
         </vxe-column>
       </vxe-table>
@@ -77,7 +78,9 @@ import type { FormInstance, FormRules } from 'element-plus'
 import XEUtils from 'xe-utils'
 import { reqDownloadUrl } from '@/api/docDownload/ossDownload'
 import CsvPreviewDialog from '@/components/CsvPreviewDialog.vue'
-
+import { useDark } from '@vueuse/core' // 替代原来的 ~/composables/dark
+// 是否暗色模式（自动跟随 prefers-color-scheme，也可手动切换）
+const isDark = useDark()
 // 响应式数据
 const strategyList = ref<Strategy[]>([])
 const strategyListBackUp = ref<Strategy[]>([])
@@ -260,7 +263,41 @@ const handlePreview = async (row: Strategy) => {
   }
   csvRef.value?.open(objectName, `CSV 预览 - ${row.name || ''}`)
 }
+// 下载
+const handleDownload = async (row:Strategy) => {
+  const objectName = String(row.ruleFile || '').trim()
+  if (!objectName) {
+    ElMessage.warning('规则文件路径为空，无法下载')
+    return
+  }
+  try {
+        // 获取完整响应对象
+        const response = await reqDownloadUrl({ objectName: objectName });
 
+        // 从响应头获取文件名
+        const contentDisposition = response.headers['content-disposition'];
+        const fileNameMatch = contentDisposition.match(/filename="?(.+?)"?(;|$)/);
+        const fileName = fileNameMatch ? fileNameMatch[1] : 'download.csv';
+
+        // 创建下载链接
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = fileName; // 使用后端返回的文件名
+        link.style.display = 'none';
+
+        // 触发下载
+        document.body.appendChild(link);
+        link.click();
+
+        // 清理资源
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+    } catch (error) {
+        console.error('Error downloading URL:', error);
+        ElMessage.error('文件路径不存在');
+    }
+}
 // 页面初始化
 onMounted(() => {
   getStrategyList()
