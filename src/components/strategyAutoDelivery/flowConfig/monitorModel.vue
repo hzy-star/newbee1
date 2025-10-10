@@ -161,6 +161,10 @@ type FlowTracePoint = {
   kd: number
   passRatio: number
   step?: number
+  dayClicksTimes?: number
+  passAgg?: number
+  targetPassRatio?: number
+  targetPassRatioTimes?: number
 }
 type FlowTraceCountry = Record<string, FlowTracePoint>
 type FlowTraceData = Record<string, FlowTraceCountry>
@@ -469,7 +473,7 @@ function renderCharts(flowTraceData: FlowTraceData) {
   if (timeKeys.length === 0) {
     hasData.value = false
     chart1.clear(); chart2.clear(); chart3.clear()
-    chart1.setOption(makeEmptyOption('通过量/网关量/目标量'))
+    chart1.setOption(makeEmptyOption('通过量/网关量/目标量/1.2倍目标量/累计24小时'))
     chart2.setOption(makeEmptyOption('阈值'))
     chart3.setOption(makeEmptyOption('通过率'))
     return
@@ -505,6 +509,8 @@ function renderCharts(flowTraceData: FlowTraceData) {
     { key: 'pass', label: '通过量' },
     { key: 'count', label: '网关量' },
     { key: 'dayClicks', label: '目标量' },
+    { key: 'dayClicksTimes', label: '1.2倍目标量' },
+    { key: 'passAgg', label: '累计24小时' },
   ]
   const series1: echarts.SeriesOption[] = []
   const seriesMeta1: Array<{ country: string; metric: string }> = []
@@ -531,7 +537,7 @@ function renderCharts(flowTraceData: FlowTraceData) {
   }
   const option1: echarts.EChartsOption = {
     title: {
-      text: `通过量/网关量/目标量 (${header.value.pkgName || 'ALL'} / ${header.value.flow})`,
+      text: `通过量/网关量/目标量/1.2倍目标量/累计24小时 (${header.value.pkgName || 'ALL'} / ${header.value.flow})`,
       left: 'center',
       textStyle: { fontSize: 14 },
     },
@@ -601,38 +607,83 @@ function renderCharts(flowTraceData: FlowTraceData) {
   }
 
   // 图三：通过率（按国家）
+  const metrics3: Array<{ key: keyof FlowTracePoint; label: string }> = [
+    { key: 'passRatio', label: '通过率' },
+    { key: 'targetPassRatio', label: '目标通过率' },
+    { key: 'targetPassRatioTimes', label: '目标通过率*1.2' },
+  ]
   const series3: echarts.SeriesOption[] = []
+  const seriesMeta3: Array<{ country: string; metric: string }> = []
   for (const c of chosen) {
     const one = (flowTraceData?.[c] || {}) as FlowTraceCountry
-    const dataArr = timeKeys.map(t => {
-      const v = one?.[t]?.passRatio
-      return typeof v === 'number' ? v : (v ?? null)
-    })
-    series3.push({
-      type: 'line',
-      name: c,
-      id: `通过率|${c}`,
-      data: dataArr,
-      symbol: 'circle',
-      smooth: true,
-      showSymbol: false,
-      emphasis: { focus: 'series' },
-      connectNulls: true,
-    })
+    for (const m of metrics3) {
+      const dataArr = timeKeys.map(t => {
+        const v = one?.[t]?.[m.key]
+        return typeof v === 'number' ? v : (v ?? null)
+      })
+      seriesMeta3.push({ country: c, metric: m.label })
+      series3.push({
+        type: 'line',
+        name: m.label,
+        id: `${m.label}|${c}`,
+        data: dataArr,
+        symbol: 'circle',
+        smooth: true,
+        showSymbol: false,
+        emphasis: { focus: 'series' },
+        connectNulls: true,
+      })
+    }
+    // const dataArr = timeKeys.map(t => {
+    //   const v = one?.[t]?.passRatio
+    //   return typeof v === 'number' ? v : (v ?? null)
+    // })
+    // series3.push({
+    //   type: 'line',
+    //   name: c,
+    //   id: `通过率|${c}`,
+    //   data: dataArr,
+    //   symbol: 'circle',
+    //   smooth: true,
+    //   showSymbol: false,
+    //   emphasis: { focus: 'series' },
+    //   connectNulls: true,
+    // })
   }
   const option3: echarts.EChartsOption = {
     title: {
-      text: `通过率 (${header.value.pkgName || 'ALL'} / ${header.value.flow})`,
+      text: `通过率/目标通过率/目标通过率*1.2 (${header.value.pkgName || 'ALL'} / ${header.value.flow})`,
       left: 'center',
       textStyle: { fontSize: 14 },
     },
-    tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
+    // tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: { type: 'cross' },
+      formatter: (params: any) => {
+        const arr = Array.isArray(params) ? params : [params]
+        const head = (arr[0] as any).axisValueLabel ?? String(arr[0]?.axisValue ?? '')
+        const lines = arr.map((p: any) => {
+          const meta = seriesMeta3[p.seriesIndex]
+          const val = p.value
+          const textVal = Array.isArray(val) ? val[1] : (val ?? '-')
+          return `${p.marker}[${meta?.country || '-'}] ${meta?.metric || p.seriesName}: ${textVal}`
+        })
+        return [head, ...lines].join('<br/>')
+      }
+    },
     // legend: { type: 'scroll', top: 28, data: chosen },
-    legend: { show: false }, // 修改：不显示 legend
+    // legend: { show: false }, // 修改：不显示 legend
+    
+    legend: {
+      type: 'scroll',
+      top: 28,
+      data: metrics3.map(m => m.label),
+    },
     grid: commonGrid,
     dataZoom: commonDataZoom,
     xAxis: commonXAxis,
-    yAxis: { type: 'value', name: '通过率', axisLabel: { formatter: '{value}' }, splitLine: { show: true } },
+    yAxis: { type: 'value', name: '值', axisLabel: { formatter: '{value}' }, splitLine: { show: true } },
     series: series3,
     animation: false,
   }
