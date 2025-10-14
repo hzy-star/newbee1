@@ -6,13 +6,14 @@
     </div>
     <div class="page-content">
       <p>
-        <vxe-input v-model="filterName" type="search" placeholder="模糊搜索strategy名称" clearable
-          @change="searchEvent" size="mini"></vxe-input>
-        <vxe-select v-model="returnType" type="search" placeholder="搜索文件类型" clearable size="mini" @change="handleSearch">
+        <vxe-input v-model="filterName" type="search" placeholder="模糊搜索strategy名称" clearable @change="searchEvent"
+          size="mini"></vxe-input>
+        <vxe-select v-model="returnType" type="search" placeholder="搜索文件类型" clearable size="mini"
+          @change="handleSearch">
           <vxe-option label="RANK" value="rank" />
-            <vxe-option label="FLAG" value="flag" />
-            <vxe-option label="SCORE" value="score" />
-            <vxe-option label="S2S" value="s2s" />
+          <vxe-option label="FLAG" value="flag" />
+          <vxe-option label="SCORE" value="score" />
+          <vxe-option label="S2S" value="s2s" />
         </vxe-select>
       </p>
       <!-- 策略列表表格 -->
@@ -21,6 +22,13 @@
         <vxe-column field="name" title="策略名称" min-width="50" align="center" />
         <vxe-column field="ruleFile" title="规则文件" min-width="220" />
         <vxe-column field="returnType" title="文件类型" min-width="30" align="center" />
+        <vxe-column field="deviceSource" title="设备来源" min-width="30" align="center">
+          <template #default="{ row }">
+            <el-tag v-if="row.deviceSource === 'offline'" type="info" size="small" effect="plain">离线</el-tag>
+            <el-tag v-else-if="row.deviceSource === 'online'" type="success" size="small" effect="plain">实时</el-tag>
+            <el-tag v-else type="warning" size="small" effect="plain">未知</el-tag>
+          </template>
+        </vxe-column>
         <vxe-column field="description" title="描述" min-width="110" show-header-overflow show-overflow />
         <vxe-column title="操作" width="320" fixed="right" align="center">
           <template #default="{ row }">
@@ -44,13 +52,21 @@
           <el-input v-model="formData.ruleFile" placeholder="请输入规则文件路径" :disabled="isView" />
         </el-form-item>
         <el-form-item label="返回类型" prop="returnType">
-           <el-select v-model="formData.returnType" placeholder="请选择返回类型" :disabled="isView">
+          <el-select v-model="formData.returnType" placeholder="请选择返回类型" :disabled="isView">
             <el-option label="RANK" value="rank" />
             <el-option label="FLAG" value="flag" />
             <el-option label="SCORE" value="score" />
             <el-option label="S2S" value="s2s" />
           </el-select>
         </el-form-item>
+        <el-form-item label="设备来源" prop="deviceSource">
+          <!-- <el-switch v-model="formData.deviceSource" active-text="实时" inactive-text="离线" /> -->
+          <el-select v-model="formData.deviceSource" placeholder="请选择设备来源" :disabled="isView">
+            <el-option label="离线" value="offline" />
+            <el-option label="实时" value="online" />
+          </el-select>
+        </el-form-item>
+
         <el-form-item label="描述">
           <el-input v-model="formData.description" type="textarea" placeholder="请输入描述" :disabled="isView" />
         </el-form-item>
@@ -65,7 +81,8 @@
     </el-dialog>
 
     <!-- 通用 CSV 预览组件（可复用） -->
-    <CsvPreviewDialog ref="csvRef" :fetcher="reqDownloadUrl" :maxPreviewLines="Infinity" :style="{ height: '85vh', overflowY: 'auto' }" />
+    <CsvPreviewDialog ref="csvRef" :fetcher="reqDownloadUrl" :maxPreviewLines="Infinity"
+      :style="{ height: '85vh', overflowY: 'auto' }" />
   </div>
 </template>
 
@@ -95,7 +112,8 @@ const formData = ref<Omit<Strategy, 'id'> & { id?: number }>({
   name: '',
   ruleFile: '',
   returnType: '',
-  description: ''
+  description: '',
+  deviceSource: 'offline'
 })
 
 // 表单验证规则
@@ -129,7 +147,8 @@ const resetForm = () => {
     name: '',
     ruleFile: '',
     returnType: '',
-    description: ''
+    description: '',
+    deviceSource: 'offline'
   }
   nextTick(() => {
     formRef.value?.clearValidate()
@@ -232,7 +251,7 @@ const handleSearchInput = () => {
   const filterVal = String(filterName.value).trim().toLowerCase()
   if (filterVal) {
     const filterRE = new RegExp(filterVal, 'gi')
-    const searchProps = ['name', 'ruleFile', 'returnType', 'description']
+    const searchProps = ['name', 'ruleFile', 'returnType', 'description', 'deviceSource']
     const rest = strategyListBackUp.value.filter((item: any) => searchProps.some(key => String(item[key]).toLowerCase().indexOf(filterVal) > -1))
     strategyList.value = rest.map(row => {
       // 搜索为克隆数据，不会污染源数据

@@ -43,6 +43,15 @@
                 <vxe-column field="returnType" title="返回类型" min-width="30" align="center" />
                 <vxe-column field="cutoff" title="截止值" mwidth="150" align="center" />
                 <vxe-column field="formula" title="公式" width="200" align="center" />
+                <!-- 实时/离线 -->
+                <vxe-column field="deviceSource" title="设备来源" width="100" align="center">
+                    <template #default="{ row }">
+                        <el-tag v-if="row.deviceSource === 'offline'" type="info" size="small" effect="plain">离线</el-tag>
+                        <el-tag v-else-if="row.deviceSource === 'online'" type="success" size="small" effect="plain">实时</el-tag>
+                        <el-tag v-else type="warning" size="small" effect="plain">未知</el-tag>
+                    </template>
+                </vxe-column>
+                <!-- 是否落盘 -->
                 <vxe-column field="groupType" title="是否落盘" width="100" align="center">
                     <template #default="{ row }">
                         <el-tag v-if="row.groupType === 'writeToDisk'" type="success">是</el-tag>
@@ -95,7 +104,7 @@ const getStrategyGroupsList = async () => {
 
 // 添加Group
 const handleAddGroup = () => {
-    currentGroup.value = { operator: 'big', returnType:'rank',status: 'enabled', cutoff: 0,groupType: 'normal'} // 默认操作符
+    currentGroup.value = { operator: 'big', returnType:'rank',status: 'enabled', cutoff: 0,groupType: 'normal', deviceSource: 'offline'} // 默认操作符
     // currentGroup.value = { operator: 'big', returnType:'rank',status: 'enabled', cutoff: 0} // 默认操作符
     dialogTitle.value = '新增Group'
     isView.value = false

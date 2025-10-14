@@ -20,4 +20,5 @@ export interface Strategy {
   ruleFile: string
   returnType: string,
   description?: string // 新增描述字段
+  deviceSource?: string // 新增设备来源字段
 }

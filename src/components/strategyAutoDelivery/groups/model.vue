@@ -41,10 +41,19 @@
           <el-option label="avg" value="avg" :disabled="formData.returnType === 'flag'" />
         </el-select>
       </el-form-item>
+
       <el-form-item label="是否落盘" prop="groupType">
         <el-select v-model="formData.groupType" :disabled="isView">
           <el-option label="是" value="writeToDisk" />
-          <el-option label="否" value="normal" active />
+          <el-option label="否" value="normal" />
+        </el-select>
+      </el-form-item>
+
+      <!-- 实时/离线 -->
+      <el-form-item label="设备来源" prop="deviceSource">
+        <el-select v-model="formData.deviceSource" :disabled="isView">
+          <el-option label="离线" value="offline" />
+          <el-option label="实时" value="online" />
         </el-select>
       </el-form-item>
 
@@ -55,8 +64,13 @@
             <template #default="{ row }">
               <el-tooltip :content="getStrategyLabel(row.strategyId)" placement="top">
                 <el-select v-model="row.strategyId" placeholder="选择策略" :disabled="isView" style="width: 100%">
-                  <el-option v-for="strategy in strategiesList" :key="strategy.id" :label="strategy.name"
-                    :value="String(strategy.id)" :disabled="isStrategyDisabled(strategy.id, row)" />
+                  <el-option
+                    v-for="strategy in strategiesForUI"
+                    :key="strategy.id"
+                    :label="strategy.name"
+                    :value="String(strategy.id)"
+                    :disabled="strategy.__disabled || isStrategyDisabled(strategy.id, row)"
+                  />
                 </el-select>
               </el-tooltip>
             </template>
@@ -65,15 +79,14 @@
           <el-table-column label="阈值" prop="thresholdId">
             <template #default="{ row }">
               <el-tooltip :content="getThresholdLabel(row.thresholdId)" placement="top">
-                <el-select v-model="row.thresholdId" placeholder="可选阈值" clearable :disabled="isView"
-                  style="width: 100%">
-                  <el-option v-for="th in thresholdStore.ThresholdList" :key="th.id" :label="th.name"
-                    :value="String(th.id)" />
+                <el-select v-model="row.thresholdId" placeholder="可选阈值" clearable :disabled="isView" style="width: 100%">
+                  <el-option v-for="th in thresholdStore.ThresholdList" :key="th.id" :label="th.name" :value="String(th.id)" />
                 </el-select>
               </el-tooltip>
             </template>
           </el-table-column>
-          <el-table-column prop="leftRank"  >
+
+          <el-table-column prop="leftRank">
             <template #header>
               <span class="col-label">
                 leftRank
@@ -85,10 +98,11 @@
               </span>
             </template>
             <template #default="{ row }">
-              <el-input v-model="row.leftRank" placeholder="leftRank" :disabled="isView" style="width: 100%"  />
+              <el-input v-model="row.leftRank" placeholder="leftRank" :disabled="isView" style="width: 100%" />
             </template>
           </el-table-column>
-          <el-table-column prop="rightRank"  >
+
+          <el-table-column prop="rightRank">
             <template #header>
               <span class="col-label">
                 rightRank
@@ -122,7 +136,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch, computed } from 'vue'
+import { ref, watch, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { reqStrategyList } from '@/api/strategyAutoDelivery/strategyPage/index'
 import { reqCreateOrUpdate } from '@/api/strategyAutoDelivery/groups'
@@ -155,11 +169,13 @@ const formData = ref<any>({
   status: 'enabled',
   cutoff: 0,
   groupType: 'normal',
+  deviceSource: 'offline',
   strategySelections: [] as any[],
   ...props.form
 })
 
-const strategiesList = ref<any[]>([])
+const strategiesList = ref<any[]>([])          // 当前用于展示的（按设备来源过滤）
+const allStrategies = ref<any[]>([])           // 全量列表（用于 label 映射、合并已选项）
 
 const formRules: any = {
   name: [{ required: true, message: '请输入Group名称', trigger: 'blur' }],
@@ -211,14 +227,51 @@ const formRules: any = {
   ]
 }
 
+// 
 const getStrategiesList = async () => {
   try {
     const response: any = await reqStrategyList()
-    strategiesList.value = response?.data || []
+    allStrategies.value = response?.data || []
+    applyDeviceFilter() // 拉取后按当前设备来源过滤
   } catch (_e) {
     ElMessage.error('获取策略列表失败')
   }
 }
+// 设备来源过滤 + 清理不合法选择（可选）
+const applyDeviceFilter = () => {
+  const ds = formData.value.deviceSource
+  const list = ds ? allStrategies.value.filter((s: any) => s.deviceSource === ds) : allStrategies.value
+  strategiesList.value = list
+
+  // 如果不想清理已选中但不在当前过滤集的项，可以注释掉下面逻辑
+  const validIds = new Set(list.map((s: any) => String(s.id)))
+  formData.value.strategySelections.forEach((row: any) => {
+    if (row.strategyId && !validIds.has(String(row.strategyId))) {
+      row.strategyId = ''
+      row.thresholdId = undefined
+      row.leftRank = ''
+      row.rightRank = ''
+    }
+  })
+}
+
+// UI 用的 options：在过滤结果前面合并“当前已选但不在过滤集”的项（禁用显示）
+const strategiesForUI = computed(() => {
+  const ds = formData.value.deviceSource
+  const filtered = ds ? allStrategies.value.filter((s: any) => s.deviceSource === ds) : allStrategies.value
+
+  const selectedIds = new Set(
+    (formData.value.strategySelections || []).map((s: any) => String(s.strategyId)).filter(Boolean)
+  )
+  const missing = allStrategies.value
+    .filter((s: any) => selectedIds.has(String(s.id)) && !filtered.some((f: any) => String(f.id) === String(s.id)))
+    .map((m: any) => ({ ...m, __disabled: true }))
+
+  return [...missing, ...filtered]
+})
+
+// 选择变化时自动过滤（双保险）
+watch(() => formData.value.deviceSource, () => applyDeviceFilter())
 
 const addStrategyRow = () => {
   formData.value.strategySelections.push({
@@ -238,6 +291,7 @@ const handleClose = () => {
     status: 'enabled',
     cutoff: 0,
     groupType: 'normal',
+    deviceSource: 'offline',
     strategySelections: []
   }
 }
@@ -253,27 +307,20 @@ const handleSubmit = async () => {
     const valid = await formRef.value?.validate?.()
     if (!valid) return
 
-    // 拼接 strategyIds: "1:1,2:2,3,4:4"
-    // const parts = (formData.value.strategySelections || []).map((item: any) =>
-    //   item.thresholdId ? `${item.strategyId}:${item.thresholdId}` : String(item.strategyId)
-    // )
-     const parts = (formData.value.strategySelections || []).map((item: any) => {
+    // 拼接 strategyIds: 支持 三种：sid、sid:tid、sid:tid:left:right、sid::left:right
+    const parts = (formData.value.strategySelections || []).map((item: any) => {
       const hasL = item.leftRank !== '' && item.leftRank !== undefined && item.leftRank !== null
       const hasR = item.rightRank !== '' && item.rightRank !== undefined && item.rightRank !== null
       const bothRank = hasL && hasR
       let seg = String(item.strategyId)
 
       if (item.thresholdId && !bothRank) {
-        // 只有阈值
         seg += `:${item.thresholdId}`
       } else if (item.thresholdId && bothRank) {
-        // 阈值 + rank 区间
         seg += `:${item.thresholdId}:${item.leftRank}:${item.rightRank}`
       } else if (!item.thresholdId && bothRank) {
-        // 没有阈值但有 rank 区间 -> strategyId::leftRank:rightRank
         seg += `::${item.leftRank}:${item.rightRank}`
       }
-      // 仅策略时 seg 保持 strategyId
       return seg
     })
     const formToSubmit: any = {
@@ -307,36 +354,23 @@ watch(
       status: 'enabled',
       cutoff: 0,
       groupType: 'normal',
+      deviceSource: 'offline',
       strategySelections: [],
       ...newVal
     }
     if (newVal?.strategyIds) {
-      // formData.value.strategySelections = String(newVal.strategyIds)
-      //   .split(',')
-      //   .filter((s: string) => s !== '')
-      //   .map((str: string) => {
-      //     const [sid, tid] = str.split(':')
-      //     return { strategyId: sid, thresholdId: tid }
-      //   })
       formData.value.strategySelections = String(newVal.strategyIds)
         .split(',')
         .filter((s: string) => s !== '')
         .map((str: string) => {
           const arr = str.split(':')
-            // arr 长度可能为 1 / 2 / 4
           if (arr.length === 1) {
             return { strategyId: arr[0], thresholdId: undefined, leftRank: '', rightRank: '' }
           } else if (arr.length === 2) {
             return { strategyId: arr[0], thresholdId: arr[1], leftRank: '', rightRank: '' }
           } else if (arr.length === 4) {
-            return {
-              strategyId: arr[0],
-              thresholdId: arr[1],
-              leftRank: arr[2],
-              rightRank: arr[3]
-            }
+            return { strategyId: arr[0], thresholdId: arr[1], leftRank: arr[2], rightRank: arr[3] }
           } else {
-            // 异常格式回退
             return { strategyId: arr[0], thresholdId: arr[1], leftRank: '', rightRank: '' }
           }
         })
@@ -352,14 +386,19 @@ watch(
   }
 )
 
+// 兼容“组件初次挂载时弹窗已是打开态”的情况
+onMounted(() => {
+  if (props.modelValue) getStrategiesList()
+})
+
 const returnTypeHand = (val: string) => {
   formData.value.formula = val === 'flag' ? 'and' : 'min'
 }
 
-// helper: 根据选中的 id 返回对应的 label，用于 el-tooltip 的 content
+// helper: label 用全量列表找，避免过滤后 tooltip 为空
 const getStrategyLabel = (id: any) => {
   if (!id) return ''
-  const s = strategiesList.value.find((it: any) => String(it.id) === String(id))
+  const s = allStrategies.value.find((it: any) => String(it.id) === String(id))
   return s ? s.name : ''
 }
 
@@ -369,6 +408,7 @@ const getThresholdLabel = (id: any) => {
   return th ? th.name : ''
 }
 </script>
+
 <style scoped>
 .col-label {
   display: inline-flex;

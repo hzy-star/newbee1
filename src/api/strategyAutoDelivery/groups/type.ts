@@ -16,4 +16,5 @@ export interface Groups {
   cutoff: any;
   formula: string;
   groupType: string; // 是否落盘
+  deviceSource: string; // 设备来源
 }
