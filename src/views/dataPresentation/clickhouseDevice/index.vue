@@ -122,7 +122,7 @@ const handleQuery = async () => {
         s: propFrom.value.source ? propFrom.value.source : '',
         adx: propFrom.value.adx ? propFrom.value.adx : '',
         country: propFrom.value.country ? propFrom.value.country : '',
-        os: propFrom.value.os ? propFrom.value.os.toLocaleUpperCase() : '',
+        os: propFrom.value.os ? propFrom.value.os : '',
         pkg_name: propFrom.value.pkg_name ? propFrom.value.pkg_name : '',
     };
     // 将 query 包装到 params 中
