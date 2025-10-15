@@ -15,6 +15,11 @@
           <vxe-option label="SCORE" value="score" />
           <vxe-option label="S2S" value="s2s" />
         </vxe-select>
+        <vxe-select v-model="deviceSourceOption" type="search" placeholder="实时/离线" clearable size="mini"
+          @change="handleDeviceSource">
+          <vxe-option label="实时" value="online" />
+          <vxe-option label="离线" value="offline" />
+        </vxe-select>
       </p>
       <!-- 策略列表表格 -->
       <vxe-table :data="strategyList" border round style="width: 100%" size="small" height="90%">
@@ -24,9 +29,9 @@
         <vxe-column field="returnType" title="文件类型" min-width="30" align="center" />
         <vxe-column field="deviceSource" title="设备来源" min-width="30" align="center">
           <template #default="{ row }">
-            <el-tag v-if="row.deviceSource === 'offline'" type="info" size="small" effect="plain">离线</el-tag>
-            <el-tag v-else-if="row.deviceSource === 'online'" type="success" size="small" effect="plain">实时</el-tag>
-            <el-tag v-else type="warning" size="small" effect="plain">未知</el-tag>
+            <el-tag v-if="row.deviceSource === 'offline'" type="danger" size="small">离线</el-tag>
+            <el-tag v-else-if="row.deviceSource === 'online'" type="primary" size="small" >实时</el-tag>
+            <el-tag v-else type="info" size="small" >未知</el-tag>
           </template>
         </vxe-column>
         <vxe-column field="description" title="描述" min-width="110" show-header-overflow show-overflow />
@@ -87,7 +92,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, onMounted, nextTick,watch } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { reqStrategyList, reqCreateOrUpdate, reqDeleteStrategy } from '@/api/strategyAutoDelivery/strategyPage/index'
 import type { Strategy } from '@/api/strategyAutoDelivery/strategyPage/type'
@@ -96,6 +101,7 @@ import XEUtils from 'xe-utils'
 import { reqDownloadUrl } from '@/api/docDownload/ossDownload'
 import CsvPreviewDialog from '@/components/CsvPreviewDialog.vue'
 import { useDark } from '@vueuse/core' // 替代原来的 ~/composables/dark
+import type { VxeSelectEvents } from 'vxe-table'
 // 是否暗色模式（自动跟随 prefers-color-scheme，也可手动切换）
 const isDark = useDark()
 // 响应式数据
@@ -129,18 +135,35 @@ const formRules: FormRules = {
   ]
 }
 const returnType = ref('')
-
+const deviceSourceOption = ref('online')
 // 获取策略列表
 const getStrategyList = async () => {
   try {
     const response = await reqStrategyList({returnType:returnType.value})
-    strategyList.value = response.data || []
+    // strategyList.value = response.data || []
     strategyListBackUp.value = response.data || []
+    applyDeviceSource(String(deviceSourceOption.value || ''))
   } catch (error) {
     ElMessage.error('获取策略列表失败')
   }
 }
-
+// 抽出通用过滤逻辑（接收字符串）
+const applyDeviceSource = (val: string) => {
+  if (val === 'online') {
+    strategyList.value = strategyListBackUp.value.filter(item => item.deviceSource === 'online')
+  } else if (val === 'offline') {
+    strategyList.value = strategyListBackUp.value.filter(item => item.deviceSource === 'offline')
+  } else {
+    strategyList.value = strategyListBackUp.value
+  }
+}
+// vxe-select 的 change 事件签名：({ value, $event, ... })
+const handleDeviceSource: VxeSelectEvents.Change = ({ value }) => {
+  applyDeviceSource(String(value || ''))
+}
+watch(deviceSourceOption, (newVal) => {
+  applyDeviceSource(String(newVal || ''))
+}, { immediate: true })
 // 重置表单
 const resetForm = () => {
   formData.value = {

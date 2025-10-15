@@ -14,6 +14,8 @@ export interface Flows {
   returnType?: string;
   flowType?: string; // 是否落盘
   syncFile: string;
+  description?: string // 新增描述字段
+  deviceSource?: string // 设备来源
 }
 // 接口返回值
 export interface dataType<T = any> {

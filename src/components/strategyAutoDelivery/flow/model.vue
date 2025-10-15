@@ -77,11 +77,22 @@
             </el-select>
           </el-form-item>
 
+          <!-- 实时/离线 -->
+          <el-form-item label="设备来源" prop="deviceSource">
+            <el-select v-model="flowForm.deviceSource" :disabled="isView">
+              <el-option label="离线" value="offline" />
+              <el-option label="实时" value="online" />
+            </el-select>
+          </el-form-item>
           <el-form-item label="关联Groups">
             <el-select v-model="flowForm.strategyGroupIds" multiple placeholder="选择Groups" :disabled="isView"
               style="width: 100%; margin-top: 10px;" value-key="id">
               <el-option v-for="group in strategyList" :key="group.id" :label="group.name" :value="group.id" />
             </el-select>
+          </el-form-item>
+          <!-- 描述 -->
+          <el-form-item label="描述" prop="description">
+            <el-input v-model="flowForm.description" placeholder="请输入描述" :disabled="isView" />
           </el-form-item>
         </el-form>
       </div>
@@ -135,7 +146,9 @@ const flowForm = ref<Partial<Flows>>({
   strategyGroupIds: [], // 确保初始化为空数组
   formula: '',
   flowType: 'normal',
-  syncFile: ''
+  syncFile: '',
+  description: '', // 初始化描述字段
+  deviceSource: 'offline' // 初始化设备来源字段
 })
 
 const formulaConfigs = ref([
@@ -235,7 +248,9 @@ const handleSubmit = async () => {
       flowType: flowForm.value.flowType,
       formula: JSON.stringify(formulaConfigs.value),
       strategyGroupIds: flowForm.value.strategyGroupIds?.join(',') || '', // 添加空数组回退
-      syncFile: flowForm.value.syncFile
+      syncFile: flowForm.value.syncFile,
+      description: flowForm.value.description, // 提交描述字段
+      deviceSource: flowForm.value.deviceSource // 提交设备来源字段
     }
 
     const response = await reqCreateOrUpdatFlow(submitData)
@@ -252,12 +267,25 @@ const handleSubmit = async () => {
 
 // 获取groups列表
 const strategyList = ref<Array<{ id: number, name: string }>>([])
+const allStrategies = ref<any[]>([])           // 全量列表（用于 label 映射、合并已选项）
 const getGroupsList = async () => {
   const response = await reqStrategyGroupList()
   response.data = response.data.filter((item: any) => item.status === 'enabled') // 只显示启用的Groups
-  strategyList.value = response.data || []
+  allStrategies.value = response.data || []
+  applyDeviceFilter() // 应用设备来源过滤
 
 }
+// 设备来源过滤 + 清理不合法选择（可选）
+const applyDeviceFilter = () => {
+  const ds = flowForm.value.deviceSource
+  debugger
+  const list = ds ? allStrategies.value.filter((s: any) => s.deviceSource === ds) : allStrategies.value
+  strategyList.value = list
+}
+
+// 选择变化时自动过滤（双保险）
+watch(() => flowForm.value.deviceSource, () => applyDeviceFilter())
+
 // 初始化表单数据时处理groupIds
 watch(() => props.form, (newVal) => {
   flowForm.value = {
@@ -286,7 +314,9 @@ const handleClose = () => {
     flowType: '',
     formula: '',
     strategyGroupIds: [],
-    syncFile: ''
+    syncFile: '',
+    description: '', // 重置描述字段
+    deviceSource: 'offline' // 重置设备来源字段
   }
   formulaConfigs.value = [{ formula: '', cutoff: 0, operator: 'big', thresholdId: '' }] // 重置公式配置
 }

@@ -223,7 +223,7 @@ const handleSubmit = async () => {
 const flowList = ref<Array<{ id: number, name: string }>>([])
 const getFlowList = async () => {
     const response: any = await reqFlow()
-    response.data = (response.data || []).filter((item: any) => item.status === 'enabled') // 只获取启用的Flow
+    response.data = (response.data || []).filter((item: any) => item.status === 'enabled' && item.deviceSource === 'online') // 只获取启用的Flow
     flowList.value = response.data || []
 }
 

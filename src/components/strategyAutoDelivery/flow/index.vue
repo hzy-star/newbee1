@@ -12,6 +12,11 @@
             <p>
                 <vxe-input v-model="filterName" type="search" placeholder="模糊搜索flow名称" clearable @change="searchEvent"
                     size="mini"></vxe-input>
+                <vxe-select v-model="deviceSourceOption" type="search" placeholder="实时/离线" clearable size="mini"
+                @change="handleDeviceSource">
+                <vxe-option label="实时" value="online" />
+                <vxe-option label="离线" value="offline" />
+                </vxe-select>
             </p>
             <!-- Flow列表表格 -->
             <vxe-table :data="strategyList" border round style="width: 100%" size="small" height="90%"
@@ -48,7 +53,7 @@
                                                     </template>
                                                 </vxe-column>
                                                 <vxe-column field="ruleFile" title="规则文件" min-width="220" />
-                                                <vxe-column field="returnType" title="返回类型" width="150"
+                                                <vxe-column field="returnType" title="返回类型" width="200"
                                                     align="center" />
                                                 <vxe-column field="description" title="描述" width="200"
                                                     show-header-overflow align="center" show-overflow />
@@ -77,7 +82,7 @@
                                             </template>
                                 </vxe-column>
                                 <vxe-column field="returnType" title="返回类型" min-width="30" align="center" />
-                                <vxe-column field="cutoff" title="截止值" width="150" align="center" />
+                                <vxe-column field="cutoff" title="截止值" width="200" align="center" />
                                 <vxe-column field="formula" title="公式" width="200" align="center" />
                             </vxe-table>
                         </div>
@@ -94,6 +99,14 @@
                         <el-tag v-if="row.status" :type="row.status === 'enabled' ? 'success' : 'danger'">
                             {{ row.status === 'enabled' ? '启用' : '禁用' }}
                         </el-tag>
+                    </template>
+                </vxe-column>
+                <!-- 实时/离线 -->
+                <vxe-column field="deviceSource" title="设备来源" width="80" align="center">
+                    <template #default="{ row }">
+                        <el-tag v-if="row.deviceSource === 'offline'" type="danger" size="small" >离线</el-tag>
+                        <el-tag v-else-if="row.deviceSource === 'online'" type="primary" size="small" >实时</el-tag>
+                        <el-tag v-else type="info" size="small" effect="plain">未知</el-tag>
                     </template>
                 </vxe-column>
                 <vxe-column field="formula" title="公式配置" min-width="300" align="center">
@@ -113,13 +126,13 @@
                                     </div>
 
                                     <!-- 截止值字段 -->
-                                    <div class="formula-cell">
+                                    <div class="formula-cell" style="width: 100px;">
                                         <span class="formula-label">截止值:</span>
                                         <span class="formula-value">{{ item.cutoff }}</span>
                                     </div>
 
                                     <!-- 操作符字段 -->
-                                    <div class="formula-cell">
+                                    <div class="formula-cell" style="width: 100px;">
                                         <span class="formula-label">操作符:</span>
                                         <span class="formula-value" :class="getOperatorClass(item.operator)">
                                             {{ formatOperator(item.operator) }}
@@ -142,6 +155,7 @@
                         <span v-else>-</span>
                     </template>
                 </vxe-column>
+                <vxe-column field="description" title="描述" width="200" align="center" />
                 <vxe-column title="操作" width="200" fixed="right" align="center">
                     <template #default="{ row }">
                         <el-button size="small" type="primary" plain @click="handleView(row)">查看</el-button>
@@ -164,7 +178,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, onMounted,computed  } from 'vue'
+import { ref, reactive, onMounted,computed , watch } from 'vue'
 import type { Flows } from '@/api/strategyAutoDelivery/flow/type'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { reqFlow, reqDeleteFlow, reqFlowId, } from '@/api/strategyAutoDelivery/flow/index'
@@ -176,6 +190,7 @@ import XEUtils from 'xe-utils'
 import DetailPage from './detail.vue' // 新建的详情组件
 import type Detail from './detail.vue'
 import { ThresholdPinia } from '@/store/strategyAutoDelivery/threshold'
+import type { VxeSelectEvents } from 'vxe-table'
 const thresholdStore = ThresholdPinia()
 
 
@@ -187,6 +202,7 @@ const dialogTitle = ref('')
 const isView = ref(false)
 const currentFlow = ref<Partial<Flows>>({})
 const showDetail = ref(false)
+const deviceSourceOption = ref('online') // 设备来源选项，默认值为 'online'
 
 const toggleDetail = () => {
   showDetail.value = !showDetail.value
@@ -196,16 +212,46 @@ const toggleDetail = () => {
 const getStrategyFlowsList = async () => {
     try {
         const response = await reqFlow()
-        strategyList.value = response.data || []
+        // response.data = response.data.sort((a:any,b:any) => a.name.localeCompare(b.name)) // 按name排序
+        const priority: Record<string, number> = { online: 0, offline: 1 }
+        response.data = (response.data || []).sort((a: any, b: any) => {
+            const nameCmp = String(a.name || '').localeCompare(String(b.name || ''), 'zh', { sensitivity: 'base' })
+            if (nameCmp !== 0) return nameCmp
+            const pa = priority[String(a.deviceSource)] ?? 99
+            const pb = priority[String(b.deviceSource)] ?? 99
+            return pa - pb
+        })
+        // strategyList.value = response.data || []
+        // strategyList 通过相同name排序 
+        // strategyList.value =  strategyList.value.sort((a, b) => a.name.localeCompare(b.name))
         strategyListBackUp.value = response.data || []
+        applyDeviceSource(String(deviceSourceOption.value || ''))
     } catch (error) {
         ElMessage.error('获取Flow列表失败')
     }
 }
 
+
+// 抽出通用过滤逻辑（接收字符串）
+const applyDeviceSource = (val: string) => {
+  if (val === 'online') {
+    strategyList.value = strategyListBackUp.value.filter(item => item.deviceSource === 'online')
+  } else if (val === 'offline') {
+    strategyList.value = strategyListBackUp.value.filter(item => item.deviceSource === 'offline')
+  } else {
+    strategyList.value = strategyListBackUp.value
+  }
+}
+// vxe-select 的 change 事件签名：({ value, $event, ... })
+const handleDeviceSource: VxeSelectEvents.Change = ({ value }) => {
+  applyDeviceSource(String(value || ''))
+}
+watch(deviceSourceOption, (newVal) => {
+  applyDeviceSource(String(newVal || ''))
+}, { immediate: true })
 // 添加Flow
 const handleAddFlow = () => {
-    currentFlow.value = { operator: 'big', status: 'enabled', cutoff: 0,flowType:'normal',syncFile: '' } // 默认操作符
+    currentFlow.value = { operator: 'big', status: 'enabled', cutoff: 0,flowType:'normal',syncFile: '',description: '',deviceSource:'offline' } // 默认操作符
     // currentFlow.value = { operator: 'big', status: 'enabled', cutoff: 0 } // 默认操作符
     dialogTitle.value = '新增Flow'
     isView.value = false
@@ -468,7 +514,8 @@ onMounted(() => {
     gap: 5px;
     min-height: 28px;
     /* 固定高度保持对齐 */
-    flex: 1;
+    // flex: 1;
+    width: 220px;
 }
 
 .formula-label {
@@ -488,7 +535,7 @@ onMounted(() => {
     max-width: 200px;
     overflow: hidden;
     text-overflow: ellipsis;
-    // white-space: nowrap;
+    white-space: nowrap;
 }
 
 /* 操作符颜色 */

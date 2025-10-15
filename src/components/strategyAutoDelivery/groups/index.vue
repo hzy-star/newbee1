@@ -9,6 +9,11 @@
             <p>
                 <vxe-input v-model="filterName" type="search" placeholder="模糊搜索groups名称" clearable
                     @change="searchEvent" size="mini"></vxe-input>
+                <vxe-select v-model="deviceSourceOption" type="search" placeholder="实时/离线" clearable size="mini"
+                @change="handleDeviceSource">
+                <vxe-option label="实时" value="online" />
+                <vxe-option label="离线" value="offline" />
+                </vxe-select>
             </p>
             <!-- Group列表表格 -->
             <vxe-table :data="strategyList" border round style="width: 100%" size="small" height="90%"
@@ -46,9 +51,9 @@
                 <!-- 实时/离线 -->
                 <vxe-column field="deviceSource" title="设备来源" width="100" align="center">
                     <template #default="{ row }">
-                        <el-tag v-if="row.deviceSource === 'offline'" type="info" size="small" effect="plain">离线</el-tag>
-                        <el-tag v-else-if="row.deviceSource === 'online'" type="success" size="small" effect="plain">实时</el-tag>
-                        <el-tag v-else type="warning" size="small" effect="plain">未知</el-tag>
+                        <el-tag v-if="row.deviceSource === 'offline'" type="danger" size="small" >离线</el-tag>
+                        <el-tag v-else-if="row.deviceSource === 'online'" type="primary" size="small" >实时</el-tag>
+                        <el-tag v-else type="info" size="small" >未知</el-tag>
                     </template>
                 </vxe-column>
                 <!-- 是否落盘 -->
@@ -74,7 +79,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, reactive } from 'vue'
+import { ref, onMounted, reactive,watch } from 'vue'
 import type { Groups } from '@/api/strategyAutoDelivery/groups/type'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { reqStrategyGroupList, reqDeleteStrategyGroup } from '@/api/strategyAutoDelivery/groups/index'
@@ -82,6 +87,7 @@ import GroupModel from './model.vue'
 import type { VxeTablePropTypes } from 'vxe-table'
 import { reqStrategys } from '@/api/strategyAutoDelivery/strategyPage/index'
 import XEUtils from 'xe-utils'
+import type { VxeSelectEvents } from 'vxe-table'
 
 // 响应式数据
 const strategyList = ref<Groups[]>([])
@@ -90,18 +96,37 @@ const dialogVisible = ref(false)
 const dialogTitle = ref('')
 const isView = ref(false)
 const currentGroup = ref<Partial<Groups>>({})
+const deviceSourceOption = ref('online') // 设备来源选项，默认值为 'online'
 
 // 获取Group列表
 const getStrategyGroupsList = async () => {
     try {
         const response = await reqStrategyGroupList()
-        strategyList.value = response.data || []
+        // strategyList.value = response.data || []
         strategyListBackUp.value = response.data || []
+        applyDeviceSource(String(deviceSourceOption.value || ''))
     } catch (error) {
         ElMessage.error('获取Group列表失败')
     }
 }
 
+// 抽出通用过滤逻辑（接收字符串）
+const applyDeviceSource = (val: string) => {
+  if (val === 'online') {
+    strategyList.value = strategyListBackUp.value.filter(item => item.deviceSource === 'online')
+  } else if (val === 'offline') {
+    strategyList.value = strategyListBackUp.value.filter(item => item.deviceSource === 'offline')
+  } else {
+    strategyList.value = strategyListBackUp.value
+  }
+}
+// vxe-select 的 change 事件签名：({ value, $event, ... })
+const handleDeviceSource: VxeSelectEvents.Change = ({ value }) => {
+  applyDeviceSource(String(value || ''))
+}
+watch(deviceSourceOption, (newVal) => {
+  applyDeviceSource(String(newVal || ''))
+}, { immediate: true })
 // 添加Group
 const handleAddGroup = () => {
     currentGroup.value = { operator: 'big', returnType:'rank',status: 'enabled', cutoff: 0,groupType: 'normal', deviceSource: 'offline'} // 默认操作符
