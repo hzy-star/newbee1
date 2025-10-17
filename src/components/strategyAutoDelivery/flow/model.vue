@@ -86,7 +86,7 @@
           </el-form-item>
           <el-form-item label="关联Groups">
             <el-select v-model="flowForm.strategyGroupIds" multiple placeholder="选择Groups" :disabled="isView"
-              style="width: 100%; margin-top: 10px;" value-key="id">
+              style="width: 100%; margin-top: 10px;" >
               <el-option v-for="group in strategyList" :key="group.id" :label="group.name" :value="group.id" />
             </el-select>
           </el-form-item>
@@ -268,34 +268,46 @@ const handleSubmit = async () => {
 // 获取groups列表
 const strategyList = ref<Array<{ id: number, name: string }>>([])
 const allStrategies = ref<any[]>([])           // 全量列表（用于 label 映射、合并已选项）
+const groupsLoaded = ref(false) // 新增：选项是否已加载
 const getGroupsList = async () => {
+  groupsLoaded.value = false
   const response = await reqStrategyGroupList()
-  response.data = response.data.filter((item: any) => item.status === 'enabled') // 只显示启用的Groups
+  response.data = response.data.filter((item: any) => item.status === 'enabled') // 只显示启用
   allStrategies.value = response.data || []
-  applyDeviceFilter() // 应用设备来源过滤
-
+  applyDeviceFilter()
+  groupsLoaded.value = true
 }
 // 设备来源过滤 + 清理不合法选择（可选）
 const applyDeviceFilter = () => {
   const ds = flowForm.value.deviceSource
-  debugger
   const list = ds ? allStrategies.value.filter((s: any) => s.deviceSource === ds) : allStrategies.value
   strategyList.value = list
 }
 
 // 选择变化时自动过滤（双保险）
-watch(() => flowForm.value.deviceSource, () => applyDeviceFilter())
+// ...existing code...
+watch(() => flowForm.value.deviceSource, () => {
+  applyDeviceFilter()
+  if (!groupsLoaded.value) return
+  const list = strategyList.value
+  flowForm.value.strategyGroupIds = (flowForm.value.strategyGroupIds || []).filter((id: number) =>
+    list.some(g => g.id === id)
+  )
+  // 可选：清理校验提示
+  formRef.value?.clearValidate?.(['strategyGroupIds'])
+})
+// ...existing code...
 
 // 初始化表单数据时处理groupIds
-watch(() => props.form, (newVal) => {
+watch(() => props.form, async (newVal) => {
   flowForm.value = {
     ...newVal,
-    strategyGroupIds: newVal.strategyGroupIds ? newVal.strategyGroupIds.split(',').map(Number) : []// 添加空数组回退
+    strategyGroupIds: newVal.strategyGroupIds ? newVal.strategyGroupIds.split(',').map(Number) : []
   }
   if (newVal.formula) {
     formulaConfigs.value = JSON.parse(newVal.formula)
   }
-  getGroupsList()
+  await getGroupsList()
 })
 
 

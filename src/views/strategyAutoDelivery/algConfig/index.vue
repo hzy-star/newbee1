@@ -1,9 +1,5 @@
 <template>
   <el-tabs v-model="activeTab" class="tabs">
-    <!-- 策略 -->
-    <el-tab-pane label="策略" name="tab1" class="tabs-1 paneTab">
-        <StrategyPage />
-    </el-tab-pane>
     <!-- 阈值 -->
     <el-tab-pane label="阈值管理" name="tab5" class="tabs-5 paneTab">
         <StrategythresholdPage />
@@ -13,6 +9,10 @@
         <StrategythresholdConfigPage />
     </el-tab-pane>
 
+    <!-- 策略 -->
+    <el-tab-pane label="策略" name="tab1" class="tabs-1 paneTab">
+        <StrategyPage />
+    </el-tab-pane>
     <!-- groups -->
     <el-tab-pane label="GROUP组" name="tab2" class="tabs-2 paneTab">
         <GroupsPage />
