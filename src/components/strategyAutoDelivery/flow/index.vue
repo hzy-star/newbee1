@@ -155,7 +155,7 @@
                         <span v-else>-</span>
                     </template>
                 </vxe-column>
-                <vxe-column field="description" title="描述" width="200" align="center" />
+                <vxe-column field="description" title="描述" width="200" align="center"  show-overflow/>
                 <vxe-column title="操作" width="200" fixed="right" align="center">
                     <template #default="{ row }">
                         <el-button size="small" type="primary" plain @click="handleView(row)">查看</el-button>

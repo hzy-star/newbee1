@@ -92,7 +92,9 @@
           </el-form-item>
           <!-- 描述 -->
           <el-form-item label="描述" prop="description">
-            <el-input v-model="flowForm.description" placeholder="请输入描述" :disabled="isView" />
+            <!-- 使用文本域 -->
+
+            <el-input type="textarea" v-model="flowForm.description" placeholder="请输入描述" :disabled="isView" />
           </el-form-item>
         </el-form>
       </div>
