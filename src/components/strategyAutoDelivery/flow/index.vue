@@ -160,7 +160,7 @@
                     <template #default="{ row }">
                         <el-button size="small" type="primary" plain @click="handleView(row)">查看</el-button>
                         <el-button size="small" type="success" plain @click="handleEditFlow(row)">编辑</el-button>
-                        <el-button size="small" type="danger" plain @click="handleDelete(row)">删除</el-button>
+                        <el-button size="small" type="danger" plain @click="handleDelete(row)" :disabled="!isSuperAdmin">删除</el-button>
                     </template>
                 </vxe-column>
             </vxe-table>
@@ -193,6 +193,10 @@ import { ThresholdPinia } from '@/store/strategyAutoDelivery/threshold'
 import type { VxeSelectEvents } from 'vxe-table'
 const thresholdStore = ThresholdPinia()
 
+// 获取父级传递的 isSuperAdmin 属性
+defineProps<{
+  isSuperAdmin: boolean
+}>()
 
 // 响应式数据
 const strategyList = ref<Flows[]>([])

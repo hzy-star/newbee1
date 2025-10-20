@@ -39,7 +39,7 @@
           <template #default="{ row }">
             <el-button size="small" type="primary" plain @click="handleView(row)">查看</el-button>
             <el-button size="small" type="success" plain @click="handleEdit(row)">编辑</el-button>
-            <el-button size="small" type="danger" plain @click="handleDelete(row)">删除</el-button>
+            <el-button size="small" type="danger" plain @click="handleDelete(row)" :disabled="!isSuperAdmin">删除</el-button>
             <el-button size="small" type="warning" plain @click="handlePreview(row)">预览</el-button>
             <el-button size="small" color="#626aef" :dark="isDark" plain @click="handleDownload(row)">下载</el-button>
           </template>
@@ -92,7 +92,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, nextTick,watch } from 'vue'
+import { ref, onMounted, nextTick,watch} from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { reqStrategyList, reqCreateOrUpdate, reqDeleteStrategy } from '@/api/strategyAutoDelivery/strategyPage/index'
 import type { Strategy } from '@/api/strategyAutoDelivery/strategyPage/type'
@@ -102,6 +102,10 @@ import { reqDownloadUrl } from '@/api/docDownload/ossDownload'
 import CsvPreviewDialog from '@/components/CsvPreviewDialog.vue'
 import { useDark } from '@vueuse/core' // 替代原来的 ~/composables/dark
 import type { VxeSelectEvents } from 'vxe-table'
+// 获取父级传递的 isSuperAdmin 属性
+defineProps<{
+  isSuperAdmin: boolean
+}>()
 // 是否暗色模式（自动跟随 prefers-color-scheme，也可手动切换）
 const isDark = useDark()
 // 响应式数据

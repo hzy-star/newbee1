@@ -11,25 +11,25 @@
 
     <!-- 策略 -->
     <el-tab-pane label="策略" name="tab1" class="tabs-1 paneTab">
-        <StrategyPage />
+        <StrategyPage :is-super-admin="isSuperAdmin" />
     </el-tab-pane>
     <!-- groups -->
     <el-tab-pane label="GROUP组" name="tab2" class="tabs-2 paneTab">
-        <GroupsPage />
+        <GroupsPage :is-super-admin="isSuperAdmin" />
     </el-tab-pane>
     <!-- flow -->
     <el-tab-pane label="FLOW任务流" name="tab3" class="tabs-3 paneTab">
-        <FlowPage />
+        <FlowPage :is-super-admin="isSuperAdmin" />
     </el-tab-pane>
     <!-- config -->
     <el-tab-pane label="AB分流" name="tab4" class="tabs-4 paneTab">
-        <FlowConfigPage />
+        <FlowConfigPage :is-super-admin="isSuperAdmin" />
     </el-tab-pane>
   </el-tabs>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref ,computed} from 'vue'
 import  StrategyPage  from '@/components/strategyAutoDelivery/strategyPage/index.vue';
 import  GroupsPage  from '@/components/strategyAutoDelivery/groups/index.vue';
 import  FlowPage  from '@/components/strategyAutoDelivery/flow/index.vue';
@@ -37,6 +37,13 @@ import  FlowConfigPage  from '@/components/strategyAutoDelivery/flowConfig/index
 import  StrategythresholdPage  from '@/components/strategyAutoDelivery/threshold/index.vue';
 import  StrategythresholdConfigPage  from '@/components/strategyAutoDelivery/thresholdConfig/index.vue';
 const activeTab = ref('tab1')
+// 引入 cookie store 获取用户角色
+import useCookie from "@/store/modules/cookie";
+const useCookies = useCookie()
+const userRole = useCookies.userRole
+const currentUserRole = ref(userRole); // 当前用户角色
+// 判断是否为超级管理员 把这个变量传递给子组件使用
+const isSuperAdmin = computed(() => currentUserRole.value === 'superAdmin');
 
 
 </script>
