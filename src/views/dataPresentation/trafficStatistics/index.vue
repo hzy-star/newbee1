@@ -27,10 +27,11 @@
                             item }}</el-radio-button>
                     </el-radio-group>
                 </el-col>
-                <el-col :span="4">
+                <el-col :span="5">
                     <el-form-item label=" ">
                         <el-checkbox v-model="formData.byHour" class="mr-4">byHour</el-checkbox>
                         <el-button type="primary" @click="handleQuery" style="margin-left: 16px">QUERY</el-button>
+                        <el-button type="primary" @click="exportToCSV">Export</el-button>
                     </el-form-item>
                 </el-col>
             </el-row>
@@ -153,7 +154,32 @@ const handleQuery = async () => {
         ElMessage.error('查询失败')
     }
 }
+// 导出
+const exportToCSV = () => {
+    if (tableData.value.length === 0) {
+        ElMessage.warning('没有数据可导出')
+        return
+    }
 
+    const headers = tableColumns.value
+    const csvRows = [
+        headers.join(','), // 添加表头
+        ...tableData.value.map(row =>
+            headers.map(header => `"${row[header] ?? ''}"`).join(',')
+        )
+    ]
+    const csvContent = csvRows.join('\n')
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
+    const url = URL.createObjectURL(blob)
+    link.setAttribute('href', url)
+    link.setAttribute('download', `export_${formData.value.day}.csv`)
+    link.style.visibility = 'hidden'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+}
 // 图表初始化
 const initChart = () => {
     if (!chartRef.value) return
