@@ -141,10 +141,10 @@ interface FormulaConfig {
 const emptyConfig = (): FormulaConfig => ({
     configName: '',
     configValue: '',
-    configKp: '',
-    configKi: '',
-    configKd: '',
-    configStep: '',
+    configKp: '0.5',
+    configKi: '0.11',
+    configKd: '1',
+    configStep: '1',
     isAuto: 'false'
 })
 
