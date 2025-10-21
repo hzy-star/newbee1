@@ -169,7 +169,7 @@ const formData = ref<any>({
   status: 'enabled',
   cutoff: 0,
   groupType: 'normal',
-  deviceSource: 'offline',
+  deviceSource: 'online',
   strategySelections: [] as any[],
   ...props.form
 })
@@ -291,7 +291,7 @@ const handleClose = () => {
     status: 'enabled',
     cutoff: 0,
     groupType: 'normal',
-    deviceSource: 'offline',
+    deviceSource: 'online',
     strategySelections: []
   }
 }
@@ -354,7 +354,7 @@ watch(
       status: 'enabled',
       cutoff: 0,
       groupType: 'normal',
-      deviceSource: 'offline',
+      deviceSource: 'online',
       strategySelections: [],
       ...newVal
     }

@@ -150,7 +150,7 @@ const flowForm = ref<Partial<Flows>>({
   flowType: 'normal',
   syncFile: '',
   description: '', // 初始化描述字段
-  deviceSource: 'offline' // 初始化设备来源字段
+  deviceSource: 'online' // 初始化设备来源字段
 })
 
 const formulaConfigs = ref([
@@ -330,7 +330,7 @@ const handleClose = () => {
     strategyGroupIds: [],
     syncFile: '',
     description: '', // 重置描述字段
-    deviceSource: 'offline' // 重置设备来源字段
+    deviceSource: 'online' // 重置设备来源字段
   }
   formulaConfigs.value = [{ formula: '', cutoff: 0, operator: 'big', thresholdId: '' }] // 重置公式配置
 }

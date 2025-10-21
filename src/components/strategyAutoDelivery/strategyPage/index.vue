@@ -123,7 +123,7 @@ const formData = ref<Omit<Strategy, 'id'> & { id?: number }>({
   ruleFile: '',
   returnType: '',
   description: '',
-  deviceSource: 'offline'
+  deviceSource: 'online'
 })
 
 // 表单验证规则
@@ -175,7 +175,7 @@ const resetForm = () => {
     ruleFile: '',
     returnType: '',
     description: '',
-    deviceSource: 'offline'
+    deviceSource: 'online'
   }
   nextTick(() => {
     formRef.value?.clearValidate()

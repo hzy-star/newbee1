@@ -255,7 +255,7 @@ watch(deviceSourceOption, (newVal) => {
 }, { immediate: true })
 // 添加Flow
 const handleAddFlow = () => {
-    currentFlow.value = { operator: 'big', status: 'enabled', cutoff: 0,flowType:'normal',syncFile: '',description: '',deviceSource:'offline' } // 默认操作符
+    currentFlow.value = { operator: 'big', status: 'enabled', cutoff: 0,flowType:'normal',syncFile: '',description: '',deviceSource:'online' } // 默认操作符
     // currentFlow.value = { operator: 'big', status: 'enabled', cutoff: 0 } // 默认操作符
     dialogTitle.value = '新增Flow'
     isView.value = false
