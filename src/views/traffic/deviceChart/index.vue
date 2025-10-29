@@ -50,6 +50,9 @@
         <div class="pushtaskchart_table">
             <div id="taskCountChart" style="width: 100%; height: calc(100vh - 170px);"></div>
         </div>
+        <div class="pushtaskchart_table">
+            <div id="taskCountChartNoDup" style="width: 100%; height: calc(100vh - 170px);"></div>
+        </div>
 
     </div>
 </template>
@@ -60,7 +63,7 @@ import { ref, onMounted, watch, onUnmounted } from 'vue'
 import { toDateStr } from '@/utils/time'
 import { formatData, paramsData } from '@/api/traffic/deviceChart/type'
 import * as echarts from 'echarts'
-import { reqCountDevHour } from '@/api/traffic/deviceChart'
+import { reqCountDevHour ,reqCountDevHourNoDup} from '@/api/traffic/deviceChart'
 
 const dataTime = ref(toDateStr(new Date(), true))
 const FormData = ref<formatData>({
@@ -72,6 +75,7 @@ const FormData = ref<formatData>({
 })
 // 显示图表
 let resData = ref([])
+let resNoDupData = ref([]);
 
 
 // 监听 baseDate 的变化并格式化
@@ -107,7 +111,10 @@ const ShowChart = async () => {
         days: calculateDays(FormData.value.baseDate?.trim(), FormData.value.dayStep?.trim()),
     };
     let res = await reqCountDevHour(params)
+    let resNoDup = await reqCountDevHourNoDup(params)
     resData.value = res
+    resNoDupData.value = resNoDup
+
     updateCharts();
 }
 
@@ -115,11 +122,12 @@ const ShowChart = async () => {
 const updateCharts = () => {
     
     // 渲染任务流量图表
-    renderChart(resData.value, document.getElementById("taskCountChart"));
+    renderChart(resData.value, document.getElementById("taskCountChart"),'设备请求量');
+    renderChart(resNoDupData.value, document.getElementById("taskCountChartNoDup"),'去重设备请求量');
 }
 
 // 渲染任务流量图表的函数
-const renderChart = (data: any, container: any) => {
+const renderChart = (data: any, container: any, chartTitle: string) => {
     const chartEle = container;
 
     // 销毁现有的图表实例，避免重复渲染
@@ -149,6 +157,15 @@ const renderChart = (data: any, container: any) => {
 
     // 配置 ECharts 选项
     const option = {
+        title: {
+            text: chartTitle,
+            left: 'left',
+            textStyle: {
+                fontSize: 20,
+                fontWeight: 'bold',
+                color: '#333'
+            }
+        },
         tooltip: {
             trigger: 'axis',
             confine: true // 确保 tooltip 在图表区域内
@@ -200,6 +217,14 @@ const handleResize = () => {
             taskCountChart.resize();
         }
     }
+    const taskCountChartNoDupElement = document.getElementById("taskCountChartNoDup");
+    console.log(taskCountChartNoDupElement);
+    if (taskCountChartNoDupElement) {
+        const taskCountChartNoDup = echarts.getInstanceByDom(taskCountChartNoDupElement);
+        if (taskCountChartNoDup) {
+            taskCountChartNoDup.resize();
+        }
+    }
 };
 </script>
 
@@ -217,8 +242,7 @@ const handleResize = () => {
     }
 
     .pushtaskchart_table{
-        flex: 1 1 50%; // 平均分配剩余空间
-        min-height: 400px; // 设置最小高度
+        margin-bottom: 24px;
     }
 }
 
