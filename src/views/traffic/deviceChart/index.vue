@@ -110,8 +110,11 @@ const ShowChart = async () => {
         }),
         days: calculateDays(FormData.value.baseDate?.trim(), FormData.value.dayStep?.trim()),
     };
-    let res = await reqCountDevHour(params)
-    let resNoDup = await reqCountDevHourNoDup(params)
+    
+    const [res, resNoDup] = await Promise.all([
+        reqCountDevHour(params),
+        reqCountDevHourNoDup(params)
+    ]);
     resData.value = res
     resNoDupData.value = resNoDup
 
