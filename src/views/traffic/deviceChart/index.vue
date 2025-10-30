@@ -124,7 +124,7 @@ const updateCharts = () => {
     
     // 渲染任务流量图表
     renderChart(resData.value, document.getElementById("taskCountChart"),'设备请求量');
-    renderChart(resNoDupData.value, document.getElementById("taskCountChartNoDup"),'去重设备请求量');
+    renderChart(resNoDupData.value, document.getElementById("taskCountChartNoDup"),'重复设备请求量');
 }
 
 // 渲染任务流量图表的函数
