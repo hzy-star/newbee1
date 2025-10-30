@@ -48,10 +48,8 @@
 
         <!-- 数据表格 -->
         <div class="pushtaskchart_table">
-            <div id="taskCountChart" style="width: 100%; height: calc(100vh - 170px);"></div>
-        </div>
-        <div class="pushtaskchart_table">
-            <div id="taskCountChartNoDup" style="width: 100%; height: calc(100vh - 170px);"></div>
+            <div id="taskCountChart" ></div>
+            <div id="taskCountChartNoDup" ></div>
         </div>
 
     </div>
@@ -244,8 +242,16 @@ const handleResize = () => {
         min-height: 50px; // 设置最小高度
     }
 
-    .pushtaskchart_table{
-        margin-bottom: 24px;
+    .pushtaskchart_table {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+
+        #taskCountChart,
+        #taskCountChartNoDup {
+            flex: 1;
+            height: 50%; // 每个占一半
+        }
     }
 }
 
