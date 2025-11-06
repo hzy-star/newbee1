@@ -31,18 +31,23 @@
 
             <!-- Flow 渐进渲染 -->
             <div class="table-container">
-                <div v-for="(flow, flowIndex) in flows" :key="flow.id" class="flow-section">
+                <div v-for="(flow, flowIndex) in flows" :key="flow.id" class="flow-section flow-contain">
                     <!-- Flow 标题 -->
                     <div class="flow-header">
                         <div class="flow-info">
                             <h2 class="flow-title">
-                                <i class="el-icon-s-operation"></i>
-                                {{ flow.name }}
-                            </h2>
-                            <div class="flow-meta">
-                                <el-tag :type="flow.status === 'enabled' ? 'success' : 'danger'" size="small">
+                                <el-icon><operation /></el-icon>
+                                {{ flow.name || '-' }}
+                                <span class="span-text" :class="flow.deviceSource ===  'online' ? 'span-online' : 'span-offline' ">{{ flow.deviceSource === 'online' ? '(实时)' : flow.deviceSource === 'offline' ? '(离线)' : '' }}</span>
+                                <el-tag :type="flow.status === 'enabled' ? 'success' : 'danger'" size="default"  >
                                     {{ flow.status === 'enabled' ? '启用' : '禁用' }}
                                 </el-tag>
+                            </h2>
+                            <div class="flow-meta">
+                                <el-button size="small" type="primary" plain @click="handleView(flow)">查看</el-button>
+                                <el-button size="small" type="success" plain @click="handleEditFlow(flow)">编辑</el-button>
+                                <el-button size="small" type="danger" plain @click="handleDelete(flow)" :disabled="!props.isSuperAdmin">删除</el-button>
+                                <el-button size="small" type="warning" plain @click="handleCopy(flow)">复制</el-button>
                                 <span class="group-count">{{ flow.groups.length }} 个分组</span>
                             </div>
                         </div>
@@ -58,7 +63,8 @@
                     </div>
 
                     <div v-else class="groups-table">
-                        <el-table :data="flow.groups" border size="small" :row-class-name="tableRowClassName">
+                        <el-table :data="flow.groups" border size="small" :row-class-name="tableRowClassName"
+                            row-key="id">
                             <el-table-column label="序号" width="60" align="center">
                                 <template #default="{ $index }">
                                     <span class="group-seq">G{{ $index + 1 }}</span>
@@ -69,9 +75,9 @@
                                 <template #default="{ row }">
                                     <div class="name-with-icon">
                                         <i class="el-icon-folder-opened"></i>
-                                        <el-tooltip :content="row.name" placement="top"
-                                            :disabled="row.name.length <= 10">
-                                            <span class="truncate-text">{{ row.name }}</span>
+                                        <el-tooltip :content="row.name || '-'" placement="top"
+                                            :disabled="!(row.name && row.name.length > 10)">
+                                            <span class="truncate-text">{{ row.name || '-' }}</span>
                                         </el-tooltip>
                                     </div>
                                 </template>
@@ -95,7 +101,7 @@
 
                             <el-table-column prop="cutoff" label="截止值" width="80" align="center">
                                 <template #default="{ row }">
-                                    {{ row.cutoff || '-' }}
+                                    {{ row.cutoff ?? '-' }}
                                 </template>
                             </el-table-column>
 
@@ -107,8 +113,8 @@
 
                             <el-table-column prop="formula" label="公式" width="100">
                                 <template #default="{ row }">
-                                    <el-tooltip :content="row.formula" placement="top"
-                                        :disabled="!row.formula || row.formula.length <= 10">
+                                    <el-tooltip :content="row.formula || '-'" placement="top"
+                                        :disabled="!(row.formula && row.formula.length > 10)">
                                         <span class="truncate-text">{{ row.formula || '-' }}</span>
                                     </el-tooltip>
                                 </template>
@@ -117,7 +123,7 @@
                             <el-table-column label="策略数量" width="80" align="center">
                                 <template #default="{ row }">
                                     <el-tag size="small" type="info">
-                                        {{ getTotalStrategyCount(row.strategies) }}
+                                        {{ row.strategyCount ?? 0 }}
                                     </el-tag>
                                 </template>
                             </el-table-column>
@@ -127,24 +133,23 @@
                                     <div v-if="!row.loaded" class="strategy-loading">
                                         <el-skeleton-item variant="text" style="width: 60%; height: 20px;" />
                                     </div>
-                                    <div v-else-if="row.strategies.length === 0" class="no-strategies">
+
+                                    <div v-else-if="(row.tagTexts?.length || 0) === 0" class="no-strategies">
                                         <span class="empty-text">暂无策略</span>
                                     </div>
+
                                     <div v-else class="strategies-container">
                                         <div class="strategies-simple-list">
-                                            <el-tag v-for="(strategyArray, index) in row.strategies" :key="index"
-                                                size="small" class="strategy-tag" type="success" effect="light">
-                                                <template v-for="(strategy, sIndex) in strategyArray"
-                                                    :key="strategy.id">
-                                                    <el-tooltip :content="strategy.ruleFile" placement="top">
-                                                        <span class="strategy-name-simple">{{ strategy.name }}</span>
-                                                        <span v-if="sIndex < strategyArray.length - 1"
-                                                            class="strategy-separator"> | </span>
-                                                    </el-tooltip>
-                                                </template>
+                                            <!-- 仅一层 v-for，每个 tag 一个 tooltip，样式不变 -->
+                                            <el-tag v-for="(text, index) in row.tagTexts"
+                                                :key="row.tagKeys[index] || index" size="small" class="strategy-tag"
+                                                type="success" effect="light">
+                                                <el-tooltip :content="row.tagTips[index]" placement="top"
+                                                    :disabled="!row.tagTips[index]">
+                                                    <span class="strategy-name-simple">{{ text }}</span>
+                                                </el-tooltip>
                                             </el-tag>
                                         </div>
-
                                     </div>
                                 </template>
                             </el-table-column>
@@ -156,9 +161,8 @@
     </div>
 </template>
 
-
 <script lang="ts" setup>
-import { ref, computed } from 'vue'
+import { ref, computed, markRaw } from 'vue'
 import { reqFlow } from '@/api/strategyAutoDelivery/flow/index'
 import { reqStrategyGroup } from '@/api/strategyAutoDelivery/groups/index'
 import { reqStrategys } from '@/api/strategyAutoDelivery/strategyPage/index'
@@ -168,91 +172,128 @@ const status = ref<Status>('idle')
 const flows = ref<any[]>([])
 
 const totalGroups = computed(() =>
-    flows.value.reduce((total, flow) => total + flow.groups.length, 0)
+    flows.value.reduce((total, flow) => total + (flow.groups?.length || 0), 0)
 )
-
 const totalStrategies = computed(() =>
     flows.value.reduce((total, flow) => {
-        return total + flow.groups.reduce((groupTotal: number, group: any) => {
-            return groupTotal + group.strategies.reduce((strategyTotal: number, strategyArray: any) => {
-                return strategyTotal + (Array.isArray(strategyArray) ? strategyArray.length : 1)
-            }, 0)
-        }, 0)
+        return total + flow.groups.reduce((gt: number, g: any) => gt + (g.strategyCount || 0), 0)
     }, 0)
 )
 
 const tableRowClassName = () => 'group-row'
 const formatOperator = (operator: string) => {
-    const operatorMap: Record<string, string> = {
-        big: '>',
-        small: '<',
-        equal: '='
-    }
-    return operatorMap[operator] || operator
+    const operatorMap: Record<string, string> = { big: '>', small: '<', equal: '=' }
+    return operatorMap[operator] || operator || '-'
 }
-const getOperatorClass = (operator: string) => {
-    return {
-        big: 'operator-big',
-        small: 'operator-small',
-        equal: 'operator-equal'
-    }[operator] || ''
+const getOperatorClass = (operator: string) =>
+    ({ big: 'operator-big', small: 'operator-small', equal: 'operator-equal' }[operator] || '')
+
+const parseIds = (val: unknown): string[] => {
+    if (!val) return []
+    if (typeof val === 'string') return val.split(',').map(s => s.trim()).filter(Boolean)
+    if (Array.isArray(val)) return val.map(String).map(s => s.trim()).filter(Boolean)
+    return []
 }
-// 计算策略总数
-const getTotalStrategyCount = (strategies: any[]) => {
-    return strategies.reduce((total, strategyArray) => {
-        return total + (Array.isArray(strategyArray) ? strategyArray.length : 1)
-    }, 0)
+const toArray = (data: any): any[] => {
+    if (!data) return []
+    if (Array.isArray(data)) return data
+    return Object.values(data) // 兼容对象返回
 }
+const uniq = <T,>(arr: T[]) => Array.from(new Set(arr))
+
+// 并发批量加载（两阶段）
 const loadDataProgressively = async () => {
     try {
         status.value = 'loading'
+
+        // 1) flows
         const flowRes: any = await reqFlow(true)
-        const flowList: any[] = (flowRes?.data || []).map((flow: any) => ({
+        const flowList: any[] = toArray(flowRes?.data).map((flow: any) => ({
             ...flow,
             loaded: false,
-            groups: []
+            groups: [] as any[],
         }))
         flows.value = flowList
+        const priority: Record<string, number> = { online: 0, offline: 1 }
+        flows.value = (flows.value || []).sort((a: any, b: any) => {
+            const nameCmp = String(a.name || '').localeCompare(String(b.name || ''), 'zh', { sensitivity: 'base' })
+            if (nameCmp !== 0) return nameCmp
+            const pa = priority[String(a.deviceSource)] ?? 99
+            const pb = priority[String(b.deviceSource)] ?? 99
+            return pa - pb
+        })
+        // 2) groups 批量
+        const allGroupIds = uniq(flowList.flatMap(f => parseIds(f.strategyGroupIds)))
+        if (allGroupIds.length === 0) {
+            for (const f of flowList) f.loaded = true
+            status.value = 'done'
+            return
+        }
+        const groupRes: any = await reqStrategyGroup({ ids: allGroupIds.join(',') }, true)
+        const groupArr: any[] = toArray(groupRes?.data)
 
-        await new Promise(r => setTimeout(r, 300))
+        const groupMap = new Map<string, any>()
+        for (const g of groupArr) {
+            if (!g) continue
+            groupMap.set(String(g.id), {
+                ...g,
+                loaded: false,
+                // 运行期只读 UI 字段，避免深度响应
+                strategies: markRaw([] as any[]), // 数组的数组（保留数据形状）
+                strategyCount: 0,
+                tagTexts: markRaw([] as string[]), // 每个 tag 的显示文本（用“ | ”拼接）
+                tagTips: markRaw([] as string[]),  // 每个 tag 的 tooltip 内容
+                tagKeys: markRaw([] as string[]),  // 每个 tag 的 key（稳定）
+            })
+        }
 
         for (const flow of flowList) {
+            const ids = parseIds(flow.strategyGroupIds)
+            flow.groups = ids.map(id => groupMap.get(String(id))).filter(Boolean)
             flow.loaded = true
-            if (!flow.strategyGroupIds) continue
+        }
 
-            const groupIdArr = typeof flow.strategyGroupIds === 'string'
-                ? flow.strategyGroupIds.split(',').map((id: string) => id.trim()).filter(Boolean)
-                : Array.isArray(flow.strategyGroupIds) ? flow.strategyGroupIds : []
+        // 3) strategies 批量
+        const allStrategyIds = uniq(
+            flowList
+                .flatMap(f => f.groups)
+                .flatMap((g: any) => parseIds(g?.strategyIds).map((s: string) => s.split(':')[0]).filter(Boolean))
+        )
 
-            for (const groupId of groupIdArr) {
-                const groupRes: any = await reqStrategyGroup({ ids: groupId }, true)
-                const groupData: any = groupRes?.data || {}
+        if (allStrategyIds.length > 0) {
+            const stratRes: any = await reqStrategys({ ids: allStrategyIds.join(',') }, true)
+            const stratArr: any[] = toArray(stratRes?.data)
+            const stratMap = new Map<string, any>()
+            for (const s of stratArr) stratMap.set(String(s.id), s)
 
-                const group = {
-                    ...(groupData.hasOwnProperty('0') ? groupData['0'] : groupData),
-                    loaded: false,
-                    strategies: []
-                }
+            for (const g of groupMap.values()) {
+                const ids = parseIds(g.strategyIds).map((s: string) => s.split(':')[0]).filter(Boolean)
 
-                flow.groups.push(group)
-                await new Promise(r => setTimeout(r, 150))
-                group.loaded = true
+                // 策略数组的数组（保持结构），但模板不再二次遍历
+                const strategyArrays = ids.map(id => {
+                    const s = stratMap.get(String(id))
+                    return s ? [markRaw(s)] : []
+                })
+                // 渲染用的文本 / tooltip / key
+                const tagTexts = strategyArrays.map(arr => arr.map(s => s?.name || '').filter(Boolean).join(' | '))
+                const tagTips = strategyArrays.map(arr => arr.map(s => s?.description || '').filter(Boolean).join(' | '))
+                const tagKeys = ids.map(id => id)
 
-                if (group.strategyIds) {
-                    const strategyIdArr = typeof group.strategyIds === 'string'
-                        ? group.strategyIds.split(',').map((id: string) => id.trim()).filter(Boolean)
-                        : Array.isArray(group.strategyIds) ? group.strategyIds : []
-
-                    const strategyResults = await Promise.all(
-                        strategyIdArr.map(async (id: string) => {
-                            if (!id) return null
-                            const p: any = id.split(',').map((item: any) => (item as any).split(':')[0]).join(',')
-                            const strategyRes: any = await reqStrategys({ ids: p }, true)
-                            return strategyRes?.data || null
-                        })
-                    )
-                    group.strategies = strategyResults.filter(Boolean)
-                }
+                g.strategies = markRaw(strategyArrays)
+                g.tagTexts = markRaw(tagTexts)
+                g.tagTips = markRaw(tagTips)
+                g.tagKeys = markRaw(tagKeys)
+                g.strategyCount = ids.length
+                g.loaded = true
+            }
+        } else {
+            for (const g of groupMap.values()) {
+                g.strategies = markRaw([])
+                g.tagTexts = markRaw([])
+                g.tagTips = markRaw([])
+                g.tagKeys = markRaw([])
+                g.strategyCount = 0
+                g.loaded = true
             }
         }
 
@@ -264,8 +305,28 @@ const loadDataProgressively = async () => {
 }
 
 defineExpose({ loadDataProgressively })
-</script>
 
+// 新增：接收父组件的 isSuperAdmin
+const props = defineProps<{
+  isSuperAdmin: boolean
+}>()
+
+// 新增：向父组件派发事件
+const emit = defineEmits<{
+    (e: 'view', flow: any): void
+    (e: 'edit', flow: any): void
+    (e: 'delete', flow: any): void
+    (e: 'copy', flow: any): void
+}>()
+
+// 新增：按钮对应的方法（只派发事件，逻辑复用父组件）
+const handleView = (flow: any) => emit('view', flow)
+const handleEditFlow = (flow: any) => emit('edit', flow)
+const handleDelete = (flow: any) => emit('delete', flow)
+// 复制Flow
+const handleCopy = (flow: any) => emit('copy', flow)
+
+</script>
 
 <style lang="scss" scoped>
 .dashboard-container {
@@ -277,6 +338,7 @@ defineExpose({ loadDataProgressively })
         background: #fff;
         border-radius: 8px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        text-align: center;
     }
 
     .content-wrapper {
@@ -314,125 +376,144 @@ defineExpose({ loadDataProgressively })
                 border-radius: 8px;
                 box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
                 overflow: hidden;
+            }
 
-                .flow-header {
-                    background: linear-gradient(135deg, #409EFF 0%, #66b3ff 100%);
-                    color: #fff;
-                    padding: 15px 20px;
+            /* 关键优化：视口外内容不参与布局绘制 */
+            .flow-contain {
+                content-visibility: auto;
+                contain-intrinsic-size: 600px 400px;
+                /* 预估尺寸，可按实际调整 */
+            }
 
-                    .flow-info {
-                        display: flex;
-                        justify-content: space-between;
-                        align-items: center;
+            .flow-header {
+                background: linear-gradient(135deg, #409EFF 0%, #66b3ff 100%);
+                color: #fff;
+                padding: 15px 20px;
 
-                        .flow-title {
-                            margin: 0;
-                            font-size: 18px;
-                            font-weight: 600;
+                .flow-info {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
 
-                            i {
-                                margin-right: 8px;
-                            }
+                    .flow-title {
+                        margin: 0;
+                        font-size: 18px;
+                        font-weight: 600;
+
+                        i {
+                            margin-right: 8px;
                         }
+                        .span-text{
+                            margin-left: 6px;
+                            font-size: 14px;
+                            font-weight: normal;
+                            margin-right: 5px;
+                        }
+                        .span-online{
+                            color: #e4ec0a;
+                        }
+                        .span-offline{
+                            color: #e33434;
+                        }
+                    }
 
-                        .flow-meta {
-                            display: flex;
-                            align-items: center;
-                            gap: 15px;
+                    .flow-meta {
+                        display: flex;
+                        align-items: center;
+                        gap: 15px;
 
-                            .group-count {
-                                font-size: 14px;
-                                opacity: 0.9;
-                            }
+                        .group-count {
+                            font-size: 14px;
+                            opacity: 0.9;
                         }
                     }
                 }
+            }
 
-                .loading-section,
-                .empty-section {
-                    padding: 40px;
-                    text-align: center;
-                }
+            .loading-section,
+            .empty-section {
+                padding: 40px;
+                text-align: center;
+            }
 
-                .groups-table {
-                    :deep(.el-table) {
-                        .group-row {
-                            &:hover {
-                                td {
-                                    background-color: #f5f7fa;
-                                }
+            .groups-table {
+                :deep(.el-table) {
+                    .group-row {
+                        &:hover {
+                            td {
+                                background-color: #f5f7fa;
                             }
+                        }
 
-                            .group-seq {
-                                display: inline-block;
-                                background: #67C23A;
-                                color: #fff;
-                                padding: 2px 6px;
-                                border-radius: 4px;
-                                font-weight: bold;
-                                font-size: 12px;
-                            }
+                        .group-seq {
+                            display: inline-block;
+                            background: #67C23A;
+                            color: #fff;
+                            padding: 2px 6px;
+                            border-radius: 4px;
+                            font-weight: bold;
+                            font-size: 12px;
+                        }
 
-                            .name-with-icon {
-                                display: flex;
-                                align-items: center;
-                                gap: 4px;
-                                font-weight: 600;
+                        .name-with-icon {
+                            display: flex;
+                            align-items: center;
+                            gap: 4px;
+                            font-weight: 600;
+                            color: #67C23A;
+
+                            i {
                                 color: #67C23A;
+                            }
+                        }
 
-                                i {
-                                    color: #67C23A;
-                                }
+                        .truncate-text {
+                            max-width: 100px;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            white-space: nowrap;
+                        }
+
+                        .operator {
+                            font-weight: bold;
+                            font-size: 16px;
+
+                            &.operator-big {
+                                color: #67c23a;
                             }
 
-                            .truncate-text {
-                                max-width: 100px;
-                                overflow: hidden;
-                                text-overflow: ellipsis;
-                                white-space: nowrap;
+                            &.operator-small {
+                                color: #f56c6c;
                             }
 
-                            .operator {
-                                font-weight: bold;
-                                font-size: 16px;
-
-                                &.operator-big {
-                                    color: #67c23a;
-                                }
-
-                                &.operator-small {
-                                    color: #f56c6c;
-                                }
-
-                                &.operator-equal {
-                                    color: #e6a23c;
-                                }
+                            &.operator-equal {
+                                color: #e6a23c;
                             }
+                        }
 
-                            .strategies-container {
-                                .strategies-simple-list {
-                                    display: flex;
-                                    flex-wrap: wrap;
-                                    gap: 4px;
-                                    align-items: center;
+                        .strategies-container {
+                            .strategies-simple-list {
+                                display: flex;
+                                flex-wrap: wrap;
+                                gap: 4px;
+                                align-items: center;
 
-                                    .strategy-tag {
-                                        margin: 1px;
-                                        font-size: 11px;
-                                        max-width: 120px;
+                                .strategy-tag {
+                                    margin: 1px;
+                                    font-size: 11px;
+                                    max-width: 120px;
 
-                                        .strategy-name-simple {
-                                            display: inline-block;
-                                            max-width: 80px;
-                                            overflow: hidden;
-                                            text-overflow: ellipsis;
-                                            white-space: nowrap;
-                                        }
+                                    .strategy-name-simple {
+                                        display: inline-block;
+                                        max-width: 80px;
+                                        overflow: hidden;
+                                        text-overflow: ellipsis;
+                                        white-space: nowrap;
+                                    }
 
-                                        .strategy-separator {
-                                            margin: 0 2px;
-                                            color: #999;
-                                        }
+                                    .strategy-separator {
+                                        margin: 0 2px;
+                                        color: #999;
                                     }
                                 }
                             }

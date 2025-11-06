@@ -47,6 +47,16 @@
                                         <el-col :span="9">
                                             <el-input v-model="config.configStep" placeholder="configStep" size="small" style="width: 100%" :disabled="isView" />
                                         </el-col>
+                                        <el-col :span="9">
+                                            <el-select v-model="config.dupCheck" placeholder="dupCheck" size="small" style="width: 100%" :disabled="isView">
+                                                <el-option label="less" value="less" />
+                                                <el-option label="pri" value="pri" />
+                                                <el-option label="sec" value="sec" />
+                                            </el-select>
+                                        </el-col>
+                                        <el-col :span="9">
+                                            <el-input v-model="config.eraseIfa" placeholder="eraseIfa" size="small" style="width: 100%" :disabled="isView" />
+                                        </el-col>
                                         <!-- isAuto是Switch开关 如果isAuto自动化开启，则kp:ki:kd:step必填 -->
                                         <el-col :span="14" style="display: flex; align-items: center;">
                                             <span>是否开启自动化PID控量：</span>
@@ -136,6 +146,8 @@ interface FormulaConfig {
     configKi: string
     configKd: string
     configStep: string
+    dupCheck: string
+    eraseIfa: string
     isAuto: BoolString
 }
 const emptyConfig = (): FormulaConfig => ({
@@ -145,6 +157,8 @@ const emptyConfig = (): FormulaConfig => ({
     configKi: '0.11',
     configKd: '1',
     configStep: '1',
+    dupCheck: 'less',
+    eraseIfa: '0',
     isAuto: 'false'
 })
 
@@ -166,8 +180,8 @@ const rules = ref<FormRules>({
                     callback(new Error('所有配置不能为空'))
                     return
                 }
-                if (formulaConfigs.value.some(item => item.isAuto === 'true' && (!item.configKp || !item.configKi || !item.configKd || !item.configStep))) {
-                    callback(new Error('自动化开启时，kp, ki, kd, step均为必填'))
+                if (formulaConfigs.value.some(item => item.isAuto === 'true' && (!item.configKp || !item.configKi || !item.configKd || !item.configStep || !item.dupCheck || !item.eraseIfa))) {
+                    callback(new Error('自动化开启时，kp, ki, kd, step, dupCheck, eraseIfa均为必填'))
                     return
                 }
                 callback()
@@ -205,7 +219,7 @@ const handleSubmit = async () => {
             id: flowForm.value.id,
             pkgName: flowForm.value.pkgName,
             country: flowForm.value.country,
-            config: formulaConfigs.value.map(item => `${item.configName}:${item.configValue}:${item.configKp}:${item.configKi}:${item.configKd}:${item.configStep}:${item.isAuto}`).join(','),
+            config: formulaConfigs.value.map(item => `${item.configName}:${item.configValue}:${item.configKp}:${item.configKi}:${item.configKd}:${item.configStep}:${item.isAuto}:${item.dupCheck}:${item.eraseIfa}`).join(','),
         }
         const response: any = await reqCreateOrUpdatFlowConfig(submitData)
         if (response?.code === 200 || response?.success === true) {
@@ -231,7 +245,7 @@ const getFlowList = async () => {
 const parseConfigString = (configStr: string): FormulaConfig[] => {
     if (!configStr) return [emptyConfig()]
     return configStr.split(',').map(item => {
-        const [configName = '', configValue = '', configKp = '', configKi = '', configKd = '', configStep = '', isAutoRaw = 'false'] = item.split(':')
+        const [configName = '', configValue = '', configKp = '', configKi = '', configKd = '', configStep = '', dupCheck = 'less', eraseIfa = '0', isAutoRaw = 'false'] = item.split(':')
         const isAuto: BoolString = isAutoRaw === 'true' ? 'true' : 'false'
         return {
             configName,
@@ -240,6 +254,8 @@ const parseConfigString = (configStr: string): FormulaConfig[] => {
             configKi,
             configKd,
             configStep,
+            dupCheck,
+            eraseIfa,
             isAuto
         }
     })

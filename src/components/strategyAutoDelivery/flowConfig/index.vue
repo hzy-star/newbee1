@@ -15,83 +15,64 @@
                 <vxe-column field="xh" type="seq" align="center" title="序号" width="5%"></vxe-column>
                 <vxe-column field="pkgName" title="pkg" min-width="20" width="240" align="center" />
                 <vxe-column field="country" title="国家" min-width="20" width="240" align="center" />
-                <vxe-column field="config" title="config" min-width="300" align="center">
+                <vxe-column field="config" title="config" min-width="300" align="center" class-name="config-col">
                     <template #default="{ row }">
                         <div v-if="row.config" class="config-container">
                             <div v-for="(item, index) in parseFormula(row.config)" :key="index" class="config-item">
                                 <div class="config-grid">
-                                    <!-- 公式字段 -->
-                                    <div class="config-cell flow-cell">
-                                        <span class="config-label">Flow:</span>
-                                        <el-tooltip :content="item.flowName" placement="top">
-                                            <span class="config-value text-ellipsis">
-                                                {{ item.flowName }}
-                                            </span>
-                                        </el-tooltip>
-                                    </div>
-
-                                    <!-- 截止值字段 -->
-                                    <div class="config-cell config-cell">
-                                        <span class="config-label">Config:</span>
-                                        <el-tooltip :content="item.flowConfig" placement="top">
-                                            <span class="config-value text-ellipsis">
-                                                {{ item.flowConfig }}
-                                            </span>
-                                        </el-tooltip>
-                                    </div>
-                                    <!-- kp:pid kp系数-->
-                                    <div class="config-cell kp-cell">
-                                        <span class="config-label">Kp:</span>
-                                        <el-tooltip :content="item.kp" placement="top">
-                                            <span class="config-value text-ellipsis">{{ item.kp }}</span>
-                                        </el-tooltip>
-                                    </div>
-                                    <!-- ki: pid ki系数 -->
-                                    <div class="config-cell ki-cell">
-                                        <span class="config-label">Ki:</span>
-                                        <el-tooltip :content="item.ki" placement="top">
-                                            <span class="config-value text-ellipsis">{{ item.ki }}</span>
-                                        </el-tooltip>
-                                    </div>
-                                    <!-- kd: pid kd系数 -->
-                                    <div class="config-cell kd-cell">
-                                        <span class="config-label">Kd:</span>
-                                        <el-tooltip :content="item.kd" placement="top">
-                                            <span class="config-value text-ellipsis">{{ item.kd }}</span>
-                                        </el-tooltip>
-                                    </div>
-                                    <!-- step:pid 调整步长 -->
-                                    <div class="config-cell step-cell">
-                                        <span class="config-label">Step:</span>
-                                        <el-tooltip :content="item.step" placement="top">
-                                            <span class="config-value text-ellipsis">{{ item.step }}</span>
-                                        </el-tooltip>
-                                    </div>
-                                    <!-- isAuto 显示为带颜色的图标 + 标签 -->
-                                    <div class="config-cell isAuto-cell">
-                                        <span class="config-label">isAuto:</span>
-                                        <template v-if="item.isAuto == 'true'">
-                                            <el-tag type="success" size="small" effect="dark">
-                                                <el-icon style="margin-right: 4px;" ><CircleCheck /></el-icon>
-                                                开
-                                            </el-tag>
-                                        </template>
-                                        <template v-else>
-                                            <el-tag type="danger" size="small" effect="dark">
-                                                <el-icon style="margin-right: 4px;"><CircleClose /></el-icon>
-                                                关
-                                            </el-tag>
-                                        </template>
-                                    </div>
-                                    <!-- 监控按钮 -->
+                                    <!-- 监控按钮（固定在右上角） -->
                                     <svg-icon
                                         name="monitoring"
-                                        width="20px"
-                                        height="20px"
+                                        width="18px"
+                                        height="18px"
                                         @click="handleMonitor(row,item.flowName)"
                                         title="监控"
                                         class="monitor-icon"
                                     ></svg-icon>
+
+                                    <!-- Flow -->
+                                    <div class="config-cell flow-cell">
+                                        <span class="config-label">Flow</span>
+                                        <el-tooltip :content="item.flowName" placement="top">
+                                            <span class="config-value text-ellipsis">{{ item.flowName }}</span>
+                                        </el-tooltip>
+                                    </div>
+
+                                    <!-- Config -->
+                                    <div class="config-cell config-text-cell">
+                                        <span class="config-label">号段</span>
+                                        <el-tooltip :content="item.flowConfig" placement="top">
+                                            <span class="config-value text-ellipsis" style="color: red;">{{ item.flowConfig }}</span>
+                                        </el-tooltip>
+                                    </div>
+                                    <div class="config-cell config-text-cell">
+                                        <span class="config-label">去重等级</span>
+                                        <el-tooltip :content="item.dupCheck" placement="top">
+                                            <span class="config-value text-ellipsis">{{ item.dupCheck }}</span>
+                                        </el-tooltip>
+                                    </div>
+                                    <div class="config-cell config-text-cell">
+                                        <span class="config-label">erase比例</span>
+                                        <el-tooltip :content="item.eraseIfa" placement="top">
+                                            <span class="config-value text-ellipsis">{{ item.eraseIfa }}</span>
+                                        </el-tooltip>
+                                    </div>
+
+
+                                    <!-- isAuto -->
+                                    <div class="config-cell isAuto-cell">
+                                        <span class="config-label">Auto</span>
+                                        <template v-if="item.isAuto == 'true'">
+                                            <el-tag type="success" size="small" effect="light">
+                                                <el-icon style="margin-right:4px;"><CircleCheck /></el-icon>开
+                                            </el-tag>
+                                        </template>
+                                        <template v-else>
+                                            <el-tag type="danger" size="small" effect="light">
+                                                <el-icon style="margin-right:4px;"><CircleClose /></el-icon>关
+                                            </el-tag>
+                                        </template>
+                                    </div>
                                 </div>
                                 <el-divider v-if="index < parseFormula(row.config).length - 1" />
                             </div>
@@ -202,7 +183,7 @@ const parseFormula = (formulaStr: string) => {
 
     try {
         return formulaStr.split(',').map(item => {
-            const [flowName, flowConfig,kp, ki, kd, step, isAuto] = item.split(':');
+            const [flowName, flowConfig,kp, ki, kd, step, isAuto,dupCheck,eraseIfa] = item.split(':');
             return {
                 flowName: flowName || '-',
                 flowConfig: flowConfig || '-',
@@ -210,7 +191,9 @@ const parseFormula = (formulaStr: string) => {
                 ki: ki || '-',
                 kd: kd || '-',
                 step: step || '-',
-                isAuto: isAuto || '-'
+                isAuto: isAuto || '-',
+                dupCheck: dupCheck || '-',
+                eraseIfa: eraseIfa || '-',
             };
         });
     } catch (e) {
@@ -294,63 +277,108 @@ const handleDataeye = async() => {
     .config-item {}
 }
 
-.config-grid {
-    display: flex;
-    justify-content: space-between;
+/* 仅放开 config 列换行并左对齐，提高可读性 */
+:deep(td.config-col .vxe-cell) {
+    white-space: normal;
+    text-align: left;
 }
 
+/* 卡片式容器（每个 flow 配置） */
+.config-item {
+    background: #f8fafc;
+    border: 1px solid #eef1f6;
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+.config-item:hover {
+    background: #f5f8ff;
+    border-color: #e3e8f5;
+}
+
+/* 自适应网格，自动换行；Flow/Config 更宽 */
+.config-grid {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 8px 12px;
+    align-items: start;
+}
+
+/* 监控图标固定在右上角，不占据网格宽度 */
+.monitor-icon {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    cursor: pointer;
+    opacity: 0.75;
+    transition: opacity .15s ease, transform .15s ease;
+}
+.monitor-icon:hover {
+    opacity: 1;
+    transform: scale(1.05);
+}
+
+/* 统一的字段块样式，去掉固定宽度，随布局收缩 */
 .config-cell {
     display: flex;
     align-items: center;
-    gap: 5px;
-    min-height: 28px;
-    // width: 120px;
+    gap: 6px;
+    min-height: 26px;
+    width: auto !important;
 }
-.flow-cell{
-    width: 280px;
+
+/* 长文本字段占两列，提高可读性 */
+.flow-cell,
+.config-text-cell {
+    min-width: 240px;
 }
-.config-cell{
-    width: 150px;
+
+/* 数值类紧凑些 */
+.kp-cell,
+.ki-cell,
+.kd-cell,
+.step-cell,
+.isAuto-cell {
+    grid-column: span 1;
+    min-width: 120px;
 }
-.kp-cell{
-    width: 60px;
-}
-.ki-cell{
-    width: 60px;
-}
-.kd-cell{
-    width: 60px;
-}
-.step-cell{
-    width: 60px;
-}
-.isAuto-cell{
-    width: 110px; /* 略微加宽以容纳标签 */
-}
+
+/* 标签与文本的层次感 */
 .config-label {
-    font-weight: bold;
-    color: #606266;
-    font-size: 12px;
-    flex-shrink: 0;
+    // color: #909399;
+    font-weight: 900;
+    font-size: 14px;
+    // 黑色楷体
+    font-family: "KaiTi", "楷体", "SimKai", "SimSun", "宋体", serif;
 }
-
 .config-value {
-    color: #303133;
-    font-size: 13px;
+    color: #0b22f2;
+    // font-size: 15px;
+    // font-weight: 600;
 }
 
+/* 省略在自身可用宽度内处理 */
 .text-ellipsis {
-    display: inline-block;
-    max-width: 100px;
+    max-width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
+/* 更轻的分隔线 */
 :deep(.el-divider) {
-    margin: 6px 0;
+    margin: 8px 0 0;
+    --el-border-color: #eef1f6;
 }
-.monitor-icon {
-    cursor: pointer;
+
+/* 小屏：Flow/Config 不再跨两列，整体更紧凑 */
+@media (max-width: 768px) {
+    .flow-cell,
+    .config-text-cell {
+        grid-column: span 1;
+        min-width: 160px;
+    }
 }
 </style>

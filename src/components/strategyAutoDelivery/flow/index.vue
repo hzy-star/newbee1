@@ -3,9 +3,9 @@
         <div class="page-header">
             <el-button type="primary" @click="handleDataeye">DATAEYE</el-button>
             <el-button type="primary" @click="handleSearch">查询</el-button>
-            <el-button type="primary" @click="handleAddFlow" v-if="!showDetail" >新增</el-button>
+            <el-button type="primary" @click="handleAddFlow"  >新增</el-button>
             <el-button type="success" @click="toggleDetail">
-                {{ showDetail ? '返回列表' : '切换详情' }}
+                {{ showDetail ? '显示列表' : '切换详情' }}
             </el-button>
         </div>
         <div class="page-content"  v-show="!showDetail">
@@ -156,23 +156,30 @@
                     </template>
                 </vxe-column>
                 <vxe-column field="description" title="描述" width="200" align="center"  show-overflow/>
-                <vxe-column title="操作" width="200" fixed="right" align="center">
+                <vxe-column title="操作" width="250" fixed="right" align="center">
                     <template #default="{ row }">
                         <el-button size="small" type="primary" plain @click="handleView(row)">查看</el-button>
                         <el-button size="small" type="success" plain @click="handleEditFlow(row)">编辑</el-button>
                         <el-button size="small" type="danger" plain @click="handleDelete(row)" :disabled="!isSuperAdmin">删除</el-button>
+                        <el-button size="small" type="warning" plain @click="handleCopy(row)">复制</el-button>
                     </template>
                 </vxe-column>
             </vxe-table>
         </div>
         <div class="page-content" v-show="showDetail">
             <KeepAlive>
-                <DetailPage  ref="detailRef"/>
+                <DetailPage  ref="detailRef"
+                :isSuperAdmin="isSuperAdmin"
+                  @view="handleView"
+                  @edit="handleEditFlow"
+                  @delete="handleDelete"
+                  @copy="handleCopy"
+                  />
             </KeepAlive>
         </div>
 
         <!-- 新增/编辑弹窗 -->
-        <FlowModel v-model="dialogVisible" :title="dialogTitle" :form="currentFlow" :is-view="isView"
+        <FlowModel v-model="dialogVisible" :title="dialogTitle" :form="currentFlow" :is-view="isView" 
             @submit="handleSubmit" />
     </div>
 </template>
@@ -205,7 +212,7 @@ const dialogVisible = ref(false)
 const dialogTitle = ref('')
 const isView = ref(false)
 const currentFlow = ref<Partial<Flows>>({})
-const showDetail = ref(false)
+const showDetail = ref(true) // 是否显示详情页
 const deviceSourceOption = ref('online') // 设备来源选项，默认值为 'online'
 
 const toggleDetail = () => {
@@ -255,7 +262,7 @@ watch(deviceSourceOption, (newVal) => {
 }, { immediate: true })
 // 添加Flow
 const handleAddFlow = () => {
-    currentFlow.value = { operator: 'big', status: 'enabled', cutoff: 0,flowType:'normal',syncFile: '',description: '',deviceSource:'online' } // 默认操作符
+    currentFlow.value = { operator: 'big', status: 'enabled', cutoff: 70,flowType:'normal',syncFile: '',description: '',deviceSource:'online' } // 默认操作符
     // currentFlow.value = { operator: 'big', status: 'enabled', cutoff: 0 } // 默认操作符
     dialogTitle.value = '新增Flow'
     isView.value = false
@@ -277,6 +284,14 @@ const handleEditFlow = (row: Flows) => {
     isView.value = false
     dialogVisible.value = true
 }
+// 复制Flow
+const handleCopy = (row: Flows) => {
+    const { id, name, ...rest } = row
+    currentFlow.value = { ...rest , name: `${name}_copy`, syncFile: row.syncFile ? row.syncFile : ''} // 复制时清除id，避免冲突
+    dialogTitle.value = '复制Flow'
+    isView.value = false
+    dialogVisible.value = true
+}
 
 // 删除Flow
 const handleDelete = async (row: Flows) => {
@@ -290,7 +305,7 @@ const handleDelete = async (row: Flows) => {
         const response = await reqDeleteFlow({ id: row.id })
         if (response.code === 200 || response.success === true) {
             ElMessage.success('删除成功')
-            getStrategyFlowsList()
+            await refreshByView() // 根据当前视图刷新
         } else {
             ElMessage.error(response.errMsg || '删除失败')
         }
@@ -300,10 +315,18 @@ const handleDelete = async (row: Flows) => {
 }
 
 // 表单提交处理
-const handleSubmit = () => {
-    getStrategyFlowsList()
+const handleSubmit = async () => {
+    await refreshByView() // 只刷新当前页
 }
 const detailRef = ref<InstanceType<typeof Detail>>()
+    // 根据当前视图刷新：详情页只刷新详情；列表页只刷新列表
+const refreshByView = async () => {
+  if (showDetail.value) {
+    await detailRef.value?.loadDataProgressively()
+  } else {
+    await getStrategyFlowsList()
+  }
+}
 // 查询Flow列表
 const handleSearch = () => {
     if (!showDetail.value) {
