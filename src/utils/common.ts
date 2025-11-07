@@ -54,3 +54,32 @@ export const sendTypefun = (data: string) => {
             return '';
     }
 }
+
+
+// 判断是否科学计数法
+const isSci = (v: string | number) => /^[+-]?\d+(\.\d+)?e[+-]?\d+$/i.test(String(v).trim())
+
+// 科学计数法 -> 普通数字字符串（字符串级移位，避免浮点误差）
+export function sciToDecimalString(input: string | number): string {
+  const str = String(input).trim()
+  const m = /^([+-]?[\d.]+)e([+-]?\d+)$/i.exec(str)
+  if (!m) return str
+  let [, mantissa, expStr] = m
+  const exponent = parseInt(expStr, 10)
+  const sign = mantissa.startsWith('-') ? '-' : ''
+  mantissa = mantissa.replace(/^[+-]/, '')
+  const [i, f = ''] = mantissa.split('.')
+  const digits = i + f
+
+  if (exponent >= 0) {
+    const pos = i.length + exponent
+    return pos >= digits.length
+      ? sign + digits + '0'.repeat(pos - digits.length)
+      : sign + digits.slice(0, pos) + '.' + digits.slice(pos)
+  } else {
+    const pos = i.length + exponent
+    return pos > 0
+      ? sign + digits.slice(0, pos) + '.' + digits.slice(pos)
+      : sign + '0.' + '0'.repeat(-pos) + digits
+  }
+}

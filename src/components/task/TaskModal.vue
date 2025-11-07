@@ -415,6 +415,8 @@ import { reqStrategyThresholdList } from '@/api/strategyAutoDelivery/threshold'
 import type { FormDataType } from './type'
 import type { StrategyThreshold } from '@/api/strategyAutoDelivery/threshold/type'
 import { ThresholdPinia } from '@/store/strategyAutoDelivery/threshold'
+import { sciToDecimalString } from '@/utils/common'
+import { ElMessage } from 'element-plus';
 const thresholdStore = ThresholdPinia()
 const audienceListRes = ref<any[]>([])
 const selectedAudience = ref<string[]>([])
@@ -594,8 +596,10 @@ watch(() => props.modelValue, async (newVal) => {
                 Object.entries(otherFilters).forEach(([crK, crV]) => {
                     if (Array.isArray(crV)) {
                         // 如果值是数组，转换为用"-"连接的字符串
+                        crV[0] = sciToDecimalString(crV[0]);
                         const crVString = crV.join("-");
                         autoCrFilterNames.push(crK);
+                        // 把科学计数法数据转换成正常数字
                         autoCrFilterValues.push(crVString);
                     }
                 });

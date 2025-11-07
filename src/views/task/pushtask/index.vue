@@ -663,6 +663,11 @@ const BatchDisable = () => {
 
 // -------------------处理弹窗确认-------------------
 const handleModalConfirm = async (formData: FormDataType): Promise<void> => {
+
+  if (formData.autoCrFilterName.length != formData.autoCrFilterVal.split(',').length) {
+    ElMessage.error(`crFilter(${formData.autoCrFilterName.length})与有效的crValue数量(${formData.autoCrFilterVal.split(',').length})不匹配，请检查！`);
+    return
+  }
   // 确保包含 scorePolicy 数据
   const submitData = {
     ...formData,
