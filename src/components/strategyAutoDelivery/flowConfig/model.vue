@@ -146,9 +146,9 @@ interface FormulaConfig {
     configKi: string
     configKd: string
     configStep: string
+    isAuto: BoolString
     dupCheck: string
     eraseIfa: string
-    isAuto: BoolString
 }
 const emptyConfig = (): FormulaConfig => ({
     configName: '',
@@ -157,9 +157,9 @@ const emptyConfig = (): FormulaConfig => ({
     configKi: '0.11',
     configKd: '1',
     configStep: '1',
+    isAuto: 'false',
     dupCheck: 'less',
-    eraseIfa: '0',
-    isAuto: 'false'
+    eraseIfa: '0'
 })
 
 const formulaConfigs = ref<FormulaConfig[]>([emptyConfig()])
@@ -245,7 +245,7 @@ const getFlowList = async () => {
 const parseConfigString = (configStr: string): FormulaConfig[] => {
     if (!configStr) return [emptyConfig()]
     return configStr.split(',').map(item => {
-        const [configName = '', configValue = '', configKp = '', configKi = '', configKd = '', configStep = '', dupCheck = 'less', eraseIfa = '0', isAutoRaw = 'false'] = item.split(':')
+        const [configName = '', configValue = '', configKp = '', configKi = '', configKd = '', configStep = '' ,isAutoRaw = 'false', dupCheck = 'less', eraseIfa = '0'] = item.split(':')
         const isAuto: BoolString = isAutoRaw === 'true' ? 'true' : 'false'
         return {
             configName,
@@ -254,9 +254,9 @@ const parseConfigString = (configStr: string): FormulaConfig[] => {
             configKi,
             configKd,
             configStep,
+            isAuto,
             dupCheck,
             eraseIfa,
-            isAuto
         }
     })
 }

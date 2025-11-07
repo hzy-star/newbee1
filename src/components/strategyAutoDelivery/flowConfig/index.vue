@@ -14,7 +14,7 @@
             <vxe-table :data="strategyList" border round style="width: 100%" size="small" stripe height="90%" :column-config="{ resizable: true }">
                 <vxe-column field="xh" type="seq" align="center" title="序号" width="5%"></vxe-column>
                 <vxe-column field="pkgName" title="pkg" min-width="20" width="240" align="center" />
-                <vxe-column field="country" title="国家" min-width="20" width="240" align="center" />
+                <vxe-column field="country" title="国家" min-width="20" width="120" align="center" />
                 <vxe-column field="config" title="config" min-width="300" align="center" class-name="config-col">
                     <template #default="{ row }">
                         <div v-if="row.config" class="config-container">
