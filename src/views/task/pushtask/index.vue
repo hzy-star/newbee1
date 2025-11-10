@@ -663,9 +663,25 @@ const BatchDisable = () => {
 
 // -------------------处理弹窗确认-------------------
 const handleModalConfirm = async (formData: FormDataType): Promise<void> => {
+  const names = Array.isArray(formData.autoCrFilterName) ? formData.autoCrFilterName : []
 
-  if (formData.autoCrFilterName.length != formData.autoCrFilterVal.split(',').length) {
-    ElMessage.error(`crFilter(${formData.autoCrFilterName.length})与有效的crValue数量(${formData.autoCrFilterVal.split(',').length})不匹配，请检查！`);
+  // 新增：检测中文逗号
+  const rawInput = String(formData.autoCrFilterVal ?? '')
+  if (rawInput.includes('，')) {
+    ElMessage.error('autoCrFilterVal 含有中文逗号（，），请改用英文逗号（,）分隔')
+    return
+  }
+
+  const rawVal = rawInput.trim()
+  const values = rawVal === '' ? [] : rawVal.split(',').map(v => v.trim()).filter(v => v !== '')
+
+  // 规则：两者要么都空，要么都非空且数量一致
+  if (
+    (names.length === 0 && values.length > 0) ||
+    (names.length > 0 && values.length === 0) ||
+    (names.length !== values.length)
+  ) {
+    ElMessage.error(`crFilterName(${names.length}) 与 crFilterVal(${values.length}) 不匹配：需同时为空或数量一致`)
     return
   }
   // 确保包含 scorePolicy 数据

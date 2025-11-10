@@ -63,7 +63,7 @@
           <el-table-column label="策略" prop="strategyId">
             <template #default="{ row }">
               <el-tooltip :content="getStrategyLabel(row.strategyId)" placement="top">
-                <el-select v-model="row.strategyId" placeholder="选择策略" :disabled="isView" style="width: 100%">
+                <el-select v-model="row.strategyId" filterable placeholder="选择策略" :disabled="isView" style="width: 100%">
                   <el-option
                     v-for="strategy in strategiesForUI"
                     :key="strategy.id"
@@ -79,7 +79,7 @@
           <el-table-column label="阈值" prop="thresholdId">
             <template #default="{ row }">
               <el-tooltip :content="getThresholdLabel(row.thresholdId)" placement="top">
-                <el-select v-model="row.thresholdId" placeholder="可选阈值" clearable :disabled="isView" style="width: 100%">
+                <el-select v-model="row.thresholdId" filterable placeholder="可选阈值" clearable :disabled="isView" style="width: 100%">
                   <el-option v-for="th in thresholdStore.ThresholdList" :key="th.id" :label="th.name" :value="String(th.id)" />
                 </el-select>
               </el-tooltip>
@@ -258,16 +258,18 @@ const applyDeviceFilter = () => {
 // UI 用的 options：在过滤结果前面合并“当前已选但不在过滤集”的项（禁用显示）
 const strategiesForUI = computed(() => {
   const ds = formData.value.deviceSource
+  const returnType = formData.value.returnType
   const filtered = ds ? allStrategies.value.filter((s: any) => s.deviceSource === ds) : allStrategies.value
 
+  const newList = filtered.filter((s:any) => s.returnType === returnType)
   const selectedIds = new Set(
     (formData.value.strategySelections || []).map((s: any) => String(s.strategyId)).filter(Boolean)
   )
   const missing = allStrategies.value
-    .filter((s: any) => selectedIds.has(String(s.id)) && !filtered.some((f: any) => String(f.id) === String(s.id)))
+    .filter((s: any) => selectedIds.has(String(s.id)) && !newList.some((f: any) => String(f.id) === String(s.id)))
     .map((m: any) => ({ ...m, __disabled: true }))
 
-  return [...missing, ...filtered]
+  return [...missing, ...newList]
 })
 
 // 选择变化时自动过滤（双保险）
