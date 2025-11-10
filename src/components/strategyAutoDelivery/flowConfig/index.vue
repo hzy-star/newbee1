@@ -348,10 +348,10 @@ const handleDataeye = async() => {
 /* 标签与文本的层次感 */
 .config-label {
     // color: #909399;
-    font-weight: 900;
-    font-size: 14px;
-    // 黑色楷体
-    font-family: "KaiTi", "楷体", "SimKai", "SimSun", "宋体", serif;
+    font-weight: 500;
+    font-size: 12px;
+    // 微软雅黑
+    font-family: 'Microsoft YaHei', sans-serif;
 }
 .config-value {
     color: #0b22f2;
