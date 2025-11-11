@@ -57,6 +57,11 @@
                                         <el-col :span="9">
                                             <el-input v-model="config.eraseIfa" placeholder="eraseIfa" size="small" style="width: 100%" :disabled="isView" />
                                         </el-col>
+                                        <el-col :span="9">
+                                            <el-input v-model="config.times" placeholder="点击倍数" size="small" style="width: 100%" :disabled="isView" />
+                                        </el-col>
+                                    </el-row>
+                                    <el-row :gutter="24">
                                         <!-- isAuto是Switch开关 如果isAuto自动化开启，则kp:ki:kd:step必填 -->
                                         <el-col :span="14" style="display: flex; align-items: center;">
                                             <span>是否开启自动化PID控量：</span>
@@ -149,6 +154,7 @@ interface FormulaConfig {
     isAuto: BoolString
     dupCheck: string
     eraseIfa: string
+    times:number
 }
 const emptyConfig = (): FormulaConfig => ({
     configName: '',
@@ -159,7 +165,8 @@ const emptyConfig = (): FormulaConfig => ({
     configStep: '1',
     isAuto: 'false',
     dupCheck: 'less',
-    eraseIfa: '0'
+    eraseIfa: '0',
+    times:1.2,
 })
 
 const formulaConfigs = ref<FormulaConfig[]>([emptyConfig()])
@@ -177,11 +184,16 @@ const rules = ref<FormRules>({
                     return
                 }
                 if (formulaConfigs.value.some(item => !item.configName.trim())) {
-                    callback(new Error('所有配置不能为空'))
+                    callback(new Error('配置不能为空'))
                     return
                 }
-                if (formulaConfigs.value.some(item => item.isAuto === 'true' && (!item.configKp || !item.configKi || !item.configKd || !item.configStep || !item.dupCheck || !item.eraseIfa))) {
-                    callback(new Error('自动化开启时，kp, ki, kd, step, dupCheck, eraseIfa均为必填'))
+                // 出现空格的情况也要报错
+                if (formulaConfigs.value.some(item => item.configName.includes(' ') || item.configValue.includes(' ') || item.configKp.includes(' ') || item.configKi.includes(' ') || item.configKd.includes(' ') || item.configStep.includes(' ') || item.dupCheck.includes(' ') || item.eraseIfa.includes(' ') || item.times.toString().includes(' '))) {
+                    callback(new Error('配置项不能包含空格'))
+                    return
+                }
+                if (formulaConfigs.value.some(item => item.isAuto === 'true' && (!item.configKp || !item.configKi || !item.configKd || !item.configStep || !item.dupCheck || !item.eraseIfa || !item.times))) {
+                    callback(new Error('自动化开启时，kp, ki, kd, step, dupCheck, eraseIfa, times均为必填'))
                     return
                 }
                 callback()
@@ -219,7 +231,7 @@ const handleSubmit = async () => {
             id: flowForm.value.id,
             pkgName: flowForm.value.pkgName,
             country: flowForm.value.country,
-            config: formulaConfigs.value.map(item => `${item.configName}:${item.configValue}:${item.configKp}:${item.configKi}:${item.configKd}:${item.configStep}:${item.isAuto}:${item.dupCheck}:${item.eraseIfa}`).join(','),
+            config: formulaConfigs.value.map(item => `${item.configName}:${item.configValue}:${item.configKp}:${item.configKi}:${item.configKd}:${item.configStep}:${item.isAuto}:${item.dupCheck}:${item.eraseIfa}:${item.times}`).join(','),
         }
         const response: any = await reqCreateOrUpdatFlowConfig(submitData)
         if (response?.code === 200 || response?.success === true) {
@@ -245,7 +257,7 @@ const getFlowList = async () => {
 const parseConfigString = (configStr: string): FormulaConfig[] => {
     if (!configStr) return [emptyConfig()]
     return configStr.split(',').map(item => {
-        const [configName = '', configValue = '', configKp = '', configKi = '', configKd = '', configStep = '' ,isAutoRaw = 'false', dupCheck = 'less', eraseIfa = '0'] = item.split(':')
+        const [configName = '', configValue = '', configKp = '', configKi = '', configKd = '', configStep = '' ,isAutoRaw = 'false', dupCheck = 'less', eraseIfa = '0', times = '1.2'] = item.split(':')
         const isAuto: BoolString = isAutoRaw === 'true' ? 'true' : 'false'
         return {
             configName,
@@ -257,6 +269,7 @@ const parseConfigString = (configStr: string): FormulaConfig[] => {
             isAuto,
             dupCheck,
             eraseIfa,
+            times: Number(times)
         }
     })
 }
@@ -307,7 +320,7 @@ const handleClose = () => {
 }
 
 .has-scroll {
-    max-height: 200px;
-    overflow-y: auto;
+    /* max-height: 200px; */
+    /* overflow-y: auto; */
 }
 </style>

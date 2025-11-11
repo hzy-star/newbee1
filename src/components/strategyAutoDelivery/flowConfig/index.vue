@@ -57,6 +57,12 @@
                                             <span class="config-value text-ellipsis">{{ item.eraseIfa }}</span>
                                         </el-tooltip>
                                     </div>
+                                    <div class="config-cell config-text-cell">
+                                        <span class="config-label">点击倍数</span>
+                                        <el-tooltip :content="item.times" placement="top">
+                                            <span class="config-value text-ellipsis">{{ item.times }}</span>
+                                        </el-tooltip>
+                                    </div>
 
 
                                     <!-- isAuto -->
@@ -183,7 +189,7 @@ const parseFormula = (formulaStr: string) => {
 
     try {
         return formulaStr.split(',').map(item => {
-            const [flowName, flowConfig,kp, ki, kd, step, isAuto,dupCheck,eraseIfa] = item.split(':');
+            const [flowName, flowConfig,kp, ki, kd, step, isAuto,dupCheck,eraseIfa,times] = item.split(':');
             return {
                 flowName: flowName || '-',
                 flowConfig: flowConfig || '-',
@@ -194,6 +200,7 @@ const parseFormula = (formulaStr: string) => {
                 isAuto: isAuto || '-',
                 dupCheck: dupCheck || '-',
                 eraseIfa: eraseIfa || '-',
+                times: times || 1.2
             };
         });
     } catch (e) {
@@ -336,10 +343,6 @@ const handleDataeye = async() => {
 }
 
 /* 数值类紧凑些 */
-.kp-cell,
-.ki-cell,
-.kd-cell,
-.step-cell,
 .isAuto-cell {
     grid-column: span 1;
     min-width: 120px;
