@@ -104,6 +104,7 @@ const getStrategyList = async () => {
     await thresholdStore.getThreshold() 
     strategyList.value = thresholdStore.ThresholdList
     strategyListBackUp.value = thresholdStore.ThresholdList
+    handleSearchInput()
   } catch (error) {
     ElMessage.error('获取阈值列表失败')
   }

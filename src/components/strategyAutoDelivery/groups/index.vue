@@ -115,15 +115,39 @@ const getStrategyGroupsList = async () => {
 }
 
 // 抽出通用过滤逻辑（接收字符串）
+const filterName = ref('')
 const applyDeviceSource = (val: string) => {
+    let strategyListFiltered: any[] = []
   if (val === 'online') {
-    strategyList.value = strategyListBackUp.value.filter(item => item.deviceSource === 'online')
+    strategyListFiltered = strategyListBackUp.value.filter(item => item.deviceSource === 'online')
   } else if (val === 'offline') {
-    strategyList.value = strategyListBackUp.value.filter(item => item.deviceSource === 'offline')
+    strategyListFiltered = strategyListBackUp.value.filter(item => item.deviceSource === 'offline')
   } else {
-    strategyList.value = strategyListBackUp.value
+    strategyListFiltered = strategyListBackUp.value
+  }
+  const filterVal = String(filterName.value).trim().toLowerCase()
+  if (filterVal) {
+    const filterRE = new RegExp(filterVal, 'gi')
+    const searchProps = ['name']
+    const rest = strategyListFiltered.filter((item: any) => searchProps.some(key => String(item[key]).toLowerCase().indexOf(filterVal) > -1))
+    strategyList.value = rest.map(row => {
+      // 搜索为克隆数据，不会污染源数据
+      const item = XEUtils.clone(row) as any
+      searchProps.forEach((key: any) => {
+        item[key] = String(item[key]).replace(filterRE, match => `${match}`)
+      })
+      return item
+    })
+  } else {
+    strategyList.value = strategyListFiltered
   }
 }
+
+
+// 节流函数,间隔500毫秒触发搜索
+const searchEvent = XEUtils.throttle(function () {
+    applyDeviceSource(String(deviceSourceOption.value || ''))
+}, 500, { trailing: true, leading: true })
 // vxe-select 的 change 事件签名：({ value, $event, ... })
 const handleDeviceSource: VxeSelectEvents.Change = ({ value }) => {
   applyDeviceSource(String(value || ''))
@@ -221,30 +245,6 @@ const seqConfigStrategy = reactive<VxeTablePropTypes.SeqConfig<any>>({
 
 
 
-const filterName = ref('')
-const handleSearchInput = () => {
-  const filterVal = String(filterName.value).trim().toLowerCase()
-  if (filterVal) {
-    const filterRE = new RegExp(filterVal, 'gi')
-    const searchProps = ['name']
-    const rest = strategyListBackUp.value.filter((item: any) => searchProps.some(key => String(item[key]).toLowerCase().indexOf(filterVal) > -1))
-    strategyList.value = rest.map(row => {
-      // 搜索为克隆数据，不会污染源数据
-      const item = XEUtils.clone(row) as any
-      searchProps.forEach((key: any) => {
-        item[key] = String(item[key]).replace(filterRE, match => `${match}`)
-      })
-      return item
-    })
-  } else {
-    strategyList.value = strategyListBackUp.value
-  }
-}
-
-// 节流函数,间隔500毫秒触发搜索
-const searchEvent = XEUtils.throttle(function () {
-  handleSearchInput()
-}, 500, { trailing: true, leading: true })
 
 const rowStyleGroups: VxeTablePropTypes.RowStyle<any> = ({ rowIndex }) => {
     return {

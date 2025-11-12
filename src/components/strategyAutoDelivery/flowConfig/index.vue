@@ -134,6 +134,7 @@ const getStrategyFlowConfigsList = async () => {
         const response = await reqFlowConfig()
         strategyList.value = response.data || []
         strategyListBackUp.value = response.data || []
+        handleSearchInput()
     } catch (error) {
         ElMessage.error('获取FlowConfig列表失败')
     }
