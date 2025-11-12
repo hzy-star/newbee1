@@ -278,13 +278,21 @@
                         <el-select v-model="formData.topLtBundle" :max-collapse-tags="4" multiple collapse-tags
                             collapse-tags-tooltip placeholder="Select" style="width: 240px" clearable>
                             <el-option label="A" value="A"></el-option>
+                            <el-option label="A-" value="A-"></el-option>
                             <el-option label="B" value="B"></el-option>
+                            <el-option label="B-" value="B-"></el-option>
                             <el-option label="C" value="C"></el-option>
+                            <el-option label="C-" value="C-"></el-option>
                             <el-option label="D" value="D"></el-option>
+                            <el-option label="D-" value="D-"></el-option>
                             <el-option label="E" value="E"></el-option>
+                            <el-option label="E-" value="E-"></el-option>
                             <el-option label="F" value="F"></el-option>
+                            <el-option label="F-" value="F-"></el-option>
                             <el-option label="G" value="G"></el-option>
+                            <el-option label="G-" value="G-"></el-option>
                             <el-option label="H" value="H"></el-option>
+                            <el-option label="H-" value="H-"></el-option>
 
                         </el-select>
                     </div>
