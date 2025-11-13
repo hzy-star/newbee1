@@ -173,7 +173,7 @@ export const constantRoutes = [
     path: "/strategyAutoDelivery",
     component: () => import("@/layout/index.vue"),
     name: "strategyAutoDelivery",
-    redirect: "/strategyAutoDelivery/autoStrategy",
+    redirect: "/strategyAutoDelivery/algConfig",
     meta: {
       title: "算法平台",
       icon: "DocumentCopy",
