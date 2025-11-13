@@ -31,7 +31,8 @@
 
             <!-- Flow 渐进渲染 -->
             <div class="table-container">
-                <div v-for="(flow, flowIndex) in flows" :key="flow.id" class="flow-section flow-contain">
+                <!-- 使用过滤后的列表渲染 -->
+                <div v-for="(flow, flowIndex) in filteredFlows" :key="flow.id" class="flow-section flow-contain">
                     <!-- Flow 标题 -->
                     <div class="flow-header">
                         <div class="flow-info">
@@ -162,7 +163,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, markRaw } from 'vue'
+import { ref, computed, markRaw, watch } from 'vue'
 import { reqFlow } from '@/api/strategyAutoDelivery/flow/index'
 import { reqStrategyGroup } from '@/api/strategyAutoDelivery/groups/index'
 import { reqStrategys } from '@/api/strategyAutoDelivery/strategyPage/index'
@@ -306,26 +307,51 @@ const loadDataProgressively = async () => {
 
 defineExpose({ loadDataProgressively })
 
-// 新增：接收父组件的 isSuperAdmin
+// 接收父组件的 props（包含搜索关键字）
 const props = defineProps<{
+  filterName: string,
   isSuperAdmin: boolean
 }>()
 
-// 新增：向父组件派发事件
+// 新增：搜索过滤（支持 Flow 名称、Group 名称、Group 的 tagTexts）
+const filteredFlows = computed(() => {
+  const kw = String(props.filterName || '').trim().toLowerCase()
+  if (!kw) return flows.value
+
+  const includesKw = (s: any) => String(s ?? '').toLowerCase().includes(kw)
+
+  return (flows.value || []).reduce<any[]>((acc, flow) => {
+    const flowMatch = includesKw(flow.name)
+    // 命中 group：组名或 tagTexts 任意一个包含关键字
+    const matchedGroups = (flow.groups || []).filter((g: any) => {
+      const nameHit = includesKw(g?.name)
+      const tagHit = Array.isArray(g?.tagTexts) && g.tagTexts.some((t: string) => includesKw(t))
+      return nameHit || tagHit
+    })
+
+    if (flowMatch) {
+      // 命中 Flow 名：保留该 Flow 全部分组
+      acc.push({ ...flow, groups: flow.groups })
+    } else if (matchedGroups.length > 0) {
+      // 未命中 Flow 名但命中分组/标签：仅保留命中的分组
+      acc.push({ ...flow, groups: matchedGroups })
+    }
+    return acc
+  }, [])
+})
+
+// 这些事件仍保留（查看/编辑/删除/复制）
 const emit = defineEmits<{
-    (e: 'view', flow: any): void
-    (e: 'edit', flow: any): void
-    (e: 'delete', flow: any): void
-    (e: 'copy', flow: any): void
+  (e: 'view', flow: any): void
+  (e: 'edit', flow: any): void
+  (e: 'delete', flow: any): void
+  (e: 'copy', flow: any): void
 }>()
 
-// 新增：按钮对应的方法（只派发事件，逻辑复用父组件）
 const handleView = (flow: any) => emit('view', flow)
 const handleEditFlow = (flow: any) => emit('edit', flow)
 const handleDelete = (flow: any) => emit('delete', flow)
-// 复制Flow
 const handleCopy = (flow: any) => emit('copy', flow)
-
 </script>
 
 <style lang="scss" scoped>

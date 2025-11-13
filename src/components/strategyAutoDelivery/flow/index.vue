@@ -9,179 +9,201 @@
             </el-button>
         </div>
         <div class="page-content"  v-show="!showDetail">
-            <p>
-                <vxe-input v-model="filterName" type="search" placeholder="模糊搜索flow名称" clearable @change="searchEvent"
-                    size="mini"></vxe-input>
-                <vxe-select v-model="deviceSourceOption" type="search" placeholder="实时/离线" clearable size="mini"
-                @change="handleDeviceSource">
-                <vxe-option label="实时" value="online" />
-                <vxe-option label="离线" value="offline" />
-                </vxe-select>
-            </p>
-            <!-- Flow列表表格 -->
-            <vxe-table :data="strategyList" border round style="width: 100%" size="small" height="90%"
-                :expand-config="expandConfig" :row-style="rowStyle" :header-cell-style="headerCellStyle">
-                <vxe-column field="xh" type="seq" align="center" title="序号" width="80">
-                    <template #default="{ row, rowIndex }">
-                        <h1 style="font-size: large;font-weight: 900;">F{{ rowIndex + 1 }}</h1>
-                    </template>
-                </vxe-column>
-                <vxe-column type="expand" width="60">
-                    <template #content="{ row }">
-                        <div class="expand-wrapper">
-                            <vxe-table :data="row.subInfo" :expand-config="expandConfig" :seq-config="seqConfigGroups"
-                                :show-header="true" :row-style="rowStyleGroups" :header-cell-style="headerCellStyleGroups">
-                                <vxe-column field="xh" type="seq" align="center" title="序号" width="100">
-                                    <template #default="{ row, rowIndex }">
-                                        <h2 style="font-size: medium;font-weight: 700;">G{{ rowIndex + 1 }}</h2>
-                                    </template>
-                                </vxe-column>
-                                <vxe-column type="expand" width="40">
-                                    <template #content="{ row }">
-                                        <div class="expand-wrapper">
-                                            <vxe-table :data="row.subInfoChild" :seq-config="seqConfigStrategy"
-                                                :show-header="true" :row-style="rowStyleStrategy" :header-cell-style="headerCellStyleStrategy">
-                                                <vxe-column field="xh" type="seq" align="center" title="序号" width="140">
-                                                    <template #default="{ row, rowIndex }">
-                                                        <h3 style="font-size: small;font-weight: 500;">S{{ rowIndex + 1
-                                                            }}</h3>
-                                                    </template>
-                                                </vxe-column>
-                                                <vxe-column field="name" title="策略名称" width="150" align="center">
-                                                    <template #default="{ row }">
-                                                        <span style="font-weight: 500;">{{ row.name }}</span>
-                                                    </template>
-                                                </vxe-column>
-                                                <vxe-column field="ruleFile" title="规则文件" min-width="220" />
-                                                <vxe-column field="returnType" title="返回类型" width="200"
-                                                    align="center" />
-                                                <vxe-column field="description" title="描述" width="200"
-                                                    show-header-overflow align="center" show-overflow />
-                                            </vxe-table>
-                                        </div>
-                                    </template>
-                                </vxe-column>
-                                <vxe-column field="name" title="Group名称" width="150" align="center">
+          <p>
+            <vxe-input
+              v-model="filterName"
+              type="search"
+              placeholder="模糊搜索flow名称"
+              clearable
+              @change="searchEvent"
+              size="mini"
+            />
+            <vxe-select
+              v-model="deviceSourceOption"
+              type="search"
+              placeholder="实时/离线"
+              clearable
+              size="mini"
+              @change="handleDeviceSource"
+            >
+              <vxe-option label="实时" value="online" />
+              <vxe-option label="离线" value="offline" />
+            </vxe-select>
+          </p>
+          <!-- 列表表格 -->
+          <vxe-table :data="strategyList" border round style="width: 100%" size="small" height="90%"
+              :expand-config="expandConfig" :row-style="rowStyle" :header-cell-style="headerCellStyle">
+              <vxe-column field="xh" type="seq" align="center" title="序号" width="80">
+                  <template #default="{ row, rowIndex }">
+                      <h1 style="font-size: large;font-weight: 900;">F{{ rowIndex + 1 }}</h1>
+                  </template>
+              </vxe-column>
+              <vxe-column type="expand" width="60">
+                  <template #content="{ row }">
+                      <div class="expand-wrapper">
+                          <vxe-table :data="row.subInfo" :expand-config="expandConfig" :seq-config="seqConfigGroups"
+                              :show-header="true" :row-style="rowStyleGroups" :header-cell-style="headerCellStyleGroups">
+                              <vxe-column field="xh" type="seq" align="center" title="序号" width="100">
+                                  <template #default="{ row, rowIndex }">
+                                      <h2 style="font-size: medium;font-weight: 700;">G{{ rowIndex + 1 }}</h2>
+                                  </template>
+                              </vxe-column>
+                              <vxe-column type="expand" width="40">
+                                  <template #content="{ row }">
+                                      <div class="expand-wrapper">
+                                          <vxe-table :data="row.subInfoChild" :seq-config="seqConfigStrategy"
+                                              :show-header="true" :row-style="rowStyleStrategy" :header-cell-style="headerCellStyleStrategy">
+                                              <vxe-column field="xh" type="seq" align="center" title="序号" width="140">
+                                                  <template #default="{ row, rowIndex }">
+                                                      <h3 style="font-size: small;font-weight: 500;">S{{ rowIndex + 1
+                                                          }}</h3>
+                                                  </template>
+                                              </vxe-column>
+                                              <vxe-column field="name" title="策略名称" width="150" align="center">
+                                                  <template #default="{ row }">
+                                                      <span style="font-weight: 500;">{{ row.name }}</span>
+                                                  </template>
+                                              </vxe-column>
+                                              <vxe-column field="ruleFile" title="规则文件" min-width="220" />
+                                              <vxe-column field="returnType" title="返回类型" width="200"
+                                                  align="center" />
+                                              <vxe-column field="description" title="描述" width="200"
+                                                  show-header-overflow align="center" show-overflow />
+                                          </vxe-table>
+                                      </div>
+                                  </template>
+                              </vxe-column>
+                              <vxe-column field="name" title="Group名称" width="150" align="center">
 
-                                    <!-- 加粗字体 -->
-                                    <template #default="{ row }">
-                                        <span style="font-weight: 600;">{{ row.name }}</span>
-                                    </template>
-                                </vxe-column>
-                                <vxe-column field="status" title="状态" width="80" align="center">
-                                    <template #default="{ row }">
-                                        <el-tag v-if="row.status"
-                                            :type="row.status === 'enabled' ? 'success' : 'danger'">
-                                            {{ row.status === 'enabled' ? '启用' : '禁用' }}
-                                        </el-tag>
-                                    </template>
-                                </vxe-column>
-                                <vxe-column field="operator" title="操作符" min-width="50" align="center">
-                                    <template #default="{ row }">
-                                        {{ row.operator === 'big' ? '>' : row.operator === 'small' ? '<' : '=' }}
-                                            </template>
-                                </vxe-column>
-                                <vxe-column field="returnType" title="返回类型" min-width="30" align="center" />
-                                <vxe-column field="cutoff" title="截止值" width="200" align="center" />
-                                <vxe-column field="formula" title="公式" width="200" align="center" />
-                            </vxe-table>
-                        </div>
-                    </template>
-                </vxe-column>
-                <vxe-column field="name" title="Flow名称" width="150" align="center">
-                    <!-- 加粗字体 -->
-                    <template #default="{ row }">
-                        <span style="font-weight: 900;font-style: italic;">{{ row.name }}</span>
-                    </template>
-                </vxe-column>
-                <vxe-column field="status" title="状态" width="80" align="center">
-                    <template #default="{ row }">
-                        <el-tag v-if="row.status" :type="row.status === 'enabled' ? 'success' : 'danger'">
-                            {{ row.status === 'enabled' ? '启用' : '禁用' }}
-                        </el-tag>
-                    </template>
-                </vxe-column>
-                <!-- 实时/离线 -->
-                <vxe-column field="deviceSource" title="设备来源" width="80" align="center">
-                    <template #default="{ row }">
-                        <el-tag v-if="row.deviceSource === 'offline'" type="danger" size="small" >离线</el-tag>
-                        <el-tag v-else-if="row.deviceSource === 'online'" type="primary" size="small" >实时</el-tag>
-                        <el-tag v-else type="info" size="small" effect="plain">未知</el-tag>
-                    </template>
-                </vxe-column>
-                <vxe-column field="formula" title="公式配置" min-width="300" align="center">
-                    <template #default="{ row }">
-                        <div v-if="row.formula" class="formula-container">
-                            <div v-for="(item, index) in parseFormula(row.formula)" :key="index" class="formula-item">
-                                <div class="formula-grid">
-                                    <!-- 公式字段 -->
-                                    <div class="formula-cell">
-                                        <span class="formula-label">公式:</span>
-                                        <el-tooltip :content="item.formula" placement="top"
-                                            :disabled="!item.formula || item.formula.length <= 15">
-                                            <span class="formula-value text-ellipsis">
-                                                {{ item.formula || '-' }}
-                                            </span>
-                                        </el-tooltip>
-                                    </div>
-
-                                    <!-- 截止值字段 -->
-                                    <div class="formula-cell" style="width: 100px;">
-                                        <span class="formula-label">截止值:</span>
-                                        <span class="formula-value">{{ item.cutoff }}</span>
-                                    </div>
-
-                                    <!-- 操作符字段 -->
-                                    <div class="formula-cell" style="width: 100px;">
-                                        <span class="formula-label">操作符:</span>
-                                        <span class="formula-value" :class="getOperatorClass(item.operator)">
-                                            {{ formatOperator(item.operator) }}
+                                <!-- 加粗字体 -->
+                                <template #default="{ row }">
+                                    <span style="font-weight: 600;">{{ row.name }}</span>
+                                </template>
+                            </vxe-column>
+                            <vxe-column field="status" title="状态" width="80" align="center">
+                                <template #default="{ row }">
+                                    <el-tag v-if="row.status"
+                                        :type="row.status === 'enabled' ? 'success' : 'danger'">
+                                        {{ row.status === 'enabled' ? '启用' : '禁用' }}
+                                    </el-tag>
+                                </template>
+                            </vxe-column>
+                            <vxe-column field="operator" title="操作符" min-width="50" align="center">
+                                <template #default="{ row }">
+                                    {{ row.operator === 'big' ? '>' : row.operator === 'small' ? '<' : '=' }}
+                                        </template>
+                            </vxe-column>
+                            <vxe-column field="returnType" title="返回类型" min-width="30" align="center" />
+                            <vxe-column field="cutoff" title="截止值" width="200" align="center" />
+                            <vxe-column field="formula" title="公式" width="200" align="center" />
+                        </vxe-table>
+                    </div>
+                </template>
+            </vxe-column>
+            <vxe-column field="name" title="Flow名称" width="150" align="center">
+                <!-- 加粗字体 -->
+                <template #default="{ row }">
+                    <span style="font-weight: 900;font-style: italic;">{{ row.name }}</span>
+                </template>
+            </vxe-column>
+            <vxe-column field="status" title="状态" width="80" align="center">
+                <template #default="{ row }">
+                    <el-tag v-if="row.status" :type="row.status === 'enabled' ? 'success' : 'danger'">
+                        {{ row.status === 'enabled' ? '启用' : '禁用' }}
+                    </el-tag>
+                </template>
+            </vxe-column>
+            <!-- 实时/离线 -->
+            <vxe-column field="deviceSource" title="设备来源" width="80" align="center">
+                <template #default="{ row }">
+                    <el-tag v-if="row.deviceSource === 'offline'" type="danger" size="small" >离线</el-tag>
+                    <el-tag v-else-if="row.deviceSource === 'online'" type="primary" size="small" >实时</el-tag>
+                    <el-tag v-else type="info" size="small" effect="plain">未知</el-tag>
+                </template>
+            </vxe-column>
+            <vxe-column field="formula" title="公式配置" min-width="300" align="center">
+                <template #default="{ row }">
+                    <div v-if="row.formula" class="formula-container">
+                        <div v-for="(item, index) in parseFormula(row.formula)" :key="index" class="formula-item">
+                            <div class="formula-grid">
+                                <!-- 公式字段 -->
+                                <div class="formula-cell">
+                                    <span class="formula-label">公式:</span>
+                                    <el-tooltip :content="item.formula" placement="top"
+                                        :disabled="!item.formula || item.formula.length <= 15">
+                                        <span class="formula-value text-ellipsis">
+                                            {{ item.formula || '-' }}
                                         </span>
-                                    </div>
-                                    <!-- 阈值配置字段 -->
-                                    <div class="formula-cell">
-                                        <span class="formula-label">阈值配置:</span>
-                                        <el-tooltip :content="thresholdMap[item.thresholdId]" placement="top"
-                                            :disabled="!thresholdMap[item.thresholdId] || thresholdMap[item.thresholdId].length <= 15">
-                                            <span class="formula-value text-ellipsis">
-                                                {{ thresholdMap[item.thresholdId] || '-' }}
-                                            </span>
-                                        </el-tooltip>
-                                    </div>
+                                    </el-tooltip>
                                 </div>
-                                <el-divider v-if="index < parseFormula(row.formula).length - 1" border-style="dashed" />
-                            </div>
-                        </div>
-                        <span v-else>-</span>
-                    </template>
-                </vxe-column>
-                <vxe-column field="description" title="描述" width="200" align="center"  show-overflow/>
-                <vxe-column title="操作" width="250" fixed="right" align="center">
-                    <template #default="{ row }">
-                        <el-button size="small" type="primary" plain @click="handleView(row)">查看</el-button>
-                        <el-button size="small" type="success" plain @click="handleEditFlow(row)">编辑</el-button>
-                        <el-button size="small" type="danger" plain @click="handleDelete(row)" :disabled="!isSuperAdmin">删除</el-button>
-                        <el-button size="small" type="warning" plain @click="handleCopy(row)">复制</el-button>
-                    </template>
-                </vxe-column>
-            </vxe-table>
-        </div>
-        <div class="page-content" v-show="showDetail">
-            <KeepAlive>
-                <DetailPage  ref="detailRef"
-                :isSuperAdmin="isSuperAdmin"
-                  @view="handleView"
-                  @edit="handleEditFlow"
-                  @delete="handleDelete"
-                  @copy="handleCopy"
-                  />
-            </KeepAlive>
-        </div>
 
-        <!-- 新增/编辑弹窗 -->
-        <FlowModel v-model="dialogVisible" :title="dialogTitle" :form="currentFlow" :is-view="isView" 
-            @submit="handleSubmit" />
+                                <!-- 截止值字段 -->
+                                <div class="formula-cell" style="width: 100px;">
+                                    <span class="formula-label">截止值:</span>
+                                    <span class="formula-value">{{ item.cutoff }}</span>
+                                </div>
+
+                                <!-- 操作符字段 -->
+                                <div class="formula-cell" style="width: 100px;">
+                                    <span class="formula-label">操作符:</span>
+                                    <span class="formula-value" :class="getOperatorClass(item.operator)">
+                                        {{ formatOperator(item.operator) }}
+                                    </span>
+                                </div>
+                                <!-- 阈值配置字段 -->
+                                <div class="formula-cell">
+                                    <span class="formula-label">阈值配置:</span>
+                                    <el-tooltip :content="thresholdMap[item.thresholdId]" placement="top"
+                                        :disabled="!thresholdMap[item.thresholdId] || thresholdMap[item.thresholdId].length <= 15">
+                                        <span class="formula-value text-ellipsis">
+                                            {{ thresholdMap[item.thresholdId] || '-' }}
+                                        </span>
+                                    </el-tooltip>
+                                </div>
+                            </div>
+                            <el-divider v-if="index < parseFormula(row.formula).length - 1" border-style="dashed" />
+                        </div>
+                    </div>
+                    <span v-else>-</span>
+                </template>
+            </vxe-column>
+            <vxe-column field="description" title="描述" width="200" align="center"  show-overflow/>
+            <vxe-column title="操作" width="250" fixed="right" align="center">
+                <template #default="{ row }">
+                    <el-button size="small" type="primary" plain @click="handleView(row)">查看</el-button>
+                    <el-button size="small" type="success" plain @click="handleEditFlow(row)">编辑</el-button>
+                    <el-button size="small" type="danger" plain @click="handleDelete(row)" :disabled="!isSuperAdmin">删除</el-button>
+                    <el-button size="small" type="warning" plain @click="handleCopy(row)">复制</el-button>
+                </template>
+            </vxe-column>
+        </vxe-table>
     </div>
+    <div class="page-content" v-show="showDetail">
+      <!-- 详情页搜索：把关键词传给子组件，子组件内部过滤 Flow / Groups / tagTexts -->
+      <vxe-input
+        v-model="filterNameDetail"
+        type="search"
+        placeholder="搜索 Flow / Group / Tag"
+        clearable
+        size="mini"
+      />
+      <KeepAlive>
+        <DetailPage
+          ref="detailRef"
+          :filterName="filterNameDetail"
+          :isSuperAdmin="isSuperAdmin"
+          @view="handleView"
+          @edit="handleEditFlow"
+          @delete="handleDelete"
+          @copy="handleCopy"
+        />
+      </KeepAlive>
+    </div>
+
+    <!-- 新增/编辑弹窗 -->
+    <FlowModel v-model="dialogVisible" :title="dialogTitle" :form="currentFlow" :is-view="isView" 
+        @submit="handleSubmit" />
+</div>
 </template>
 
 <script lang="ts" setup>
@@ -213,78 +235,86 @@ const dialogTitle = ref('')
 const isView = ref(false)
 const currentFlow = ref<Partial<Flows>>({})
 const showDetail = ref(true) // 是否显示详情页
-const deviceSourceOption = ref('online') // 设备来源选项，默认值为 'online'
 
-const toggleDetail = () => {
-  showDetail.value = !showDetail.value
-}
+// 新增：设备来源筛选值（此前未定义导致 TS 报错）
+const deviceSourceOption = ref('online')  // 可取 'online' | 'offline' 或空字符串
 
-// 获取Flow列表
-const getStrategyFlowsList = async () => {
-    try {
-        const response = await reqFlow()
-        // response.data = response.data.sort((a:any,b:any) => a.name.localeCompare(b.name)) // 按name排序
-        const priority: Record<string, number> = { online: 0, offline: 1 }
-        response.data = (response.data || []).sort((a: any, b: any) => {
-            const nameCmp = String(a.name || '').localeCompare(String(b.name || ''), 'zh', { sensitivity: 'base' })
-            if (nameCmp !== 0) return nameCmp
-            const pa = priority[String(a.deviceSource)] ?? 99
-            const pb = priority[String(b.deviceSource)] ?? 99
-            return pa - pb
-        })
-        // strategyList.value = response.data || []
-        // strategyList 通过相同name排序 
-        // strategyList.value =  strategyList.value.sort((a, b) => a.name.localeCompare(b.name))
-        strategyListBackUp.value = response.data || []
-        applyDeviceSource(String(deviceSourceOption.value || ''))
-    } catch (error) {
-        ElMessage.error('获取Flow列表失败')
-    }
-}
-
-
-// 抽出通用过滤逻辑（接收字符串）
-
+// 关键词
 const filterName = ref('')
-const applyDeviceSource = (val: string) => {
-    let strategyListFiltered: any[] = []
-  if (val === 'online') {
-    strategyListFiltered = strategyListBackUp.value.filter(item => item.deviceSource === 'online')
-  } else if (val === 'offline') {
-    strategyListFiltered = strategyListBackUp.value.filter(item => item.deviceSource === 'offline')
-  } else {
-    strategyListFiltered = strategyListBackUp.value
+const filterNameDetail = ref('')
+
+// 获取 Flow 列表
+const getStrategyFlowsList = async () => {
+  try {
+    const res = await reqFlow()
+    const priority: Record<string, number> = { online: 0, offline: 1 }
+    const data = (res.data || []).sort((a: any, b: any) => {
+      const cmp = String(a.name || '').localeCompare(String(b.name || ''), 'zh', { sensitivity: 'base' })
+      if (cmp !== 0) return cmp
+      return (priority[a.deviceSource] ?? 99) - (priority[b.deviceSource] ?? 99)
+    })
+    strategyListBackUp.value = data
+    applyDeviceSource(String(deviceSourceOption.value || ''))
+  } catch {
+    ElMessage.error('获取Flow列表失败')
   }
-  const filterVal = String(filterName.value).trim().toLowerCase()
-    if (filterVal) {
-        const filterRE = new RegExp(filterVal, 'gi')
-        const searchProps = ['name']
-        const rest = strategyListFiltered.filter((item: any) => searchProps.some(key => String(item[key]).toLowerCase().indexOf(filterVal) > -1))
-        strategyList.value = rest.map(row => {
-            // 搜索为克隆数据，不会污染源数据
-            const item = XEUtils.clone(row) as any
-            searchProps.forEach((key: any) => {
-                item[key] = String(item[key]).replace(filterRE, match => `${match}`)
-            })
-            return item
-        })
-    } else {
-        strategyList.value = strategyListFiltered
+}
+
+// 查询按钮：总是重新获取，再做视图附加操作
+const handleSearch = async () => {
+  await getStrategyFlowsList()
+//   if (showDetail.value) {
+    await detailRef.value?.loadDataProgressively()
+//   }
+}
+
+// 切换详情/列表
+const toggleDetail = async () => {
+  showDetail.value = !showDetail.value
+  applyDeviceSource(String(deviceSourceOption.value || ''))
+}
+
+
+// 仅列表页使用：按 deviceSource + filterName 过滤
+const applyDeviceSource = (val: string) => {
+  let arr: any[] = []
+  //在详情页不需要过滤实时
+  debugger
+  if(!showDetail.value){
+
+    if (val === 'online') arr = strategyListBackUp.value.filter(i => i.deviceSource === 'online')
+    else if (val === 'offline') arr = strategyListBackUp.value.filter(i => i.deviceSource === 'offline')
+    else arr = strategyListBackUp.value
+  }
+    else{
+        arr = strategyListBackUp.value
     }
+
+  const kw = filterName.value.trim().toLowerCase()
+  if (kw) {
+    const props = ['name']
+    strategyList.value = arr.filter(item =>
+      props.some(k => String(item[k] ?? '').toLowerCase().includes(kw))
+    )
+  } else {
+    strategyList.value = arr
+  }
 }
 
-// 节流函数,间隔500毫秒触发搜索
-const searchEvent = XEUtils.throttle(function () {
-    applyDeviceSource(deviceSourceOption.value)
-}, 500, { trailing: true, leading: true })
+// 列表搜索节流
+const searchEvent = XEUtils.throttle(() => {
+  if (!showDetail.value) applyDeviceSource(String(deviceSourceOption.value || ''))
+}, 400, { leading: true, trailing: true })
 
-// vxe-select 的 change 事件签名：({ value, $event, ... })
+// deviceSource 改变刷新列表
 const handleDeviceSource: VxeSelectEvents.Change = ({ value }) => {
-  applyDeviceSource(String(value || ''))
+  if (!showDetail.value) applyDeviceSource(String(value || ''))
 }
-watch(deviceSourceOption, (newVal) => {
-  applyDeviceSource(String(newVal || ''))
+
+watch(deviceSourceOption, (v) => {
+  if (!showDetail.value) applyDeviceSource(String(v || ''))
 }, { immediate: true })
+
 // 添加Flow
 const handleAddFlow = () => {
     currentFlow.value = { operator: 'big', status: 'enabled', cutoff: 70,flowType:'normal',syncFile: '',description: '',deviceSource:'online' } // 默认操作符
@@ -339,29 +369,20 @@ const handleDelete = async (row: Flows) => {
     }
 }
 
+// 根据当前视图刷新
+const refreshByView = async () => {
+//   if (showDetail.value) {
+    await detailRef.value?.loadDataProgressively()
+//   }
+  await getStrategyFlowsList() // 总是刷新备份与列表
+}
+
 // 表单提交处理
 const handleSubmit = async () => {
-    await refreshByView() // 只刷新当前页
+  await refreshByView()
 }
+
 const detailRef = ref<InstanceType<typeof Detail>>()
-    // 根据当前视图刷新：详情页只刷新详情；列表页只刷新列表
-const refreshByView = async () => {
-  if (showDetail.value) {
-    await detailRef.value?.loadDataProgressively()
-  } else {
-    await getStrategyFlowsList()
-  }
-}
-// 查询Flow列表
-const handleSearch = () => {
-    if (!showDetail.value) {
-        getStrategyFlowsList()
-        // detailRef.value?.loadDataProgressively()
-    }else{
-        // loadDataProgressively()
-        detailRef.value?.loadDataProgressively() // 调用子组件的方法
-    }
-}
 // 添加的方法
 const parseFormula = (formulaStr: string) => {
     try {
@@ -489,12 +510,6 @@ const thresholdMap = computed(() => {
 const handleDataeye = async() => {
     await thresholdStore.openDataeye()
 }
-// 页面初始化
-onMounted(() => {
-    // getStrategyFlowsList()
-    applyDeviceSource(String(deviceSourceOption.value || ''))
-
-})
 </script>
 
 <style lang="scss" scoped>
