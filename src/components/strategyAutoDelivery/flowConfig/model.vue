@@ -22,42 +22,58 @@
                             <div class="formula-configs" :class="{ 'has-scroll': formulaConfigs.length > 3 }">
                                 <div v-for="(config, index) in formulaConfigs" :key="index" class="formula-config-item">
                                     <el-row :gutter="24">
-                                        <el-col :span="9">
-                                            <!-- <el-input v-model="config.configName" placeholder="configName" size="small" :disabled="isView" /> -->
+                                        <el-col :span="12">
+                                            <label class="cfg-label">Config Name</label>
+                                            <!-- 原选择框 -->
                                             <el-select v-model="config.configName" placeholder="configName" size="small"
                                                 style="width: 100%" :disabled="isView">
                                                 <el-option v-for="item in flowList" :key="item.id" :label="item.name"
                                                     :value="item.name" />
                                             </el-select>
                                         </el-col>
-                                        <el-col :span="9">
+
+                                        <el-col :span="12">
+                                            <label class="cfg-label">Config Value</label>
                                             <el-input v-model="config.configValue" placeholder="configValue"
                                                 size="small" style="width: 100%" :disabled="isView" />
                                         </el-col>
-                                        <!-- 新增kp, ki, kd, step, isAuto -->
-                                        <el-col :span="9">
+
+                                        <el-col :span="12">
+                                            <label class="cfg-label">KP</label>
                                             <el-input v-model="config.configKp" placeholder="configKp" size="small" style="width: 100%" :disabled="isView" />
                                         </el-col>
-                                        <el-col :span="9">
+
+                                        <el-col :span="12">
+                                            <label class="cfg-label">KI</label>
                                             <el-input v-model="config.configKi" placeholder="configKi" size="small" style="width: 100%" :disabled="isView" />
                                         </el-col>
-                                        <el-col :span="9">
+
+                                        <el-col :span="12">
+                                            <label class="cfg-label">KD</label>
                                             <el-input v-model="config.configKd" placeholder="configKd" size="small" style="width: 100%" :disabled="isView" />
                                         </el-col>
-                                        <el-col :span="9">
+
+                                        <el-col :span="12">
+                                            <label class="cfg-label">Step</label>
                                             <el-input v-model="config.configStep" placeholder="configStep" size="small" style="width: 100%" :disabled="isView" />
                                         </el-col>
-                                        <el-col :span="9">
+
+                                        <el-col :span="12">
+                                            <label class="cfg-label">去重等级</label>
                                             <el-select v-model="config.dupCheck" placeholder="dupCheck" size="small" style="width: 100%" :disabled="isView">
                                                 <el-option label="less" value="less" />
                                                 <el-option label="pri" value="pri" />
                                                 <el-option label="sec" value="sec" />
                                             </el-select>
                                         </el-col>
-                                        <el-col :span="9">
+
+                                        <el-col :span="12">
+                                            <label class="cfg-label">erase比例</label>
                                             <el-input v-model="config.eraseIfa" placeholder="eraseIfa" size="small" style="width: 100%" :disabled="isView" />
                                         </el-col>
-                                        <el-col :span="9">
+
+                                        <el-col :span="12">
+                                            <label class="cfg-label">点击倍数</label>
                                             <el-input v-model="config.times" placeholder="点击倍数" size="small" style="width: 100%" :disabled="isView" />
                                         </el-col>
                                     </el-row>
@@ -310,6 +326,7 @@ const handleClose = () => {
     border-radius: 4px;
     padding: 10px;
     width: 100%;
+    line-height: 30px;
 }
 
 .formula-config-item {
@@ -317,6 +334,13 @@ const handleClose = () => {
     padding: 10px;
     background: #f5f7fa;
     border-radius: 4px;
+}
+
+.cfg-label {
+  display: block;
+  font-size: 12px;
+  color: #606266;
+  line-height: 1;
 }
 
 .has-scroll {
