@@ -186,9 +186,9 @@ const rules = ref<FormRules>({
           callback(new Error('Flow名称必须以 alg 开头'))
           return
         }
-        const hasCJK = /[\u3400-\u4DBF\u4E00-\u9FFF\uF900-\uFAFF]/.test(v)
-        if (hasCJK) {
-          callback(new Error('Flow名称不能包含中文字符（可含字母/数字/下划线/符号）'))
+        // 禁止中文字符和下划线
+        if (/[\u3400-\u4DBF\u4E00-\u9FFF\uF900-\uFAFF_]/.test(v)) {
+          callback(new Error('不能包含中文字符和下划线（可含字母/数字/符号）'))
           return
         }
         callback()
