@@ -201,7 +201,7 @@
     </div>
 
     <!-- 新增/编辑弹窗 -->
-    <FlowModel v-model="dialogVisible" :title="dialogTitle" :form="currentFlow" :is-view="isView" 
+    <FlowModel v-model="dialogVisible" :title="dialogTitle" :form="currentFlow" :is-view="isView"  :edit-view="editView"
         @submit="handleSubmit" />
 </div>
 </template>
@@ -233,6 +233,7 @@ const strategyListBackUp = ref<Flows[]>([])
 const dialogVisible = ref(false)
 const dialogTitle = ref('')
 const isView = ref(false)
+const editView = ref(false)
 const currentFlow = ref<Partial<Flows>>({})
 const showDetail = ref(true) // 是否显示详情页
 
@@ -321,6 +322,7 @@ const handleAddFlow = () => {
     // currentFlow.value = { operator: 'big', status: 'enabled', cutoff: 0 } // 默认操作符
     dialogTitle.value = '新增Flow'
     isView.value = false
+    editView.value = false
     dialogVisible.value = true
 }
 
@@ -329,6 +331,7 @@ const handleView = (row: Flows) => {
     currentFlow.value = { ...row,syncFile: row.syncFile ? row.syncFile : '' }
     dialogTitle.value = '查看Flow'
     isView.value = true
+    editView.value = false
     dialogVisible.value = true
 }
 
@@ -337,6 +340,8 @@ const handleEditFlow = (row: Flows) => {
     currentFlow.value = { ...row ,syncFile: row.syncFile ? row.syncFile : ''}
     dialogTitle.value = '编辑Flow'
     isView.value = false
+    // 编辑弹窗不可编辑flowName
+    editView.value = true
     dialogVisible.value = true
 }
 // 复制Flow
@@ -345,6 +350,7 @@ const handleCopy = (row: Flows) => {
     currentFlow.value = { ...rest , name: `${name}_copy`, syncFile: row.syncFile ? row.syncFile : ''} // 复制时清除id，避免冲突
     dialogTitle.value = '复制Flow'
     isView.value = false
+    editView.value = false
     dialogVisible.value = true
 }
 

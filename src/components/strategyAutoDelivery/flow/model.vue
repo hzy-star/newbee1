@@ -6,7 +6,7 @@
           <el-row :gutter="20">
             <el-col :span="12">
               <el-form-item label="Flow名称" prop="name">
-                <el-input v-model="flowForm.name" placeholder="请输入Flow名称" :disabled="isView" />
+                <el-input v-model="flowForm.name" placeholder="请输入Flow名称" :disabled="isView || editView" />
               </el-form-item>
             </el-col>
             <el-col :span="12">
@@ -140,7 +140,8 @@ const props = defineProps({
   modelValue: { type: Boolean, required: true },
   title: { type: String, default: '' },
   form: { type: Object as () => Partial<Flows>, default: () => ({}) },
-  isView: { type: Boolean, default: false }
+  isView: { type: Boolean, default: false },
+  editView: { type: Boolean, default: false }
 })
 const emit = defineEmits(['update:modelValue', 'submit'])
 
