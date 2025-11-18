@@ -37,17 +37,24 @@
                     <div class="flow-header">
                         <div class="flow-info">
                             <h2 class="flow-title">
-                                <el-icon><operation /></el-icon>
+                                <el-icon>
+                                    <operation />
+                                </el-icon>
                                 {{ flow.name || '-' }}
-                                <span class="span-text" :class="flow.deviceSource ===  'online' ? 'span-online' : 'span-offline' ">{{ flow.deviceSource === 'online' ? '(实时)' : flow.deviceSource === 'offline' ? '(离线)' : '' }}</span>
-                                <el-tag :type="flow.status === 'enabled' ? 'success' : 'danger'" size="default"  >
+                                <span class="span-text"
+                                    :class="flow.deviceSource === 'online' ? 'span-online' : 'span-offline'">{{
+                                        flow.deviceSource === 'online' ? '(实时)' : flow.deviceSource === 'offline' ? '(离线)' :
+                                    '' }}</span>
+                                <el-tag :type="flow.status === 'enabled' ? 'success' : 'danger'" size="default">
                                     {{ flow.status === 'enabled' ? '启用' : '禁用' }}
                                 </el-tag>
                             </h2>
                             <div class="flow-meta">
                                 <el-button size="small" type="primary" plain @click="handleView(flow)">查看</el-button>
-                                <el-button size="small" type="success" plain @click="handleEditFlow(flow)">编辑</el-button>
-                                <el-button size="small" type="danger" plain @click="handleDelete(flow)" :disabled="!props.isSuperAdmin">删除</el-button>
+                                <el-button size="small" type="success" plain
+                                    @click="handleEditFlow(flow)">编辑</el-button>
+                                <el-button size="small" type="danger" plain @click="handleDelete(flow)"
+                                    :disabled="!props.isSuperAdmin">删除</el-button>
                                 <el-button size="small" type="warning" plain @click="handleCopy(flow)">复制</el-button>
                                 <span class="group-count">{{ flow.groups.length }} 个分组</span>
                             </div>
@@ -171,7 +178,7 @@ import { reqStrategys } from '@/api/strategyAutoDelivery/strategyPage/index'
 type Status = 'idle' | 'loading' | 'done'
 const status = ref<Status>('idle')
 const flows = ref<any[]>([])
-
+const flowsData = ref<any[]>([])
 const totalGroups = computed(() =>
     flows.value.reduce((total, flow) => total + (flow.groups?.length || 0), 0)
 )
@@ -201,7 +208,16 @@ const toArray = (data: any): any[] => {
     return Object.values(data) // 兼容对象返回
 }
 const uniq = <T,>(arr: T[]) => Array.from(new Set(arr))
+function applyDetailFilters() {
+    const src = (props.detailOption === 'online' || props.detailOption === 'offline') ? props.detailOption : ''
+    const stat = (props.detailDeviceStatus === 'enabled' || props.detailDeviceStatus === 'disabled') ? props.detailDeviceStatus : ''
+    const base = flowsData.value || []
 
+    flows.value = base.filter(f =>
+        (!src || f.deviceSource === src) &&
+        (!stat || f.status === stat)
+    )
+}
 // 并发批量加载（两阶段）
 const loadDataProgressively = async () => {
     try {
@@ -223,6 +239,10 @@ const loadDataProgressively = async () => {
             const pb = priority[String(b.deviceSource)] ?? 99
             return pa - pb
         })
+        // 储存一份原始数据备份
+        flowsData.value = [...flows.value]
+
+        applyDetailFilters()
         // 2) groups 批量
         const allGroupIds = uniq(flowList.flatMap(f => parseIds(f.strategyGroupIds)))
         if (allGroupIds.length === 0) {
@@ -309,43 +329,46 @@ defineExpose({ loadDataProgressively })
 
 // 接收父组件的 props（包含搜索关键字）
 const props = defineProps<{
-  filterName: string,
-  isSuperAdmin: boolean
+    filterName: string,
+    isSuperAdmin: boolean,
+    detailOption: string,
+    detailDeviceStatus: string
 }>()
-
+// flowsData 变化或筛选项变化时都重算
+watch(flowsData, applyDetailFilters)
+watch([() => props.detailOption, () => props.detailDeviceStatus], applyDetailFilters, { immediate: true })
 // 新增：搜索过滤（支持 Flow 名称、Group 名称、Group 的 tagTexts）
 const filteredFlows = computed(() => {
-  const kw = String(props.filterName || '').trim().toLowerCase()
-  if (!kw) return flows.value
+    const kw = String(props.filterName || '').trim().toLowerCase()
+    if (!kw) return flows.value
+    const includesKw = (s: any) => String(s ?? '').toLowerCase().includes(kw)
 
-  const includesKw = (s: any) => String(s ?? '').toLowerCase().includes(kw)
+    return (flows.value || []).reduce<any[]>((acc, flow) => {
+        const flowMatch = includesKw(flow.name)
+        // 命中 group：组名或 tagTexts 任意一个包含关键字
+        const matchedGroups = (flow.groups || []).filter((g: any) => {
+            const nameHit = includesKw(g?.name)
+            const tagHit = Array.isArray(g?.tagTexts) && g.tagTexts.some((t: string) => includesKw(t))
+            return nameHit || tagHit
+        })
 
-  return (flows.value || []).reduce<any[]>((acc, flow) => {
-    const flowMatch = includesKw(flow.name)
-    // 命中 group：组名或 tagTexts 任意一个包含关键字
-    const matchedGroups = (flow.groups || []).filter((g: any) => {
-      const nameHit = includesKw(g?.name)
-      const tagHit = Array.isArray(g?.tagTexts) && g.tagTexts.some((t: string) => includesKw(t))
-      return nameHit || tagHit
-    })
-
-    if (flowMatch) {
-      // 命中 Flow 名：保留该 Flow 全部分组
-      acc.push({ ...flow, groups: flow.groups })
-    } else if (matchedGroups.length > 0) {
-      // 未命中 Flow 名但命中分组/标签：仅保留命中的分组
-      acc.push({ ...flow, groups: matchedGroups })
-    }
-    return acc
-  }, [])
+        if (flowMatch) {
+            // 命中 Flow 名：保留该 Flow 全部分组
+            acc.push({ ...flow, groups: flow.groups })
+        } else if (matchedGroups.length > 0) {
+            // 未命中 Flow 名但命中分组/标签：仅保留命中的分组
+            acc.push({ ...flow, groups: matchedGroups })
+        }
+        return acc
+    }, [])
 })
 
 // 这些事件仍保留（查看/编辑/删除/复制）
 const emit = defineEmits<{
-  (e: 'view', flow: any): void
-  (e: 'edit', flow: any): void
-  (e: 'delete', flow: any): void
-  (e: 'copy', flow: any): void
+    (e: 'view', flow: any): void
+    (e: 'edit', flow: any): void
+    (e: 'delete', flow: any): void
+    (e: 'copy', flow: any): void
 }>()
 
 const handleView = (flow: any) => emit('view', flow)
@@ -429,16 +452,19 @@ const handleCopy = (flow: any) => emit('copy', flow)
                         i {
                             margin-right: 8px;
                         }
-                        .span-text{
+
+                        .span-text {
                             margin-left: 6px;
                             font-size: 14px;
                             font-weight: normal;
                             margin-right: 5px;
                         }
-                        .span-online{
+
+                        .span-online {
                             color: #e4ec0a;
                         }
-                        .span-offline{
+
+                        .span-offline {
                             color: #e33434;
                         }
                     }
