@@ -7,22 +7,29 @@
 
         <div class="page-content">
             <p>
-                <vxe-input v-model="filterName" type="search" placeholder="模糊搜索groups名称" clearable
-                    @change="searchEvent" size="mini"></vxe-input>
+                <vxe-input v-model="filterName" type="search" placeholder="模糊搜索groups名称" clearable @change="searchEvent"
+                    size="mini"></vxe-input>
                 <vxe-select v-model="deviceSourceOption" type="search" placeholder="实时/离线" clearable size="mini"
-                @change="handleDeviceSource">
-                <vxe-option label="实时" value="online" />
-                <vxe-option label="离线" value="offline" />
+                    @change="handleDeviceSource">
+                    <vxe-option label="实时" value="online" />
+                    <vxe-option label="离线" value="offline" />
+                </vxe-select>
+                <vxe-select v-model="deviceStatus" type="search" placeholder="启用/禁用" clearable size="mini"
+                    @change="handleDeviceStatus">
+                    <vxe-option label="启用" value="enabled" />
+                    <vxe-option label="禁用" value="disabled" />
                 </vxe-select>
             </p>
             <!-- Group列表表格 -->
             <vxe-table :data="strategyList" border round style="width: 100%" size="small" height="90%"
-                :seq-config="seqConfigGroups" :expand-config="expandConfig" :row-style="rowStyleGroups" :header-cell-style="headerCellStyleGroups">
+                :seq-config="seqConfigGroups" :expand-config="expandConfig" :row-style="rowStyleGroups"
+                :header-cell-style="headerCellStyleGroups">
                 <vxe-column field="xh" type="seq" align="center" title="序号" width="80"></vxe-column>
                 <vxe-column type="expand" width="40">
                     <template #content="{ row }">
                         <div class="expand-wrapper">
-                            <vxe-table :data="row.subInfoChild" :seq-config="seqConfigStrategy" :show-header="false" :row-style="rowStyleStrategy" :header-cell-style="headerCellStyleStrategy">
+                            <vxe-table :data="row.subInfoChild" :seq-config="seqConfigStrategy" :show-header="false"
+                                :row-style="rowStyleStrategy" :header-cell-style="headerCellStyleStrategy">
                                 <vxe-column field="xh" type="seq" align="center" title="序号" width="120"></vxe-column>
                                 <vxe-column field="name" title="策略名称" width="150" align="center" />
                                 <vxe-column field="ruleFile" title="规则文件" min-width="220" />
@@ -51,9 +58,9 @@
                 <!-- 实时/离线 -->
                 <vxe-column field="deviceSource" title="设备来源" width="100" align="center">
                     <template #default="{ row }">
-                        <el-tag v-if="row.deviceSource === 'offline'" type="danger" size="small" >离线</el-tag>
-                        <el-tag v-else-if="row.deviceSource === 'online'" type="primary" size="small" >实时</el-tag>
-                        <el-tag v-else type="info" size="small" >未知</el-tag>
+                        <el-tag v-if="row.deviceSource === 'offline'" type="danger" size="small">离线</el-tag>
+                        <el-tag v-else-if="row.deviceSource === 'online'" type="primary" size="small">实时</el-tag>
+                        <el-tag v-else type="info" size="small">未知</el-tag>
                     </template>
                 </vxe-column>
                 <!-- 是否落盘 -->
@@ -67,7 +74,8 @@
                     <template #default="{ row }">
                         <el-button size="small" type="primary" plain @click="handleView(row)">查看</el-button>
                         <el-button size="small" type="success" plain @click="handleEditGroup(row)">编辑</el-button>
-                        <el-button size="small" type="danger" plain @click="handleDelete(row)" :disabled="!isSuperAdmin">删除</el-button>
+                        <el-button size="small" type="danger" plain @click="handleDelete(row)"
+                            :disabled="!isSuperAdmin">删除</el-button>
                     </template>
                 </vxe-column>
             </vxe-table>
@@ -101,6 +109,7 @@ const dialogTitle = ref('')
 const isView = ref(false)
 const currentGroup = ref<Partial<Groups>>({})
 const deviceSourceOption = ref('online') // 设备来源选项，默认值为 'online'
+const deviceStatus = ref('enabled') // 设备状态选项，默认值为空
 
 // 获取Group列表
 const getStrategyGroupsList = async () => {
@@ -108,7 +117,7 @@ const getStrategyGroupsList = async () => {
         const response = await reqStrategyGroupList()
         // strategyList.value = response.data || []
         strategyListBackUp.value = response.data || []
-        applyDeviceSource(String(deviceSourceOption.value || ''))
+        applyDeviceSource(String(deviceSourceOption.value || ''), String(deviceStatus.value || ''))
     } catch (error) {
         ElMessage.error('获取Group列表失败')
     }
@@ -116,20 +125,25 @@ const getStrategyGroupsList = async () => {
 
 // 抽出通用过滤逻辑（接收字符串）
 const filterName = ref('')
-const applyDeviceSource = (val: string) => {
-    let strategyListFiltered: any[] = []
-  if (val === 'online') {
-    strategyListFiltered = strategyListBackUp.value.filter(item => item.deviceSource === 'online')
-  } else if (val === 'offline') {
-    strategyListFiltered = strategyListBackUp.value.filter(item => item.deviceSource === 'offline')
-  } else {
-    strategyListFiltered = strategyListBackUp.value
-  }
-  const filterVal = String(filterName.value).trim().toLowerCase()
+const applyDeviceSource = (val: string, status: string) => {
+  const filterVal = String(filterName.value ?? '').trim().toLowerCase()
+
+  const needSource = val === 'online' || val === 'offline'
+  const needStatus = status === 'enabled' || status === 'disabled'
+
+  // 一次性链式过滤
+  let list = strategyListBackUp.value.filter((item: any) => {
+    if (needSource && item.deviceSource !== val) return false
+    if (needStatus && item.status !== status) return false
+    return true
+  })
+
   if (filterVal) {
     const filterRE = new RegExp(filterVal, 'gi')
     const searchProps = ['name']
-    const rest = strategyListFiltered.filter((item: any) => searchProps.some(key => String(item[key]).toLowerCase().indexOf(filterVal) > -1))
+    const rest = list.filter((item: any) =>
+      searchProps.some(key => String(item[key]).toLowerCase().includes(filterVal))
+    )
     strategyList.value = rest.map(row => {
       // 搜索为克隆数据，不会污染源数据
       const item = XEUtils.clone(row) as any
@@ -139,21 +153,24 @@ const applyDeviceSource = (val: string) => {
       return item
     })
   } else {
-    strategyList.value = strategyListFiltered
+    strategyList.value = list
   }
 }
 
 
 // 节流函数,间隔500毫秒触发搜索
 const searchEvent = XEUtils.throttle(function () {
-    applyDeviceSource(String(deviceSourceOption.value || ''))
+    applyDeviceSource(String(deviceSourceOption.value || ''), String(deviceStatus.value || ''))
 }, 500, { trailing: true, leading: true })
 // vxe-select 的 change 事件签名：({ value, $event, ... })
 const handleDeviceSource: VxeSelectEvents.Change = ({ value }) => {
-  applyDeviceSource(String(value || ''))
+  applyDeviceSource(String(value || ''), String(deviceStatus.value || ''))
+}
+const handleDeviceStatus: VxeSelectEvents.Change = ({ value }) => {
+  applyDeviceSource(String(deviceSourceOption.value || ''), String(value || ''))
 }
 watch(deviceSourceOption, (newVal) => {
-  applyDeviceSource(String(newVal || ''))
+  applyDeviceSource(String(newVal || ''), String(deviceStatus.value || ''))
 }, { immediate: true })
 // 添加Group
 const handleAddGroup = () => {

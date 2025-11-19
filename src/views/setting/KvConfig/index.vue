@@ -62,31 +62,35 @@
         </vxe-column>
         <!-- Action列 -->
         <vxe-column field="Action" title="Action" show-header-overflow align="center" width="150">
-          <template #default="{ row }" v-if="RolePermissions.showBtn">
-            <el-button type="success" @click="handleEdit(row)" size="small">Edit</el-button>
-            <el-button type="danger" @click="handleDelete(row)" size="small">Delete</el-button>
-          </template>
-          <template #default="{ row }" v-else>
-            <el-button type="primary" @click="handleView(row)" size="small">View</el-button>
+          <template #default="{ row }">
+            <template v-if="canEdit(row)">
+              <el-button type="success" @click="handleEdit(row)" size="small">Edit</el-button>
+              <el-button type="danger" @click="handleDelete(row)" size="small" v-if="RolePermissions.showBtn">Delete</el-button>
+            </template>
+            <template v-else>
+              <el-button type="primary" @click="handleView(row)" size="small">View</el-button>
+            </template>
           </template>
         </vxe-column>
       </vxe-table>
     </div>
 
     <!-- 新增/编辑弹出框 -->
-    <el-dialog v-model="dialogVisible" :title="isView ? '查看' : (isEdit ? '编辑' : '新增')" width="500px" :close-on-click-modal="false">
+    <el-dialog v-model="dialogVisible" :title="isView ? '查看' : (isEdit ? '编辑' : '新增')" width="500px"
+      :close-on-click-modal="false">
       <el-form :model="formData" label-width="80px">
         <el-form-item label="k">
-          <el-input v-model="formData.k" placeholder="请输入k" :disabled="isView ? true : false"/>
+          <el-input v-model="formData.k" placeholder="请输入k" :disabled="isView ? true : false" />
         </el-form-item>
         <el-form-item label="v">
-          <el-input v-model="formData.v" placeholder="请输入v" type="textarea" :autosize="{ minRows: 4, maxRows: 6 }" :disabled="isView ? true : false" />
+          <el-input v-model="formData.v" placeholder="请输入v" type="textarea" :autosize="{ minRows: 4, maxRows: 6 }"
+            :disabled="isView ? true : false" />
         </el-form-item>
         <el-form-item label="kvdesc">
           <el-input v-model="formData.kvdesc" placeholder="请输入kvdesc" :disabled="isView ? true : false" />
         </el-form-item>
         <el-form-item label="kvgroup">
-          <el-input v-model="formData.kvgroup" placeholder="请输入kvgroup" :disabled="isView ? true : false"/>
+          <el-input v-model="formData.kvgroup" placeholder="请输入kvgroup" :disabled="isView ? true : false" />
         </el-form-item>
         <el-form-item label="status">
           <el-select v-model="formData.status" placeholder="请选择状态" :disabled="isView ? true : false">
@@ -101,7 +105,7 @@
           <el-input v-model="formData.mdate" disabled />
         </el-form-item>
       </el-form>
-      <template #footer v-if="RolePermissions.showBtn">
+      <template #footer v-if="canEdit(formData)">
         <span class="dialog-footer">
           <el-button @click="dialogVisible = false">取消</el-button>
           <el-button type="primary" @click="handleSave">
@@ -113,7 +117,7 @@
         <span class="dialog-footer">
           <el-button @click="dialogVisible = false">关闭</el-button>
         </span>
-        </template>
+      </template>
     </el-dialog>
   </div>
 </template>
@@ -195,6 +199,7 @@ const addbtn = () => {
 // 编辑按钮点击
 const handleEdit = (row: TableItem) => {
   isEdit.value = true
+  isView.value = false
   // 复制行数据到表单
   formData.value = {
     k: row.k || '',
@@ -299,6 +304,8 @@ const handleDelete = (row: TableItem) => {
     // 用户取消删除
   })
 }
+const canEdit = (row: TableItem) =>
+  RolePermissions.showBtn || String(row.kvgroup) === 'pm'
 </script>
 
 <style scoped lang="scss">
