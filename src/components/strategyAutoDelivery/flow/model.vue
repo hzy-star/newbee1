@@ -1,5 +1,5 @@
 <template>
-  <el-dialog v-model="dialogVisible" :title="title" width="800px" top="10vh" :before-close="handleClose">
+  <el-dialog v-model="dialogVisible" :title="title" width="800px" top="6vh" :before-close="handleClose">
     <div class="right-panel">
       <div class="flow-form-container">
         <el-form ref="formRef" :model="flowForm" :rules="rules" label-width="120px" size="large">
@@ -24,7 +24,7 @@
               <div class="formula-configs" :class="{ 'has-scroll': formulaConfigs.length > 3 }">
                 <div v-for="(config, index) in formulaConfigs" :key="index" class="formula-config-item">
                   <el-row :gutter="24">
-                    <el-col :span="4">
+                    <el-col :span="7">
                       <!-- 关键点：当用户手动修改 formula 时，立即与 group 解绑（删除 groupId） -->
                       <el-input
                         v-model="config.formula"
@@ -34,18 +34,21 @@
                         @input="onFormulaChanged(index)"
                       />
                     </el-col>
-                    <el-col :span="6">
-                      <el-input-number v-model="config.cutoff" placeholder="截止值" size="small" style="width: 100%" :disabled="isView" />
-                    </el-col>
-                    <el-col :span="3">
+                    <el-col :span="4">
                       <el-select v-model="config.operator" placeholder="操作符" size="small" style="width: 100%" :disabled="isView">
                         <el-option label=">" value="big" />
                         <el-option label="<" value="small" />
                         <el-option label="=" value="equal" />
                       </el-select>
                     </el-col>
-                    <el-col :span="6">
-                      <el-select v-model="config.thresholdId" placeholder="阈值配置" size="small" style="width: 100%" :disabled="isView">
+                    <el-col :span="9">
+                      <el-input-number v-model="config.cutoff" placeholder="截止值" size="small" style="width: 100%" :disabled="isView" />
+                    </el-col>
+                  </el-row>
+                  <el-row :gutter="24" justify="end">
+                    
+                    <el-col :span="9">
+                      <el-select v-model="config.thresholdId" placeholder="阈值配置" size="small" style="width: 100%" :disabled="isView" clearable>
                         <el-option v-for="item in thresholdList" :key="item.id" :label="item.name" :value="item.id" />
                       </el-select>
                     </el-col>
@@ -615,11 +618,12 @@ watch(
 
 <style scoped>
 .formula-configs-container {
-  max-height: 200px;
+  max-height: 250px;
   overflow-y: auto;
   border: 1px solid #ebeef5;
   border-radius: 4px;
   padding: 10px;
+  width: 100%;
 }
 .formula-config-item {
   margin-bottom: 10px;
@@ -628,7 +632,6 @@ watch(
   border-radius: 4px;
 }
 .has-scroll {
-  max-height: 200px;
-  overflow-y: auto;
+  max-height:220px;
 }
 </style>
