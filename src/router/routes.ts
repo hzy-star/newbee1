@@ -202,6 +202,17 @@ export const constantRoutes = [
           hidden: false,
         },
       },
+      {
+        path: "/strategyAutoDelivery/otherConfig",
+        component: () =>
+          import("@/views/strategyAutoDelivery/otherConfig/index.vue"),
+        name: "otherConfig",
+        meta: {
+          title: "其他配置", // algconfig页面
+          icon: "Brush",
+          hidden: false,
+        },
+      },
     ],
   },
   {
