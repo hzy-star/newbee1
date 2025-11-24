@@ -9,7 +9,7 @@ enum API {
     CREATEORUPDATEFLOW_URL = '/newbee/ce/strategyFlowConfig/createOrUpdate',  // 创建或更新FlowConfig
     DELETEFLOW_URL = '/newbee/ce/strategyFlowConfig/delete',  // 删除FlowConfig
     // 监控接口
-    HISTORYDATA = '/newbee/ce//strategyFlowCutoff/historyData',  // 获取监控接口
+    HISTORYDATA = '/newbee/ce/strategyFlowCutoff/historyData',  // 获取监控接口
 
     
 }

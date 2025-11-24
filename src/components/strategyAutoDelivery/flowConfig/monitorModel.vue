@@ -33,19 +33,38 @@
         <div class="toolbar-left">
           <el-descriptions :column="2" size="small" border>
             <el-descriptions-item label="pkgName">
-              <!-- 可输入 + 联想；当从 index 带入 pkgName 且不为 default/defult 时置灰不可编辑 -->
-              <el-autocomplete
-                v-model="header.pkgName"
-                :fetch-suggestions="querySearchPkg"
-                placeholder="请输入 pkgName"
-                clearable
-                :trigger-on-focus="true"
-                size="small"
-                style="width: 260px"
-                :disabled="isPkgLocked"
-                @select="onSelectPkg"
-                @clear="onClearPkg"
-              />
+              <template v-if="usePkgSelect">
+                <el-select
+                  v-model="header.pkgName"
+                  placeholder="请选择 pkgName"
+                  size="small"
+                  style="width: 100%"
+                  :title="header.pkgName"
+                  @change="onPkgSelectChange"
+                >
+                  <el-option
+                    v-for="pkg in incomingPkgList"
+                    :key="pkg"
+                    :label="pkg"
+                    :value="pkg"
+                  />
+                </el-select>
+              </template>
+              <template v-else>
+                <el-autocomplete
+                  v-model="header.pkgName"
+                  :fetch-suggestions="querySearchPkg"
+                  placeholder="请输入 pkgName"
+                  clearable
+                  :trigger-on-focus="true"
+                  size="small"
+                  style="width: 100%"
+                  :title="header.pkgName"
+                  :disabled="isPkgLocked"
+                  @select="onSelectPkg"
+                  @clear="onClearPkg"
+                />
+              </template>
             </el-descriptions-item>
             <el-descriptions-item label="flow">
               <span>{{ header.flow || '-' }}</span>
@@ -212,9 +231,14 @@ const chartHeight = computed(() => (isFullscreen.value ? '30vh' : '320px'))
 
 // 顶部展示信息
 const header = ref<{ pkgName: string; flow: string }>({ pkgName: '', flow: '' })
+const incomingPkgList = ref<string[]>([])
+const usePkgSelect = computed(() => incomingPkgList.value.length > 1)
 const isPkgLocked = computed(() => {
+  if (incomingPkgList.value.length === 1) {
+    return !/^defa?ult$/i.test(incomingPkgList.value[0] || '')
+  }
+  if (incomingPkgList.value.length > 1) return false
   const incoming = (props.data?.pkgName || '').trim()
-  // 只要从 index 带入了明确 pkgName 且不为 default/defult，就锁定
   return !!(incoming && !/^defa?ult$/i.test(incoming))
 })
 
@@ -306,12 +330,18 @@ const querySearchPkg = (queryString: string, cb: (items: SuggestItem[]) => void)
     : pkgNameHints.value.filter(v => v.toLowerCase().includes(q))
   cb(list.slice(0, 20).map(v => ({ value: v })))
 }
-function onSelectPkg(item: SuggestItem) {
-  header.value.pkgName = item.value
-  // 用户主动选择 pkg 后，重新拉取并用该 pkg 的国家
+const applyPkgSelection = (value: string) => {
+  header.value.pkgName = value
   initialLoad.value = false
   selectedCountries.value = []
   fetchHistory()
+}
+function onSelectPkg(item: SuggestItem) {
+  applyPkgSelection(item.value)
+}
+function onPkgSelectChange(value: string) {
+  if (!value) return
+  applyPkgSelection(value)
 }
 function onClearPkg() {
   // 清空不自动查询，等待用户选择/输入
@@ -741,11 +771,25 @@ watch(
   () => innerVisible.value,
   async (v) => {
     if (v) {
-      const incomingPkg = (props.data?.pkgName || '').trim()
-      header.value = {
-        pkgName: /^defa?ult$/i.test(incomingPkg) ? '' : (incomingPkg || ''),
-        flow: props.data?.flow || '',
+      const incomingPkgRaw = (props.data?.pkgName || '').trim()
+      const isDefaultIncoming = !incomingPkgRaw || /^defa?ult$/i.test(incomingPkgRaw)
+      if (isDefaultIncoming) {
+        incomingPkgList.value = []
+        header.value = {
+          pkgName: '',
+          flow: props.data?.flow || '',
+        }
+      } else {
+        const splitted = Array.from(new Set(
+          incomingPkgRaw.split(',').map(s => s.trim()).filter(Boolean)
+        ))
+        incomingPkgList.value = splitted
+        header.value = {
+          pkgName: splitted[0] || '',
+          flow: props.data?.flow || '',
+        }
       }
+
       initDefaultTimes()
       await fetchAllPkgNames()
 
@@ -755,11 +799,10 @@ watch(
       chart2?.clear()
       chart3?.clear()
 
-      // 首次加载：使用入口参数
       initialLoad.value = true
       selectedCountries.value = []
       countryOptions.value = []
-      fetchHistory()
+      await fetchHistory()
     }
   }
 )
@@ -811,32 +854,36 @@ onMounted(() => {
 }
 
 .monitor-toolbar {
-  display: grid;
-  grid-template-columns: 1fr 1.2fr 1.2fr;
+  display: flex;
+  align-items: flex-start;
   gap: 12px;
-  align-items: center;
 
   .toolbar-left {
-    min-width: 360px;
+    flex: 0 0 28%;
+    // min-width: 260px;
   }
   .toolbar-middle {
-    .time-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      .time-sep {
-        color: #909399;
-        user-select: none;
-      }
-    }
+    flex: 0 0 32%;
+    // min-width: 260px;
   }
   .toolbar-right {
+    flex: 1;
+    min-width: 280px;
     display: flex;
-    align-items: center;
     justify-content: flex-end;
   }
-}
 
+  .el-descriptions {
+    width: 100%;
+  }
+
+  .el-select,
+  .el-autocomplete,
+  .el-date-editor {
+    width: 100%!important;
+    // min-width: 220px;
+  }
+}
 .chart-card {
   position: relative;
   border: 1px solid var(--el-border-color);
