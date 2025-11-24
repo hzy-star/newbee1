@@ -32,7 +32,7 @@
       <div class="monitor-toolbar">
         <div class="toolbar-left">
           <el-descriptions :column="2" size="small" border>
-            <el-descriptions-item label="pkgName">
+            <el-descriptions-item label="pkgName" :label-width="60">
               <template v-if="usePkgSelect">
                 <el-select
                   v-model="header.pkgName"
@@ -66,7 +66,7 @@
                 />
               </template>
             </el-descriptions-item>
-            <el-descriptions-item label="flow">
+            <el-descriptions-item label="flow" :label-width="60">
               <span>{{ header.flow || '-' }}</span>
             </el-descriptions-item>
           </el-descriptions>
