@@ -38,7 +38,7 @@
                   v-model="header.pkgName"
                   placeholder="请选择 pkgName"
                   size="small"
-                  style="width: 100%"
+                  style="width: 100%;min-width: 180px"
                   :title="header.pkgName"
                   @change="onPkgSelectChange"
                 >
@@ -58,7 +58,7 @@
                   clearable
                   :trigger-on-focus="true"
                   size="small"
-                  style="width: 100%"
+                  style="width: 100%;min-width: 180px"
                   :title="header.pkgName"
                   :disabled="isPkgLocked"
                   @select="onSelectPkg"
@@ -67,7 +67,12 @@
               </template>
             </el-descriptions-item>
             <el-descriptions-item label="flow" :label-width="60">
-              <span>{{ header.flow || '-' }}</span>
+              <span
+                class="flow-text"
+                :title="header.flow || '-'"
+              >
+                {{ header.flow || '-' }}
+              </span>
             </el-descriptions-item>
           </el-descriptions>
         </div>
@@ -882,6 +887,14 @@ onMounted(() => {
   .el-date-editor {
     width: 100%!important;
     // min-width: 220px;
+  }
+  .flow-text {
+    display: inline-block;
+    max-width: 120px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    vertical-align: middle;
   }
 }
 .chart-card {
