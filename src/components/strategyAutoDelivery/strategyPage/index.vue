@@ -26,12 +26,43 @@
         <vxe-column field="xh" type="seq" align="center" title="序号" width="5%"></vxe-column>
         <vxe-column field="name" title="策略名称" min-width="50" align="center" />
         <vxe-column field="ruleFile" title="规则文件" min-width="220" />
-        <vxe-column field="returnType" title="文件类型" min-width="30" align="center" />
-        <vxe-column field="deviceSource" title="设备来源" min-width="30" align="center">
+        <!-- <vxe-column field="returnType" title="文件类型" min-width="30" align="center" /> -->
+        <vxe-column field="returnType" title="文件类型" min-width="30" width="80" align="center">
+          <template #default="{ row }">
+            <span v-if="row.returnType === 'rank'" class="tag tag-rank">
+              RANK
+            </span>
+            <span v-else-if="row.returnType === 'score'" class="tag tag-score">
+              SCORE
+            </span>
+            <span v-else-if="row.returnType === 'flag'" class="tag tag-flag">
+              FLAG
+            </span>
+            <span v-else-if="row.returnType === 's2s'" class="tag tag-s2s">
+              S2S
+            </span>
+            <span v-else-if="row.returnType === 'json'" class="tag tag-json">
+              JSON
+            </span>
+            <span v-else class="tag tag-default">-</span>
+          </template>
+        </vxe-column>
+        <vxe-column field="eventType" title="事件类型" min-width="50" width="80" align="center">
+          <template #default="{ row }">
+            <span v-if="row.eventType === 'click'" class="tag tag-click">
+              点击
+            </span>
+            <span v-else-if="row.eventType === 'imp'" class="tag tag-imp">
+              展示
+            </span>
+            <span v-else class="tag tag-default">全部</span>
+          </template>
+        </vxe-column>
+        <vxe-column field="deviceSource" title="设备来源" min-width="30" width="80" align="center">
           <template #default="{ row }">
             <el-tag v-if="row.deviceSource === 'offline'" type="danger" size="small">离线</el-tag>
-            <el-tag v-else-if="row.deviceSource === 'online'" type="primary" size="small" >实时</el-tag>
-            <el-tag v-else type="info" size="small" >未知</el-tag>
+            <el-tag v-else-if="row.deviceSource === 'online'" type="primary" size="small">实时</el-tag>
+            <el-tag v-else type="info" size="small">未知</el-tag>
           </template>
         </vxe-column>
         <vxe-column field="description" title="描述" min-width="110" show-header-overflow show-overflow />
@@ -39,7 +70,8 @@
           <template #default="{ row }">
             <el-button size="small" type="primary" plain @click="handleView(row)">查看</el-button>
             <el-button size="small" type="success" plain @click="handleEdit(row)">编辑</el-button>
-            <el-button size="small" type="danger" plain @click="handleDelete(row)" :disabled="!isSuperAdmin">删除</el-button>
+            <el-button size="small" type="danger" plain @click="handleDelete(row)"
+              :disabled="!props.isSuperAdmin">删除</el-button>
             <el-button size="small" type="warning" plain @click="handlePreview(row)">预览</el-button>
             <el-button size="small" color="#626aef" :dark="isDark" plain @click="handleDownload(row)">下载</el-button>
           </template>
@@ -63,6 +95,13 @@
             <el-option label="SCORE" value="score" />
             <el-option label="S2S" value="s2s" />
           </el-select>
+        </el-form-item>
+        <el-form-item label="事件类型" prop="eventType">
+            <el-select v-model="formData.eventType" placeholder="请选择事件类型" disabled="true">
+              <el-option label="点击" value="click" />
+              <el-option label="展示" value="imp" />
+              <el-option label="全部" value="all" />
+            </el-select>
         </el-form-item>
         <el-form-item label="设备来源" prop="deviceSource">
           <!-- <el-switch v-model="formData.deviceSource" active-text="实时" inactive-text="离线" /> -->
@@ -102,8 +141,9 @@ import { reqDownloadUrl } from '@/api/docDownload/ossDownload'
 import CsvPreviewDialog from '@/components/CsvPreviewDialog.vue'
 import { useDark } from '@vueuse/core' // 替代原来的 ~/composables/dark
 import type { VxeSelectEvents } from 'vxe-table'
-// 获取父级传递的 isSuperAdmin 属性
-defineProps<{
+// 获取父级传递的 isSuperAdmin,mode 属性
+const props = defineProps<{
+  mode: 'click' | 'imp' | 'all',
   isSuperAdmin: boolean
 }>()
 // 是否暗色模式（自动跟随 prefers-color-scheme，也可手动切换）
@@ -123,7 +163,8 @@ const formData = ref<Omit<Strategy, 'id'> & { id?: number }>({
   ruleFile: '',
   returnType: '',
   description: '',
-  deviceSource: 'online'
+  deviceSource: 'online',
+  eventType: props.mode
 })
 
 // 表单验证规则
@@ -136,6 +177,9 @@ const formRules: FormRules = {
   ],
   returnType: [
     { required: true, message: '请输入返回类型', trigger: 'blur' }
+  ],
+  eventType: [
+    { required: true, message: '请选择事件类型', trigger: 'change' }
   ]
 }
 const returnType = ref('')
@@ -143,7 +187,7 @@ const deviceSourceOption = ref('online')
 // 获取策略列表
 const getStrategyList = async () => {
   try {
-    const response = await reqStrategyList({returnType:returnType.value})
+    const response = await reqStrategyList({returnType:returnType.value,eventType:props.mode})
     // strategyList.value = response.data || []
     strategyListBackUp.value = response.data || []
     applyDeviceSource(String(deviceSourceOption.value || ''))
@@ -179,7 +223,14 @@ const applyDeviceSource = (val: string) => {
     strategyList.value =  strategyListFiltered
   }
 }
-
+// 监听顶部传入的 mode 变化，清空筛选条件和列表
+watch(() => props.mode,(newVal) => {
+  filterName.value = ''
+  deviceSourceOption.value = 'online'
+  returnType.value = ''
+  strategyListBackUp.value = []
+  strategyList.value = []
+})
 
 // 节流函数,间隔500毫秒触发搜索
 const searchEvent = XEUtils.throttle(function () {
@@ -200,7 +251,8 @@ const resetForm = () => {
     ruleFile: '',
     returnType: '',
     description: '',
-    deviceSource: 'online'
+    deviceSource: 'online',
+    eventType: props.mode
   }
   nextTick(() => {
     formRef.value?.clearValidate()
@@ -353,7 +405,7 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .strategy-page {
-  height: calc(100vh - #{$base-tabbar-height} - 60px); // 计算高度减去底部栏
+  height: $base-alg-platform-height; // 计算高度减去底部栏
 
   .page-header {
     display: flex;
@@ -371,4 +423,5 @@ onMounted(() => {
     height: 95%;
   }
 }
+
 </style>

@@ -15,7 +15,7 @@ enum API {
 // 创建阈值
 export const reqCreateOrUpdate = (param: createorupdate) => request.post<any,dataType>(API.CREATEORUPDATE_URL,param,{isForm: true})
 // 查询
-export const reqStrategyThresholdList = () => request.get(API.STRATEGYList_URL)
+export const reqStrategyThresholdList = (param: any) => request.get(API.STRATEGYList_URL,{params:param})
 // 查询某个阈值
 export const reqStrategyThreshold = (param: string) => request.get<any>(API.STRATEGY_URL,{ params: param })
 // 删除某个阈值

@@ -209,7 +209,7 @@ export const constantRoutes = [
         name: "otherConfig",
         meta: {
           title: "其他配置", // algconfig页面
-          icon: "Brush",
+          icon: "Box",
           hidden: false,
         },
       },

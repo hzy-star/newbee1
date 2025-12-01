@@ -17,4 +17,5 @@ export interface Groups {
   formula: string;
   groupType: string; // 是否落盘
   deviceSource: string; // 设备来源
+  eventType: 'click' | 'imp' | 'all' // 事件类型
 }

@@ -18,7 +18,8 @@ export interface Strategy {
   id?: number
   name: string
   ruleFile: string
-  returnType: string,
+  returnType: string
   description?: string // 新增描述字段
   deviceSource?: string // 新增设备来源字段
+  eventType?: 'click' | 'imp' | 'all' // 新增事件类型字段
 }

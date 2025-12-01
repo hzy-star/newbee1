@@ -20,6 +20,13 @@
           <el-option label="SCORE" value="score" />
         </el-select>
       </el-form-item>
+      <el-form-item label="事件类型" prop="eventType">
+          <el-select v-model="formData.eventType" placeholder="请选择事件类型" disabled="true">
+            <el-option label="点击" value="click" />
+            <el-option label="展示" value="imp" />
+            <el-option label="全部" value="all" />
+          </el-select>
+      </el-form-item>
 
       <el-form-item label="状态" prop="status">
         <el-select v-model="formData.status" :disabled="isView">
@@ -173,6 +180,7 @@ const formData = ref<any>({
   strategySelections: [] as any[],
   ...props.form
 })
+debugger
 
 const strategiesList = ref<any[]>([])          // 当前用于展示的（按设备来源过滤）
 const allStrategies = ref<any[]>([])           // 全量列表（用于 label 映射、合并已选项）
@@ -230,6 +238,7 @@ const formRules: any = {
 // 
 const getStrategiesList = async () => {
   try {
+    debugger
     const response: any = await reqStrategyList()
     allStrategies.value = response?.data || []
     applyDeviceFilter() // 拉取后按当前设备来源过滤
@@ -241,7 +250,12 @@ const getStrategiesList = async () => {
 const applyDeviceFilter = () => {
   const ds = formData.value.deviceSource
   const list = ds ? allStrategies.value.filter((s: any) => s.deviceSource === ds) : allStrategies.value
-  strategiesList.value = list
+  if(formData.value.eventType==='all'){
+    strategiesList.value = list
+  }else{
+    const newList = list.filter((s:any) => s.eventType === formData.value.eventType)
+    strategiesList.value = newList
+  }
 
   // 如果不想清理已选中但不在当前过滤集的项，可以注释掉下面逻辑
   const validIds = new Set(list.map((s: any) => String(s.id)))
@@ -254,14 +268,30 @@ const applyDeviceFilter = () => {
     }
   })
 }
-
+// 清空策略选择项
+const clearStrategySelections = () => {
+  formData.value.strategySelections.forEach((row: any) => {
+      row.strategyId = ''
+      row.thresholdId = undefined
+      row.leftRank = ''
+      row.rightRank = ''
+  })
+}
 // UI 用的 options：在过滤结果前面合并“当前已选但不在过滤集”的项（禁用显示）
 const strategiesForUI = computed(() => {
+  debugger
   const ds = formData.value.deviceSource
   const returnType = formData.value.returnType
+  const eventType = formData.value.eventType
   const filtered = ds ? allStrategies.value.filter((s: any) => s.deviceSource === ds) : allStrategies.value
-
-  const newList = filtered.filter((s:any) => s.returnType === returnType)
+  let newList = []
+  if(formData.value.eventType==='all'){
+    newList = filtered.filter((s:any) => s.returnType === returnType)
+  }else{
+    newList = filtered.filter((s:any) => s.returnType === returnType)
+    .filter((s:any) => s.eventType === eventType)
+  }
+  
   const selectedIds = new Set(
     (formData.value.strategySelections || []).map((s: any) => String(s.strategyId)).filter(Boolean)
   )
@@ -274,6 +304,8 @@ const strategiesForUI = computed(() => {
 
 // 选择变化时自动过滤（双保险）
 watch(() => formData.value.deviceSource, () => applyDeviceFilter())
+watch(() => formData.value.eventType, () => clearStrategySelections())
+watch(() => formData.value.returnType, () => clearStrategySelections())
 
 const addStrategyRow = () => {
   formData.value.strategySelections.push({
@@ -294,6 +326,7 @@ const handleClose = () => {
     cutoff: 0,
     groupType: 'normal',
     deviceSource: 'online',
+    eventType: formData.value.eventType,
     strategySelections: []
   }
 }
@@ -360,6 +393,7 @@ watch(
       strategySelections: [],
       ...newVal
     }
+    debugger
     if (newVal?.strategyIds) {
       formData.value.strategySelections = String(newVal.strategyIds)
         .split(',')
@@ -405,6 +439,7 @@ const getStrategyLabel = (id: any) => {
 }
 
 const getThresholdLabel = (id: any) => {
+  
   if (!id) return ''
   const th = (thresholdStore.ThresholdList || []).find((it: any) => String(it.id) === String(id))
   return th ? th.name : ''

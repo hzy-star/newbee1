@@ -43,10 +43,15 @@
                                 {{ flow.name || '-' }}
                                 <span class="span-text"
                                     :class="flow.deviceSource === 'online' ? 'span-online' : 'span-offline'">{{
-                                        flow.deviceSource === 'online' ? '(实时)' : flow.deviceSource === 'offline' ? '(离线)' :
+                                    flow.deviceSource === 'online' ? '(实时)' : flow.deviceSource === 'offline' ? '(离线)' :
                                     '' }}</span>
-                                <el-tag :type="flow.status === 'enabled' ? 'success' : 'danger'" size="default">
+                                <el-tag class="span-text" :type="flow.status === 'enabled' ? 'success' : 'danger'"
+                                    size="default">
                                     {{ flow.status === 'enabled' ? '启用' : '禁用' }}
+                                </el-tag>
+                                <el-tag class="span-text" :type="flow.eventType === 'click' ? 'success' : 'danger'"
+                                    size="default">
+                                    {{ flow.eventType === 'click' ? '点击' : flow.eventType === 'imp' ? '展示' : '全部' }}
                                 </el-tag>
                             </h2>
                             <div class="flow-meta">
@@ -115,7 +120,22 @@
 
                             <el-table-column prop="returnType" label="返回类型" width="80" align="center">
                                 <template #default="{ row }">
-                                    {{ row.returnType || '-' }}
+                                    <span v-if="row.returnType === 'rank'" class="tag tag-rank">
+                                        RANK
+                                    </span>
+                                    <span v-else-if="row.returnType === 'score'" class="tag tag-score">
+                                        SCORE
+                                    </span>
+                                    <span v-else-if="row.returnType === 'flag'" class="tag tag-flag">
+                                        FLAG
+                                    </span>
+                                    <span v-else-if="row.returnType === 's2s'" class="tag tag-s2s">
+                                        S2S
+                                    </span>
+                                    <span v-else-if="row.returnType === 'json'" class="tag tag-json">
+                                        JSON
+                                    </span>
+                                    <span v-else class="tag tag-default">-</span>
                                 </template>
                             </el-table-column>
 
@@ -224,7 +244,7 @@ const loadDataProgressively = async () => {
         status.value = 'loading'
 
         // 1) flows
-        const flowRes: any = await reqFlow(true)
+        const flowRes: any = await reqFlow({eventType: props.mode}, true)
         const flowList: any[] = toArray(flowRes?.data).map((flow: any) => ({
             ...flow,
             loaded: false,
@@ -247,7 +267,7 @@ const loadDataProgressively = async () => {
         const allGroupIds = uniq(flowList.flatMap(f => parseIds(f.strategyGroupIds)))
         if (allGroupIds.length === 0) {
             for (const f of flowList) f.loaded = true
-            status.value = 'done'
+            status.value = 'idle'
             return
         }
         const groupRes: any = await reqStrategyGroup({ ids: allGroupIds.join(',') }, true)
@@ -332,7 +352,8 @@ const props = defineProps<{
     filterName: string,
     isSuperAdmin: boolean,
     detailOption: string,
-    detailDeviceStatus: string
+    detailDeviceStatus: string,
+    mode: string
 }>()
 // flowsData 变化或筛选项变化时都重算
 watch(flowsData, applyDetailFilters)
@@ -362,7 +383,12 @@ const filteredFlows = computed(() => {
         return acc
     }, [])
 })
-
+watch(()=> props.mode, () => {
+    // mode 变化时重新加载数据
+    flowsData.value = []
+    flows.value = []
+    status.value = 'idle'
+}, { immediate: true })
 // 这些事件仍保留（查看/编辑/删除/复制）
 const emit = defineEmits<{
     (e: 'view', flow: any): void

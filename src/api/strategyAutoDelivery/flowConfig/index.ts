@@ -18,7 +18,7 @@ enum API {
 // 创建或更新FlowConfig
 export const reqCreateOrUpdatFlowConfig = (param: any) => request.post<any,any>(API.CREATEORUPDATEFLOW_URL,param,{isForm: true})
 // 查询 FlowConfig 列表
-export const reqFlowConfig = () => request.get(API.GETFLOWLIST_URL)
+export const reqFlowConfig = (param: any) => request.get(API.GETFLOWLIST_URL, { params: param })
 // 查询某个 FlowConfig
 export const reqFlowConfigId = (param: string) => request.get<any>(API.GETFLOWID_URL,{ params: param })
 // 删除 FlowConfig

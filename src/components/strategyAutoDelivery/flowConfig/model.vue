@@ -15,6 +15,15 @@
                                 <el-input v-model="flowForm.country" placeholder="请输入country" :disabled="isView" />
                             </el-form-item>
                         </el-col>
+                        <el-col :span="12">
+                            <el-form-item label="事件类型" prop="eventType">
+                                <el-select v-model="flowForm.eventType" placeholder="请选择事件类型" disabled="true">
+                                    <el-option label="点击" value="click" />
+                                    <el-option label="展示" value="imp" />
+                                    <el-option label="全部" value="all" />
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
                     </el-row>
 
                     <el-form-item label="flow配置" prop="formulaConfigs">
@@ -26,7 +35,7 @@
                                             <label class="cfg-label">Config Name</label>
                                             <!-- 原选择框 -->
                                             <el-select v-model="config.configName" placeholder="configName" size="small"
-                                                style="width: 100%" :disabled="isView">
+                                                style="width: 100%" :disabled="isView" filterable>
                                                 <el-option v-for="item in flowList" :key="item.id" :label="item.name"
                                                     :value="item.name" />
                                             </el-select>
@@ -155,7 +164,8 @@ const formRef = ref<FormInstance>()
 const flowForm = ref<Partial<any>>({
     pkgName: '',
     country: '',
-    config: ''
+    config: '',
+    eventType: props.form.eventType
 })
 
 // 统一强类型，避免 string | undefined
@@ -248,6 +258,7 @@ const handleSubmit = async () => {
             pkgName: flowForm.value.pkgName,
             country: flowForm.value.country,
             config: formulaConfigs.value.map(item => `${item.configName}:${item.configValue}:${item.configKp}:${item.configKi}:${item.configKd}:${item.configStep}:${item.isAuto}:${item.dupCheck}:${item.eraseIfa}:${item.times}`).join(','),
+            eventType: props.form.eventType
         }
         const response: any = await reqCreateOrUpdatFlowConfig(submitData)
         if (response?.code === 200 || response?.success === true) {
@@ -264,7 +275,7 @@ const handleSubmit = async () => {
 // 获取groups列表
 const flowList = ref<Array<{ id: number, name: string }>>([])
 const getFlowList = async () => {
-    const response: any = await reqFlow()
+    const response: any = await reqFlow({eventType: props.form.eventType})
     response.data = (response.data || []).filter((item: any) => item.status === 'enabled' && item.deviceSource === 'online') // 只获取启用的Flow
     flowList.value = response.data || []
 }

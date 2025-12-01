@@ -6,15 +6,37 @@
     </div>
     <div class="page-content">
       <p>
-        <vxe-input v-model="filterName" type="search" placeholder="模糊搜索Threshold名称" clearable
-          @change="searchEvent" size="mini"></vxe-input>
+        <vxe-input v-model="filterName" type="search" placeholder="模糊搜索Threshold名称" clearable @change="searchEvent"
+          size="mini"></vxe-input>
       </p>
       <!-- 阈值列表表格 -->
       <vxe-table :data="strategyList" border round style="width: 100%" size="small" height="90%">
         <vxe-column field="xh" type="seq" align="center" title="序号" width="5%"></vxe-column>
-        <vxe-column field="name" title="阈值名称" min-width="50" align="center" />
+        <vxe-column field="name" title="阈值名称" min-width="50" width="220" align="center" />
         <vxe-column field="ruleFile" title="规则文件" min-width="220" />
-        <vxe-column field="returnType" title="文件类型" min-width="30" align="center" />
+        <vxe-column field="returnType" title="文件类型" min-width="30" width="80" align="center">
+          <template #default="{ row }">
+            <span v-if="row.returnType === 'rank'" class="tag tag-rank">
+              RANK
+            </span>
+            <span v-else-if="row.returnType === 'score'" class="tag tag-score">
+              SCORE
+            </span>
+            <span v-else class="tag tag-default">-</span>
+          </template>
+        </vxe-column>
+
+        <vxe-column field="eventType" title="事件类型" min-width="50" width="80" align="center">
+          <template #default="{ row }">
+            <span v-if="row.eventType === 'click'" class="tag tag-click">
+              点击
+            </span>
+            <span v-else-if="row.eventType === 'imp'" class="tag tag-imp">
+              展示
+            </span>
+            <span v-else class="tag tag-default">全部</span>
+          </template>
+        </vxe-column>
         <vxe-column field="description" title="描述" min-width="110" show-header-overflow show-overflow />
         <vxe-column title="操作" width="200" fixed="right" align="center">
           <template #default="{ row }">
@@ -37,11 +59,18 @@
         </el-form-item>
         <el-form-item label="返回类型" prop="returnType">
           <!-- <el-input v-model="formData.returnType" placeholder="请输入返回类型" :disabled="isView" /> -->
-           <el-select v-model="formData.returnType" placeholder="请选择返回类型" :disabled="isView">
+          <el-select v-model="formData.returnType" placeholder="请选择返回类型" :disabled="isView">
             <el-option label="RANK" value="rank" />
             <!-- <el-option label="FLAG" value="flag" /> -->
             <el-option label="SCORE" value="score" />
           </el-select>
+        </el-form-item>
+        <el-form-item label="事件类型" prop="eventType">
+            <el-select v-model="formData.eventType" placeholder="请选择事件类型" disabled="true">
+              <el-option label="点击" value="click" />
+              <el-option label="展示" value="imp" />
+              <el-option label="全部" value="all" />
+            </el-select>
         </el-form-item>
         <el-form-item label="描述">
           <el-input v-model="formData.description" type="textarea" placeholder="请输入描述" :disabled="isView" />
@@ -59,7 +88,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, onMounted, nextTick,watch, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { reqStrategyThresholdList, reqCreateOrUpdate, reqDeleteStrategyThreshold } from '@/api/strategyAutoDelivery/threshold'
 import type { StrategyThreshold } from '@/api/strategyAutoDelivery/threshold/type'
@@ -76,13 +105,29 @@ const dialogTitle = ref('')
 const isView = ref(false)
 const submitLoading = ref(false)
 const formRef = ref<FormInstance>()
+// 获取父级传递的 mode 属性
+const props = defineProps<{
+  mode: 'click' | 'imp' | 'all'
+}>()
+watch(
+  () => props.mode,
+  (val: 'click' | 'imp' | 'all') => {
+    // 当 mode 变化时，可以在这里处理相应逻辑
+    console.log('mode changed to:', val)
+    // 切换后，清空列表，避免显示旧数据
+    strategyList.value = []
+    strategyListBackUp.value = []
 
+  },
+  { immediate: true }
+)
 // 表单数据 - 使用ref实现，id为可选字段
 const formData = ref<Omit<StrategyThreshold, 'id'> & { id?: number }>({
   name: '',
   ruleFile: '',
   returnType: '',
-  description: ''
+  description: '',
+  eventType: props.mode  // 默认值为点击或展示
 })
 
 // 表单验证规则
@@ -95,13 +140,16 @@ const formRules: FormRules = {
   ],
   returnType: [
     { required: true, message: '请输入返回类型', trigger: 'blur' }
+  ],
+  eventType: [
+    { required: true, message: '请选择事件类型', trigger: 'change' }
   ]
 }
 
 // 获取阈值列表
 const getStrategyList = async () => {
   try {
-    await thresholdStore.getThreshold() 
+    await thresholdStore.getThreshold(props.mode) 
     strategyList.value = thresholdStore.ThresholdList
     strategyListBackUp.value = thresholdStore.ThresholdList
     handleSearchInput()
@@ -116,7 +164,8 @@ const resetForm = () => {
     name: '',
     ruleFile: '',
     returnType: '',
-    description: ''
+    description: '',
+    eventType: props.mode  // 默认值为点击或展示
   }
   nextTick(() => {
     formRef.value?.clearValidate()
@@ -242,7 +291,6 @@ const handleSearchInput = () => {
 const searchEvent = XEUtils.throttle(function () {
   handleSearchInput()
 }, 500, { trailing: true, leading: true })
-
 // 页面初始化
 onMounted(() => {
 //   getStrategyList()
@@ -252,7 +300,7 @@ onMounted(() => {
 <style lang="scss" scoped>
 .strategy-page {
   // padding: 20px;
-  height: calc(100vh - #{$base-tabbar-height} - 60px); // 计算高度减去底部栏
+  height: $base-alg-platform-height; // 计算高度减去底部栏
 
   .page-header {
     display: flex;
@@ -270,4 +318,5 @@ onMounted(() => {
     height: 95%;
   }
 }
+
 </style>

@@ -16,7 +16,7 @@ enum API {
 // 创建或更新flow
 export const reqCreateOrUpdatFlow = (param: any) => request.post<any,any>(API.CREATEORUPDATEFLOW_URL,param,{isForm: true})
 // 查询 flow 列表
-export const reqFlow = (noloading?: boolean) => request.get(API.GETFLOWLIST_URL,{noloading:noloading})
+export const reqFlow = (param?:any,noloading?: boolean) => request.get(API.GETFLOWLIST_URL,{params: param,noloading:noloading})
 // 查询某个 flow
 export const reqFlowId = (param: string) => request.get<any>(API.GETFLOWID_URL,{ params: param })
 // 删除 flow

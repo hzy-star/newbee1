@@ -5,7 +5,7 @@
             <el-form :inline="true" :model="searchForm" :rules="searchRules" ref="searchFormRef" class="search-form">
                 <el-form-item label="thresholdName" prop="ruleFile" class="flex-item flex-ruleFile">
                     <el-select v-model="searchForm.ruleFile" placeholder="请选择" class="flex-select"
-                        @change="onThresholdChange">
+                        @change="onThresholdChange" filterable>
                         <!-- <el-option label="click" value="click" />
                         <el-option label="imp" value="imp" /> -->
                         <el-option v-for="item in thresholdList" :key="item.id" :label="item.name"
@@ -26,11 +26,14 @@
                 <el-form-item label="returnType" prop="returnType" class="flex-item flex-returnType">
                     <el-input v-model="selectedItem.returnType" disabled class="flex-select" />
                 </el-form-item>
+                <el-form-item label="eventType" prop="eventType" class="flex-item flex-eventType">
+                    <el-input v-model="selectedItem.eventType" disabled class="flex-select" />
+                </el-form-item>
                 <el-form-item label="description" prop="description" class="flex-item flex-description">
                     <el-input v-model="selectedItem.description" disabled class="flex-select" />
                 </el-form-item>
                 <el-form-item label="ruleFile" prop="ruleFile" class="flex-item flex-ruleFile">
-                    <el-input v-model="selectedItem.ruleFile" disabled class="flex-select" />
+                    <el-input v-model="selectedItem.ruleFile" disabled class="flex-select" :title="selectedItem.ruleFile" />
                 </el-form-item>
 
             </el-form>
@@ -70,8 +73,9 @@
                 <el-row :gutter="24">
                     <el-col :span="12">
                         <el-form-item label="Name" prop="ruleFile">
+                            <!-- 可以搜索 -->
                             <el-select v-model="dialogForm.ruleFile" placeholder="请选择"
-                                :disabled="isDialogFieldDisabled('ruleFile')">
+                                :disabled="isDialogFieldDisabled('ruleFile')" filterable >
 
                                 <el-option v-for="item in thresholdList" :key="item.id" :label="item.name"
                                     :value="item.ruleFile" />
@@ -121,11 +125,16 @@ import _ from 'lodash'
 const searchFormRef = ref()
 const dialogFormRef = ref()
 
+// 获取父级传递的 mode 属性
+const props = defineProps<{
+  mode: 'click' | 'imp' | 'all'
+}>()
 // 搜索表单
 const searchForm = reactive({
     ruleFile: '',
     country: '*',
     pkgName: '',
+    eventType: props.mode // 添加 eventType 参数
 })
 const indexMethod = (index: number) => {
     return index + 1
@@ -172,6 +181,7 @@ const onSearch = async () => {
 
         saveSearchForm.value = null; // 清除保存的搜索条件
         ruleFileObj.value = null; // 清除ruleFile保存
+        searchForm.eventType = props.mode; // 添加 eventType 参数
         const res = await reqThresholdConfigUrl(searchForm);
         
         if (res.code === 200) {
@@ -196,7 +206,8 @@ const dialogForm = reactive({
     country: '',
     pkgName: '',
     threshold: null,
-    returnType: 'rank'
+    returnType: 'rank',
+    eventType: props.mode
 })
 
 const dialogRules = {
@@ -230,6 +241,7 @@ const openEditDialog = (row: any, type: 'replace' | 'add' | 'edit') => {
         dialogForm.country = saveSearchForm.value.country   || ''
         dialogForm.pkgName = saveSearchForm.value.pkgName   || ''
         dialogForm.threshold = null // 替换时不需要阈值
+        dialogForm.eventType = props.mode
 
     } else if ((type === 'edit') && row) {
         // 修改时所有内容从row取值
@@ -237,12 +249,14 @@ const openEditDialog = (row: any, type: 'replace' | 'add' | 'edit') => {
         dialogForm.country = row.country || ''
         dialogForm.pkgName = row.pkgName || ''
         dialogForm.threshold = row.threshold || 1
+        dialogForm.eventType = props.mode
     } else {
         // 新增时清空，默认选中click和黑阈值
-        dialogForm.ruleFile = saveSearchForm.value.ruleFile
+        dialogForm.ruleFile = saveSearchForm.value?.ruleFile || ''
         dialogForm.country = ''
         dialogForm.pkgName = ''
         dialogForm.threshold = null
+        dialogForm.eventType = props.mode
     }
 }
 // 关闭弹窗
@@ -260,6 +274,7 @@ const resetDialogForm = () => {
     dialogForm.country = ''
     dialogForm.pkgName = ''
     dialogForm.threshold = null
+    dialogForm.eventType = props.mode
 
     dialogFormRef.value?.resetFields()
 
@@ -367,10 +382,11 @@ const isDialogFieldDisabled = (field: string) => {
 const thresholdList = ref<StrategyThreshold[]>([])
 // 监听 dataUpdated 状态
 watch(() => thresholdStore.dataUpdated, (newVal) => {
+    debugger
     if (newVal) {
         // 重置状态，避免重复触发
         if (thresholdStore.ThresholdList.length === 0 && thresholdStore.dataUpdated === false) {
-            thresholdStore.getThreshold()
+            thresholdStore.getThreshold(props.mode)
         } else {
             thresholdList.value = thresholdStore.ThresholdList
             thresholdStore.dataUpdated = true
@@ -378,7 +394,7 @@ watch(() => thresholdStore.dataUpdated, (newVal) => {
         }
     } else {
         if (thresholdStore.ThresholdList.length === 0 && thresholdStore.dataUpdated === false) {
-            thresholdStore.getThreshold()
+            thresholdStore.getThreshold(props.mode)
         }
     }
 }, { immediate: true })
@@ -395,13 +411,41 @@ const onThresholdChange = (val: string) => {
     selectedItem.value = thresholdList.value.find(item => item.ruleFile === val);
     console.log('选中的完整对象:', selectedItem.value);
 }
+// 监听顶部传入的 mode 变化，重新获取阈值列表
+watch(
+  () => props.mode,
+  (val: 'click' | 'imp' | 'all') => {
+    // 当 mode 变化时，可以在这里处理相应逻辑
+    console.log('eventType changed to:', val)
+    tableData.value = [];
+    saveSearchForm.value = null; // 清除保存的搜索条件
+    ruleFileObj.value = null; // 清除ruleFile保存
+    // 清除country和pkgName和returnType,eventType,description,ruleFile的搜索条件
+    searchForm.country = '*'
+    searchForm.pkgName = ''
+    if (selectedItem.value) {
+      selectedItem.value.returnType = ''
+      selectedItem.value.eventType = ''
+      selectedItem.value.description = ''
+      selectedItem.value.ruleFile = ''
+      selectedItem.value = null
+    }
+    thresholdList.value = [];
+    searchForm.ruleFile = ''
+    thresholdStore.getThreshold(val).then(() => {
+        thresholdList.value = thresholdStore.ThresholdList
+    })
+
+  },
+  { immediate: true }
+)
 </script>
 
 <style scoped lang="scss">
 .blacklist-white-list-page {
     display: flex;
     flex-direction: column;
-    height: calc(100vh - $base-tabbar-height - 80px);
+    height: calc(#{$base-alg-platform-height} - 20px);
     box-sizing: border-box;
 
     // 顶部

@@ -59,10 +59,42 @@
                                                         <span style="font-weight: 500;">{{ row.name }}</span>
                                                     </template>
                                                 </vxe-column>
+                                                <vxe-column field="eventType" title="事件类型" min-width="50" width="80" align="center">
+                                                    <template #default="{ row }">
+                                                        <span v-if="row.eventType === 'click'" class="tag tag-click">
+                                                        点击
+                                                        </span>
+                                                        <span v-else-if="row.eventType === 'imp'" class="tag tag-imp">
+                                                        展示
+                                                        </span>
+                                                        <span v-else class="tag tag-default">全部</span>
+                                                    </template>
+                                                </vxe-column>
                                                 <vxe-column field="ruleFile" title="规则文件" min-width="220" />
-                                                <vxe-column field="returnType" title="返回类型" width="200"
-                                                    align="center" />
-                                                <vxe-column field="description" title="描述" width="200"
+                                                <!-- <vxe-column field="returnType" title="返回类型" width="200"
+                                                    align="center" /> -->
+                                                    
+                                                <vxe-column field="returnType" title="返回类型" min-width="30" width="80" align="center">
+                                                    <template #default="{ row }">
+                                                        <span v-if="row.returnType === 'rank'" class="tag tag-rank">
+                                                        RANK
+                                                        </span>
+                                                        <span v-else-if="row.returnType === 'score'" class="tag tag-score">
+                                                        SCORE
+                                                        </span>
+                                                        <span v-else-if="row.returnType === 'flag'" class="tag tag-flag">
+                                                        FLAG
+                                                        </span>
+                                                        <span v-else-if="row.returnType === 's2s'" class="tag tag-s2s">
+                                                        S2S
+                                                        </span>
+                                                        <span v-else-if="row.returnType === 'json'" class="tag tag-json">
+                                                        JSON
+                                                        </span>
+                                                        <span v-else class="tag tag-default">-</span>
+                                                    </template>
+                                                </vxe-column>
+                                                <vxe-column field="description" title="描述" width="250"
                                                     show-header-overflow align="center" show-overflow />
                                             </vxe-table>
                                         </div>
@@ -83,14 +115,45 @@
                                         </el-tag>
                                     </template>
                                 </vxe-column>
+                                <vxe-column field="eventType" title="事件类型" min-width="50" width="80" align="center">
+                                    <template #default="{ row }">
+                                        <span v-if="row.eventType === 'click'" class="tag tag-click">
+                                        点击
+                                        </span>
+                                        <span v-else-if="row.eventType === 'imp'" class="tag tag-imp">
+                                        展示
+                                        </span>
+                                        <span v-else class="tag tag-default">全部</span>
+                                    </template>
+                                </vxe-column>
                                 <vxe-column field="operator" title="操作符" min-width="50" align="center">
                                     <template #default="{ row }">
                                         {{ row.operator === 'big' ? '>' : row.operator === 'small' ? '<' : '=' }}
                                             </template>
                                 </vxe-column>
-                                <vxe-column field="returnType" title="返回类型" min-width="30" align="center" />
+                                <!-- <vxe-column field="returnType" title="返回类型" min-width="30" align="center" /> -->
+                                 <vxe-column field="returnType" title="返回类型" min-width="30" width="80" align="center">
+                                    <template #default="{ row }">
+                                        <span v-if="row.returnType === 'rank'" class="tag tag-rank">
+                                        RANK
+                                        </span>
+                                        <span v-else-if="row.returnType === 'score'" class="tag tag-score">
+                                        SCORE
+                                        </span>
+                                        <span v-else-if="row.returnType === 'flag'" class="tag tag-flag">
+                                        FLAG
+                                        </span>
+                                        <span v-else-if="row.returnType === 's2s'" class="tag tag-s2s">
+                                        S2S
+                                        </span>
+                                        <span v-else-if="row.returnType === 'json'" class="tag tag-json">
+                                        JSON
+                                        </span>
+                                        <span v-else class="tag tag-default">-</span>
+                                    </template>
+                                </vxe-column>
                                 <vxe-column field="cutoff" title="截止值" width="200" align="center" />
-                                <vxe-column field="formula" title="公式" width="200" align="center" />
+                                <vxe-column field="formula" title="公式" width="250" align="center" />
                             </vxe-table>
                         </div>
                     </template>
@@ -106,6 +169,17 @@
                         <el-tag v-if="row.status" :type="row.status === 'enabled' ? 'success' : 'danger'">
                             {{ row.status === 'enabled' ? '启用' : '禁用' }}
                         </el-tag>
+                    </template>
+                </vxe-column>
+                <vxe-column field="eventType" title="事件类型" min-width="50" width="80" align="center">
+                    <template #default="{ row }">
+                        <span v-if="row.eventType === 'click'" class="tag tag-click">
+                        点击
+                        </span>
+                        <span v-else-if="row.eventType === 'imp'" class="tag tag-imp">
+                        展示
+                        </span>
+                        <span v-else class="tag tag-default">全部</span>
                     </template>
                 </vxe-column>
                 <!-- 实时/离线 -->
@@ -168,7 +242,7 @@
                         <el-button size="small" type="primary" plain @click="handleView(row)">查看</el-button>
                         <el-button size="small" type="success" plain @click="handleEditFlow(row)">编辑</el-button>
                         <el-button size="small" type="danger" plain @click="handleDelete(row)"
-                            :disabled="!isSuperAdmin">删除</el-button>
+                            :disabled="!props.isSuperAdmin">删除</el-button>
                         <el-button size="small" type="warning" plain @click="handleCopy(row)">复制</el-button>
                     </template>
                 </vxe-column>
@@ -189,7 +263,7 @@
             </vxe-select>
             <KeepAlive>
                 <DetailPage ref="detailRef" :filterName="filterNameDetail" :detailOption="detailOption" :detailDeviceStatus="detailDeviceStatus"
-                    :isSuperAdmin="isSuperAdmin" @view="handleView" @edit="handleEditFlow" @delete="handleDelete"
+                    :isSuperAdmin="props.isSuperAdmin" :mode="props.mode" @view="handleView" @edit="handleEditFlow" @delete="handleDelete"
                     @copy="handleCopy" />
             </KeepAlive>
         </div>
@@ -216,9 +290,10 @@ import { ThresholdPinia } from '@/store/strategyAutoDelivery/threshold'
 import type { VxeSelectEvents } from 'vxe-table'
 const thresholdStore = ThresholdPinia()
 
-// 获取父级传递的 isSuperAdmin 属性
-defineProps<{
-  isSuperAdmin: boolean
+// 获取父级传递的 isSuperAdmin，mode 属性
+const props = defineProps<{
+  isSuperAdmin: boolean,
+  mode: 'click' | 'imp' | 'all'
 }>()
 
 // 响应式数据
@@ -244,7 +319,7 @@ const filterNameDetail = ref('')
 // 获取 Flow 列表
 const getStrategyFlowsList = async () => {
   try {
-    const res = await reqFlow()
+    const res = await reqFlow({eventType: props.mode}, false)
     const priority: Record<string, number> = { online: 0, offline: 1 }
     const data = (res.data || []).sort((a: any, b: any) => {
       const cmp = String(a.name || '').localeCompare(String(b.name || ''), 'zh', { sensitivity: 'base' })
@@ -265,7 +340,6 @@ const handleSearch = async () => {
     await detailRef.value?.loadDataProgressively()
 //   }
 }
-
 // 切换详情/列表
 const toggleDetail = async () => {
   showDetail.value = !showDetail.value
@@ -342,7 +416,7 @@ watch(deviceSourceOption, (v) => {
 
 // 添加Flow
 const handleAddFlow = () => {
-    currentFlow.value = { operator: 'big', status: 'enabled', cutoff: 70,flowType:'normal',syncFile: '',description: '',deviceSource:'online' } // 默认操作符
+    currentFlow.value = { operator: 'big', status: 'enabled', cutoff: 70,flowType:'normal',syncFile: '',description: '',deviceSource:'online',eventType: props.mode } // 默认操作符
     // currentFlow.value = { operator: 'big', status: 'enabled', cutoff: 0 } // 默认操作符
     dialogTitle.value = '新增Flow'
     isView.value = false
@@ -352,7 +426,7 @@ const handleAddFlow = () => {
 
 // 查看Flow
 const handleView = (row: Flows) => {
-    currentFlow.value = { ...row,syncFile: row.syncFile ? row.syncFile : '' }
+    currentFlow.value = { ...row,syncFile: row.syncFile ? row.syncFile : '',eventType: props.mode }
     dialogTitle.value = '查看Flow'
     isView.value = true
     editView.value = false
@@ -361,7 +435,7 @@ const handleView = (row: Flows) => {
 
 // 编辑Flow
 const handleEditFlow = (row: Flows) => {
-    currentFlow.value = { ...row ,syncFile: row.syncFile ? row.syncFile : ''}
+    currentFlow.value = { ...row ,syncFile: row.syncFile ? row.syncFile : '',eventType: props.mode}
     dialogTitle.value = '编辑Flow'
     isView.value = false
     // 编辑弹窗不可编辑flowName
@@ -371,7 +445,7 @@ const handleEditFlow = (row: Flows) => {
 // 复制Flow
 const handleCopy = (row: Flows) => {
     const { id, name, ...rest } = row
-    currentFlow.value = { ...rest , name: `${name}_copy`, syncFile: row.syncFile ? row.syncFile : ''} // 复制时清除id，避免冲突
+    currentFlow.value = { ...rest , name: `${name}-copy`, syncFile: row.syncFile ? row.syncFile : '', eventType: props.mode} // 复制时清除id，避免冲突
     dialogTitle.value = '复制Flow'
     isView.value = false
     editView.value = false
@@ -540,11 +614,25 @@ const thresholdMap = computed(() => {
 const handleDataeye = async() => {
     await thresholdStore.openDataeye()
 }
+
+// 监听 mode 变化，重置获取列表
+watch(() => props.mode, async (newVal) => {
+    filterName.value = ''
+    deviceSourceOption.value = 'online'
+    deviceStatus.value = 'enabled'
+    // 清空详情页筛选条件
+    filterNameDetail.value = ''
+    detailOption.value = 'online'
+    detailDeviceStatus.value = 'enabled'
+    // 清空表格
+    strategyListBackUp.value = []
+    strategyList.value = []
+})
 </script>
 
 <style lang="scss" scoped>
 .strategy-page {
-    height: calc(100vh - #{$base-tabbar-height} - 60px);
+    height: $base-alg-platform-height;
 
     .page-header {
         display: flex;

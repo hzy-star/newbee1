@@ -13,8 +13,19 @@
             <!-- FlowConfig列表表格 -->
             <vxe-table :data="strategyList" border round style="width: 100%" size="small" stripe height="90%" :column-config="{ resizable: true }">
                 <vxe-column field="xh" type="seq" align="center" title="序号" width="5%"></vxe-column>
-                <vxe-column field="pkgName" title="pkg" min-width="20" width="240" align="center" />
+                <vxe-column field="pkgName" title="pkg" min-width="20" width="160" align="center" />
                 <vxe-column field="country" title="国家" min-width="20" width="120" align="center" />
+                <vxe-column field="eventType" title="事件类型" min-width="50" width="80" align="center">
+                    <template #default="{ row }">
+                        <span v-if="row.eventType === 'click'" class="tag tag-click">
+                        点击
+                        </span>
+                        <span v-else-if="row.eventType === 'imp'" class="tag tag-imp">
+                        展示
+                        </span>
+                        <span v-else class="tag tag-default">全部</span>
+                    </template>
+                </vxe-column>
                 <vxe-column field="config" title="config" min-width="300" align="center" class-name="config-col">
                     <template #default="{ row }">
                         <div v-if="row.config" class="config-container">
@@ -90,7 +101,7 @@
                     <template #default="{ row }">
                         <el-button size="small" type="primary" plain @click="handleView(row)">查看</el-button>
                         <el-button size="small" type="success" plain @click="handleEditFlowConfig(row)">编辑</el-button>
-                        <el-button size="small" type="danger" plain @click="handleDelete(row)" :disabled="!isSuperAdmin">删除</el-button>
+                        <el-button size="small" type="danger" plain @click="handleDelete(row)" :disabled="!props.isSuperAdmin">删除</el-button>
                     </template>
                 </vxe-column>
             </vxe-table>
@@ -104,7 +115,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
+import { ref,watch } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { reqFlowConfig, reqDeleteFlowConfig } from '@/api/strategyAutoDelivery/flowConfig/index';
 import ConfigModel from './model.vue'
@@ -114,9 +125,10 @@ import { CircleCheck, CircleClose } from '@element-plus/icons-vue' // 新增：�
 import { ThresholdPinia } from '@/store/strategyAutoDelivery/threshold'
 const thresholdStore = ThresholdPinia()
 
-// 获取父级传递的 isSuperAdmin 属性
-defineProps<{
-  isSuperAdmin: boolean
+// 获取父级传递的 isSuperAdmin，mode 属性
+const props = defineProps<{
+  isSuperAdmin: boolean,
+  mode: 'click' | 'imp' | 'all'
 }>()
 // 响应式数据
 const strategyList = ref<any[]>([])
@@ -131,7 +143,7 @@ const monitorData = ref<Partial<any>>({})
 // 获取FlowConfig列表
 const getStrategyFlowConfigsList = async () => {
     try {
-        const response = await reqFlowConfig()
+        const response = await reqFlowConfig({eventType: props.mode})
         strategyList.value = response.data || []
         strategyListBackUp.value = response.data || []
         handleSearchInput()
@@ -142,7 +154,7 @@ const getStrategyFlowConfigsList = async () => {
 
 // 添加FlowConfig
 const handleAddFlowConfig = () => {
-    currentFlowConfig.value = { operator: 'big', status: 'enabled', cutoff: 0 } // 默认操作符
+    currentFlowConfig.value = { operator: 'big', status: 'enabled', cutoff: 0 ,eventType: props.mode} // 默认操作符
     dialogTitle.value = '新增FlowConfig'
     isView.value = false
     dialogVisible.value = true
@@ -256,11 +268,17 @@ const handleMonitor = (row: any, flowName: string) => {
 const handleDataeye = async() => {
     await thresholdStore.openDataeye()
 }
+// 监听父组件 mode 变化，刷新列表
+watch(() => props.mode, () => {
+    filterName.value = ''
+    strategyList.value = []
+    strategyListBackUp.value = []
+}, { immediate: true })
 </script>
 
 <style lang="scss" scoped>
 .strategy-page {
-    height: calc(100vh - #{$base-tabbar-height} - 60px);
+    height: $base-alg-platform-height;
 
     .page-header {
         display: flex;
@@ -365,7 +383,7 @@ const handleDataeye = async() => {
 
 /* 省略在自身可用宽度内处理 */
 .text-ellipsis {
-    max-width: 100%;
+    max-width: 100px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;

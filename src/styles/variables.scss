@@ -24,3 +24,6 @@ $base-logo-height: 50px;
 
 // 鼠标放上去显示手势
 $base-cursor: pointer;
+
+// 算法平台统一减去的高度
+$base-alg-platform-height: calc(100vh - #{$base-tabbar-height} - 100px)

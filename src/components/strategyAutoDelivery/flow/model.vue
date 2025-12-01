@@ -48,7 +48,7 @@
                   <el-row :gutter="24" justify="end">
                     
                     <el-col :span="9">
-                      <el-select v-model="config.thresholdId" placeholder="阈值配置" size="small" style="width: 100%" :disabled="isView" clearable>
+                      <el-select v-model="config.thresholdId" placeholder="阈值配置" size="small" style="width: 100%" :disabled="isView" clearable filterable>
                         <el-option v-for="item in thresholdList" :key="item.id" :label="item.name" :value="item.id" />
                       </el-select>
                     </el-col>
@@ -77,7 +77,7 @@
           </el-form-item>
 
           <el-form-item label="同异步策略" prop="syncFile">
-            <el-select v-model="flowForm.syncFile" placeholder="选择同异步策略" :disabled="isView">
+            <el-select v-model="flowForm.syncFile" placeholder="选择同异步策略" :disabled="isView" filterable >
               <el-option v-for="item in syncFileOptions" :key="item.id" :label="item.name" :value="item.id" />
             </el-select>
           </el-form-item>
@@ -89,6 +89,13 @@
               <el-option label="实时" value="online" />
             </el-select>
           </el-form-item>
+          <el-form-item label="事件类型" prop="eventType">
+              <el-select v-model="flowForm.eventType" placeholder="请选择事件类型" disabled="true">
+                <el-option label="点击" value="click" />
+                <el-option label="展示" value="imp" />
+                <el-option label="全部" value="all" />
+              </el-select>
+          </el-form-item>
 
           <el-form-item label="关联Groups">
             <el-select
@@ -97,6 +104,7 @@
               placeholder="选择Groups"
               :disabled="isView"
               style="width: 100%; margin-top: 10px;"
+              filterable
             >
               <el-option v-for="group in strategyList" :key="group.id" :label="group.name" :value="group.id" />
             </el-select>
@@ -158,7 +166,8 @@ const flowForm = ref<Partial<Flows>>({
   flowType: 'normal',
   syncFile: '',
   description: '',
-  deviceSource: 'online'
+  deviceSource: 'online',
+  eventType: props.form.eventType
 })
 
 const DEFAULT_CONFIG = (): FormulaConfig => ({
@@ -327,7 +336,8 @@ const handleSubmit = async () => {
       strategyGroupIds: flowForm.value.strategyGroupIds?.join(',') || '',
       syncFile: flowForm.value.syncFile,
       description: flowForm.value.description,
-      deviceSource: flowForm.value.deviceSource
+      deviceSource: flowForm.value.deviceSource,
+      eventType: props.form.eventType
     }
 
     const response = await reqCreateOrUpdatFlow(submitData)
@@ -349,7 +359,7 @@ const groupsLoaded = ref(false) // 选项是否已加载（用于 watcher 护栏
 
 const getGroupsList = async () => {
   groupsLoaded.value = false
-  const response = await reqStrategyGroupList()
+  const response = await reqStrategyGroupList({ eventType: props.form.eventType })
   response.data = (response.data || []).filter((item: any) => item.status === 'enabled')
   allStrategies.value = response.data || []
   applyDeviceFilter()
@@ -457,7 +467,8 @@ const handleClose = () => {
     strategyGroupIds: [],
     syncFile: '',
     description: '',
-    deviceSource: 'online'
+    deviceSource: 'online',
+    eventType: props.form.eventType
   }
   formulaConfigs.value = [DEFAULT_CONFIG()]
   removedAutoGroups.value = new Set<number>()
@@ -487,7 +498,7 @@ watch(
 )
 const fetchSyncFileOptions = async () => {
   try {
-    const data = await reqStrategyList({ returnType: 's2s' })
+    const data = await reqStrategyList({ returnType: 's2s', eventType: props.form.eventType})
     syncFileOptions.value = data.data || []
   } catch (e) {
     console.error('获取s2s策略失败', e)

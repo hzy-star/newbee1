@@ -758,7 +758,7 @@ watch(() => thresholdStore.dataUpdated, (newVal) => {
     if (newVal) {
         // 重置状态，避免重复触发
         if (thresholdStore.ThresholdList.length === 0 && thresholdStore.dataUpdated === false) {
-            thresholdStore.getThreshold()
+            thresholdStore.getThreshold('all')
         } else {
             thresholdOptions.value = thresholdStore.ThresholdList
             thresholdStore.dataUpdated = true
@@ -766,7 +766,7 @@ watch(() => thresholdStore.dataUpdated, (newVal) => {
         }
     } else {
         if (thresholdStore.ThresholdList.length === 0 && thresholdStore.dataUpdated === false) {
-            thresholdStore.getThreshold()
+            thresholdStore.getThreshold('all')
         }
     }
 }, { immediate: true })

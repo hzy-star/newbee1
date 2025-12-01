@@ -33,7 +33,27 @@
                                 <vxe-column field="xh" type="seq" align="center" title="序号" width="120"></vxe-column>
                                 <vxe-column field="name" title="策略名称" width="150" align="center" />
                                 <vxe-column field="ruleFile" title="规则文件" min-width="220" />
-                                <vxe-column field="returnType" title="返回类型" width="200" align="center" />
+                                <!-- <vxe-column field="returnType" title="返回类型" width="200" align="center" /> -->
+                                <vxe-column field="returnType" title="返回类型" width="200" align="center">
+                                <template #default="{ row }">
+                                    <span v-if="row.returnType === 'rank'" class="tag tag-rank">
+                                    RANK
+                                    </span>
+                                    <span v-else-if="row.returnType === 'score'" class="tag tag-score">
+                                    SCORE
+                                    </span>
+                                    <span v-else-if="row.returnType === 'flag'" class="tag tag-flag">
+                                    FLAG
+                                    </span>
+                                    <span v-else-if="row.returnType === 's2s'" class="tag tag-s2s">
+                                    S2S
+                                    </span>
+                                    <span v-else-if="row.returnType === 'json'" class="tag tag-json">
+                                    JSON
+                                    </span>
+                                    <span v-else class="tag tag-default">-</span>
+                                </template>
+                                </vxe-column>
                                 <vxe-column field="description" title="描述" width="200" show-header-overflow
                                     show-overflow />
                             </vxe-table>
@@ -52,7 +72,39 @@
                     <template #default="{ row }">
                         {{ row.operator === 'big' ? '>' : row.operator === 'small' ? '<' : '=' }} </template>
                 </vxe-column>
-                <vxe-column field="returnType" title="返回类型" min-width="30" align="center" />
+                <!-- <vxe-column field="returnType" title="返回类型" min-width="30" align="center" /> -->
+                 
+                <vxe-column field="returnType" title="返回类型" min-width="30" width="80" align="center">
+                    <template #default="{ row }">
+                        <span v-if="row.returnType === 'rank'" class="tag tag-rank">
+                        RANK
+                        </span>
+                        <span v-else-if="row.returnType === 'score'" class="tag tag-score">
+                        SCORE
+                        </span>
+                        <span v-else-if="row.returnType === 'flag'" class="tag tag-flag">
+                        FLAG
+                        </span>
+                        <span v-else-if="row.returnType === 's2s'" class="tag tag-s2s">
+                        S2S
+                        </span>
+                        <span v-else-if="row.returnType === 'json'" class="tag tag-json">
+                        JSON
+                        </span>
+                        <span v-else class="tag tag-default">-</span>
+                    </template>
+                </vxe-column>
+                <vxe-column field="eventType" title="事件类型" min-width="50" width="80" align="center">
+                    <template #default="{ row }">
+                        <span v-if="row.eventType === 'click'" class="tag tag-click">
+                        点击
+                        </span>
+                        <span v-else-if="row.eventType === 'imp'" class="tag tag-imp">
+                        展示
+                        </span>
+                        <span v-else class="tag tag-default">全部</span>
+                    </template>
+                </vxe-column>
                 <vxe-column field="cutoff" title="截止值" mwidth="150" align="center" />
                 <vxe-column field="formula" title="公式" width="200" align="center" />
                 <!-- 实时/离线 -->
@@ -75,7 +127,7 @@
                         <el-button size="small" type="primary" plain @click="handleView(row)">查看</el-button>
                         <el-button size="small" type="success" plain @click="handleEditGroup(row)">编辑</el-button>
                         <el-button size="small" type="danger" plain @click="handleDelete(row)"
-                            :disabled="!isSuperAdmin">删除</el-button>
+                            :disabled="!props.isSuperAdmin">删除</el-button>
                     </template>
                 </vxe-column>
             </vxe-table>
@@ -97,8 +149,10 @@ import { reqStrategys } from '@/api/strategyAutoDelivery/strategyPage/index'
 import XEUtils from 'xe-utils'
 import type { VxeSelectEvents } from 'vxe-table'
 
-// 获取父级传递的 isSuperAdmin 属性
-defineProps<{
+// 获取父级传递的 isSuperAdmin,mode 属性
+// 获取父级传递的 mode 属性
+const props = defineProps<{
+  mode: 'click' | 'imp' | 'all'
   isSuperAdmin: boolean
 }>()
 // 响应式数据
@@ -114,7 +168,7 @@ const deviceStatus = ref('enabled') // 设备状态选项，默认值为空
 // 获取Group列表
 const getStrategyGroupsList = async () => {
     try {
-        const response = await reqStrategyGroupList()
+        const response = await reqStrategyGroupList({ eventType: props.mode })
         // strategyList.value = response.data || []
         strategyListBackUp.value = response.data || []
         applyDeviceSource(String(deviceSourceOption.value || ''), String(deviceStatus.value || ''))
@@ -174,7 +228,8 @@ watch(deviceSourceOption, (newVal) => {
 }, { immediate: true })
 // 添加Group
 const handleAddGroup = () => {
-    currentGroup.value = { operator: 'big', returnType:'rank',status: 'enabled', cutoff: 0,groupType: 'normal', deviceSource: 'online'} // 默认操作符
+    debugger
+    currentGroup.value = { operator: 'big', returnType:'rank',status: 'enabled', cutoff: 0,groupType: 'normal', deviceSource: 'online',eventType:props.mode} // 默认操作符
     // currentGroup.value = { operator: 'big', returnType:'rank',status: 'enabled', cutoff: 0} // 默认操作符
     dialogTitle.value = '新增Group'
     isView.value = false
@@ -183,7 +238,7 @@ const handleAddGroup = () => {
 
 // 查看Group
 const handleView = (row: Groups) => {
-    currentGroup.value = { ...row }
+    currentGroup.value = { ...row}
     dialogTitle.value = '查看Group'
     isView.value = true
     dialogVisible.value = true
@@ -285,6 +340,15 @@ const headerCellStyleStrategy: VxeTablePropTypes.HeaderCellStyle<any> = ({ colum
         backgroundColor: '#fffbf4',
     }
 }
+watch(()=> props.mode,(newVal)=>{
+    // 重置筛选条件
+    deviceSourceOption.value = 'online'
+    deviceStatus.value = 'enabled'
+    filterName.value = ''
+    // 清空数据
+    strategyList.value = []
+    strategyListBackUp.value = []
+},{immediate:true})
 // 页面初始化
 onMounted(() => {
     // getStrategyGroupsList()
@@ -293,7 +357,7 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .strategy-page {
-    height: calc(100vh - #{$base-tabbar-height} - 60px);
+    height: $base-alg-platform-height;
 
     .page-header {
         display: flex;
@@ -310,5 +374,58 @@ onMounted(() => {
     .page-content {
         height: 95%;
     }
+}
+.tag {
+  display: inline-block;
+  padding: 0 6px;
+  height: 20px;
+  line-height: 20px;
+  border-radius: 10px;
+  font-size: 12px;
+  box-sizing: border-box;
+  border: 1px solid transparent;
+  font-weight: 500;
+}
+
+/* RANK：主色蓝 */
+.tag-rank {
+  color: #1f73b7;
+  background: #e3f2ff;
+  border-color: #b3d8ff;
+}
+
+/* SCORE：成功绿 */
+.tag-score {
+  color: #2f9e44;
+  background: #e6f7eb;
+  border-color: #b7ebc6;
+}
+
+/* FLAG：标记 / 开关，用橙色 */
+.tag-flag {
+  color: #d46b08;
+  background: #fff7e6;
+  border-color: #ffd591;
+}
+
+/* S2S：接口/链路，用紫色 */
+.tag-s2s {
+  color: #722ed1;
+  background: #f9f0ff;
+  border-color: #d3adf7;
+}
+
+/* JSON：数据/格式，用青色 */
+.tag-json {
+  color: #08979c;
+  background: #e6fffb;
+  border-color: #87e8de;
+}
+
+/* 默认 / 未知 */
+.tag-default {
+  color: #909399;
+  background: #f4f4f5;
+  border-color: #e4e7ed;
 }
 </style>

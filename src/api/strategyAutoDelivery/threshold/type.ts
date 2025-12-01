@@ -20,4 +20,5 @@ export interface StrategyThreshold {
   ruleFile: string
   returnType: string,
   description?: string // 新增描述字段
+  eventType?: 'click' | 'imp' | 'all' // 新增事件类型字段
 }

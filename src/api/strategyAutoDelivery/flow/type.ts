@@ -16,6 +16,7 @@ export interface Flows {
   syncFile: string;
   description?: string // 新增描述字段
   deviceSource?: string // 设备来源
+  eventType?: 'click' | 'imp' | 'all' // 事件类型
 }
 // 接口返回值
 export interface dataType<T = any> {
