@@ -39,10 +39,10 @@ export default defineConfig(({ mode }) => {
           changeOrigin: true,
           rewrite: (path) => path.replace(new RegExp(`^${env.VITE_APP_BASE_API}`), '')
         },
-        [env.VITE_APP_WAITER_API]: {
-          target: env.VITE_WAITER_SERVE,
+        [env.VITE_APP_ENGINE_API]: {
+          target: env.VITE_ENGINE_SERVE,
           changeOrigin: true,
-          rewrite: (path) => path.replace(new RegExp(`^${env.VITE_APP_WAITER_API}`), '')
+          rewrite: (path) => path.replace(new RegExp(`^${env.VITE_APP_ENGINE_API}`), '')
         },
       }
     }

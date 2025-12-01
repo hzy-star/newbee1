@@ -172,6 +172,7 @@ loadData()
 }
 </style> -->
 <template>
+  <!-- 测试查询engine接口 -->
   <div class="developing-wrap">
     <el-card class="dev-card">
       <div class="dev-content">
@@ -181,7 +182,8 @@ loadData()
         <h2>功能开发中...</h2>
         <p>当前页面正在建设，敬请期待。</p>
         <br>
-        <el-button type="primary" @click="backHome">返回首页</el-button>
+        <el-button type="primary" @click="testQuery">测试engine查询</el-button>
+        <!-- <el-button type="primary" @click="backHome">返回首页</el-button> -->
       </div>
     </el-card>
   </div>
@@ -190,9 +192,22 @@ loadData()
 <script setup>
 import { useRouter } from "vue-router";
 import { Setting } from '@element-plus/icons-vue';
-
+import { reqTestEngine } from '@/api/otherConfig/otherConfig'
+import { ElMessage } from 'element-plus';
 const router = useRouter();
 
+const testQuery = async () => {
+  try {
+    const response = await reqTestEngine();
+    console.log("Engine API Response:", response);
+    // alert("查询成功，详情请查看控制台日志。");
+    ElMessage.success("查询成功，详情请查看控制台日志。");
+  } catch (error) {
+    console.error("Engine API Error:", error);
+    // alert("查询失败，请查看控制台日志。");
+    ElMessage.error("查询失败，请查看控制台日志。");
+  }
+};
 const backHome = () => {
   router.push("/");
 };
