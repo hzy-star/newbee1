@@ -66,7 +66,7 @@ const isSuperAdmin = computed(() => currentUserRole.value === 'superAdmin');
   padding: 10px 0 0 0; // 上内边距10px
 
   .type-tabs {
-    height: 5%;
+    height: 40px;
     :deep(.el-tabs__header) {
       padding: 0 5px;
       // margin: 0;              // 不额外占高度，只左右加一点内边距
@@ -85,13 +85,14 @@ const isSuperAdmin = computed(() => currentUserRole.value === 'superAdmin');
   .tabs {
     margin: 0;
     padding: 0;
-    height: 95%; // 计算高度减去底部栏
+    // height: 95%; // 计算高度减去底部栏
+    flex: 1;
     background: #fff;
     border-radius: 4px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
     :deep(.el-tabs__header) {
       padding: 0 16px;
-      // margin: 0;              // 不额外占高度，只左右加一点内边距
+      margin: 0;              // 不额外占高度，只左右加一点内边距
       border-bottom: 1px solid #ebeef5;
     }
     :deep(.el-tabs__item) {
