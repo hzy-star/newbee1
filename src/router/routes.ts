@@ -221,7 +221,7 @@ export const constantRoutes = [
     name: "docDownload",
     redirect: "/docDownload/ossDownload",
     meta: {
-      title: "doc_download",
+      title: "OSS通用平台",
       icon: "Document",
       hidden: false,
     },
@@ -233,6 +233,17 @@ export const constantRoutes = [
         meta: {
           title: "OssDownload",
           icon: "Document",
+          hidden: false,
+        },
+      },
+      {
+        path: "/docDownload/generalCsvEditing",
+        component: () =>
+          import("@/views/docDownload/generalCsvEditing/index.vue"),
+        name: "generalCsvEditing",
+        meta: {
+          title: "CSV配置页面",
+          icon: "briefcase",
           hidden: false,
         },
       },
@@ -322,7 +333,7 @@ export const constantRoutes = [
         name: "blackWhiteList",
         meta: {
           title: "BlackWhiteList",
-          icon: "Files",
+          icon: "Box",
           hidden: false,
         },
       },
