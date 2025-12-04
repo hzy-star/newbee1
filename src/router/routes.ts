@@ -231,7 +231,7 @@ export const constantRoutes = [
         component: () => import("@/views/docDownload/ossDownload/index.vue"),
         name: "ossDownload",
         meta: {
-          title: "OssDownload",
+          title: "文件下载",
           icon: "Document",
           hidden: false,
         },

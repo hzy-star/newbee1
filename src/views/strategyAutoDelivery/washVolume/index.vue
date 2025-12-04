@@ -11,6 +11,11 @@
         <br>
         <el-button type="primary" @click="backHome">返回首页</el-button>
       </div>
+
+
+      <el-button @click="openCsvDialog">查看 CSV</el-button>
+
+      <GeneralCsvEditing mode="dialog" v-model:visible="visible" :csv-path="csvPath" title="通用 CSV 编辑" />
     </el-card>
   </div>
 </template>
@@ -18,6 +23,16 @@
 <script setup>
 import { useRouter } from "vue-router";
 import { Setting } from '@element-plus/icons-vue';
+import { ref } from 'vue'
+import GeneralCsvEditing from '@/components/GeneralCsvEditing/index.vue'
+
+const visible = ref(false)
+const csvPath = ref('')
+
+const openCsvDialog = () => {
+  csvPath.value = '' // 你的业务里拿到的地址oss://ym-east-data/data/ym_push/zxw_test/rank/flowAlgIMP.csv
+  visible.value = true
+}
 
 const router = useRouter();
 
@@ -33,15 +48,18 @@ const backHome = () => {
   align-items: center;
   height: 70vh;
 }
+
 .dev-card {
   padding: 40px;
   text-align: center;
 }
+
 .dev-content {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
+
 .dev-icon {
   font-size: 60px;
   color: #409eff;
