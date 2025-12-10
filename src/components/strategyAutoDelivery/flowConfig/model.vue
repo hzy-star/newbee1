@@ -92,7 +92,7 @@
                                             <label class="cfg-label">实时/离线 分配</label>
                                             <!-- 原选择框 -->
                                             <el-select v-model="config.distribute" placeholder="distribute" size="small"
-                                                style="width: 100%" :disabled="isView" filterable>
+                                                style="width: 100%" :disabled="isView" filterable clearable>
                                                 <el-option v-for="item in distributeList" :key="item.id" :label="item.name"
                                                     :value="item.name" />
                                             </el-select>
