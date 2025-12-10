@@ -321,11 +321,21 @@ const handleSubmit = async () => {
     if (!isValid) return
 
     submitLoading.value = true
-
+    debugger
     // 准备提交数据
-    const submitData = formData.value.id
-      ? { ...formData.value } // 编辑时包含id
-      : { ...formData.value } // 新增时不包含id
+    // const submitData = formData.value.id
+    //   ? { ...formData.value } // 编辑时包含id
+    //   : { ...formData.value } // 新增时不包含id
+    // 编辑时包含id，传formData中的id,description,deviceSource,eventType,name,returnType,ruleFile字段
+    const submitData = {
+      ...(formData.value.id && { id: formData.value.id }),
+      name: formData.value.name,
+      ruleFile: formData.value.ruleFile,
+      returnType: formData.value.returnType,
+      description: formData.value.description,
+      deviceSource: formData.value.deviceSource,
+      eventType: formData.value.eventType
+    }
 
     const data = await reqCreateOrUpdate(submitData)
 
