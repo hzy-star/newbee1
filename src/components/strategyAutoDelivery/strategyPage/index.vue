@@ -278,6 +278,7 @@ const handleEdit = (row: Strategy) => {
   formData.value = { ...row } // 包含id
   dialogTitle.value = '编辑策略'
   isView.value = false
+  returnTypeChange.value = false
   dialogVisible.value = true
 }
 
