@@ -271,6 +271,7 @@ const handleAdd = () => {
   dialogTitle.value = '新增策略'
   isView.value = false
   dialogVisible.value = true
+  returnTypeChange.value = false
 }
 
 // 编辑策略
@@ -278,7 +279,11 @@ const handleEdit = (row: Strategy) => {
   formData.value = { ...row } // 包含id
   dialogTitle.value = '编辑策略'
   isView.value = false
-  returnTypeChange.value = false
+  if (formData.value.returnType === 'distribute') {
+    returnTypeChange.value = true
+  } else {
+    returnTypeChange.value = false
+  }
   dialogVisible.value = true
 }
 
