@@ -81,12 +81,12 @@
                                         <span class="config-label">Auto</span>
                                         <template v-if="item.isAuto == 'true'">
                                             <el-tag type="success" size="small" effect="light">
-                                                <el-icon style="margin-right:4px;"><CircleCheck /></el-icon>开
+                                                <el-icon style="margin-right:4px;display:inline;"><CircleCheck /></el-icon>开
                                             </el-tag>
                                         </template>
                                         <template v-else>
                                             <el-tag type="danger" size="small" effect="light">
-                                                <el-icon style="margin-right:4px;"><CircleClose /></el-icon>关
+                                                <el-icon style="margin-right:4px;display:inline;"><CircleClose /></el-icon>关
                                             </el-tag>
                                         </template>
                                     </div>

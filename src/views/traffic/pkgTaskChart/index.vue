@@ -52,6 +52,7 @@
                             <el-option label="PkgTask" value="click_engine_offline_pkgtask"></el-option>
                             <el-option label="Newbee" value="newbee"></el-option>
                             <el-option label="Push Node" value="pushnode"></el-option>
+                            <el-option label="Algo Offline" value="click_engine_algooffline"></el-option>
                         </el-select>
                     </div>
                 </el-col>

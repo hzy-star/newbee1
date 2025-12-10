@@ -297,12 +297,19 @@ const getFlowList = async () => {
 // 获取distribute列表
 const distributeList = ref<Array<{ id: number, name: string }>>([])
 const getDistributeList = async () => {
+    debugger
     const params = {
-      eventType: [props.form.eventType, 'all'],
-      page: 1,
-      limit: 9999999,
-      returnType: 'distribute',// 获取distribute类型列表
-      deviceSource: 'offline',// 离线策略
+        //   eventType: [props.form.eventType, 'all'],
+        eventType: [] as string[],
+        page: 1,
+        limit: 9999999,
+        returnType: 'distribute',// 获取distribute类型列表
+        deviceSource: 'offline',// 离线策略
+    }
+    if (props.form.eventType !== 'all' && props.form.eventType) {
+        params.eventType = [props.form.eventType, 'all']
+    } else {
+        params.eventType = ['click', 'imp', 'all']
     }
     const response: any = await reqManualStrategyList({...params})
     // const result:any = await reqManualStrategyList({...params,sourceType: 'system'})
