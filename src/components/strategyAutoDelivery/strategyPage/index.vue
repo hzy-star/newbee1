@@ -17,7 +17,7 @@
           <vxe-option label="DISTRIBUTE" value="distribute" />
         </vxe-select>
         <vxe-select v-model="deviceSourceOption" type="search" placeholder="实时/离线" clearable size="mini"
-          @change="handleDeviceSource">
+          @change="handleDeviceSource" >
           <vxe-option label="实时" value="online" />
           <vxe-option label="离线" value="offline" />
         </vxe-select>
@@ -93,7 +93,7 @@
           <el-input v-model="formData.ruleFile" placeholder="请输入规则文件路径" :disabled="isView" />
         </el-form-item>
         <el-form-item label="返回类型" prop="returnType">
-          <el-select v-model="formData.returnType" placeholder="请选择返回类型" :disabled="isView">
+          <el-select v-model="formData.returnType" placeholder="请选择返回类型" :disabled="isView" @change="handleReturnTypeChange">
             <el-option label="RANK" value="rank" />
             <el-option label="FLAG" value="flag" />
             <el-option label="SCORE" value="score" />
@@ -110,7 +110,7 @@
         </el-form-item>
         <el-form-item label="设备来源" prop="deviceSource">
           <!-- <el-switch v-model="formData.deviceSource" active-text="实时" inactive-text="离线" /> -->
-          <el-select v-model="formData.deviceSource" placeholder="请选择设备来源" :disabled="isView">
+          <el-select v-model="formData.deviceSource" placeholder="请选择设备来源" :disabled="isView || returnTypeChange" >
             <el-option label="离线" value="offline" />
             <el-option label="实时" value="online" />
           </el-select>
@@ -161,6 +161,7 @@ const dialogTitle = ref('')
 const isView = ref(false)
 const submitLoading = ref(false)
 const formRef = ref<FormInstance>()
+const returnTypeChange = ref(false);
 
 // 表单数据 - 使用ref实现，id为可选字段
 const formData = ref<Omit<Strategy, 'id'> & { id?: number }>({
@@ -364,7 +365,14 @@ const handleClose = () => {
 const handleSearch = () => {
   getStrategyList()
 }
-
+const handleReturnTypeChange = (val:string) => {
+  if(val === 'distribute'){
+    returnTypeChange.value = true
+    formData.value.deviceSource = 'offline'
+  }else{
+    returnTypeChange.value = false
+  }
+}
 
 // 预览（调用通用组件）
 const csvRef = ref<InstanceType<typeof CsvPreviewDialog> | null>(null)
