@@ -85,6 +85,18 @@
                                             <label class="cfg-label">点击倍数</label>
                                             <el-input v-model="config.times" placeholder="点击倍数" size="small" style="width: 100%" :disabled="isView" />
                                         </el-col>
+                                        <el-col :span="12">
+                                            <!-- <label class="cfg-label">distribute</label>
+                                            <el-input v-model="config.distribute" placeholder="distribute" size="small" style="width: 100%" :disabled="isView" /> -->
+                                            
+                                            <label class="cfg-label">实时/离线 分配</label>
+                                            <!-- 原选择框 -->
+                                            <el-select v-model="config.distribute" placeholder="distribute" size="small"
+                                                style="width: 100%" :disabled="isView" filterable>
+                                                <el-option v-for="item in distributeList" :key="item.id" :label="item.name"
+                                                    :value="item.name" />
+                                            </el-select>
+                                        </el-col>
                                     </el-row>
                                     <el-row :gutter="24">
                                         <!-- isAuto是Switch开关 如果isAuto自动化开启，则kp:ki:kd:step必填 -->
@@ -137,6 +149,7 @@ import type { FormInstance, FormRules } from 'element-plus'
 import { Plus, Minus } from '@element-plus/icons-vue'
 import { reqCreateOrUpdatFlowConfig } from '@/api/strategyAutoDelivery/flowConfig'
 import { reqFlow } from '@/api/strategyAutoDelivery/flow'
+import { reqManualStrategyList } from '@/api/strategyAutoDelivery/manualStrategy/index'
 
 const props = defineProps({
     modelValue: {
@@ -180,7 +193,8 @@ interface FormulaConfig {
     isAuto: BoolString
     dupCheck: string
     eraseIfa: string
-    times:number
+    times:number,
+    distribute: string
 }
 const emptyConfig = (): FormulaConfig => ({
     configName: '',
@@ -193,6 +207,7 @@ const emptyConfig = (): FormulaConfig => ({
     dupCheck: 'less',
     eraseIfa: '0',
     times:1.2,
+    distribute:''
 })
 
 const formulaConfigs = ref<FormulaConfig[]>([emptyConfig()])
@@ -257,7 +272,7 @@ const handleSubmit = async () => {
             id: flowForm.value.id,
             pkgName: flowForm.value.pkgName,
             country: flowForm.value.country,
-            config: formulaConfigs.value.map(item => `${item.configName}:${item.configValue}:${item.configKp}:${item.configKi}:${item.configKd}:${item.configStep}:${item.isAuto}:${item.dupCheck}:${item.eraseIfa}:${item.times}`).join(','),
+            config: formulaConfigs.value.map(item => `${item.configName}:${item.configValue}:${item.configKp}:${item.configKi}:${item.configKd}:${item.configStep}:${item.isAuto}:${item.dupCheck}:${item.eraseIfa}:${item.times}:${item.distribute}`).join(','),
             eventType: props.form.eventType
         }
         const response: any = await reqCreateOrUpdatFlowConfig(submitData)
@@ -279,12 +294,28 @@ const getFlowList = async () => {
     response.data = (response.data || []).filter((item: any) => item.status === 'enabled' && item.deviceSource === 'online') // 只获取启用的Flow
     flowList.value = response.data || []
 }
+// 获取distribute列表
+const distributeList = ref<Array<{ id: number, name: string }>>([])
+const getDistributeList = async () => {
+    const params = {
+      eventType: [props.form.eventType, 'all'],
+      page: 1,
+      limit: 9999999,
+      returnType: 'distribute',// 获取distribute类型列表
+      deviceSource: 'offline',// 离线策略
+    }
+    const response: any = await reqManualStrategyList({...params})
+    // const result:any = await reqManualStrategyList({...params,sourceType: 'system'})
+    // 合并自定义和系统策略列表
+    // const data  = (response.data.data || []).concat(result.data.data || [])
+    distributeList.value = response.data.data
+}
 
 // 解析字符串为规范化配置
 const parseConfigString = (configStr: string): FormulaConfig[] => {
     if (!configStr) return [emptyConfig()]
     return configStr.split(',').map(item => {
-        const [configName = '', configValue = '', configKp = '', configKi = '', configKd = '', configStep = '' ,isAutoRaw = 'false', dupCheck = 'less', eraseIfa = '0', times = '1.2'] = item.split(':')
+        const [configName = '', configValue = '', configKp = '', configKi = '', configKd = '', configStep = '' ,isAutoRaw = 'false', dupCheck = 'less', eraseIfa = '0', times = '1.2', distribute = ''] = item.split(':')
         const isAuto: BoolString = isAutoRaw === 'true' ? 'true' : 'false'
         return {
             configName,
@@ -296,7 +327,8 @@ const parseConfigString = (configStr: string): FormulaConfig[] => {
             isAuto,
             dupCheck,
             eraseIfa,
-            times: Number(times)
+            times: Number(times),
+            distribute
         }
     })
 }
@@ -313,6 +345,7 @@ watch(() => props.form, (newVal) => {
         formulaConfigs.value = [emptyConfig()]
     }
     getFlowList()
+    getDistributeList()
 })
 
 const dialogVisible = computed({

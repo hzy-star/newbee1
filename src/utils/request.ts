@@ -8,6 +8,7 @@ declare module 'axios' {
   interface AxiosRequestConfig {
     isForm?: boolean;
     noloading?: boolean; // 是否不显示loading
+    isMultipart?: boolean; // 是否是 multipart/form-data
   }
 }
 
@@ -52,6 +53,7 @@ function setupInterceptors(instance: typeof request) {
           background: 'rgba(0, 0, 0, 0.7)',
         });
       }
+      debugger
       // 设置 Content-Type
       if (config.data instanceof FormData) {
         // 如果是 FormData 类型，让浏览器自动设置 Content-Type
@@ -63,6 +65,10 @@ function setupInterceptors(instance: typeof request) {
       } else if (config.isForm) {
         if (config.headers) {
           (config.headers as any)['Content-Type'] = 'application/x-www-form-urlencoded';
+        }
+      } else if (config.isMultipart) {
+        if (config.headers) {
+          (config.headers as any)['Content-Type'] = 'multipart/form-data';
         }
       } else {
         if (config.headers) {

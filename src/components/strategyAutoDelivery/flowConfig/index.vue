@@ -115,7 +115,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref,watch } from 'vue';
+import { ref,watch,onMounted } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { reqFlowConfig, reqDeleteFlowConfig } from '@/api/strategyAutoDelivery/flowConfig/index';
 import ConfigModel from './model.vue'
@@ -274,6 +274,10 @@ watch(() => props.mode, () => {
     strategyList.value = []
     strategyListBackUp.value = []
 }, { immediate: true })
+// 组件挂载时获取列表
+onMounted(() => {
+    getStrategyFlowConfigsList()
+})
 </script>
 
 <style lang="scss" scoped>

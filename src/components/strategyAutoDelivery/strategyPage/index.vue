@@ -14,6 +14,7 @@
           <vxe-option label="FLAG" value="flag" />
           <vxe-option label="SCORE" value="score" />
           <vxe-option label="S2S" value="s2s" />
+          <vxe-option label="DISTRIBUTE" value="distribute" />
         </vxe-select>
         <vxe-select v-model="deviceSourceOption" type="search" placeholder="实时/离线" clearable size="mini"
           @change="handleDeviceSource">
@@ -43,6 +44,9 @@
             </span>
             <span v-else-if="row.returnType === 'json'" class="tag tag-json">
               JSON
+            </span>
+            <span v-else-if="row.returnType === 'distribute'" class="tag tag-distribute tag-xlong">
+              DISTRIBUTE
             </span>
             <span v-else class="tag tag-default">-</span>
           </template>
@@ -94,6 +98,7 @@
             <el-option label="FLAG" value="flag" />
             <el-option label="SCORE" value="score" />
             <el-option label="S2S" value="s2s" />
+            <el-option label="DISTRIBUTE" value="distribute" />
           </el-select>
         </el-form-item>
         <el-form-item label="事件类型" prop="eventType">
@@ -399,7 +404,7 @@ const handleDownload = async (row:Strategy) => {
 }
 // 页面初始化
 onMounted(() => {
-  getStrategyList()
+  // getStrategyList()
 })
 </script>
 

@@ -228,6 +228,18 @@ pre {
   background: #e6fffb;
   border-color: #87e8de;
 }
+/* DISTRIBUTE：分发/投放 用粉色 */
+.tag-distribute {
+  color: #c41d7f;
+  background: #fff0f6;
+  border-color: #ffadd2;
+}
+/* SQL：查询/数据库 其他颜色 */
+.tag-sql {
+  color: #d4380d;
+  background: #fff2e8;
+  border-color: #ffbb96;
+}
 
 /* 默认 / all */
 .tag-default {
@@ -248,12 +260,36 @@ pre {
   border-color: #ffd591;
 }
 
-.tag-rank, .tag-score,.tag-flag,.tag-s2s,
+.tag-rank, .tag-score,.tag-flag,.tag-s2s,.tag-json,.tag-sql,.tag-distribute,
 .tag-click, .tag-imp,.tag-default {
   display: flex;
   align-items: center;
   justify-content: center;
   height: 20px;
   width: 60px;
+  // 超出的话显示字体变小
+   overflow: hidden;
+  white-space: nowrap;
+
+  // 基础字体 12px，超出时压缩一点
+  font-size: 12px;
+  line-height: 1;
+
+  span {
+    display: inline-block;
+    max-width: 100%;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+
+  // 如果你更希望缩小字体而不是省略，可以通过 data-attr 控制不同长度
+  &.tag-long {
+    font-size: 11px;
+  }
+
+  &.tag-xlong {
+    font-size: 10px;
+  }
+
 }
 // 标签样式===============================================================================
