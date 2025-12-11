@@ -86,15 +86,12 @@
                                             <el-input v-model="config.times" placeholder="点击倍数" size="small" style="width: 100%" :disabled="isView" />
                                         </el-col>
                                         <el-col :span="12">
-                                            <!-- <label class="cfg-label">distribute</label>
-                                            <el-input v-model="config.distribute" placeholder="distribute" size="small" style="width: 100%" :disabled="isView" /> -->
-                                            
                                             <label class="cfg-label">实时/离线 分配</label>
                                             <!-- 原选择框 -->
                                             <el-select v-model="config.distribute" placeholder="distribute" size="small"
                                                 style="width: 100%" :disabled="isView" filterable clearable>
                                                 <el-option v-for="item in distributeList" :key="item.id" :label="item.name"
-                                                    :value="item.name" />
+                                                    :value="item.id" />
                                             </el-select>
                                         </el-col>
                                     </el-row>
@@ -194,7 +191,7 @@ interface FormulaConfig {
     dupCheck: string
     eraseIfa: string
     times:number,
-    distribute: string
+    distribute: number | null
 }
 const emptyConfig = (): FormulaConfig => ({
     configName: '',
@@ -207,7 +204,7 @@ const emptyConfig = (): FormulaConfig => ({
     dupCheck: 'less',
     eraseIfa: '0',
     times:1.2,
-    distribute:''
+    distribute:null
 })
 
 const formulaConfigs = ref<FormulaConfig[]>([emptyConfig()])
@@ -272,7 +269,7 @@ const handleSubmit = async () => {
             id: flowForm.value.id,
             pkgName: flowForm.value.pkgName,
             country: flowForm.value.country,
-            config: formulaConfigs.value.map(item => `${item.configName}:${item.configValue}:${item.configKp}:${item.configKi}:${item.configKd}:${item.configStep}:${item.isAuto}:${item.dupCheck}:${item.eraseIfa}:${item.times}:${item.distribute}`).join(','),
+            config: formulaConfigs.value.map(item => `${item.configName}:${item.configValue}:${item.configKp}:${item.configKi}:${item.configKd}:${item.configStep}:${item.isAuto}:${item.dupCheck}:${item.eraseIfa}:${item.times}:${item.distribute ?? ''}`).join(','),
             eventType: props.form.eventType
         }
         const response: any = await reqCreateOrUpdatFlowConfig(submitData)
@@ -297,7 +294,6 @@ const getFlowList = async () => {
 // 获取distribute列表
 const distributeList = ref<Array<{ id: number, name: string }>>([])
 const getDistributeList = async () => {
-    debugger
     const params = {
         //   eventType: [props.form.eventType, 'all'],
         eventType: [] as string[],
@@ -324,6 +320,11 @@ const parseConfigString = (configStr: string): FormulaConfig[] => {
     return configStr.split(',').map(item => {
         const [configName = '', configValue = '', configKp = '', configKi = '', configKd = '', configStep = '' ,isAutoRaw = 'false', dupCheck = 'less', eraseIfa = '0', times = '1.2', distribute = ''] = item.split(':')
         const isAuto: BoolString = isAutoRaw === 'true' ? 'true' : 'false'
+        // 这里要把 'null'、'undefined' 之类也当成空
+        const normalizedDistribute =
+          distribute && distribute !== 'null' && distribute !== 'undefined'
+            ? Number(distribute)
+            : null
         return {
             configName,
             configValue,
@@ -335,7 +336,7 @@ const parseConfigString = (configStr: string): FormulaConfig[] => {
             dupCheck,
             eraseIfa,
             times: Number(times),
-            distribute
+            distribute:normalizedDistribute
         }
     })
 }

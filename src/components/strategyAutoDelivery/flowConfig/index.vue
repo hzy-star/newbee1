@@ -262,7 +262,6 @@ const handleMonitor = (row: any, flowName: string) => {
     console.log('监控按钮点击，row数据:', row,flowName);
     // 打开弹窗，将当前点击的 flow 一并传递给弹窗
     monitorData.value = { ...row, flow: flowName }
-    debugger
     monitorVisible.value = true
 
 }

@@ -60,7 +60,6 @@ const innerPath = ref(props.csvPath || '')
 watch(
   () => props.visible,
   v => {
-    debugger
     if (props.csvPath !== undefined && props.csvPath !== innerPath.value) {
       innerPath.value = props.csvPath
     }
@@ -69,7 +68,6 @@ watch(
 )
 
 watch(innerPath, v => {
-  debugger
   emit('update:csvPath', v)
 })
 

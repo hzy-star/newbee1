@@ -444,14 +444,12 @@ const objectToParams = () => {
 // 分页处理
 const handlePageChange = (newPage: number) => {
     pagination.current = newPage
-    debugger
     getStrategyList(objectToParams())
 }
 
 const handleSizeChange = (newSize: number) => {
     pagination.size = newSize
     pagination.current = 1
-    debugger
     getStrategyList(objectToParams())
 }
 
@@ -494,21 +492,17 @@ watch(() => props.mode, () => {
 
 // 搜索节流
 const searchEvent = XEUtils.throttle(function () {
-    debugger
     getStrategyList(objectToParams())
 }, 500, { trailing: true, leading: true })
 
 // vxe-select 设备源 change
 const handleDeviceSource: VxeSelectEvents.Change = ({ value }) => {
-    debugger
     getStrategyList(objectToParams())
 }
 const handleEnabledOfDisabled: VxeSelectEvents.Change = ({ value }) => {
-    debugger
     getStrategyList(objectToParams())
 }
 const handleFile: VxeSelectEvents.Change = ({ value }) => {
-    debugger
     getStrategyList(objectToParams())
 }
 // 重置表单
@@ -668,7 +662,6 @@ const handleCsvFileRemove = (file: UploadFile, fileList: UploadFile[]) => {
     csvFileList.value = fileList
 }
 function conversion() {
-    debugger
     // 手动输入模式：解析 csvText
     const raw = csvText.value || ''
     const lines = raw
@@ -726,7 +719,6 @@ const handleSubmit = async () => {
 
         const rt = formData.value.returnType
         const payload: any = { data: baseData }
-        debugger
         if (rt === 'sql') {
             // SQL 类型：ruleFile 传 SQL 文本
             const content = isCreate.value ? sqlContent.value : (formData.value.ruleFile || '')
@@ -788,14 +780,12 @@ const handleSubmit = async () => {
         }
         // baseData转string
         payload.data = JSON.stringify(baseData)
-        debugger
         // TODO: 接口按你实际参数格式调整
         console.log('提交数据:', payload)
         const res: any = await reqCreateOrUpdate(payload)
         if (res.success) {
             ElMessage.success(formData.value.id ? '更新成功' : '创建成功')
             dialogVisible.value = false
-            debugger
             getStrategyList(objectToParams())
         } else {
             ElMessage.error(res.message || '保存失败,CSV头不匹配')
@@ -818,7 +808,6 @@ const handleClose = () => {
 // 查询策略列表
 const handleSearchEngine = () => {
     pagination.current = 1
-    debugger
     getStrategyList(objectToParams())
 }
 

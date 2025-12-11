@@ -244,14 +244,12 @@ const innerPath = ref(props.path || '')
 watch(
     () => props.path,
     v => {
-        debugger
         if (v !== undefined && v !== innerPath.value) {
             innerPath.value = v
         }
     }
 )
 watch(innerPath, v => {
-    debugger
     emit('update:path', v)
 })
 
