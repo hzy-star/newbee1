@@ -117,7 +117,7 @@
 
         <!-- 批量新增/替换弹窗：操作所有命中当前 filters 的行 -->
         <!-- 批量新增/替换弹窗：使用 Element Plus el-dialog -->
-        <el-dialog v-model="batchDialogVisible" :title="batchDialogType === 'replace' ? '替换所有匹配行' : '新增行'" width="700px"
+        <el-dialog v-model="batchDialogVisible" :title="batchDialogType === 'replace' ? '替换所有匹配行' : '新增行'" width="60%"
             top="10vh" :close-on-click-modal="false">
             <div class="dialog__body dialog__body--scroll">
                 <div class="batch-tip">
@@ -161,7 +161,7 @@
                     </el-select>
                     进行批量粘贴，每行对应一条数据，列顺序请参考上方表头。
                     <textarea v-model="batchManualInput" placeholder="请粘贴内容"
-                        style="width: 100%; height: 100px; margin-top: 8px;" />
+                        style="width: 100%; height: 280px; margin-top: 8px;" />
                 </div>
 
                 <!-- 表格填写模式 -->

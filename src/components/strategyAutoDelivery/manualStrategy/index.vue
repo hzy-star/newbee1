@@ -33,7 +33,16 @@
             <vxe-table :data="strategyList" border round style="width: 100%" size="small" height="90%">
                 <vxe-column field="xh" type="seq" align="center" title="序号" width="5%"></vxe-column>
                 <vxe-column field="name" title="策略名称" min-width="50" align="center" />
-                <vxe-column field="ruleFile" title="规则文件" min-width="220" />
+                <vxe-column field="ruleFile" title="规则文件" min-width="220" >
+                    <!-- 最多显示1行，超出部分省略，鼠标放上去显示tooltip -->
+                    <template #default="{ row }">
+                        <el-tooltip class="item" effect="dark" :content="row.ruleFile" placement="top">
+                            <div class="rule-file-cell">
+                                {{ row.ruleFile }}
+                            </div>
+                        </el-tooltip>
+                    </template>
+                </vxe-column>
                 <vxe-column field="returnType" title="文件类型" min-width="30" width="80" align="center">
                     <template #default="{ row }">
                         <span v-if="row.returnType === 'rank'" class="tag tag-rank">
@@ -242,7 +251,7 @@
                                 <el-option label="竖线 (|)" value="|" />
                             </el-select>
                             <el-input v-model="csvText" type="textarea" :rows="6"
-                                placeholder='手动输入 CSV 数据，例如：[[1,2,3,4,5,6]]' :disabled="isView" />
+                                :placeholder=csvPlaceholder :disabled="isView" />
                             <div style="margin-top: 8px; color: #999; font-size: 12px">
                                 当输入文本时，将使用 csvData 字段，隐藏文件上传功能。
                             </div>
@@ -309,7 +318,10 @@ const pagination = reactive<Pagination>({
     current: 1,
     size: 100
 })
-
+const csvPlaceholder = `手动输入 CSV 数据,需要对应‘返回类型’字段顺序，每行一条数据，使用选定的分隔符分隔字段。
+例如：
+value1,value2,ios,CN,Safari,67890
+value1,value2,android,US,Chrome,12345`;
 // 表单数据 - 使用ref实现，id为可选字段
 const formData = ref<Omit<Strategy, 'id'> & { id?: number }>({
     name: '',
@@ -875,5 +887,14 @@ onMounted(async () => {
 
 .csv-input-wrapper {
     width: 100%;
+}
+
+.rule-file-cell {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal;
 }
 </style>
