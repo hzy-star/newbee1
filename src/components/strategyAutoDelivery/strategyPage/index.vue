@@ -17,70 +17,72 @@
           <vxe-option label="DISTRIBUTE" value="distribute" />
         </vxe-select>
         <vxe-select v-model="deviceSourceOption" type="search" placeholder="实时/离线" clearable size="mini"
-          @change="handleDeviceSource" >
+          @change="handleDeviceSource">
           <vxe-option label="实时" value="online" />
           <vxe-option label="离线" value="offline" />
         </vxe-select>
       </p>
       <!-- 策略列表表格 -->
-      <vxe-table :data="strategyList" border round style="width: 100%" size="small" height="90%">
-        <vxe-column field="xh" type="seq" align="center" title="序号" width="5%"></vxe-column>
-        <vxe-column field="name" title="策略名称" min-width="50" align="center" />
-        <vxe-column field="ruleFile" title="规则文件" min-width="220" />
-        <!-- <vxe-column field="returnType" title="文件类型" min-width="30" align="center" /> -->
-        <vxe-column field="returnType" title="文件类型" min-width="30" width="80" align="center">
-          <template #default="{ row }">
-            <span v-if="row.returnType === 'rank'" class="tag tag-rank">
-              RANK
-            </span>
-            <span v-else-if="row.returnType === 'score'" class="tag tag-score">
-              SCORE
-            </span>
-            <span v-else-if="row.returnType === 'flag'" class="tag tag-flag">
-              FLAG
-            </span>
-            <span v-else-if="row.returnType === 's2s'" class="tag tag-s2s">
-              S2S
-            </span>
-            <span v-else-if="row.returnType === 'json'" class="tag tag-json">
-              JSON
-            </span>
-            <span v-else-if="row.returnType === 'distribute'" class="tag tag-distribute tag-xlong">
-              DISTRIBUTE
-            </span>
-            <span v-else class="tag tag-default">-</span>
-          </template>
-        </vxe-column>
-        <vxe-column field="eventType" title="事件类型" min-width="50" width="80" align="center">
-          <template #default="{ row }">
-            <span v-if="row.eventType === 'click'" class="tag tag-click">
-              点击
-            </span>
-            <span v-else-if="row.eventType === 'imp'" class="tag tag-imp">
-              展示
-            </span>
-            <span v-else class="tag tag-default">全部</span>
-          </template>
-        </vxe-column>
-        <vxe-column field="deviceSource" title="设备来源" min-width="30" width="80" align="center">
-          <template #default="{ row }">
-            <el-tag v-if="row.deviceSource === 'offline'" type="danger" size="small">离线</el-tag>
-            <el-tag v-else-if="row.deviceSource === 'online'" type="primary" size="small">实时</el-tag>
-            <el-tag v-else type="info" size="small">未知</el-tag>
-          </template>
-        </vxe-column>
-        <vxe-column field="description" title="描述" min-width="110" show-header-overflow show-overflow />
-        <vxe-column title="操作" width="320" fixed="right" align="center">
-          <template #default="{ row }">
-            <el-button size="small" type="primary" plain @click="handleView(row)">查看</el-button>
-            <el-button size="small" type="success" plain @click="handleEdit(row)">编辑</el-button>
-            <el-button size="small" type="danger" plain @click="handleDelete(row)"
-              :disabled="!props.isSuperAdmin">删除</el-button>
-            <el-button size="small" type="warning" plain @click="handlePreview(row)">预览</el-button>
-            <el-button size="small" color="#626aef" :dark="isDark" plain @click="handleDownload(row)">下载</el-button>
-          </template>
-        </vxe-column>
-      </vxe-table>
+      <div style="height: 90%;">
+        <vxe-table :data="strategyList" border round style="width: 100%" size="small" height="auto" :scroll-y="{ enabled: true, gt: 10 }">
+          <vxe-column field="xh" type="seq" align="center" title="序号" width="5%"></vxe-column>
+          <vxe-column field="name" title="策略名称" min-width="50" align="center" />
+          <vxe-column field="ruleFile" title="规则文件" min-width="220" />
+          <!-- <vxe-column field="returnType" title="文件类型" min-width="30" align="center" /> -->
+          <vxe-column field="returnType" title="文件类型" min-width="30" width="80" align="center">
+            <template #default="{ row }">
+              <span v-if="row.returnType === 'rank'" class="tag tag-rank">
+                RANK
+              </span>
+              <span v-else-if="row.returnType === 'score'" class="tag tag-score">
+                SCORE
+              </span>
+              <span v-else-if="row.returnType === 'flag'" class="tag tag-flag">
+                FLAG
+              </span>
+              <span v-else-if="row.returnType === 's2s'" class="tag tag-s2s">
+                S2S
+              </span>
+              <span v-else-if="row.returnType === 'json'" class="tag tag-json">
+                JSON
+              </span>
+              <span v-else-if="row.returnType === 'distribute'" class="tag tag-distribute tag-xlong">
+                DISTRIBUTE
+              </span>
+              <span v-else class="tag tag-default">-</span>
+            </template>
+          </vxe-column>
+          <vxe-column field="eventType" title="事件类型" min-width="50" width="80" align="center">
+            <template #default="{ row }">
+              <span v-if="row.eventType === 'click'" class="tag tag-click">
+                点击
+              </span>
+              <span v-else-if="row.eventType === 'imp'" class="tag tag-imp">
+                展示
+              </span>
+              <span v-else class="tag tag-default">全部</span>
+            </template>
+          </vxe-column>
+          <vxe-column field="deviceSource" title="设备来源" min-width="30" width="80" align="center">
+            <template #default="{ row }">
+              <el-tag v-if="row.deviceSource === 'offline'" type="danger" size="small">离线</el-tag>
+              <el-tag v-else-if="row.deviceSource === 'online'" type="primary" size="small">实时</el-tag>
+              <el-tag v-else type="info" size="small">未知</el-tag>
+            </template>
+          </vxe-column>
+          <vxe-column field="description" title="描述" min-width="110" show-header-overflow show-overflow />
+          <vxe-column title="操作" width="320" fixed="right" align="center">
+            <template #default="{ row }">
+              <el-button size="small" type="primary" plain @click="handleView(row)">查看</el-button>
+              <el-button size="small" type="success" plain @click="handleEdit(row)">编辑</el-button>
+              <el-button size="small" type="danger" plain @click="handleDelete(row)"
+                :disabled="!props.isSuperAdmin">删除</el-button>
+              <el-button size="small" type="warning" plain @click="handlePreview(row)">预览</el-button>
+              <el-button size="small" color="#626aef" :dark="isDark" plain @click="handleDownload(row)">下载</el-button>
+            </template>
+          </vxe-column>
+        </vxe-table>
+      </div>
     </div>
 
     <!-- 新增/编辑策略弹窗 -->
@@ -93,7 +95,8 @@
           <el-input v-model="formData.ruleFile" placeholder="请输入规则文件路径" :disabled="isView" />
         </el-form-item>
         <el-form-item label="返回类型" prop="returnType">
-          <el-select v-model="formData.returnType" placeholder="请选择返回类型" :disabled="isView" @change="handleReturnTypeChange">
+          <el-select v-model="formData.returnType" placeholder="请选择返回类型" :disabled="isView"
+            @change="handleReturnTypeChange">
             <el-option label="RANK" value="rank" />
             <el-option label="FLAG" value="flag" />
             <el-option label="SCORE" value="score" />
@@ -102,15 +105,15 @@
           </el-select>
         </el-form-item>
         <el-form-item label="事件类型" prop="eventType">
-            <el-select v-model="formData.eventType" placeholder="请选择事件类型" disabled="true">
-              <el-option label="点击" value="click" />
-              <el-option label="展示" value="imp" />
-              <el-option label="全部" value="all" />
-            </el-select>
+          <el-select v-model="formData.eventType" placeholder="请选择事件类型" disabled="true">
+            <el-option label="点击" value="click" />
+            <el-option label="展示" value="imp" />
+            <el-option label="全部" value="all" />
+          </el-select>
         </el-form-item>
         <el-form-item label="设备来源" prop="deviceSource">
           <!-- <el-switch v-model="formData.deviceSource" active-text="实时" inactive-text="离线" /> -->
-          <el-select v-model="formData.deviceSource" placeholder="请选择设备来源" :disabled="isView || returnTypeChange" >
+          <el-select v-model="formData.deviceSource" placeholder="请选择设备来源" :disabled="isView || returnTypeChange">
             <el-option label="离线" value="offline" />
             <el-option label="实时" value="online" />
           </el-select>
@@ -136,7 +139,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, nextTick,watch} from 'vue'
+import { ref, onMounted, nextTick, watch } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { reqStrategyList, reqCreateOrUpdate, reqDeleteStrategy } from '@/api/strategyAutoDelivery/strategyPage/index'
 import type { Strategy } from '@/api/strategyAutoDelivery/strategyPage/type'
@@ -193,7 +196,7 @@ const deviceSourceOption = ref('online')
 // 获取策略列表
 const getStrategyList = async () => {
   try {
-    const response = await reqStrategyList({returnType:returnType.value,eventType:props.mode})
+    const response = await reqStrategyList({ returnType: returnType.value, eventType: props.mode })
     // strategyList.value = response.data || []
     strategyListBackUp.value = response.data || []
     applyDeviceSource(String(deviceSourceOption.value || ''))
@@ -226,11 +229,11 @@ const applyDeviceSource = (val: string) => {
       return item
     })
   } else {
-    strategyList.value =  strategyListFiltered
+    strategyList.value = strategyListFiltered
   }
 }
 // 监听顶部传入的 mode 变化，清空筛选条件和列表
-watch(() => props.mode,(newVal) => {
+watch(() => props.mode, (newVal) => {
   filterName.value = ''
   deviceSourceOption.value = 'online'
   returnType.value = ''
@@ -371,11 +374,11 @@ const handleClose = () => {
 const handleSearch = () => {
   getStrategyList()
 }
-const handleReturnTypeChange = (val:string) => {
-  if(val === 'distribute'){
+const handleReturnTypeChange = (val: string) => {
+  if (val === 'distribute') {
     returnTypeChange.value = true
     formData.value.deviceSource = 'offline'
-  }else{
+  } else {
     returnTypeChange.value = false
   }
 }
@@ -392,39 +395,39 @@ const handlePreview = async (row: Strategy) => {
   csvRef.value?.open(objectName, `CSV 预览 - ${row.name || ''}`)
 }
 // 下载
-const handleDownload = async (row:Strategy) => {
+const handleDownload = async (row: Strategy) => {
   const objectName = String(row.ruleFile || '').trim()
   if (!objectName) {
     ElMessage.warning('规则文件路径为空，无法下载')
     return
   }
   try {
-        // 获取完整响应对象
-        const response = await reqDownloadUrl({ objectName: objectName });
+    // 获取完整响应对象
+    const response = await reqDownloadUrl({ objectName: objectName });
 
-        // 从响应头获取文件名
-        const contentDisposition = response.headers['content-disposition'];
-        const fileNameMatch = contentDisposition.match(/filename="?(.+?)"?(;|$)/);
-        const fileName = fileNameMatch ? fileNameMatch[1] : 'download.csv';
+    // 从响应头获取文件名
+    const contentDisposition = response.headers['content-disposition'];
+    const fileNameMatch = contentDisposition.match(/filename="?(.+?)"?(;|$)/);
+    const fileName = fileNameMatch ? fileNameMatch[1] : 'download.csv';
 
-        // 创建下载链接
-        const url = window.URL.createObjectURL(new Blob([response.data]));
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = fileName; // 使用后端返回的文件名
-        link.style.display = 'none';
+    // 创建下载链接
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName; // 使用后端返回的文件名
+    link.style.display = 'none';
 
-        // 触发下载
-        document.body.appendChild(link);
-        link.click();
+    // 触发下载
+    document.body.appendChild(link);
+    link.click();
 
-        // 清理资源
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
-    } catch (error) {
-        console.error('Error downloading URL:', error);
-        ElMessage.error('文件路径不存在');
-    }
+    // 清理资源
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error('Error downloading URL:', error);
+    ElMessage.error('文件路径不存在');
+  }
 }
 // 页面初始化
 onMounted(() => {
@@ -452,5 +455,4 @@ onMounted(() => {
     height: 95%;
   }
 }
-
 </style>

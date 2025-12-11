@@ -19,9 +19,9 @@
         <StrategyPage :is-super-admin="isSuperAdmin" :mode="outerTab"/>
       </el-tab-pane>
       <!-- 手动策略 -->
-      <!-- <el-tab-pane label="手动策略" name="tab7" class="tabs-7 paneTab">
+      <el-tab-pane label="手动策略" name="tab7" class="tabs-7 paneTab">
         <ManualStrategyPage :is-super-admin="isSuperAdmin" :mode="outerTab"/>
-      </el-tab-pane> -->
+      </el-tab-pane>
       <!-- groups -->
       <el-tab-pane label="GROUP组" name="tab2" class="tabs-2 paneTab">
         <GroupsPage :is-super-admin="isSuperAdmin" :mode="outerTab"/>

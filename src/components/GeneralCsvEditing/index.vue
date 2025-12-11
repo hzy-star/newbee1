@@ -11,7 +11,7 @@
     @close="handleClose"
   >
     <div class="dialog-body">
-      <CsvEditingContent v-model:path="innerPath" />
+      <CsvEditingContent v-model:path="innerPath"  v-model:isDialog="isDialog"/>
     </div>
 
     <template #footer>
@@ -58,16 +58,18 @@ const innerVisible = computed({
 const innerPath = ref(props.csvPath || '')
 
 watch(
-  () => props.csvPath,
+  () => props.visible,
   v => {
-    if (v !== undefined && v !== innerPath.value) {
-      innerPath.value = v
+    debugger
+    if (props.csvPath !== undefined && props.csvPath !== innerPath.value) {
+      innerPath.value = props.csvPath
     }
   },
   { immediate: true }
 )
 
 watch(innerPath, v => {
+  debugger
   emit('update:csvPath', v)
 })
 

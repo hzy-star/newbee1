@@ -6,7 +6,8 @@ enum API {
     STRATEGYList_URL = '/api/strategy/page/list',  //2.1 列表分页查询
     RETURNTYPE_TYPE = '/api/strategy/returntype', //2.2 策略returntype信息获取
     CREATEOFUPDATE_URL = '/api/strategy/createOrUpdateV2', //2.3 策略新增修改
-    DEVICECOUNT_URL = '/api/strategy/devicecount' //2.4 策略对应的设备个数（预估个数）
+    DEVICECOUNT_URL = '/api/strategy/devicecount', //2.4 策略对应的设备个数（预估个数）
+    DELETEID_URL = '/api/strategy/delete' //2.5 策略删除
 }
 
 // 暴露接口
@@ -18,3 +19,5 @@ export const reqReturnTypeType = () => engineRequest.get<any>(API.RETURNTYPE_TYP
 export const reqCreateOrUpdate = (param: any) => engineRequest.post<any>(API.CREATEOFUPDATE_URL, param,{ isMultipart: true });
 // 2.4 策略对应的设备个数（预估个数） GET
 export const reqDeviceCount = (params: any) => engineRequest.get<any>(API.DEVICECOUNT_URL, { params });
+// 2.5 策略删除
+export const reqDeleteId = (params: any) => engineRequest.get<any>(API.DELETEID_URL, { params });

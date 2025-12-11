@@ -90,7 +90,8 @@
                     <template #default="{ row }">
                         <el-button size="small" type="primary" plain @click="handleView(row)">查看</el-button>
                         <el-button size="small" type="success" plain @click="handleEdit(row)">编辑</el-button>
-                        <el-button size="small" type="success" plain @click="handleEditContent(row)">编辑内容</el-button>
+                        <el-button size="small" type="warning" plain @click="handleEditContent(row)"
+                            :disabled="row.returnType == 'json' || row.returnType == 'sql'">编辑内容</el-button>
                         <el-button size="small" type="danger" plain @click="handleDelete(row)"
                             :disabled="!props.isSuperAdmin">
                             删除
@@ -111,7 +112,7 @@
             <el-form ref="formRef" :model="formData" :rules="formRules" label-width="100px">
                 <el-form-item label="返回类型" prop="returnType">
                     <el-select v-model="formData.returnType" placeholder="请选择返回类型" :disabled="isView"
-                        @change="returnTypeChange">
+                        @change="handlereturnTypeChange">
                         <el-option label="RANK" value="rank" />
                         <el-option label="FLAG" value="flag" />
                         <el-option label="SCORE" value="score" />
@@ -134,7 +135,8 @@
                 </el-form-item>
 
                 <el-form-item label="设备来源" prop="deviceSource">
-                    <el-select v-model="formData.deviceSource" placeholder="请选择设备来源" :disabled="isView">
+                    <el-select v-model="formData.deviceSource" placeholder="请选择设备来源"
+                        :disabled="isView || returnTypeChange">
                         <el-option label="离线" value="offline" />
                         <el-option label="实时" value="online" />
                     </el-select>
@@ -144,6 +146,9 @@
                         <el-option label="启用" value="enabled" />
                         <el-option label="禁用" value="disabled" />
                     </el-select>
+                </el-form-item>
+                <el-form-item label="设备个数" prop="deviceCount" v-if="!isCreate && isJsonOrSql">
+                    <el-input v-model="deviceCount" placeholder="设备个数" disabled="true" />
                 </el-form-item>
 
                 <el-form-item label="发送类型" prop="eventType">
@@ -168,42 +173,44 @@
 
                 <!-- JSON：新增时可视化配置；编辑时可直接编辑 JSON 文本（也可以同样可视化，这里给简单版本） -->
                 <el-form-item label="JSON 规则" prop="ruleFile" v-if="formData.returnType === 'json'">
-                    <template v-if="isCreate">
-                        <div class="json-conditions-wrapper">
-                            <div v-for="(cond, index) in jsonConditions" :key="index" class="json-condition-row">
-                                <!-- 字段 -->
-                                <el-select v-model="cond.field" placeholder="字段" style="width: 180px; margin-right: 8px"
-                                    :disabled="isView" filterable>
-                                    <el-option v-for="field in jsonFields" :key="field" :label="field" :value="field" />
-                                </el-select>
+                    <!-- <template v-if="isCreate"> -->
+                    <div class="json-conditions-wrapper">
+                        <div v-for="(cond, index) in jsonConditions" :key="index" class="json-condition-row">
+                            <!-- 字段 -->
+                            <el-select v-model="cond.field" placeholder="字段" style="width: 180px; margin-right: 8px"
+                                :disabled="isView" filterable>
+                                <el-option v-for="field in jsonFields" :key="field.value" :label="field.label"
+                                    :value="field.value" />
+                            </el-select>
 
-                                <!-- 操作符（展示符号，绑定 EQ/IN/...） -->
-                                <el-select v-model="cond.operator" placeholder="操作符"
-                                    style="width: 100px; margin-right: 8px" :disabled="isView">
-                                    <el-option v-for="(symbol, opKey) in jsonOperatorMap" :key="opKey" :label="symbol"
-                                        :value="opKey" />
-                                </el-select>
+                            <!-- 操作符（展示符号，绑定 EQ/IN/...） -->
+                            <el-select v-model="cond.operator" placeholder="操作符" style="width: 100px; margin-right: 8px"
+                                :disabled="isView">
+                                <el-option v-for="(symbol, opKey) in jsonOperatorMap" :key="opKey" :label="symbol"
+                                    :value="opKey" />
+                            </el-select>
 
-                                <!-- 值 -->
-                                <el-input v-model="cond.value" placeholder="值" style="width: 200px; margin-right: 8px"
-                                    :disabled="isView" />
+                            <!-- 值 -->
+                            <el-input v-model="cond.value" placeholder="值" style="width: 200px; margin-right: 8px"
+                                :disabled="isView" />
 
-                                <!-- 删除条件 -->
-                                <el-button v-if="!isView && jsonConditions.length > 1" type="danger"
-                                    icon="el-icon-delete" circle @click="removeJsonCondition(index)" />
-                            </div>
+                            <!-- 删除条件 -->
+                            <el-button v-if="!isView && jsonConditions.length > 1" type="danger" :icon="Delete" circle
+                                @click="removeJsonCondition(index)" />
 
-                            <div v-if="!isView" style="margin-top: 10px">
-                                <el-button type="primary" link @click="addJsonCondition">
-                                    + 添加条件
-                                </el-button>
-                            </div>
                         </div>
-                    </template>
-                    <template v-else>
+
+                        <div v-if="!isView" style="margin-top: 10px">
+                            <el-button type="primary" link @click="addJsonCondition">
+                                + 添加条件
+                            </el-button>
+                        </div>
+                    </div>
+                    <!-- </template> -->
+                    <!-- <template v-else>
                         <el-input v-model="formData.ruleFile" type="textarea" :rows="8" placeholder="JSON 规则内容"
                             :disabled="isView" />
-                    </template>
+                    </template> -->
                 </el-form-item>
 
                 <!-- rank/flag/score/s2s: CSV 上传 or 手动输入 (二选一) -->
@@ -256,18 +263,20 @@
             </template>
         </el-dialog>
     </div>
+    <GeneralCsvEditing mode="dialog" v-model:visible="visible" :csv-path="csvPath" title="通用 CSV 编辑" />
 </template>
 
 <script lang="ts" setup>
 import { ref, onMounted, nextTick, watch, reactive, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { reqManualStrategyList, reqReturnTypeType, reqCreateOrUpdate, reqDeviceCount } from '@/api/strategyAutoDelivery/manualStrategy/index'
+import { reqManualStrategyList, reqReturnTypeType, reqCreateOrUpdate, reqDeviceCount, reqDeleteId } from '@/api/strategyAutoDelivery/manualStrategy/index'
 import type { Strategy } from '@/api/strategyAutoDelivery/strategyPage/type'
 import type { FormInstance, FormRules, UploadFile } from 'element-plus'
 import XEUtils from 'xe-utils'
 import { useDark } from '@vueuse/core'
 import type { VxeSelectEvents } from 'vxe-table'
-
+import { Delete } from '@element-plus/icons-vue'
+import GeneralCsvEditing from '@/components/GeneralCsvEditing/index.vue'
 // 获取父级传递的 isSuperAdmin,mode 属性
 const props = defineProps<{
     mode: 'click' | 'imp' | 'all',
@@ -277,6 +286,8 @@ const props = defineProps<{
 // 是否暗色模式
 const isDark = useDark()
 
+const visible = ref(false)
+const csvPath = ref('')
 // 响应式数据
 const strategyList = ref<Strategy[]>([])
 const dialogVisible = ref(false)
@@ -285,6 +296,9 @@ const isView = ref(false)
 const submitLoading = ref(false)
 const formRef = ref<FormInstance>()
 const batchDelimiter = ref(',')
+const returnTypeChange = ref(false);
+const deviceCount = ref('');
+const isJsonOrSql = ref(false);
 
 const totalItems = ref(0)
 interface Pagination {
@@ -341,13 +355,34 @@ const hasCsvText = computed(() => csvText.value.trim().length > 0)
 
 // JSON 配置相关
 const jsonFields = [
-    'country', 'make', 'model', 'city',
-    'os', 'osversion', 'userActive', 'userBundleSize15D', 'userBundleSize180D', 'userBundleSize', 'shopping',
-    'social', 'loan', 'tools', 'food_driver', 'userCategory7DTop1',
-    'userCategory15DTop1', 'userCategory60DTop1', 'userCategory60DTop2',
-    'userCategory180DTop1', 'userCategory180DTop2', 'userCategory180DTop3', 'userCategoryTop1', 'userCategoryTop2',
-    'userCategoryTop3'
+    { value: 'country', label: '国家' },
+    { value: 'make', label: '厂商' },
+    { value: 'model', label: '机型' },
+    { value: 'city', label: '城市' },
+    { value: 'os', label: '平台' },
+    { value: 'osversion', label: '系统版本' },
+    { value: 'userActive', label: '距今活跃天数' },
+    { value: 'userBundleSize15D', label: '近15天打开的app个数' },
+    { value: 'userBundleSize180D', label: '近180天打开的app个数' },
+    { value: 'userBundleSize', label: '历史总打开的app个数' },
+    { value: 'shopping', label: '安装购物类 APP' },
+    { value: 'social', label: '安装社交类 APP' },
+    { value: 'loan', label: '安装借贷类 APP' },
+    { value: 'tools', label: '安装工具类 APP' },
+    { value: 'food_driver', label: '安装吃喝类 APP' },
+    { value: 'userCategory7DTop1', label: '近7天最喜欢的app类目' },
+    { value: 'userCategory15DTop1', label: '近15天最喜欢的app类目' },
+    { value: 'userCategory60DTop1', label: '近60天最喜欢的app类目' },
+    { value: 'userCategory60DTop2', label: '近60天次喜欢的app类目' },
+    { value: 'userCategory180DTop1', label: '近180天最喜欢的app类目' },
+    { value: 'userCategory180DTop2', label: '近180天次喜欢的app类目' },
+    { value: 'userCategory180DTop3', label: '近180天喜欢的app类目' },
+    { value: 'userCategoryTop1', label: '喜欢的app类目top1' },
+    { value: 'userCategoryTop2', label: '喜欢的app类目top2' },
+    { value: 'userCategoryTop3', label: '喜欢的app类目top3' },
+    { value: 'extra1', label: '综合分数' }
 ]
+
 
 const jsonOperatorMap: Record<string, string> = {
     EQ: '=',
@@ -417,10 +452,10 @@ const getStrategyList = async (obj: any) => {
             limit: pagination.size,
             sourceType: 'custom', // 手动策略
         }
-        if(props.mode !== 'all'){
+        if (props.mode !== 'all') {
             params.eventType = [props.mode, 'all']
-        }else{
-            params.eventType = ['click','imp','all']
+        } else {
+            params.eventType = ['click', 'imp', 'all']
         }
         Object.assign(params, obj)
         const response = await reqManualStrategyList(params)
@@ -492,6 +527,8 @@ const handleAdd = () => {
     dialogTitle.value = '新增策略'
     isView.value = false
     dialogVisible.value = true
+    returnTypeChange.value = false
+    returnTypeField.value = []
 }
 
 // 编辑策略
@@ -500,7 +537,12 @@ const handleEdit = (row: Strategy) => {
     dialogTitle.value = '编辑策略'
     isView.value = false
     dialogVisible.value = true
-
+    if (formData.value.returnType === 'distribute') {
+        returnTypeChange.value = true
+    } else {
+        returnTypeChange.value = false
+    }
+    clearReturnTyeField()
     // SQL 编辑时，放入 sqlContent
     if (row.returnType === 'sql') {
         sqlContent.value = row.ruleFile || ''
@@ -523,19 +565,27 @@ const handleEdit = (row: Strategy) => {
             jsonConditions.value = [{ field: '', operator: 'EQ', value: '' }]
         }
     }
+    deviceCountFun(row);
 }
 // 编辑内容
 const handleEditContent = (row: Strategy) => {
-
+    csvPath.value = row.ruleFile // 你的业务里拿到的地址oss://ym-east-data/data/ym_push/zxw_test/rank/flowAlgIMP.csv
+    visible.value = true
 }
-
+const clearReturnTyeField = () => {
+    const _val = formData.value.returnType
+    if (_val && typeField.value.data) {
+        returnTypeField.value = typeField.value.data[_val] || []
+    }
+}
 // 查看策略
 const handleView = (row: Strategy) => {
     formData.value = { ...row }
     dialogTitle.value = '查看策略'
     isView.value = true
     dialogVisible.value = true
-
+    deviceCount.value = '';
+    clearReturnTyeField()
     if (row.returnType === 'sql') {
         sqlContent.value = row.ruleFile || ''
     }
@@ -555,8 +605,20 @@ const handleView = (row: Strategy) => {
             jsonConditions.value = [{ field: '', operator: 'EQ', value: '' }]
         }
     }
+    deviceCountFun(row);
 }
-
+function deviceCountFun(row: any) {
+    deviceCount.value = '';
+    isJsonOrSql.value = false;
+    if (row.returnType == 'sql' || row.returnType == 'json') {
+        isJsonOrSql.value = true
+        reqDeviceCount({ id: row.id }).then(res => {
+            deviceCount.value = res.data;
+        }).catch(() => {
+            deviceCount.value = '获取失败';
+        })
+    }
+}
 // 删除策略
 const handleDelete = async (row: Strategy) => {
     ElMessageBox.confirm('确定要删除这个策略吗？', '提示', {
@@ -566,6 +628,13 @@ const handleDelete = async (row: Strategy) => {
     }).then(async () => {
         try {
             // TODO: 调用删除接口
+            const res: any = await reqDeleteId({ id: row.id })
+            if (res.success) {
+                ElMessage.success('删除成功')
+                getStrategyList(objectToParams())
+            } else {
+                ElMessage.error(res.message || '删除失败')
+            }
         } catch (error) {
             ElMessage.error('删除操作异常')
         }
@@ -586,38 +655,38 @@ const handleCsvFileChange = (file: UploadFile, fileList: UploadFile[]) => {
 const handleCsvFileRemove = (file: UploadFile, fileList: UploadFile[]) => {
     csvFileList.value = fileList
 }
-function conversion(){
+function conversion() {
     debugger
     // 手动输入模式：解析 csvText
-        const raw = csvText.value || ''
-        const lines = raw
-            .split(/\r?\n/)
-            .map((line) => line.trim())
-            .filter((line) => line !== '')
+    const raw = csvText.value || ''
+    const lines = raw
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter((line) => line !== '')
 
-        if (!lines.length) {
-            ElMessage.warning('请至少输入一行内容')
+    if (!lines.length) {
+        ElMessage.warning('请至少输入一行内容')
+        return
+    }
+
+    const newBatchRows: string[][] = []
+
+    for (const line of lines) {
+        const cols = line.split(batchDelimiter.value)
+
+        if (cols.length !== returnTypeField.value.length) {
+            ElMessage.warning(
+                `输入行的列数与表头列数不匹配，请检查后重新输入。\n` +
+                `表头列数：${returnTypeField.value.length}，当前行列数：${cols.length}\n` +
+                `当前行内容：${line}`
+            )
             return
         }
 
-        const newBatchRows: string[][] = []
+        newBatchRows.push(cols)
+    }
 
-        for (const line of lines) {
-            const cols = line.split(batchDelimiter.value)
-
-            if (cols.length !== returnTypeField.value.length) {
-                ElMessage.warning(
-                    `输入行的列数与表头列数不匹配，请检查后重新输入。\n` +
-                    `表头列数：${returnTypeField.value.length}，当前行列数：${cols.length}\n` +
-                    `当前行内容：${line}`
-                )
-                return
-            }
-
-            newBatchRows.push(cols)
-        }
-
-        return JSON.stringify(newBatchRows)
+    return JSON.stringify(newBatchRows)
 }
 // 提交表单
 const handleSubmit = async () => {
@@ -656,23 +725,23 @@ const handleSubmit = async () => {
             baseData.ruleFile = content
         } else if (rt === 'json') {
             // JSON 类型：ruleFile 传 JSON 数组字符串
-            if (isCreate.value) {
-                const arr = jsonConditions.value
-                    .filter(it => it.field && it.operator && it.value !== '')
-                    .map(it => ({
-                        field: it.field,
-                        operator: it.operator,
-                        value: it.value
-                    }))
-                if (!arr.length) {
-                    ElMessage.warning('请至少添加一条 JSON 条件')
-                    return
-                }
-                baseData.ruleFile = JSON.stringify(arr)
-            } else {
-                // 编辑时，当前示例直接用现有文本
-                baseData.ruleFile = formData.value.ruleFile
+            // if (isCreate.value) {
+            const arr = jsonConditions.value
+                .filter(it => it.field && it.operator && it.value !== '')
+                .map(it => ({
+                    field: it.field,
+                    operator: it.operator,
+                    value: it.value
+                }))
+            if (!arr.length) {
+                ElMessage.warning('请至少添加一条 JSON 条件')
+                return
             }
+            baseData.ruleFile = JSON.stringify(arr)
+            // } else {
+            //     // 编辑时，当前示例直接用现有文本
+            //     baseData.ruleFile = formData.value.ruleFile
+            // }
         } else {
             // 非 json/sql 类型：file 或 csvData
             if (isCreate.value) {
@@ -685,7 +754,7 @@ const handleSubmit = async () => {
                     }
                     payload.file = fileObj
                 } else if (hasCsvText.value) {
-                    
+
                     payload.csvData = conversion()
                 } else {
                     ElMessage.warning('请上传 CSV 文件或输入 CSV 数据')
@@ -743,7 +812,7 @@ const handleSearchEngine = () => {
 
 
 const returnTypeField = ref<any>([])
-const returnTypeChange = (value: string) => {
+const handlereturnTypeChange = (value: string) => {
     formData.value.returnType = value
     if (value && typeField.value.data) {
         returnTypeField.value = typeField.value.data[value] || []
@@ -755,6 +824,13 @@ const returnTypeChange = (value: string) => {
     csvText.value = ''
     batchDelimiter.value = ','
     jsonConditions.value = [{ field: '', operator: 'EQ', value: '' }]
+
+    if (formData.value.returnType === 'distribute') {
+        returnTypeChange.value = true
+        formData.value.deviceSource = 'offline'
+    } else {
+        returnTypeChange.value = false
+    }
 }
 
 const typeField = ref<any>([])

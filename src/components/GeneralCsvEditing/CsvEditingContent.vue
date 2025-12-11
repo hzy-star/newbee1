@@ -5,10 +5,10 @@
             <label class="top-line__label">CSV地址</label>
             <input v-model="innerPath" type="text" placeholder="请输入 CSV 地址"
                 class="top-line__input top-line__input--path" :disabled="csvDisabled" />
-            <el-icon @click="clearPath">
+            <el-icon style="cursor: pointer" @click="clearPath" v-if="!props.isDialog">
                 <close />
             </el-icon>
-            <button class="btn btn--primary" @click="loadHeader" :disabled="loadingHeader">
+            <button class="btn btn--primary" @click="loadHeader" :disabled="loadingHeader" v-if="!props.isDialog">
                 {{ loadingHeader ? '加载中...' : '查询表头' }}
             </button>
         </div>
@@ -209,7 +209,7 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, ref, computed, watch } from 'vue'
+import { reactive, ref, computed, watch,onMounted } from 'vue'
 import {
     reqCsvEditHeaderUrl,
     reqCsvEditQuerySimplifyUrl,
@@ -233,7 +233,8 @@ const clearPath = () => {
  * 不传也可以手动输入
  */
 const props = defineProps<{
-    path?: string
+    path?: string,
+    isDialog?: boolean
 }>()
 const emit = defineEmits<{
     (e: 'update:path', v: string): void
@@ -243,12 +244,14 @@ const innerPath = ref(props.path || '')
 watch(
     () => props.path,
     v => {
+        debugger
         if (v !== undefined && v !== innerPath.value) {
             innerPath.value = v
         }
     }
 )
 watch(innerPath, v => {
+    debugger
     emit('update:path', v)
 })
 
@@ -692,6 +695,11 @@ const submitBatchDialog = async () => {
         ElMessage.error(batchDialogType.value === 'add' ? '新增失败' : '替换失败')
     }
 }
+onMounted(()=>{
+    if(props.isDialog&&props.path){
+        loadHeader()
+    }
+})
 </script>
 
 <style lang="scss" scoped>

@@ -11,7 +11,8 @@
                     @change="searchEvent" size="mini"></vxe-input>
             </p>
             <!-- FlowConfig列表表格 -->
-            <vxe-table :data="strategyList" border round style="width: 100%" size="small" stripe height="90%" :column-config="{ resizable: true }">
+            <div style="height: 90%;">
+                <vxe-table :data="strategyList" border round style="width: 100%" size="small" stripe height="auto" :scroll-y="{ enabled: true, gt: 10 }" :column-config="{ resizable: true }">
                 <vxe-column field="xh" type="seq" align="center" title="序号" width="5%"></vxe-column>
                 <vxe-column field="pkgName" title="pkg" min-width="20" width="160" align="center" />
                 <vxe-column field="country" title="国家" min-width="20" width="120" align="center" />
@@ -105,6 +106,7 @@
                     </template>
                 </vxe-column>
             </vxe-table>
+            </div>
         </div>
         <!-- 新增/编辑弹窗 -->
         <ConfigModel v-model="dialogVisible" :title="dialogTitle" :form="currentFlowConfig" :is-view="isView"
@@ -318,7 +320,7 @@ onMounted(() => {
     background: #f8fafc;
     border: 1px solid #eef1f6;
     border-radius: 8px;
-    padding: 10px 12px;
+    padding: 10px;
     margin-bottom: 8px;
     transition: background 0.2s ease, border-color 0.2s ease;
 }
@@ -332,7 +334,7 @@ onMounted(() => {
     position: relative;
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 8px 12px;
+    gap: 5px;
     align-items: start;
 }
 
