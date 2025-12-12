@@ -11,7 +11,7 @@
     <el-tabs v-model="activeTab" class="tabs">
       <!-- AB分流 -->
       <el-tab-pane label="AB分流" name="tab4" class="tabs-4 paneTab">
-        <FlowConfigPage :is-super-admin="isSuperAdmin" :mode="outerTab"/>
+        <FlowConfigPage :is-super-admin="isSuperAdmin" :mode="outerTabAB"/>
       </el-tab-pane>
 
       <!-- 策略 -->
@@ -44,7 +44,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed ,watch} from 'vue'
 import StrategyPage from '@/components/strategyAutoDelivery/strategyPage/index.vue';
 import ManualStrategyPage from '@/components/strategyAutoDelivery/manualStrategy/index.vue';
 import GroupsPage from '@/components/strategyAutoDelivery/groups/index.vue';
@@ -54,6 +54,7 @@ import StrategythresholdPage from '@/components/strategyAutoDelivery/threshold/i
 import StrategythresholdConfigPage from '@/components/strategyAutoDelivery/thresholdConfig/index.vue';
 const activeTab = ref('tab4')
 const outerTab = ref<'click' | 'imp' | 'all'>('click') // 外层 tab：点击/展示/全部
+const outerTabAB = ref<any>('click') // 外层 tab：点击/展示/全部
 // 引入 cookie store 获取用户角色
 import useCookie from "@/store/modules/cookie";
 const useCookies = useCookie()
@@ -62,7 +63,9 @@ const currentUserRole = ref(userRole); // 当前用户角色
 // 判断是否为超级管理员 把这个变量传递给子组件使用
 const isSuperAdmin = computed(() => currentUserRole.value === 'superAdmin');
 
-
+watch(outerTab,(newVal)=>{
+    outerTabAB.value = newVal
+})
 </script>
 
 <style scoped lang="scss">

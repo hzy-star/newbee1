@@ -244,7 +244,7 @@ const loadDataProgressively = async () => {
         status.value = 'loading'
 
         // 1) flows
-        const flowRes: any = await reqFlow({eventType: props.mode}, true)
+        const flowRes: any = await reqFlow({eventType: (props.mode == 'click' ? 'click,all' : props.mode == 'imp' ? 'imp,all' : 'click,imp,all')}, true)
         const flowList: any[] = toArray(flowRes?.data).map((flow: any) => ({
             ...flow,
             loaded: false,

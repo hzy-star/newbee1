@@ -17,10 +17,9 @@
                         </el-col>
                         <el-col :span="12">
                             <el-form-item label="事件类型" prop="eventType">
-                                <el-select v-model="flowForm.eventType" placeholder="请选择事件类型" disabled="true">
+                                <el-select v-model="flowForm.eventType" placeholder="请选择事件类型" >
                                     <el-option label="点击" value="click" />
                                     <el-option label="展示" value="imp" />
-                                    <el-option label="全部" value="all" />
                                 </el-select>
                             </el-form-item>
                         </el-col>
@@ -270,7 +269,7 @@ const handleSubmit = async () => {
             pkgName: flowForm.value.pkgName,
             country: flowForm.value.country,
             config: formulaConfigs.value.map(item => `${item.configName}:${item.configValue}:${item.configKp}:${item.configKi}:${item.configKd}:${item.configStep}:${item.isAuto}:${item.dupCheck}:${item.eraseIfa}:${item.times}:${item.distribute ?? ''}`).join(','),
-            eventType: props.form.eventType
+            eventType: flowForm.value.eventType
         }
         const response: any = await reqCreateOrUpdatFlowConfig(submitData)
         if (response?.code === 200 || response?.success === true) {
@@ -303,9 +302,9 @@ const getDistributeList = async () => {
         deviceSource: 'offline',// 离线策略
     }
     if (props.form.eventType !== 'all' && props.form.eventType) {
-        params.eventType = [props.form.eventType, 'all']
+        params.eventType = [props.form.eventType]
     } else {
-        params.eventType = ['click', 'imp', 'all']
+        params.eventType = ['click', 'imp']
     }
     const response: any = await reqManualStrategyList({...params})
     // const result:any = await reqManualStrategyList({...params,sourceType: 'system'})

@@ -319,7 +319,7 @@ const filterNameDetail = ref('')
 // 获取 Flow 列表
 const getStrategyFlowsList = async () => {
   try {
-    const res = await reqFlow({eventType: props.mode}, false)
+    const res = await reqFlow({eventType: (props.mode == 'click' ? 'click,all' : props.mode == 'imp' ? 'imp,all' : 'click,imp,all')}, false)
     const priority: Record<string, number> = { online: 0, offline: 1 }
     const data = (res.data || []).sort((a: any, b: any) => {
       const cmp = String(a.name || '').localeCompare(String(b.name || ''), 'zh', { sensitivity: 'base' })

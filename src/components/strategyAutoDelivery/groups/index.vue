@@ -168,7 +168,7 @@ const deviceStatus = ref('enabled') // 设备状态选项，默认值为空
 // 获取Group列表
 const getStrategyGroupsList = async () => {
     try {
-        const response = await reqStrategyGroupList({ eventType: props.mode })
+        const response = await reqStrategyGroupList({ eventType: (props.mode == 'click' ? 'click,all' : props.mode == 'imp' ? 'imp,all' : 'click,imp,all')  })
         // strategyList.value = response.data || []
         strategyListBackUp.value = response.data || []
         applyDeviceSource(String(deviceSourceOption.value || ''), String(deviceStatus.value || ''))

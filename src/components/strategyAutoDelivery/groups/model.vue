@@ -180,7 +180,6 @@ const formData = ref<any>({
   strategySelections: [] as any[],
   ...props.form
 })
-debugger
 
 const strategiesList = ref<any[]>([])          // 当前用于展示的（按设备来源过滤）
 const allStrategies = ref<any[]>([])           // 全量列表（用于 label 映射、合并已选项）
@@ -238,7 +237,6 @@ const formRules: any = {
 // 
 const getStrategiesList = async () => {
   try {
-    debugger
     const response: any = await reqStrategyList()
     allStrategies.value = response?.data || []
     applyDeviceFilter() // 拉取后按当前设备来源过滤
@@ -279,7 +277,6 @@ const clearStrategySelections = () => {
 }
 // UI 用的 options：在过滤结果前面合并“当前已选但不在过滤集”的项（禁用显示）
 const strategiesForUI = computed(() => {
-  debugger
   const ds = formData.value.deviceSource
   const returnType = formData.value.returnType
   const eventType = formData.value.eventType
@@ -289,7 +286,7 @@ const strategiesForUI = computed(() => {
     newList = filtered.filter((s:any) => s.returnType === returnType)
   }else{
     newList = filtered.filter((s:any) => s.returnType === returnType)
-    .filter((s:any) => s.eventType === eventType)
+    .filter((s:any) => s.eventType === eventType || s.eventType === 'all')
   }
   
   const selectedIds = new Set(
@@ -304,8 +301,8 @@ const strategiesForUI = computed(() => {
 
 // 选择变化时自动过滤（双保险）
 watch(() => formData.value.deviceSource, () => applyDeviceFilter())
-watch(() => formData.value.eventType, () => clearStrategySelections())
-watch(() => formData.value.returnType, () => clearStrategySelections())
+// watch(() => formData.value.eventType, () => clearStrategySelections())
+// watch(() => formData.value.returnType, () => clearStrategySelections())
 
 const addStrategyRow = () => {
   formData.value.strategySelections.push({
@@ -383,6 +380,7 @@ const handleSubmit = async () => {
 watch(
   () => props.form,
   (newVal: any) => {
+    debugger
     formData.value = {
       operator: 'big',
       returnType: 'rank',
@@ -393,7 +391,6 @@ watch(
       strategySelections: [],
       ...newVal
     }
-    debugger
     if (newVal?.strategyIds) {
       formData.value.strategySelections = String(newVal.strategyIds)
         .split(',')
@@ -429,6 +426,7 @@ onMounted(() => {
 
 const returnTypeHand = (val: string) => {
   formData.value.formula = val === 'flag' ? 'and' : 'min'
+  clearStrategySelections()
 }
 
 // helper: label 用全量列表找，避免过滤后 tooltip 为空

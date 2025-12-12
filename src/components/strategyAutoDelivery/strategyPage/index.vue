@@ -196,7 +196,7 @@ const deviceSourceOption = ref('online')
 // 获取策略列表
 const getStrategyList = async () => {
   try {
-    const response = await reqStrategyList({ returnType: returnType.value, eventType: props.mode })
+    const response = await reqStrategyList({ returnType: returnType.value, eventType: (props.mode == 'click' ? 'click,all' : props.mode == 'imp' ? 'imp,all' : 'click,imp,all') })
     // strategyList.value = response.data || []
     strategyListBackUp.value = response.data || []
     applyDeviceSource(String(deviceSourceOption.value || ''))

@@ -12,7 +12,17 @@ export const ThresholdPinia = defineStore("ThresholdPinia", {
     // 调用接口查询任务组
     async getThreshold(outerTab?: 'click' | 'imp' | 'all') {
       debugger
-      const res = (await reqStrategyThresholdList({ eventType: outerTab ? outerTab : undefined })) as any;
+      let param = ''
+      if(outerTab == 'click'){
+        param = 'click,all'
+      }else if(outerTab == 'imp'){
+        param = 'imp,all'
+      }else if(outerTab == 'all'){
+        param = 'click,imp,all'
+      }else{
+        param = undefined as any
+      }
+      const res = (await reqStrategyThresholdList({ eventType: param })) as any;
       if (res.success) {
         this.ThresholdList = res.data;
         this.dataUpdated = true; // 数据已更新

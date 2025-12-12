@@ -145,7 +145,7 @@ const monitorData = ref<Partial<any>>({})
 // 获取FlowConfig列表
 const getStrategyFlowConfigsList = async () => {
     try {
-        const response = await reqFlowConfig({eventType: props.mode})
+        const response = await reqFlowConfig({eventType: (props.mode == 'click' ? 'click' : props.mode == 'imp' ? 'imp' : 'click,imp') })
         strategyList.value = response.data || []
         strategyListBackUp.value = response.data || []
         handleSearchInput()
@@ -156,7 +156,7 @@ const getStrategyFlowConfigsList = async () => {
 
 // 添加FlowConfig
 const handleAddFlowConfig = () => {
-    currentFlowConfig.value = { operator: 'big', status: 'enabled', cutoff: 0 ,eventType: props.mode} // 默认操作符
+    currentFlowConfig.value = { operator: 'big', status: 'enabled', cutoff: 0 ,eventType: props.mode == 'all' ? 'click' : props.mode} // 默认操作符
     dialogTitle.value = '新增FlowConfig'
     isView.value = false
     dialogVisible.value = true
@@ -271,6 +271,7 @@ const handleDataeye = async() => {
 }
 // 监听父组件 mode 变化，刷新列表
 watch(() => props.mode, () => {
+    debugger
     filterName.value = ''
     strategyList.value = []
     strategyListBackUp.value = []
