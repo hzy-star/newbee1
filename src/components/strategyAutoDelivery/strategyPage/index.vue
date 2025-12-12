@@ -105,7 +105,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="事件类型" prop="eventType">
-          <el-select v-model="formData.eventType" placeholder="请选择事件类型" disabled="true">
+          <el-select v-model="formData.eventType" placeholder="请选择事件类型" :disabled="!props.isSuperAdmin">
             <el-option label="点击" value="click" />
             <el-option label="展示" value="imp" />
             <el-option label="全部" value="all" />

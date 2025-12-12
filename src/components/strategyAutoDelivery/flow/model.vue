@@ -498,7 +498,7 @@ watch(
 )
 const fetchSyncFileOptions = async () => {
   try {
-    const data = await reqStrategyList({ returnType: 's2s', eventType: props.form.eventType})
+    const data = await reqStrategyList({ returnType: 's2s', eventType: (props.form.eventType == 'click' ? 'click,all' : props.form.eventType == 'imp' ? 'imp,all' : 'click,imp,all') })
     syncFileOptions.value = data.data || []
   } catch (e) {
     console.error('获取s2s策略失败', e)
