@@ -4,8 +4,8 @@
       <el-col :span="12" :xs="0"></el-col>
       <el-col :span="12" :xs="24">
         <el-form class="login_form" :model="loginForm" :rules="rules" ref="loginFormRef">
-          <h1>hello</h1>
-          <h2>Welcome to Pushnode</h2>
+          <h1>HELLO</h1>
+          <h2>WELCOME TO NEWBEE</h2>
           <el-form-item prop="name">
             <el-input v-model="loginForm.name" placeholder="Please input" :prefix-icon="User" />
           </el-form-item>
