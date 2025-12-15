@@ -32,8 +32,8 @@
             <!-- 策略列表表格 -->
             <vxe-table :data="strategyList" border round style="width: 100%" size="small" height="90%">
                 <vxe-column field="xh" type="seq" align="center" title="序号" width="5%"></vxe-column>
-                <vxe-column field="name" title="策略名称" min-width="50" align="center" />
-                <vxe-column field="ruleFile" title="规则文件" min-width="220" >
+                <vxe-column field="name" title="策略名称" min-width="150" align="center" />
+                <vxe-column field="ruleFile" title="规则文件" min-width="300" >
                     <!-- 最多显示1行，超出部分省略，鼠标放上去显示tooltip -->
                     <template #default="{ row }">
                         <el-tooltip class="item" effect="dark" :content="row.ruleFile" placement="top">
@@ -94,7 +94,29 @@
                         <el-tag v-else type="info" size="small">未知</el-tag>
                     </template>
                 </vxe-column>
-                <vxe-column field="description" title="描述" min-width="110" show-header-overflow show-overflow />
+                <vxe-column field="description" title="描述" min-width="210"  >
+                    <!-- 最多显示1行，超出部分省略，鼠标放上去显示tooltip -->
+                    <template #default="{ row }">
+                        <el-tooltip class="item" effect="dark" :content="row.description" placement="top">
+                            <div class="rule-file-cell">
+                                {{ row.description }}
+                            </div>
+                        </el-tooltip>
+                    </template>
+                </vxe-column>
+                <vxe-column field="lastUpdateUser" title="最后更新用户" min-width="50" width="100" align="center" />
+                <vxe-column field="createTime" title="创建时间" min-width="110" width="180" align="center">
+                    <template #default="{ row }">
+                        <!-- 时间戳转日期 -->
+                        {{ new Date(row.createTime).toLocaleString() }}
+                    </template>
+                </vxe-column>
+                <vxe-column field="updateTime" title="更新时间" min-width="110" width="180" align="center">
+                    <template #default="{ row }">
+                        <!-- 时间戳转日期 -->
+                        {{ new Date(row.updateTime).toLocaleString() }}
+                    </template>
+                </vxe-column>
                 <vxe-column title="操作" width="300" fixed="right" align="center">
                     <template #default="{ row }">
                         <el-button size="small" type="primary" plain @click="handleView(row)">查看</el-button>
@@ -111,7 +133,7 @@
             <div class="el-pagination-container">
                 <el-pagination v-model:current-page="pagination.current" v-model:page-size="pagination.size"
                     :total="totalItems" layout="total, sizes, prev, pager, next, jumper"
-                    :page-sizes="[10, 100, 500, 1000, 5000, 9999999999999999999]" @current-change="handlePageChange"
+                    :page-sizes="[100, 500, 1000, 5000, 9999999999999999999]" @current-change="handlePageChange"
                     @size-change="handleSizeChange" />
             </div>
         </div>
@@ -286,6 +308,9 @@ import { useDark } from '@vueuse/core'
 import type { VxeSelectEvents } from 'vxe-table'
 import { Delete } from '@element-plus/icons-vue'
 import GeneralCsvEditing from '@/components/GeneralCsvEditing/index.vue'
+// 获取用户信息(新)
+import useCookie from '@/store/modules/cookie'
+const cookieStore = useCookie()
 // 获取父级传递的 isSuperAdmin,mode 属性
 const props = defineProps<{
     mode: 'click' | 'imp' | 'all',
@@ -710,7 +735,9 @@ const handleSubmit = async () => {
             deviceSource: formData.value.deviceSource,
             status: formData.value.status,
             description: formData.value.description,
-            sourceType: 'custom' // 手动策略
+            sourceType: 'custom', // 手动策略
+            lastUpdateUser:cookieStore.username,
+            updateTime: Date.now()
         }
 
         if (formData.value.id) {
@@ -759,7 +786,13 @@ const handleSubmit = async () => {
                     payload.file = fileObj
                 } else if (hasCsvText.value) {
 
-                    payload.csvData = conversion()
+                    const csvData = conversion()
+                    if (!csvData) {
+                        // conversion 里已经提示了，这里直接中断提交流程
+                        submitLoading.value = false
+                        return
+                    }
+                    payload.csvData = csvData
                 } else {
                     ElMessage.warning('请上传 CSV 文件或输入 CSV 数据')
                     return
@@ -773,7 +806,13 @@ const handleSubmit = async () => {
                     }
                     payload.file = fileObj
                 } else if (hasCsvText.value) {
-                    payload.csvData = conversion()
+                    const csvData = conversion()
+                    if (!csvData) {
+                        // conversion 里已经提示了，这里直接中断提交流程
+                        submitLoading.value = false
+                        return
+                    }
+                    payload.csvData = csvData
                 }
                 payload.data.ruleFile = formData.value.ruleFile || ''
             }

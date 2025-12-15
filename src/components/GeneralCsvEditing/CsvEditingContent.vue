@@ -675,10 +675,11 @@ const submitBatchDialog = async () => {
             if (Object.keys(filters).length) {
                 payload.filters = filters
             }
+            debugger
             const res = await reqCsvEditReplaceUrl(payload)
-            if (res?.code === 200 && res?.data) {
-                const replacedCount = res.data.replacedCount || 0
-                ElMessage.success(`替换成功，影响行数：${replacedCount}`)
+            if (res?.code === 200) {
+                // const replacedCount = res.data.replacedCount || 0
+                ElMessage.success(res.errMsg || '替换成功')
             } else {
                 ElMessage.error(res?.errMsg || '替换失败，请稍后重试')
                 return

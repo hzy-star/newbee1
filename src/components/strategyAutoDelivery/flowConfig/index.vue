@@ -27,7 +27,7 @@
                         <span v-else class="tag tag-default">全部</span>
                     </template>
                 </vxe-column>
-                <vxe-column field="config" title="config" min-width="300" align="center" class-name="config-col">
+                <vxe-column field="config" title="config"  align="center" class-name="config-col">
                     <template #default="{ row }">
                         <div v-if="row.config" class="config-container">
                             <div v-for="(item, index) in parseFormula(row.config)" :key="index" class="config-item">
@@ -74,6 +74,11 @@
                                         <el-tooltip :content="item.times" placement="top">
                                             <span class="config-value text-ellipsis">{{ item.times }}</span>
                                         </el-tooltip>
+                                    </div>
+                                    <div class="config-cell config-text-cell">
+                                        <!-- <el-tooltip :content="item.distribute" placement="top"> -->
+                                            <span class="config-value text-ellipsis" :class="item.distribute?'blueSpan':'redSpan'">{{ item.distribute? '已分配': '未分配' }}</span>
+                                        <!-- </el-tooltip> -->
                                     </div>
 
 
@@ -204,7 +209,7 @@ const parseFormula = (formulaStr: string) => {
 
     try {
         return formulaStr.split(',').map(item => {
-            const [flowName, flowConfig,kp, ki, kd, step, isAuto,dupCheck,eraseIfa,times] = item.split(':');
+            const [flowName, flowConfig,kp, ki, kd, step, isAuto,dupCheck,eraseIfa,times,distribute] = item.split(':');
             return {
                 flowName: flowName || '-',
                 flowConfig: flowConfig || '-',
@@ -215,7 +220,8 @@ const parseFormula = (formulaStr: string) => {
                 isAuto: isAuto || '-',
                 dupCheck: dupCheck || '-',
                 eraseIfa: eraseIfa || '-',
-                times: times || 1.2
+                times: times || 1.2,
+                distribute: distribute != '' ? true : false
             };
         });
     } catch (e) {
@@ -233,23 +239,77 @@ const handleSearch = () => {
 }
 
 const filterName = ref('')
+// const handleSearchInput = () => {
+//     const filterVal = String(filterName.value).trim().toLowerCase()
+//     if (filterVal) {
+//         const filterRE = new RegExp(filterVal, 'gi')
+//         const searchProps = ['pkgName', 'country', 'config']
+//         const rest = strategyListBackUp.value.filter((item: any) => searchProps.some(key => String(item[key]).toLowerCase().indexOf(filterVal) > -1))
+//         strategyList.value = rest.map(row => {
+//             // 搜索为克隆数据，不会污染源数据
+//             const item = XEUtils.clone(row) as any
+//             searchProps.forEach((key: any) => {
+//                 item[key] = String(item[key]).replace(filterRE, match => `${match}`)
+//             })
+//             return item
+//         })
+//     } else {
+//         strategyList.value = strategyListBackUp.value
+//     }
+// }
 const handleSearchInput = () => {
-    const filterVal = String(filterName.value).trim().toLowerCase()
-    if (filterVal) {
-        const filterRE = new RegExp(filterVal, 'gi')
-        const searchProps = ['pkgName', 'country', 'config']
-        const rest = strategyListBackUp.value.filter((item: any) => searchProps.some(key => String(item[key]).toLowerCase().indexOf(filterVal) > -1))
-        strategyList.value = rest.map(row => {
-            // 搜索为克隆数据，不会污染源数据
-            const item = XEUtils.clone(row) as any
-            searchProps.forEach((key: any) => {
-                item[key] = String(item[key]).replace(filterRE, match => `${match}`)
-            })
-            return item
-        })
-    } else {
-        strategyList.value = strategyListBackUp.value
-    }
+  const filterVal = String(filterName.value).trim().toLowerCase()
+  if (filterVal) {
+    const filterRE = new RegExp(filterVal, 'gi')
+    // 原来只搜这几个字段
+    const searchProps = ['pkgName', 'country', 'config']
+
+    const rest = strategyListBackUp.value.filter((item: any) => {
+      // 1. 原有字段的匹配
+      const baseMatch = searchProps.some(key =>
+        String(item[key]).toLowerCase().includes(filterVal)
+      )
+
+      // 2. distribute 映射为汉字后的匹配
+      // 这里根据你 parseFormula 里对 distribute 的规则自行调整
+      // 你目前的 parseFormula 是：distribute != '' ? true : false
+      // 页面上显示：true -> "已分配"  false -> "未分配"
+      let distributeText = ''
+      // 如果 distribute 在 row.config 里，你可以把 row.config 里所有 flow 的 distribute 合并成文本：
+      // 如：有任意一个是 true 就认为包含“分配”，否则“未分配”
+      try {
+        if (item.config) {
+          const flows = parseFormula(item.config)
+          const hasDistribute = flows.some((f: any) => f.distribute) // true/false
+          distributeText = hasDistribute ? '已分配' : '未分配'
+        }
+      } catch (e) {
+        console.error('distribute 解析失败', e)
+      }
+
+      const distributeMatch = distributeText.toLowerCase().includes(filterVal)
+
+      return baseMatch || distributeMatch
+    })
+
+    strategyList.value = rest.map(row => {
+      // 克隆数据，不污染源数据
+      const item = XEUtils.clone(row) as any
+
+      // 原有高亮逻辑
+      const searchProps = ['pkgName', 'country', 'config']
+      searchProps.forEach((key: any) => {
+        item[key] = String(item[key]).replace(filterRE, match => `${match}`)
+      })
+
+      // 如果你也想对 config 文本里出现的“分配 / 未分配”做高亮，可以在这里额外处理
+      // 比如：item.config = String(item.config).replace(filterRE, match => `${match}`)
+
+      return item
+    })
+  } else {
+    strategyList.value = strategyListBackUp.value
+  }
 }
 
 // 节流函数,间隔500毫秒触发搜索
@@ -333,7 +393,7 @@ onMounted(() => {
 .config-grid {
     position: relative;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
     gap: 5px;
     align-items: start;
 }
@@ -364,7 +424,7 @@ onMounted(() => {
 /* 长文本字段占两列，提高可读性 */
 .flow-cell,
 .config-text-cell {
-    min-width: 240px;
+    // min-width: 240px;
 }
 
 /* 数值类紧凑些 */
@@ -385,6 +445,14 @@ onMounted(() => {
     color: #0b22f2;
     // font-size: 15px;
     // font-weight: 600;
+}
+.blueSpan {
+    color: #007bff;
+    font-weight: 600;
+}
+.redSpan {
+    color: #ff4d4f;
+    font-weight: 600;
 }
 
 /* 省略在自身可用宽度内处理 */
