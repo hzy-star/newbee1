@@ -48,10 +48,10 @@
                     <div class="form-item">
                         <div class="form-item-label">Service</div>
                         <el-select v-model="FormData.def_sub4" placeholder="Select service" style="width: 100%;">
-                            <el-option label="AutoTask" value="click_engine_gateway"></el-option>
+                            <el-option label="Algo Online" value="click_engine_gateway"></el-option>
                             <el-option label="PkgTask" value="click_engine_offline_pkgtask"></el-option>
                             <el-option label="Newbee" value="newbee"></el-option>
-                            <el-option label="Push Node" value="pushnode"></el-option>
+                            <!-- <el-option label="Push Node" value="pushnode"></el-option> -->
                             <el-option label="Algo Offline" value="click_engine_algooffline"></el-option>
                         </el-select>
                     </div>
