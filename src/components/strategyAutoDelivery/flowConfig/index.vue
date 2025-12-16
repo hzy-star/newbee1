@@ -210,6 +210,7 @@ const parseFormula = (formulaStr: string) => {
     try {
         return formulaStr.split(',').map(item => {
             const [flowName, flowConfig,kp, ki, kd, step, isAuto,dupCheck,eraseIfa,times,distribute] = item.split(':');
+            let distributeIndex = item.split(':')[10] || ''
             return {
                 flowName: flowName || '-',
                 flowConfig: flowConfig || '-',
@@ -221,7 +222,7 @@ const parseFormula = (formulaStr: string) => {
                 dupCheck: dupCheck || '-',
                 eraseIfa: eraseIfa || '-',
                 times: times || 1.2,
-                distribute: distribute != '' ? true : false
+                distribute: distributeIndex != '' ? true : false
             };
         });
     } catch (e) {
