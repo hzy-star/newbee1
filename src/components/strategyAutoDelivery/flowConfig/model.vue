@@ -174,7 +174,7 @@ const flowForm = ref<Partial<any>>({
     pkgName: '',
     country: '',
     config: '',
-    eventType: props.form.eventType
+    eventType: props.form.eventType == 'all' ? 'click' : props.form.eventType
 })
 
 // 统一强类型，避免 string | undefined
@@ -286,7 +286,7 @@ const handleSubmit = async () => {
 // 获取groups列表
 const flowList = ref<Array<{ id: number, name: string }>>([])
 const getFlowList = async () => {
-    const response: any = await reqFlow({eventType: props.form.eventType})
+    const response: any = await reqFlow({eventType: props.form.eventType == 'all' ? 'click,imp,all' : (props.form.eventType+',all')})
     response.data = (response.data || []).filter((item: any) => item.status === 'enabled' && item.deviceSource === 'online') // 只获取启用的Flow
     flowList.value = response.data || []
 }
@@ -301,10 +301,11 @@ const getDistributeList = async () => {
         returnType: 'distribute',// 获取distribute类型列表
         deviceSource: 'offline',// 离线策略
     }
+    debugger
     if (props.form.eventType !== 'all' && props.form.eventType) {
-        params.eventType = [props.form.eventType]
+        params.eventType = [props.form.eventType, 'all']
     } else {
-        params.eventType = ['click', 'imp']
+        params.eventType = ['click', 'imp','all']
     }
     const response: any = await reqManualStrategyList({...params})
     // const result:any = await reqManualStrategyList({...params,sourceType: 'system'})
@@ -351,6 +352,7 @@ watch(() => props.form, (newVal) => {
     } else {
         formulaConfigs.value = [emptyConfig()]
     }
+    flowForm.value.eventType = newVal.eventType == 'all' ? 'click' : newVal.eventType
     getFlowList()
     getDistributeList()
 })

@@ -339,7 +339,8 @@ const handleSubmit = async () => {
       returnType: formData.value.returnType,
       description: formData.value.description,
       deviceSource: formData.value.deviceSource,
-      eventType: formData.value.eventType
+      eventType: formData.value.eventType,
+      sourceType:'system'
     }
 
     const data = await reqCreateOrUpdate(submitData)

@@ -161,7 +161,7 @@ const getStrategyFlowConfigsList = async () => {
 
 // 添加FlowConfig
 const handleAddFlowConfig = () => {
-    currentFlowConfig.value = { operator: 'big', status: 'enabled', cutoff: 0 ,eventType: props.mode == 'all' ? 'click' : props.mode} // 默认操作符
+    currentFlowConfig.value = { operator: 'big', status: 'enabled', cutoff: 0 ,eventType: props.mode } // 默认操作符
     dialogTitle.value = '新增FlowConfig'
     isView.value = false
     dialogVisible.value = true
