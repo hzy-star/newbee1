@@ -90,7 +90,7 @@
             </el-select>
           </el-form-item>
           <el-form-item label="事件类型" prop="eventType">
-              <el-select v-model="flowForm.eventType" placeholder="请选择事件类型" disabled="true">
+              <el-select v-model="flowForm.eventType" placeholder="请选择事件类型" :disabled="true">
                 <el-option label="点击" value="click" />
                 <el-option label="展示" value="imp" />
                 <el-option label="全部" value="all" />
@@ -341,13 +341,15 @@ const handleSubmit = async () => {
     }
 
     const response = await reqCreateOrUpdatFlow(submitData)
-    if (response.code === 200 || response.success === true) {
+    if (response.success === true) {
       ElMessage.success('保存成功')
       emit('submit')
       handleClose()
+    }else {
+      ElMessage.error(response.message || '保存失败')
     }
-  } catch (error) {
-    console.error('保存失败:', error)
+  } catch (error:any) {
+    console.error('保存失败:', error.message)
     ElMessage.error('保存失败')
   }
 }
@@ -371,6 +373,7 @@ const applyDeviceFilter = () => {
   const ds = flowForm.value.deviceSource
   const list = ds ? allStrategies.value.filter((s: any) => s.deviceSource === ds) : allStrategies.value
   strategyList.value = list
+  console.log('应用设备来源过滤，当前列表：', strategyList.value)
 }
 
 // 监听设备来源切换：过滤 group 选择，并清理对应的自动公式配置；同时释放 removedAutoGroups 记录
@@ -443,7 +446,7 @@ watch(
     } finally {
       programmaticUpdating.value = false
     }
-
+    console.log('当前公式配置：',formulaConfigs.value)
     await getGroupsList()
   },
   { immediate: true }
@@ -595,7 +598,7 @@ watch(
           if (!['rank', 'score'].includes(String(group.returnType))) {
             continue // flag 类型不生成
           }
-
+          const groupName = String(group.name ?? '')
           const autoCfg: FormulaConfig = {
             formula: String(group.name ?? ''), // 按需求：用 group.name 填充
             cutoff: 70,                        // 固定默认 70
@@ -606,7 +609,11 @@ watch(
 
           // 避免重复（双保险）
           if (formulaConfigs.value.some(c => (c as any).groupId === gid)) continue
-
+          // ② 新增逻辑：按 name 去重
+          //    如果已经有 formula 等于当前 group.name 的配置（无论是否有 groupId），就不再添加
+          if (formulaConfigs.value.some(c => String(c.formula ?? '') === groupName)) {
+            continue
+          }
           if (emptyIndex !== -1) {
             formulaConfigs.value.splice(emptyIndex, 1, autoCfg)
             // 继续寻找是否还有其它空位可复用
