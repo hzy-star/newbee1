@@ -69,9 +69,10 @@
                                         <el-col :span="12">
                                             <label class="cfg-label">去重等级</label>
                                             <el-select v-model="config.dupCheck" placeholder="dupCheck" size="small" style="width: 100%" :disabled="isView">
+                                                <el-option label="mini" value="mini" />
                                                 <el-option label="less" value="less" />
-                                                <el-option label="pri" value="pri" />
                                                 <el-option label="sec" value="sec" />
+                                                <el-option label="pri" value="pri" />
                                             </el-select>
                                         </el-col>
 
@@ -200,7 +201,7 @@ const emptyConfig = (): FormulaConfig => ({
     configKd: '1',
     configStep: '1',
     isAuto: 'false',
-    dupCheck: 'less',
+    dupCheck: 'mini',
     eraseIfa: '0',
     times:1.2,
     distribute:null
@@ -318,7 +319,7 @@ const getDistributeList = async () => {
 const parseConfigString = (configStr: string): FormulaConfig[] => {
     if (!configStr) return [emptyConfig()]
     return configStr.split(',').map(item => {
-        const [configName = '', configValue = '', configKp = '', configKi = '', configKd = '', configStep = '' ,isAutoRaw = 'false', dupCheck = 'less', eraseIfa = '0', times = '1.2', distribute = ''] = item.split(':')
+        const [configName = '', configValue = '', configKp = '', configKi = '', configKd = '', configStep = '' ,isAutoRaw = 'false', dupCheck = 'mini', eraseIfa = '0', times = '1.2', distribute = ''] = item.split(':')
         const isAuto: BoolString = isAutoRaw === 'true' ? 'true' : 'false'
         // 这里要把 'null'、'undefined' 之类也当成空
         const normalizedDistribute =

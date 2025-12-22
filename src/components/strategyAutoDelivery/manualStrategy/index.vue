@@ -179,7 +179,7 @@
                     </el-select>
                 </el-form-item>
                 <el-form-item label="设备个数" prop="deviceCount" v-if="!isCreate && isJsonOrSql">
-                    <el-input v-model="deviceCount" placeholder="设备个数" disabled="true" />
+                    <el-input v-model="deviceCount" placeholder="查询中.." disabled="true" />
                 </el-form-item>
 
                 <el-form-item label="发送类型" prop="eventType">

@@ -18,6 +18,6 @@ export const reqReturnTypeType = () => engineRequest.get<any>(API.RETURNTYPE_TYP
 // 2.3 策略新增修改
 export const reqCreateOrUpdate = (param: any) => engineRequest.post<any>(API.CREATEOFUPDATE_URL, param,{ isMultipart: true });
 // 2.4 策略对应的设备个数（预估个数） GET
-export const reqDeviceCount = (params: any) => engineRequest.get<any>(API.DEVICECOUNT_URL, { params });
+export const reqDeviceCount = (params: any) => engineRequest.get<any>(API.DEVICECOUNT_URL, { params,noloading: true });
 // 2.5 策略删除
 export const reqDeleteId = (params: any) => engineRequest.get<any>(API.DELETEID_URL, { params });
