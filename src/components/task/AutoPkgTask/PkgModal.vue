@@ -158,16 +158,25 @@
                     </el-col>
                 </el-row>
                 <el-row :gutter="24">
-                    <el-col :span="12">
+                    <el-col :span="8">
                         <div class="form-item">
                             <div class="form-item-label">topLtBundle</div>
                             <el-input v-model="formData.top_lt_bundle" placeholder="eg: A:B:C" />
                         </div>
                     </el-col>
-                    <el-col :span="12">
+                    <el-col :span="8">
                         <div class="form-item">
                             <div class="form-item-label">abTestVersion</div>
                             <el-input v-model="formData.abtest_version" placeholder="eg: base or v1 or v2" />
+                        </div>
+                    </el-col>
+                    <el-col :span="8">
+                        <div class="form-item">
+                            <div class="form-item-label">erase_ifa</div>
+                            <el-select v-model="formData.erase_ifa" placeholder="select">
+                                <el-option label="false" value="false" />
+                                <el-option label="true" value="true" />
+                            </el-select>
                         </div>
                     </el-col>
                 </el-row>
@@ -245,6 +254,7 @@ const formData = ref<FormDataType>({
     top_lt_bundle: '',
     abtest_version: '',
     extra_filter: '', // 新增字段
+    erase_ifa:true
 })
 
 const handleClose = () => {
@@ -294,6 +304,7 @@ const resetData = () => {
         top_lt_bundle: '', // 新增字段
         abtest_version: '', // 新增字段
         extra_filter: '', // 新增字段
+        erase_ifa:true
     }
 }
 // 存储audience列表数据
@@ -330,6 +341,7 @@ watch(() => props.modelValue, async (newVal) => {
                     top_lt_bundle: newData.value.top_lt_bundle || '', // 新增字段
                     abtest_version: newData.value.abtest_version || '', // 新增字段
                     extra_filter: newData.value.extra_filter || '', // 新增字段
+                    erase_ifa: newData.value.erase_ifa
                 }
             } else {
                 // 如果没有当前行数据，清空表单

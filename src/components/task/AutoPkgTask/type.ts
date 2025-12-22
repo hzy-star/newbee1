@@ -29,6 +29,7 @@ export interface FormDataType {
   abtest_version: string; // 新增字段
   extra_filter: string; // 新增字段
   batchCreate?: number; // 新增字段，批量创建标识
+  erase_ifa:boolean
 }
 // 定义history数据类型
 
