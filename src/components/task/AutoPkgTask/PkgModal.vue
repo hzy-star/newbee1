@@ -173,7 +173,7 @@
                     <el-col :span="8">
                         <div class="form-item">
                             <div class="form-item-label">erase_ifa</div>
-                            <el-select v-model="formData.erase_ifa" placeholder="select">
+                            <el-select v-model="formData.erase_ifa" placeholder="select" clearable>
                                 <el-option label="false" value="false" />
                                 <el-option label="true" value="true" />
                             </el-select>
