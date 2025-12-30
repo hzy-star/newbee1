@@ -27,7 +27,31 @@
                         <span v-else class="tag tag-default">全部</span>
                     </template>
                 </vxe-column>
-                <vxe-column field="config" title="config"  align="center" class-name="config-col">
+                <vxe-column field="pkgConfig" title="pkg配置" min-width="80" width="120" align="center" >
+                    <template #default="{row}">
+                        <!-- pkgConfig内容是json字符串 转换为对象后，匹配kvMap展示对应的名称，然后值是true或者false就显示胶囊 -->
+                        <div v-if="row.pkgConfig">
+                               <div v-for="(value, key) in JSON.parse(row.pkgConfig)" :key="key">
+                                    <span class="config-label">{{ kvLabelMap[key] || key }}:</span>
+                                    <template v-if="value === true">
+                                        <el-tag type="success" size="small" effect="light">
+                                            <el-icon style="margin-right:4px;display:inline;"><CircleCheck /></el-icon>开
+                                        </el-tag>
+                                    </template>
+                                    <template v-else-if="value === false">
+                                        <el-tag type="danger" size="small" effect="light">
+                                            <el-icon style="margin-right:4px;display:inline;"><CircleClose /></el-icon>关
+                                        </el-tag>
+                                    </template>
+
+                                    <!-- ... 其他代码 ... -->
+                                </div>
+  
+                        </div>
+                        <span v-else>-</span>
+                    </template>
+                </vxe-column>
+                <vxe-column field="config" title="config"  align="center" class-name="config-col" min-width="300">
                     <template #default="{ row }">
                         <div v-if="row.config" class="config-container">
                             <div v-for="(item, index) in parseFormula(row.config)" :key="index" class="config-item">
@@ -114,7 +138,7 @@
             </div>
         </div>
         <!-- 新增/编辑弹窗 -->
-        <ConfigModel v-model="dialogVisible" :title="dialogTitle" :form="currentFlowConfig" :is-view="isView"
+        <ConfigModel v-model="dialogVisible" :title="dialogTitle" :form="currentFlowConfig" :is-view="isView" :kv-map="kvMap"
             @submit="handleSubmit" />
         <!-- 监控弹窗 设置宽高 -->
         <MonitorModel v-model="monitorVisible" :data="monitorData" :style="{ height: '90vh', overflowY: 'auto' }" />
@@ -122,7 +146,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref,watch,onMounted } from 'vue';
+import { ref,watch,onMounted ,computed} from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { reqFlowConfig, reqDeleteFlowConfig } from '@/api/strategyAutoDelivery/flowConfig/index';
 import ConfigModel from './model.vue'
@@ -146,6 +170,27 @@ const dialogTitle = ref('')
 const isView = ref(false)
 const currentFlowConfig = ref<Partial<any>>({})
 const monitorData = ref<Partial<any>>({})
+// 封装键值对
+// kvMap 包含显示名称和选项配置
+const kvMap = ref({
+  unifiedValue: {
+    label: '统一价值',
+    options: [
+      { label: '开', value: true },
+      { label: '关', value: false }
+    ]
+  },
+  // 可以添加更多配置
+  // otherKey: { label: '其他', options: [...] }
+})
+// 获取显示名称的简化版本（用于表格展示）
+const kvLabelMap = computed(() => {
+  const result: { [key: string]: string } = {}
+  Object.entries(kvMap.value).forEach(([key, config]) => {
+    result[key] = config.label
+  })
+  return result
+})
 
 // 获取FlowConfig列表
 const getStrategyFlowConfigsList = async () => {
@@ -169,7 +214,31 @@ const handleAddFlowConfig = () => {
 
 // 查看FlowConfig
 const handleView = (row: any) => {
-    currentFlowConfig.value = { ...row }
+    // 安全解析 pkgConfig
+    let pkgConfigObj = {}
+    if (row.pkgConfig) {
+        try {
+            pkgConfigObj = JSON.parse(row.pkgConfig)
+            // 如果是数组，转换为对象
+            if (Array.isArray(pkgConfigObj)) {
+                const result: Record<string, any> = {}
+                for (let i = 0; i < pkgConfigObj.length; i += 2) {
+                    if (i + 1 < pkgConfigObj.length) {
+                        result[pkgConfigObj[i]] = pkgConfigObj[i + 1]
+                    }
+                }
+                pkgConfigObj = result
+            }
+        } catch (error) {
+            console.error('解析 pkgConfig 失败:', error)
+            pkgConfigObj = {}
+        }
+    }
+    
+    currentFlowConfig.value = { 
+        ...row,
+        pkgConfig: pkgConfigObj  // 传递解析后的对象
+    }
     dialogTitle.value = '查看FlowConfig'
     isView.value = true
     dialogVisible.value = true
@@ -177,7 +246,31 @@ const handleView = (row: any) => {
 
 // 编辑FlowConfig
 const handleEditFlowConfig = (row: any) => {
-    currentFlowConfig.value = { ...row }
+    // 安全解析 pkgConfig
+    let pkgConfigObj = {}
+    if (row.pkgConfig) {
+        try {
+            pkgConfigObj = JSON.parse(row.pkgConfig)
+            // 如果是数组，转换为对象
+            if (Array.isArray(pkgConfigObj)) {
+                const result: Record<string, any> = {}
+                for (let i = 0; i < pkgConfigObj.length; i += 2) {
+                    if (i + 1 < pkgConfigObj.length) {
+                        result[pkgConfigObj[i]] = pkgConfigObj[i + 1]
+                    }
+                }
+                pkgConfigObj = result
+            }
+        } catch (error) {
+            console.error('解析 pkgConfig 失败:', error)
+            pkgConfigObj = {}
+        }
+    }
+    
+    currentFlowConfig.value = { 
+        ...row,
+        pkgConfig: pkgConfigObj  // 传递解析后的对象
+    }
     dialogTitle.value = '编辑FlowConfig'
     isView.value = false
     dialogVisible.value = true
@@ -394,7 +487,7 @@ onMounted(() => {
 .config-grid {
     position: relative;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
     gap: 5px;
     align-items: start;
 }
@@ -441,6 +534,7 @@ onMounted(() => {
     font-size: 12px;
     // 微软雅黑
     font-family: 'Microsoft YaHei', sans-serif;
+    min-width: 40px;
 }
 .config-value {
     color: #0b22f2;
@@ -455,15 +549,39 @@ onMounted(() => {
     color: #ff4d4f;
     font-weight: 600;
 }
-
+// =============================================================
 /* 省略在自身可用宽度内处理 */
 .text-ellipsis {
-    max-width: 100px;
+    max-width: 80px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+/* 小屏幕适配 */
+@media (max-width: 1524px) {
+  .text-ellipsis {
+    max-width: 65px;
+  }
+}
 
+@media (max-width: 768px) {
+  .text-ellipsis {
+    max-width: 50px;
+  }
+  
+  .flow-cell,
+  .config-text-cell {
+    grid-column: span 1;
+    min-width: 160px;
+  }
+}
+
+@media (max-width: 480px) {
+  .text-ellipsis {
+    max-width: 40px;
+  }
+}
+// ============================================================
 /* 更轻的分隔线 */
 :deep(.el-divider) {
     margin: 8px 0 0;

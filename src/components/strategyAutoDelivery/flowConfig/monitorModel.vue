@@ -208,7 +208,8 @@ const props = defineProps<{
     pkgName: string
     flow: string
     country: string // 可能为 'all' 或 'US,TT,AS'
-    config: string
+    config: string,
+    pkgConfig: string | null | undefined
   }>
 }>()
 
@@ -410,6 +411,7 @@ async function fetchHistory() {
   const pkgNameRaw = (header.value.pkgName || '')
   const pkgName = /^defa?ult$/i.test(pkgNameRaw) ? '' : pkgNameRaw
   const flow = header.value.flow
+  console.log(header.value)
 
   loading.value = true
   hasData.value = false
@@ -427,6 +429,13 @@ async function fetchHistory() {
       startTime: startTime.value,
       endTime: endTime.value,
       country: countryParam,
+      // unifiedValue:true
+    }
+    const objPkgConfig = props.data?.pkgConfig ? JSON.parse(props.data?.pkgConfig || '{}') : {}
+    console.log(Object.keys(objPkgConfig));
+    
+    if(objPkgConfig.unifiedValue){
+      params['unifiedValue'] = objPkgConfig.unifiedValue || ''
     }
     const resp: { success?: boolean; message?: string; data?: HistoryResp } = await reqHistoryData(params)
     const ok = resp?.success === true
