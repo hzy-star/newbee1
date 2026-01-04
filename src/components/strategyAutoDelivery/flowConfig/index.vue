@@ -56,7 +56,7 @@
                         <div v-if="row.config" class="config-container">
                             <div v-for="(item, index) in parseFormula(row.config)" :key="index" class="config-item">
                                 <div class="config-grid">
-                                    <!-- 监控按钮（固定在右上角） -->
+                                    <!-- PID监控 监控按钮（固定在右上角） -->
                                     <svg-icon
                                         name="monitoring"
                                         width="18px"

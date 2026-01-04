@@ -367,6 +367,7 @@ function getCountriesFromMap(map: Record<string, string[]> | undefined, pkg: str
 function unionAllCountries(data?: HistoryResp): string[] {
   const set = new Set<string>()
   if (!data) return []
+
   if (data.flowTraceData && typeof data.flowTraceData === 'object') {
     Object.keys(data.flowTraceData).forEach(c => set.add(c))
   }
@@ -457,23 +458,40 @@ async function fetchHistory() {
       countryOptions.value = allCountries
 
       if (initialLoad.value && selectedCountries.value.length === 0) {
-        selectedCountries.value = allCountries.slice(0, Math.min(5, allCountries.length))
+        if(data.flowTraceData && Object.keys(data.flowTraceData).length >0){
+          // 只要data.flowTraceData里面的国家 帮我提取data.flowTraceData里面的key作为国家选项
+          selectedCountries.value = Object.keys(data.flowTraceData)
+        }else{
+          selectedCountries.value = allCountries.slice(0, Math.min(5, allCountries.length))
+        }
+        
       } else {
         selectedCountries.value = selectedCountries.value.filter(c => countryOptions.value.includes(c))
       }
     } else {
+      debugger
       // 指定 pkgName：仅展示该 pkg 的国家
       const optCountries = getCountriesFromMap(data.optionalCountryMap, effectivePkg)
       countryOptions.value = Array.isArray(optCountries) ? optCountries : []
 
       if (selectedCountries.value.length === 0) {
         if (initialLoad.value) {
-          computeDefaultSelectedCountries(props.data?.country, countryOptions.value)
+          if (data.flowTraceData && Object.keys(data.flowTraceData).length > 0) {
+            // 只要data.flowTraceData里面的国家 帮我提取data.flowTraceData里面的key作为国家选项
+            selectedCountries.value = Object.keys(data.flowTraceData)
+          } else {
+            computeDefaultSelectedCountries(props.data?.country, countryOptions.value)
+          }
         } else {
           selectedCountries.value = countryOptions.value.slice(0, Math.min(5, countryOptions.value.length))
         }
       } else {
-        selectedCountries.value = selectedCountries.value.filter(c => countryOptions.value.includes(c))
+        if (data.flowTraceData && Object.keys(data.flowTraceData).length > 0) {
+          // 只要data.flowTraceData里面的国家 帮我提取data.flowTraceData里面的key作为国家选项
+          selectedCountries.value = Object.keys(data.flowTraceData)
+        } else {
+          selectedCountries.value = selectedCountries.value.filter(c => countryOptions.value.includes(c))
+        }
         if (selectedCountries.value.length === 0) {
           selectedCountries.value = countryOptions.value.slice(0, Math.min(5, countryOptions.value.length))
         }
@@ -496,7 +514,7 @@ async function fetchHistory() {
 // 渲染三个图表
 function renderCharts(flowTraceData: FlowTraceData) {
   if (!chart1 || !chart2 || !chart3) return
-
+  debugger
   // 聚合所有时间点（根据当前选中国家）
   const chosen = selectedCountries.value
   const timeSet = new Set<string>()
