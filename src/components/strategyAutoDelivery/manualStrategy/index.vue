@@ -69,7 +69,7 @@
                         <span v-else class="tag tag-default">-</span>
                     </template>
                 </vxe-column>
-                <vxe-column field="eventType" title="事件类型" min-width="50" width="80" align="center">
+                <vxe-column field="eventType" title="可用范围" min-width="50" width="80" align="center">
                     <template #default="{ row }">
                         <span v-if="row.eventType === 'click'" class="tag tag-click">
                             点击
@@ -182,8 +182,8 @@
                     <el-input v-model="deviceCount" placeholder="查询中.." disabled="true" />
                 </el-form-item>
 
-                <el-form-item label="发送类型" prop="eventType">
-                    <el-select v-model="formData.eventType" placeholder="请选择事件类型" disabled="true">
+                <el-form-item label="可用范围" prop="eventType">
+                    <el-select v-model="formData.eventType" placeholder="请选择可用范围" disabled="true">
                         <el-option label="点击" value="click" />
                         <el-option label="展示" value="imp" />
                         <el-option label="全部" value="all" />
@@ -370,7 +370,7 @@ const formRules: FormRules = {
         { required: true, message: '请输入返回类型', trigger: 'blur' }
     ],
     eventType: [
-        { required: true, message: '请选择事件类型', trigger: 'change' }
+        { required: true, message: '请选择可用范围', trigger: 'change' }
     ]
     // ruleFile 根据具体类型在提交时做校验
 }
