@@ -34,7 +34,7 @@
                                 <vxe-column field="name" title="策略名称" width="150" align="center" />
                                 <vxe-column field="ruleFile" title="规则文件" min-width="220" />
                                 <!-- <vxe-column field="returnType" title="返回类型" width="200" align="center" /> -->
-                                <vxe-column field="returnType" title="返回类型" width="200" align="center">
+                                <vxe-column field="returnType" title="返回类型" width="180" align="center">
                                 <template #default="{ row }">
                                     <span v-if="row.returnType === 'rank'" class="tag tag-rank">
                                     RANK
@@ -94,7 +94,7 @@
                         <span v-else class="tag tag-default">-</span>
                     </template>
                 </vxe-column>
-                <vxe-column field="eventType" title="事件类型" min-width="50" width="80" align="center">
+                <vxe-column field="eventType" title="可用范围" min-width="50" width="80" align="center">
                     <template #default="{ row }">
                         <span v-if="row.eventType === 'click'" class="tag tag-click">
                         点击
@@ -113,6 +113,12 @@
                         <el-tag v-if="row.deviceSource === 'offline'" type="danger" size="small">离线</el-tag>
                         <el-tag v-else-if="row.deviceSource === 'online'" type="primary" size="small">实时</el-tag>
                         <el-tag v-else type="info" size="small">未知</el-tag>
+                    </template>
+                </vxe-column>
+                <vxe-column field="isusing" title="是否使用" min-width="50" width="80" align="center">
+                    <template #default="{ row }">
+                    <el-tag v-if="row.isusing" type="success" size="small">是</el-tag>
+                    <el-tag v-else type="error" size="small">否</el-tag>
                     </template>
                 </vxe-column>
                 <!-- 是否落盘 -->
@@ -148,6 +154,7 @@ import type { VxeTablePropTypes } from 'vxe-table'
 import { reqStrategys } from '@/api/strategyAutoDelivery/strategyPage/index'
 import XEUtils from 'xe-utils'
 import type { VxeSelectEvents } from 'vxe-table'
+import { deleteAlgDataCheck } from '@/utils/common'
 
 // 获取父级传递的 isSuperAdmin,mode 属性
 // 获取父级传递的 mode 属性
@@ -254,6 +261,8 @@ const handleEditGroup = (row: Groups) => {
 
 // 删除Group
 const handleDelete = async (row: Groups) => {
+    // 删除之前判断isusing字段 是否为true，如果是true则不允许删除
+    if (!deleteAlgDataCheck(row,'Group')) return
     try {
         await ElMessageBox.confirm(`确定删除Group: ${row.name} ?`, '提示', {
             confirmButtonText: '确定',

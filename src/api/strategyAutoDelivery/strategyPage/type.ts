@@ -23,4 +23,5 @@ export interface Strategy {
   deviceSource?: string // 新增设备来源字段
   status?: 'enabled' | 'disabled' // 新增状态字段
   eventType?: 'click' | 'imp' | 'all' // 新增事件类型字段
+  isusing?: boolean // 新增是否使用字段
 }

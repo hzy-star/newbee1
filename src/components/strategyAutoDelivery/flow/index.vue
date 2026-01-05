@@ -59,7 +59,7 @@
                                                         <span style="font-weight: 500;">{{ row.name }}</span>
                                                     </template>
                                                 </vxe-column>
-                                                <vxe-column field="eventType" title="事件类型" min-width="50" width="80" align="center">
+                                                <vxe-column field="eventType" title="可用范围" min-width="50" width="80" align="center">
                                                     <template #default="{ row }">
                                                         <span v-if="row.eventType === 'click'" class="tag tag-click">
                                                         点击
@@ -115,7 +115,7 @@
                                         </el-tag>
                                     </template>
                                 </vxe-column>
-                                <vxe-column field="eventType" title="事件类型" min-width="50" width="80" align="center">
+                                <vxe-column field="eventType" title="可用范围" min-width="50" width="80" align="center">
                                     <template #default="{ row }">
                                         <span v-if="row.eventType === 'click'" class="tag tag-click">
                                         点击
@@ -171,7 +171,7 @@
                         </el-tag>
                     </template>
                 </vxe-column>
-                <vxe-column field="eventType" title="事件类型" min-width="50" width="80" align="center">
+                <vxe-column field="eventType" title="可用范围" min-width="50" width="80" align="center">
                     <template #default="{ row }">
                         <span v-if="row.eventType === 'click'" class="tag tag-click">
                         点击
@@ -188,6 +188,12 @@
                         <el-tag v-if="row.deviceSource === 'offline'" type="danger" size="small">离线</el-tag>
                         <el-tag v-else-if="row.deviceSource === 'online'" type="primary" size="small">实时</el-tag>
                         <el-tag v-else type="info" size="small" effect="plain">未知</el-tag>
+                    </template>
+                </vxe-column>
+                <vxe-column field="isusing" title="是否使用" min-width="50" width="80" align="center">
+                    <template #default="{ row }">
+                    <el-tag v-if="row.isusing" type="success" size="small">是</el-tag>
+                    <el-tag v-else type="error" size="small">否</el-tag>
                     </template>
                 </vxe-column>
                 <vxe-column field="formula" title="公式配置" min-width="300" align="center">
@@ -230,7 +236,7 @@
                                         </el-tooltip>
                                     </div>
                                 </div>
-                                <el-divider v-if="index < parseFormula(row.formula).length - 1" border-style="dashed" />
+                                <el-divider v-if="Number(index) < parseFormula(row.formula).length - 1" border-style="dashed" />
                             </div>
                         </div>
                         <span v-else>-</span>
@@ -288,6 +294,8 @@ import DetailPage from './detail.vue' // 新建的详情组件
 import type Detail from './detail.vue'
 import { ThresholdPinia } from '@/store/strategyAutoDelivery/threshold'
 import type { VxeSelectEvents } from 'vxe-table'
+import { deleteAlgDataCheck } from '@/utils/common'
+
 const thresholdStore = ThresholdPinia()
 
 // 获取父级传递的 isSuperAdmin，mode 属性
@@ -454,6 +462,8 @@ const handleCopy = (row: Flows) => {
 
 // 删除Flow
 const handleDelete = async (row: Flows) => {
+    // 删除之前判断isusing字段 是否为true，如果是true则不允许删除
+    if (!deleteAlgDataCheck(row,'Flow')) return
     try {
         await ElMessageBox.confirm(`确定删除Flow: ${row.name} ?`, '提示', {
             confirmButtonText: '确定',

@@ -70,6 +70,12 @@
               <el-tag v-else type="info" size="small">未知</el-tag>
             </template>
           </vxe-column>
+          <vxe-column field="isusing" title="是否使用" min-width="50" width="80" align="center">
+            <template #default="{ row }">
+              <el-tag v-if="row.isusing" type="success" size="small">是</el-tag>
+              <el-tag v-else type="error" size="small">否</el-tag>
+            </template>
+          </vxe-column>
           <vxe-column field="description" title="描述" min-width="110" show-header-overflow show-overflow />
           <vxe-column title="操作" width="320" fixed="right" align="center">
             <template #default="{ row }">
@@ -149,6 +155,7 @@ import { reqDownloadUrl } from '@/api/docDownload/ossDownload'
 import CsvPreviewDialog from '@/components/CsvPreviewDialog.vue'
 import { useDark } from '@vueuse/core' // 替代原来的 ~/composables/dark
 import type { VxeSelectEvents } from 'vxe-table'
+import { deleteAlgDataCheck } from '@/utils/common'
 // 获取父级传递的 isSuperAdmin,mode 属性
 const props = defineProps<{
   mode: 'click' | 'imp' | 'all',
@@ -300,6 +307,8 @@ const handleView = (row: Strategy) => {
 
 // 删除策略
 const handleDelete = async (row: Strategy) => {
+  // 删除之前判断isusing字段 是否为true，如果是true则不允许删除
+  if (!deleteAlgDataCheck(row,'自动策略')) return
   ElMessageBox.confirm('确定要删除这个策略吗？', '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',

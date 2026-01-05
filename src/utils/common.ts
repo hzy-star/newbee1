@@ -1,3 +1,5 @@
+
+import { ElMessage } from 'element-plus'
 // 使用 default 导出整个对象
 export const toQueryStr = (src: any) => {
   var buffer = [];
@@ -82,4 +84,13 @@ export function sciToDecimalString(input: string | number): string {
       ? sign + digits.slice(0, pos) + '.' + digits.slice(pos)
       : sign + '0.' + '0'.repeat(-pos) + digits
   }
+}
+
+// 是否可以删除算法配置中的数据
+export function deleteAlgDataCheck(data:any,str?:string){
+  if(data && data.isusing){
+    ElMessage.warning(`该${str}正在使用中，无法删除`)
+    return false
+  }
+  return true
 }
