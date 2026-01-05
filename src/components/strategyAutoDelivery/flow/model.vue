@@ -361,7 +361,7 @@ const groupsLoaded = ref(false) // 选项是否已加载（用于 watcher 护栏
 
 const getGroupsList = async () => {
   groupsLoaded.value = false
-  const response = await reqStrategyGroupList({ eventType: props.form.eventType })
+  const response = await reqStrategyGroupList({ eventType: props.form.eventType == 'all' ? 'click,imp,all' : (props.form.eventType + ',all') })
   response.data = (response.data || []).filter((item: any) => item.status === 'enabled')
   allStrategies.value = response.data || []
   applyDeviceFilter()
@@ -370,9 +370,17 @@ const getGroupsList = async () => {
 
 // 设备来源过滤 + 清理不合法选择
 const applyDeviceFilter = () => {
-  const ds = flowForm.value.deviceSource
+  debugger
+  const ds = flowForm.value.deviceSource    //设备来源 实时/离线
+  const eventType = flowForm.value.eventType  //事件类型 点击/展示/全部
   const list = ds ? allStrategies.value.filter((s: any) => s.deviceSource === ds) : allStrategies.value
-  strategyList.value = list
+  let newList = []
+  if(flowForm.value.eventType==='all'){
+    newList = list
+  }else{
+    newList = list.filter((s:any) => s.eventType === eventType || s.eventType === 'all')
+  }
+  strategyList.value = newList
   console.log('应用设备来源过滤，当前列表：', strategyList.value)
 }
 
