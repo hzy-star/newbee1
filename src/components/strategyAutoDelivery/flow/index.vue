@@ -434,7 +434,7 @@ const handleAddFlow = () => {
 
 // 查看Flow
 const handleView = (row: Flows) => {
-    currentFlow.value = { ...row,syncFile: row.syncFile ? row.syncFile : '',eventType: props.mode }
+    currentFlow.value = { ...row,syncFile: row.syncFile ? row.syncFile : '' }
     dialogTitle.value = '查看Flow'
     isView.value = true
     editView.value = false
@@ -443,7 +443,7 @@ const handleView = (row: Flows) => {
 
 // 编辑Flow
 const handleEditFlow = (row: Flows) => {
-    currentFlow.value = { ...row ,syncFile: row.syncFile ? row.syncFile : '',eventType: props.mode}
+    currentFlow.value = { ...row ,syncFile: row.syncFile ? row.syncFile : ''}
     dialogTitle.value = '编辑Flow'
     isView.value = false
     // 编辑弹窗不可编辑flowName
@@ -453,7 +453,7 @@ const handleEditFlow = (row: Flows) => {
 // 复制Flow
 const handleCopy = (row: Flows) => {
     const { id, name, ...rest } = row
-    currentFlow.value = { ...rest , name: `${name}-copy`, syncFile: row.syncFile ? row.syncFile : '', eventType: props.mode} // 复制时清除id，避免冲突
+    currentFlow.value = { ...rest , name: `${name}-copy`, syncFile: row.syncFile ? row.syncFile : ''} // 复制时清除id，避免冲突
     dialogTitle.value = '复制Flow'
     isView.value = false
     editView.value = false
