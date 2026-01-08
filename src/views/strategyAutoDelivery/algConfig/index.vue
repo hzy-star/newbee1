@@ -53,8 +53,8 @@ import FlowConfigPage from '@/components/strategyAutoDelivery/flowConfig/index.v
 import StrategythresholdPage from '@/components/strategyAutoDelivery/threshold/index.vue';
 import StrategythresholdConfigPage from '@/components/strategyAutoDelivery/thresholdConfig/index.vue';
 const activeTab = ref('tab4')
-const outerTab = ref<'click' | 'imp' | 'all'>('click') // 外层 tab：点击/展示/全部
-const outerTabAB = ref<any>('click') // 外层 tab：点击/展示/全部
+const outerTab = ref<'click' | 'imp' | 'all'>('all') // 外层 tab：点击/展示/全部
+const outerTabAB = ref<any>('all') // 外层 tab：点击/展示/全部
 // 引入 cookie store 获取用户角色
 import useCookie from "@/store/modules/cookie";
 const useCookies = useCookie()

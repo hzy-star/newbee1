@@ -254,7 +254,7 @@ const formData = ref<FormDataType>({
     top_lt_bundle: '',
     abtest_version: '',
     extra_filter: '', // 新增字段
-    erase_ifa:true
+    erase_ifa:false
 })
 
 const handleClose = () => {
@@ -304,7 +304,7 @@ const resetData = () => {
         top_lt_bundle: '', // 新增字段
         abtest_version: '', // 新增字段
         extra_filter: '', // 新增字段
-        erase_ifa:true
+        erase_ifa:false
     }
 }
 // 存储audience列表数据
