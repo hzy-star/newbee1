@@ -129,7 +129,7 @@
 import { ref, watch, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
-import { reqCreateOrUpdatFlow } from '@/api/strategyAutoDelivery/flow'
+import { reqCreateOrUpdatFlow,reqCheckFlow } from '@/api/strategyAutoDelivery/flow'
 import type { Flows } from '@/api/strategyAutoDelivery/flow/type'
 import { reqStrategyGroupList } from '@/api/strategyAutoDelivery/groups'
 import type { StrategyThreshold } from '@/api/strategyAutoDelivery/threshold/type'
@@ -339,7 +339,11 @@ const handleSubmit = async () => {
       deviceSource: flowForm.value.deviceSource,
       eventType: props.form.eventType
     }
-
+    const result = await reqCheckFlow(submitData)
+    if(!result.success){
+      ElMessage.error(`当前Flow：${result.data.name}已存在,请勿重复创建！`)
+      return
+    } 
     const response = await reqCreateOrUpdatFlow(submitData)
     if (response.success === true) {
       ElMessage.success('保存成功')

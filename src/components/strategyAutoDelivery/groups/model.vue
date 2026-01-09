@@ -146,7 +146,7 @@
 import { ref, watch, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { reqStrategyList } from '@/api/strategyAutoDelivery/strategyPage/index'
-import { reqCreateOrUpdate } from '@/api/strategyAutoDelivery/groups'
+import { reqCreateOrUpdate,reqCheckGroup} from '@/api/strategyAutoDelivery/groups'
 import { ThresholdPinia } from '@/store/strategyAutoDelivery/threshold'
 import { WarningFilled } from '@element-plus/icons-vue'
 
@@ -359,7 +359,11 @@ const handleSubmit = async () => {
       ...formData.value,
       strategyIds: parts.join(',')
     }
-
+    const result = await reqCheckGroup(formToSubmit)
+    if(!result.success){
+      ElMessage.error(`当前Group：${result.data.name}已存在,请勿重复创建！`)
+      return
+    }
     const response: any = await reqCreateOrUpdate(formToSubmit)
     if (response?.code === 200 || response?.success === true) {
       ElMessage.success(`${props.title}成功`)

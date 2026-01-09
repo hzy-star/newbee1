@@ -1,6 +1,7 @@
 // 策略接口
 import request from "@/utils/request";
 import { Groups,dataType} from './type'
+import { engineRequest } from "@/utils/request";
 // 统一管理用户接口
 enum API {
     CREATEORUPDATE_URL = '/newbee/ce/strategyGroup/createOrUpdate',  //创建策略
@@ -8,6 +9,7 @@ enum API {
     GETSTRATEGYGROUP_URL = '/newbee/ce/strategyGroup/getByIds',  //获取某个/多个group 传ids
     DELETESTRATEGYGROUP_URL = '/newbee/ce/strategyGroup/delete', //删除某个group     传id
     STRATEGYS_URL = '/newbee/ce/strategy/getByIds',  //根据IDs获取strategy列表
+    CHECKGROUP_URL = '/api/strategyGroup/checkGroup', //校验group名称是否重复
 }
 
 // 暴露接口
@@ -21,4 +23,6 @@ export const reqStrategyGroup = (param: any,noloading?:boolean) => request.get<a
 export const reqDeleteStrategyGroup = (param: any) => request.get<any,dataType>(API.DELETESTRATEGYGROUP_URL, { params: param });
 // 根据IDs获取策略列表
 export const reqStrategys = (param: any) => request.get<any,dataType>(API.STRATEGYS_URL,{ params: param })
+// checkGroup  校验group名称是否重复
+export const reqCheckGroup = (param: Groups) => engineRequest.post<any,dataType>(API.CHECKGROUP_URL,param,{isForm: true});
 
