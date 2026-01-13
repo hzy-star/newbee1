@@ -419,7 +419,6 @@
 <script lang="ts" setup>
 import { ref, watch, onMounted ,computed} from 'vue'
 import { reqAudienceList, reqTaskget, reqProxyList, reqScorePolicy,reqModelPolicy } from "@/api/pushtask/index"
-import { reqStrategyThresholdList } from '@/api/strategyAutoDelivery/threshold'
 import type { FormDataType } from './type'
 import type { StrategyThreshold } from '@/api/strategyAutoDelivery/threshold/type'
 import { ThresholdPinia } from '@/store/strategyAutoDelivery/threshold'

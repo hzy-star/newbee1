@@ -195,7 +195,7 @@ const kvLabelMap = computed(() => {
 // 获取FlowConfig列表
 const getStrategyFlowConfigsList = async () => {
     try {
-        const response = await reqFlowConfig({eventType: (props.mode == 'click' ? 'click' : props.mode == 'imp' ? 'imp' : 'click,imp'),deviceSource:'distribute' })
+        const response = await reqFlowConfig({eventType: (props.mode == 'click' ? 'click' : props.mode == 'imp' ? 'imp' : 'click,imp'),deviceSource:'online' })
         strategyList.value = response.data || []
         strategyListBackUp.value = response.data || []
         handleSearchInput()
@@ -432,7 +432,7 @@ watch(() => props.mode, () => {
 }, { immediate: true })
 // 组件挂载时获取列表
 onMounted(() => {
-    // getStrategyFlowConfigsList()
+    getStrategyFlowConfigsList()
 })
 </script>
 

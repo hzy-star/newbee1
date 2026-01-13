@@ -11,7 +11,6 @@ export const ThresholdPinia = defineStore("ThresholdPinia", {
   actions: {
     // 调用接口查询任务组
     async getThreshold(outerTab?: 'click' | 'imp' | 'all') {
-      debugger
       let param = ''
       if(outerTab == 'click'){
         param = 'click,all'

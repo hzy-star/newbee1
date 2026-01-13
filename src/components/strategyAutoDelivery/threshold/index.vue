@@ -90,7 +90,7 @@
 <script lang="ts" setup>
 import { ref, onMounted, nextTick,watch, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { reqStrategyThresholdList, reqCreateOrUpdate, reqDeleteStrategyThreshold } from '@/api/strategyAutoDelivery/threshold'
+import { reqCreateOrUpdate, reqDeleteStrategyThreshold } from '@/api/strategyAutoDelivery/threshold'
 import type { StrategyThreshold } from '@/api/strategyAutoDelivery/threshold/type'
 import type { FormInstance, FormRules } from 'element-plus'
 import XEUtils from 'xe-utils'

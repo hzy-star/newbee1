@@ -463,7 +463,6 @@ watch(
       programmaticUpdating.value = false
     }
     console.log('当前公式配置：',formulaConfigs.value)
-    await getGroupsList()
   },
   { immediate: true }
 )
@@ -511,6 +510,7 @@ watch(
   () => dialogVisible.value,
   (val) => {
     if (val) {
+      getGroupsList()
       fetchSyncFileOptions()
     }
   }

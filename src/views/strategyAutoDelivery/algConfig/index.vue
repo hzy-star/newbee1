@@ -10,32 +10,38 @@
     </el-tabs>
     <el-tabs v-model="activeTab" class="tabs">
       <!-- AB分流 -->
-      <el-tab-pane label="AB分流" name="tab4" class="tabs-4 paneTab">
-        <FlowConfigPage :is-super-admin="isSuperAdmin" :mode="outerTabAB"/>
+      <el-tab-pane label="实时分流" name="tab1" class="tabs-1 paneTab">
+        <OnlineConfigPage :is-super-admin="isSuperAdmin" :mode="outerTabAB"/>
+      </el-tab-pane>
+      <el-tab-pane label="离线分流" name="tab2" class="tabs-2 paneTab">
+        <OfflineConfigPage :is-super-admin="isSuperAdmin" :mode="outerTab"/>
+      </el-tab-pane>
+      <el-tab-pane label="实时离线分配" name="tab3" class="tabs-3 paneTab">
+        <FlowConfigPage :is-super-admin="isSuperAdmin" :mode="outerTab"/>
       </el-tab-pane>
 
       <!-- 策略 -->
-      <el-tab-pane label="自动策略" name="tab1" class="tabs-1 paneTab">
+      <el-tab-pane label="自动策略" name="tab4" class="tabs-4 paneTab">
         <StrategyPage :is-super-admin="isSuperAdmin" :mode="outerTab"/>
       </el-tab-pane>
       <!-- 手动策略 -->
-      <el-tab-pane label="手动策略" name="tab7" class="tabs-7 paneTab">
+      <el-tab-pane label="手动策略" name="tab5" class="tabs-5 paneTab">
         <ManualStrategyPage :is-super-admin="isSuperAdmin" :mode="outerTab"/>
       </el-tab-pane>
       <!-- groups -->
-      <el-tab-pane label="GROUP组" name="tab2" class="tabs-2 paneTab">
+      <el-tab-pane label="GROUP组" name="tab6" class="tabs-6 paneTab">
         <GroupsPage :is-super-admin="isSuperAdmin" :mode="outerTab"/>
       </el-tab-pane>
       <!-- flow -->
-      <el-tab-pane label="FLOW任务流" name="tab3" class="tabs-3 paneTab">
+      <el-tab-pane label="FLOW任务流" name="tab7" class="tabs-7 paneTab">
         <FlowPage :is-super-admin="isSuperAdmin" :mode="outerTab"/>
       </el-tab-pane>
       <!-- 阈值 -->
-      <el-tab-pane label="阈值管理" name="tab5" class="tabs-5 paneTab">
+      <el-tab-pane label="阈值管理" name="tab8" class="tabs-8 paneTab">
         <StrategythresholdPage :mode="outerTab"/>
       </el-tab-pane>
       <!-- 阈值配置 -->
-      <el-tab-pane label="阈值配置" name="tab6" class="tabs-6 paneTab">
+      <el-tab-pane label="阈值配置" name="tab9" class="tabs-9 paneTab">
         <StrategythresholdConfigPage :mode="outerTab"/>
       </el-tab-pane>
     </el-tabs>
@@ -50,9 +56,11 @@ import ManualStrategyPage from '@/components/strategyAutoDelivery/manualStrategy
 import GroupsPage from '@/components/strategyAutoDelivery/groups/index.vue';
 import FlowPage from '@/components/strategyAutoDelivery/flow/index.vue';
 import FlowConfigPage from '@/components/strategyAutoDelivery/flowConfig/index.vue';
+import OnlineConfigPage from '@/components/strategyAutoDelivery/onlineConfig/index.vue';
+import OfflineConfigPage from '@/components/strategyAutoDelivery/offlineConfig/index.vue'
 import StrategythresholdPage from '@/components/strategyAutoDelivery/threshold/index.vue';
 import StrategythresholdConfigPage from '@/components/strategyAutoDelivery/thresholdConfig/index.vue';
-const activeTab = ref('tab4')
+const activeTab = ref('tab1')
 const outerTab = ref<'click' | 'imp' | 'all'>('all') // 外层 tab：点击/展示/全部
 const outerTabAB = ref<any>('all') // 外层 tab：点击/展示/全部
 // 引入 cookie store 获取用户角色
