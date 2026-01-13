@@ -152,7 +152,8 @@ const props = defineProps({
   title: { type: String, default: '' },
   form: { type: Object as () => Partial<Flows>, default: () => ({}) },
   isView: { type: Boolean, default: false },
-  editView: { type: Boolean, default: false }
+  editView: { type: Boolean, default: false },
+  isSuperAdmin:Boolean
 })
 const emit = defineEmits(['update:modelValue', 'submit'])
 
@@ -339,11 +340,14 @@ const handleSubmit = async () => {
       deviceSource: flowForm.value.deviceSource,
       eventType: props.form.eventType
     }
-    const result = await reqCheckFlow(submitData)
-    if(!result.success){
-      ElMessage.error(`当前Flow：${result.data.name}已存在,请勿重复创建！`)
-      return
-    } 
+    if(!props.isSuperAdmin){
+      const result = await reqCheckFlow(submitData)
+      if(!result.success){
+        ElMessage.error(`当前Flow：${result.data.name}已存在,请勿重复创建！`)
+        return
+      } 
+    }
+    
     const response = await reqCreateOrUpdatFlow(submitData)
     if (response.success === true) {
       ElMessage.success('保存成功')

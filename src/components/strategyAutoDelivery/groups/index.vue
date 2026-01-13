@@ -140,7 +140,7 @@
         </div>
         <!-- 新增/编辑弹窗 -->
         <GroupModel v-model="dialogVisible" :title="dialogTitle" :form="currentGroup" :is-view="isView"
-            @submit="handleSubmit" />
+            @submit="handleSubmit" :isSuperAdmin="props.isSuperAdmin"/>
     </div>
 </template>
 

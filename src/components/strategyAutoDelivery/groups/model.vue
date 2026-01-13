@@ -157,7 +157,8 @@ const props = defineProps({
   modelValue: { type: Boolean, required: true },
   title: { type: String, default: '' },
   form: { type: Object as () => any, default: () => ({}) },
-  isView: { type: Boolean, default: false }
+  isView: { type: Boolean, default: false },
+  isSuperAdmin:Boolean
 })
 const emit = defineEmits(['update:modelValue', 'submit'])
 
@@ -359,11 +360,14 @@ const handleSubmit = async () => {
       ...formData.value,
       strategyIds: parts.join(',')
     }
-    const result = await reqCheckGroup(formToSubmit)
-    if(!result.success){
-      ElMessage.error(`当前Group：${result.data.name}已存在,请勿重复创建！`)
-      return
+    if(!props.isSuperAdmin){
+      const result = await reqCheckGroup(formToSubmit)
+      if(!result.success){
+        ElMessage.error(`当前Group：${result.data.name}已存在,请勿重复创建！`)
+        return
+      }
     }
+    
     const response: any = await reqCreateOrUpdate(formToSubmit)
     if (response?.code === 200 || response?.success === true) {
       ElMessage.success(`${props.title}成功`)

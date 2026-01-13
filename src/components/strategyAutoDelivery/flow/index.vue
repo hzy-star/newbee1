@@ -276,7 +276,7 @@
 
         <!-- 新增/编辑弹窗 -->
         <FlowModel v-model="dialogVisible" :title="dialogTitle" :form="currentFlow" :is-view="isView"
-            :edit-view="editView" @submit="handleSubmit" />
+            :edit-view="editView" @submit="handleSubmit" :isSuperAdmin="props.isSuperAdmin"/>
     </div>
 </template>
 
