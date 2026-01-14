@@ -67,7 +67,6 @@ import { ref, watch, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
 import { reqCreateOrUpdatFlowConfig } from '@/api/strategyAutoDelivery/flowConfig'
-import { reqFlow } from '@/api/strategyAutoDelivery/flow'
 import { reqManualStrategyList } from '@/api/strategyAutoDelivery/manualStrategy/index'
 
 const props = defineProps({
@@ -216,13 +215,6 @@ const handleSubmit = async () => {
     }
 }
 
-// 获取groups列表
-const flowList = ref<Array<{ id: number, name: string }>>([])
-const getFlowList = async () => {
-    const response: any = await reqFlow({ eventType: props.form.eventType == 'all' ? 'click,imp,all' : (props.form.eventType + ',all') })
-    response.data = (response.data || []).filter((item: any) => item.status === 'enabled' && item.deviceSource === 'online') // 只获取启用的Flow
-    flowList.value = response.data || []
-}
 // 获取distribute列表
 const distributeList = ref<Array<{ id: number, name: string }>>([])
 const getDistributeList = async () => {
@@ -234,11 +226,11 @@ const getDistributeList = async () => {
         returnType: 'distribute',// 获取distribute类型列表
         deviceSource: 'offline',// 离线策略
     }
-    if (props.form.eventType !== 'all' && props.form.eventType) {
-        params.eventType = [props.form.eventType, 'all']
-    } else {
+    // if (props.form.eventType !== 'all' && props.form.eventType) {
+    //     params.eventType = [props.form.eventType, 'all']
+    // } else {
         params.eventType = ['click', 'imp', 'all']
-    }
+    // }
     const response: any = await reqManualStrategyList({ ...params })
     // const result:any = await reqManualStrategyList({...params,sourceType: 'system'})
     // 合并自定义和系统策略列表
@@ -248,9 +240,9 @@ const getDistributeList = async () => {
 
 // 动态选项映射：根据 optionsKey 返回对应的选项数组
 const getDynamicOptions = (optionsKey: string): Array<{ label: string; value: any }> => {
+    debugger
     const optionsMap: Record<string, () => Array<{ label: string; value: any }>> = {
-        distributeList: () => distributeList.value.map(item => ({ label: item.name, value: item.id })),
-        flowList: () => flowList.value.map(item => ({ label: item.name, value: item.name })),
+        distributeList: () => distributeList.value.map(item => ({ label: item.name, value: item.id }))
         // 可以继续添加其他动态数据源
     }
     return optionsMap[optionsKey]?.() || []
@@ -286,7 +278,6 @@ watch(() => props.form, (newVal) => {
     console.log('处理后的 pkgConfig:', pkgConfigValue)
     flowForm.value.pkgConfig = pkgConfigValue
     flowForm.value.eventType = newVal.eventType == 'all' ? 'click' : newVal.eventType
-    getFlowList()
     getDistributeList()
 })
 

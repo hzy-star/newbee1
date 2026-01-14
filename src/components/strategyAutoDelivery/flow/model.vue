@@ -338,7 +338,7 @@ const handleSubmit = async () => {
       syncFile: flowForm.value.syncFile,
       description: flowForm.value.description,
       deviceSource: flowForm.value.deviceSource,
-      eventType: props.form.eventType
+      eventType: flowForm.value.eventType
     }
     if(!props.isSuperAdmin){
       const result = await reqCheckFlow(submitData)

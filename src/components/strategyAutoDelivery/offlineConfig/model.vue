@@ -385,12 +385,30 @@ const handleSubmit = async () => {
 }
 
 // 获取groups列表
-const flowList = ref<Array<{ id: number, name: string }>>([])
+const allFlowList = ref<Array<{ id: number, name: string }>>([])
 const getFlowList = async () => {
-    const response: any = await reqFlow({ eventType: props.form.eventType == 'all' ? 'click,imp,all' : (props.form.eventType + ',all') })
-    response.data = (response.data || []).filter((item: any) => item.status === 'enabled' && item.deviceSource === 'online') // 只获取启用的Flow
-    flowList.value = response.data || []
+    const response: any = await reqFlow({ eventType: props.form.eventType = 'click,imp,all'  })
+    allFlowList.value = (response.data || []).filter((item: any) => item.status === 'enabled' && item.deviceSource === 'offline') // 只获取启用的Flow
+    
 }
+const flowList = computed(() => {
+    const eventType = flowForm.value.eventType
+    if (!eventType || eventType === 'all') {
+        return allFlowList.value
+    }
+    // 过滤出匹配当前 eventType 或 'all' 的 flow
+    return allFlowList.value.filter(item => 
+        (item as any).eventType === eventType || (item as any).eventType === 'all'
+    )
+})
+
+// 监听事件类型变化，清空所有 configName
+watch(() => flowForm.value.eventType, () => {
+    formulaConfigs.value.forEach(config => {
+        config.configName = ''
+    })
+})
+
 // 获取distribute列表
 const distributeList = ref<Array<{ id: number, name: string }>>([])
 const getDistributeList = async () => {

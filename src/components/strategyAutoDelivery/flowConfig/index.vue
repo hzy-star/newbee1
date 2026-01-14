@@ -423,11 +423,11 @@ const getDistributeList = async () => {
         returnType: 'distribute',// 获取distribute类型列表
         deviceSource: 'offline',// 离线策略
     }
-    if (props.mode !== 'all' && props.mode) {
-        params.eventType = [props.mode, 'all']
-    } else {
+    // if (props.mode !== 'all' && props.mode) {
+    //     params.eventType = [props.mode, 'all']
+    // } else {
         params.eventType = ['click', 'imp', 'all']
-    }
+    // }
     const response: any = await reqManualStrategyList({ ...params })
     distributeList.value = response.data.data.map((item:any) => ({ label: item.name, value: item.id }))
     console.log(distributeList.value)
