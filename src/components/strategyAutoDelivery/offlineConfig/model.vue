@@ -46,7 +46,7 @@
                                 <div v-for="(config, index) in formulaConfigs" :key="index" class="formula-config-item">
                                     <el-row :gutter="24">
                                         <el-col :span="12">
-                                            <label class="cfg-label">Config Name</label>
+                                            <label class="cfg-label">Flow Name</label>
                                             <!-- 原选择框 -->
                                             <el-select v-model="config.configName" placeholder="configName" size="small"
                                                 style="width: 100%" :disabled="isView" filterable>
@@ -56,7 +56,7 @@
                                         </el-col>
 
                                         <el-col :span="12">
-                                            <label class="cfg-label">Config Value</label>
+                                            <label class="cfg-label">号段</label>
                                             <el-input v-model="config.configValue" placeholder="configValue"
                                                 size="small" style="width: 100%" :disabled="isView" />
                                         </el-col>
@@ -366,7 +366,8 @@ const handleSubmit = async () => {
             eventType: flowForm.value.eventType,
             pkgConfig: Object.keys(cleanPkgConfig).length > 0 
                 ? JSON.stringify(cleanPkgConfig) 
-                : ''
+                : '',
+            deviceSource:'offline'
         }
         
         console.log('提交的数据:', submitData)

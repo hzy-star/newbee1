@@ -7,15 +7,15 @@
         </div>
         <div class="page-content">
             <p>
-                <vxe-input v-model="filterName" type="search" placeholder="搜索pkg, country, config" clearable
+                <vxe-input v-model="filterName" type="search" placeholder="搜索pkg, country, pkg配置" clearable
                     @change="searchEvent" size="mini"></vxe-input>
             </p>
             <!-- FlowConfig列表表格 -->
             <div style="height: 90%;">
                 <vxe-table :data="strategyList" border round style="width: 100%" size="small" stripe height="auto" :scroll-y="{ enabled: true, gt: 10 }" :column-config="{ resizable: true }">
                 <vxe-column field="xh" type="seq" align="center" title="序号" width="5%"></vxe-column>
-                <vxe-column field="pkgName" title="pkg" min-width="20" width="160" align="center" />
-                <vxe-column field="country" title="国家" min-width="20" width="120" align="center" />
+                <vxe-column field="pkgName" title="pkg" min-width="20" width="360" align="center" />
+                <vxe-column field="country" title="国家" min-width="20" width="320" align="center" />
                 <vxe-column field="eventType" title="事件类型" min-width="50" width="80" align="center">
                     <template #default="{ row }">
                         <span v-if="row.eventType === 'click'" class="tag tag-click">
@@ -27,104 +27,34 @@
                         <span v-else class="tag tag-default">全部</span>
                     </template>
                 </vxe-column>
-                <vxe-column field="pkgConfig" title="pkg配置" min-width="80" width="120" align="center" >
+                <vxe-column field="pkgConfig" title="pkg配置" min-width="180"  align="center" >
                     <template #default="{row}">
-                        <!-- pkgConfig内容是json字符串 转换为对象后，匹配kvMap展示对应的名称，然后值是true或者false就显示胶囊 -->
-                        <div v-if="row.pkgConfig">
-                               <div v-for="(value, key) in JSON.parse(row.pkgConfig)" :key="key">
-                                    <span class="config-label">{{ kvLabelMap[key] || key }}:</span>
-                                    <template v-if="value === true">
-                                        <el-tag type="success" size="small" effect="light">
-                                            <el-icon style="margin-right:4px;display:inline;"><CircleCheck /></el-icon>开
-                                        </el-tag>
+                        <!-- pkgConfig内容是json字符串 转换为对象后，匹配kvMap展示对应的名称和值 -->
+                        <div v-if="row.pkgConfig" class="pkgconfig-container" :class="{ 'expanded': expandedRows[row.id] }">
+                            <div class="pkgconfig-list">
+                               <div class="kvmap_css" v-for="(value, key) in JSON.parse(row.pkgConfig)" :key="key">
+                                    <span class="kvmap_css_span" :title="String(kvLabelMap[key] || key)">{{ kvLabelMap[key] || key }}:</span>
+                                    <!-- 只要有值，就显示 options 中 value 为 true 的 label -->
+                                    <template v-if="value && getOptionLabel(key,value)">
+                                        <el-tag type="success" size="small" effect="plain">{{ getOptionLabel(key,value) }}</el-tag>
                                     </template>
-                                    <template v-else-if="value === false">
-                                        <el-tag type="danger" size="small" effect="light">
-                                            <el-icon style="margin-right:4px;display:inline;"><CircleClose /></el-icon>关
-                                        </el-tag>
+                                    <!-- 如果没有值或没有匹配的 options -->
+                                    <template v-else>
+                                        <el-tag type="info" size="small" effect="plain">{{ value }}</el-tag>
                                     </template>
-
-                                    <!-- ... 其他代码 ... -->
                                 </div>
-  
-                        </div>
-                        <span v-else>-</span>
-                    </template>
-                </vxe-column>
-                <vxe-column field="config" title="config"  align="center" class-name="config-col" min-width="300">
-                    <template #default="{ row }">
-                        <div v-if="row.config" class="config-container">
-                            <div v-for="(item, index) in parseFormula(row.config)" :key="index" class="config-item">
-                                <div class="config-grid">
-                                    <!-- PID监控 监控按钮（固定在右上角） -->
-                                    <svg-icon
-                                        name="monitoring"
-                                        width="18px"
-                                        height="18px"
-                                        @click="handleMonitor(row,item.flowName)"
-                                        title="监控"
-                                        class="monitor-icon"
-                                    ></svg-icon>
-
-                                    <!-- Flow -->
-                                    <div class="config-cell flow-cell">
-                                        <span class="config-label">Flow</span>
-                                        <el-tooltip :content="item.flowName" placement="top">
-                                            <span class="config-value text-ellipsis">{{ item.flowName }}</span>
-                                        </el-tooltip>
-                                    </div>
-
-                                    <!-- Config -->
-                                    <div class="config-cell config-text-cell">
-                                        <span class="config-label">号段</span>
-                                        <el-tooltip :content="item.flowConfig" placement="top">
-                                            <span class="config-value text-ellipsis" style="color: red;">{{ item.flowConfig }}</span>
-                                        </el-tooltip>
-                                    </div>
-                                    <div class="config-cell config-text-cell">
-                                        <span class="config-label">去重等级</span>
-                                        <el-tooltip :content="item.dupCheck" placement="top">
-                                            <span class="config-value text-ellipsis">{{ item.dupCheck }}</span>
-                                        </el-tooltip>
-                                    </div>
-                                    <div class="config-cell config-text-cell">
-                                        <span class="config-label">erase比例</span>
-                                        <el-tooltip :content="item.eraseIfa" placement="top">
-                                            <span class="config-value text-ellipsis">{{ item.eraseIfa }}</span>
-                                        </el-tooltip>
-                                    </div>
-                                    <div class="config-cell config-text-cell">
-                                        <span class="config-label">点击倍数</span>
-                                        <el-tooltip :content="item.times" placement="top">
-                                            <span class="config-value text-ellipsis">{{ item.times }}</span>
-                                        </el-tooltip>
-                                    </div>
-                                    <div class="config-cell config-text-cell">
-                                        <!-- <el-tooltip :content="item.distribute" placement="top"> -->
-                                            <span class="config-value text-ellipsis" :class="item.distribute?'blueSpan':'redSpan'">{{ item.distribute? '已分配': '未分配' }}</span>
-                                        <!-- </el-tooltip> -->
-                                    </div>
-
-
-                                    <!-- isAuto -->
-                                    <div class="config-cell isAuto-cell">
-                                        <span class="config-label">Auto</span>
-                                        <template v-if="item.isAuto == 'true'">
-                                            <el-tag type="success" size="small" effect="light">
-                                                <el-icon style="margin-right:4px;display:inline;"><CircleCheck /></el-icon>开
-                                            </el-tag>
-                                        </template>
-                                        <template v-else>
-                                            <el-tag type="danger" size="small" effect="light">
-                                                <el-icon style="margin-right:4px;display:inline;"><CircleClose /></el-icon>关
-                                            </el-tag>
-                                        </template>
-                                    </div>
-                                </div>
-                                <el-divider v-if="index < parseFormula(row.config).length - 1" />
+                            </div>
+                            <!-- 展开/收起按钮 -->
+                            <div v-if="Object.keys(JSON.parse(row.pkgConfig)).length > 4" class="expand-btn" @click="toggleExpand(row.id)">
+                                <span v-if="!expandedRows[row.id]">
+                                    <el-icon><ArrowDown /></el-icon> 展开
+                                </span>
+                                <span v-else>
+                                    <el-icon><ArrowUp /></el-icon> 收起
+                                </span>
                             </div>
                         </div>
-                        <span v-else>-</span>
+                        <span v-else class="empty-text">-</span>
                     </template>
                 </vxe-column>
                 <vxe-column title="操作" width="200" fixed="right" align="center">
@@ -152,8 +82,9 @@ import { reqFlowConfig, reqDeleteFlowConfig } from '@/api/strategyAutoDelivery/f
 import ConfigModel from './model.vue'
 import MonitorModel from './monitorModel.vue'
 import XEUtils from 'xe-utils'
-import { CircleCheck, CircleClose } from '@element-plus/icons-vue' // 新增：图标
 import { ThresholdPinia } from '@/store/strategyAutoDelivery/threshold'
+import { reqManualStrategyList } from '@/api/strategyAutoDelivery/manualStrategy/index'
+import { CircleCheck, ArrowDown, ArrowUp } from '@element-plus/icons-vue'
 const thresholdStore = ThresholdPinia()
 
 // 获取父级传递的 isSuperAdmin，mode 属性
@@ -170,19 +101,37 @@ const dialogTitle = ref('')
 const isView = ref(false)
 const currentFlowConfig = ref<Partial<any>>({})
 const monitorData = ref<Partial<any>>({})
+// 记录每行的展开状态
+const expandedRows = ref<Record<number, boolean>>({})
+const toggleExpand = (rowId: number) => {
+    expandedRows.value[rowId] = !expandedRows.value[rowId]
+}
+
+// 提前声明 distributeList，供 kvMap 使用
+const distributeList = ref<Array<{ label: string; value: any }>>([])
+
 // 封装键值对
 // kvMap 包含显示名称和选项配置
-const kvMap = ref({
-  unifiedValue: {
-    label: '统一价值',
-    options: [
-      { label: '开', value: true },
-      { label: '关', value: false }
-    ]
-  },
+// options: 静态选项数组
+// optionsKey: 动态选项的数据源名称（在子组件中映射到实际数据）
+const kvMap = computed(() => ({
+//   unifiedValue: {
+//     label: '统一价值',
+//     options: [
+//       { label: '开', value: true },
+//       { label: '关', value: false }
+//     ]
+//   },
+  distribute: {
+    label: '流量分配',
+    optionsKey: 'distributeList',  // 指向动态数据源
+    filterable: true,
+    clearable: true,
+    options: distributeList.value
+  }
   // 可以添加更多配置
   // otherKey: { label: '其他', options: [...] }
-})
+}))
 // 获取显示名称的简化版本（用于表格展示）
 const kvLabelMap = computed(() => {
   const result: { [key: string]: string } = {}
@@ -191,6 +140,18 @@ const kvLabelMap = computed(() => {
   })
   return result
 })
+
+// 根据 key 从 kvMap 的 options 中获取 value 为 true 的 label
+const getOptionLabel = (key: string | number,value:any): string | null => {
+    debugger
+  const keyStr = String(key)
+  const config = kvMap.value[keyStr as keyof typeof kvMap.value]
+  if (config && config.options) {
+    const option = config.options.find(opt => opt.value === value)
+    return option ? option.label : null
+  }
+  return null
+}
 
 // 获取FlowConfig列表
 const getStrategyFlowConfigsList = async () => {
@@ -383,7 +344,36 @@ const handleSearchInput = () => {
 
       const distributeMatch = distributeText.toLowerCase().includes(filterVal)
 
-      return baseMatch || distributeMatch
+      // 3. pkgConfig 搜索：搜索 key 的 label 和 value 的 label
+      let pkgConfigMatch = false
+      try {
+        if (item.pkgConfig) {
+          const pkgConfigObj = JSON.parse(item.pkgConfig)
+          for (const [key, value] of Object.entries(pkgConfigObj)) {
+            // 搜索 key 对应的 label
+            const keyLabel = String(kvLabelMap.value[key] || key).toLowerCase()
+            if (keyLabel.includes(filterVal)) {
+              pkgConfigMatch = true
+              break
+            }
+            // 搜索 value 对应的 label
+            const valueLabel = getOptionLabel(key, value)
+            if (valueLabel && valueLabel.toLowerCase().includes(filterVal)) {
+              pkgConfigMatch = true
+              break
+            }
+            // 搜索原始值
+            if (String(value).toLowerCase().includes(filterVal)) {
+              pkgConfigMatch = true
+              break
+            }
+          }
+        }
+      } catch (e) {
+        console.error('pkgConfig 解析失败', e)
+      }
+
+      return baseMatch || distributeMatch || pkgConfigMatch
     })
 
     strategyList.value = rest.map(row => {
@@ -411,14 +401,6 @@ const searchEvent = XEUtils.throttle(function () {
     handleSearchInput()
 }, 500, { trailing: true, leading: true })
 
-// 监控按钮点击事件
-const handleMonitor = (row: any, flowName: string) => {
-    console.log('监控按钮点击，row数据:', row,flowName);
-    // 打开弹窗，将当前点击的 flow 一并传递给弹窗
-    monitorData.value = { ...row, flow: flowName }
-    monitorVisible.value = true
-
-}
 // 打开dataeye
 const handleDataeye = async() => {
     await thresholdStore.openDataeye()
@@ -430,9 +412,30 @@ watch(() => props.mode, () => {
     strategyList.value = []
     strategyListBackUp.value = []
 }, { immediate: true })
+
+// 
+const getDistributeList = async () => {
+    const params = {
+        //   eventType: [props.mode, 'all'],
+        eventType: [] as string[],
+        page: 1,
+        limit: 9999999,
+        returnType: 'distribute',// 获取distribute类型列表
+        deviceSource: 'offline',// 离线策略
+    }
+    if (props.mode !== 'all' && props.mode) {
+        params.eventType = [props.mode, 'all']
+    } else {
+        params.eventType = ['click', 'imp', 'all']
+    }
+    const response: any = await reqManualStrategyList({ ...params })
+    distributeList.value = response.data.data.map((item:any) => ({ label: item.name, value: item.id }))
+    console.log(distributeList.value)
+}
 // 组件挂载时获取列表
 onMounted(() => {
     // getStrategyFlowConfigsList()
+    getDistributeList()
 })
 </script>
 
@@ -535,6 +538,72 @@ onMounted(() => {
     // 微软雅黑
     font-family: 'Microsoft YaHei', sans-serif;
     min-width: 40px;
+}
+.kvmap_css{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 10px;
+    margin: 4px 0;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+    transition: all 0.2s ease;
+}
+.kvmap_css:hover {
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    border-color: #cbd5e1;
+}
+.kvmap_css_span{
+    flex: 1;
+    max-width: 100px;
+    text-align: left;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 500;
+}
+.kvmap_css_val {
+    flex-shrink: 0;
+    margin-left: 8px;
+}
+.kvmap_css_val .el-tag {
+    font-weight: 500;
+    border-radius: 4px;
+}
+.kvmap_css_val span {
+    color: #334155;
+    font-size: 12px;
+    font-weight: 500;
+}
+.pkgconfig-container {
+    padding: 4px;
+}
+.empty-text {
+    color: #94a3b8;
+    font-size: 12px;
+}
+.expand-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 8px;
+    margin-top: 4px;
+    color: #409eff;
+    font-size: 12px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+.expand-btn:hover {
+    background: #ecf5ff;
+    color: #337ecc;
+}
+.expand-btn .el-icon {
+    margin-right: 4px;
+    font-size: 14px;
 }
 .config-value {
     color: #0b22f2;

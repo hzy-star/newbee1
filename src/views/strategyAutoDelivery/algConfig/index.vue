@@ -10,10 +10,10 @@
     </el-tabs>
     <el-tabs v-model="activeTab" class="tabs">
       <!-- AB分流 -->
-      <el-tab-pane label="实时分流" name="tab1" class="tabs-1 paneTab">
+      <el-tab-pane label="实时AB" name="tab1" class="tabs-1 paneTab">
         <OnlineConfigPage :is-super-admin="isSuperAdmin" :mode="outerTabAB"/>
       </el-tab-pane>
-      <el-tab-pane label="离线分流" name="tab2" class="tabs-2 paneTab">
+      <el-tab-pane label="离线AB" name="tab2" class="tabs-2 paneTab">
         <OfflineConfigPage :is-super-admin="isSuperAdmin" :mode="outerTab"/>
       </el-tab-pane>
       <el-tab-pane label="实时离线分配" name="tab3" class="tabs-3 paneTab">

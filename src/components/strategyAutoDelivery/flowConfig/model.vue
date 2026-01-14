@@ -17,7 +17,7 @@
                         </el-col>
                         <el-col :span="12">
                             <el-form-item label="事件类型" prop="eventType">
-                                <el-select v-model="flowForm.eventType" placeholder="请选择事件类型">
+                                <el-select v-model="flowForm.eventType" placeholder="请选择事件类型" :disabled="isView">
                                     <el-option label="点击" value="click" />
                                     <el-option label="展示" value="imp" />
                                 </el-select>
@@ -31,116 +31,21 @@
                                     <el-col :span="8" v-for="(config, key) in kvMap" :key="key">
                                         <label class="cfg-label">{{ config.label }}</label>
                                         <el-select v-model="pkgConfig[key]" placeholder="请选择" style="width: 100%" size="small"
-                                            :disabled="isView" @change="handlePkgConfigChange(key, $event)" clearable>
-                                            <el-option v-for="option in config.options" :key="option.value"
-                                                :label="option.label" :value="option.value"  />
+                                            :disabled="isView" @change="handlePkgConfigChange(key, $event)" 
+                                            :filterable="config.filterable" :clearable="config.clearable !== false">
+                                            <!-- 静态选项（有 options 且没有 optionsKey） -->
+                                            <template v-if="config.options && !config.optionsKey">
+                                                <el-option v-for="option in config.options" :key="option.value"
+                                                    :label="option.label" :value="option.value"  />
+                                            </template>
+                                            <!-- 动态选项 -->
+                                            <template v-else-if="config.optionsKey">
+                                                <el-option v-for="option in getDynamicOptions(config.optionsKey)" :key="option.value"
+                                                    :label="option.label" :value="option.value"  />
+                                            </template>
                                         </el-select>
                                     </el-col>
                                 </el-row>
-                            </div>
-                        </div>
-                    </el-form-item>
-                    <el-form-item label="flow配置" prop="formulaConfigs">
-                        <div class="formula-configs-container">
-                            <div class="formula-configs" :class="{ 'has-scroll': formulaConfigs.length > 3 }">
-                                <div v-for="(config, index) in formulaConfigs" :key="index" class="formula-config-item">
-                                    <el-row :gutter="24">
-                                        <el-col :span="12">
-                                            <label class="cfg-label">Config Name</label>
-                                            <!-- 原选择框 -->
-                                            <el-select v-model="config.configName" placeholder="configName" size="small"
-                                                style="width: 100%" :disabled="isView" filterable>
-                                                <el-option v-for="item in flowList" :key="item.id" :label="item.name"
-                                                    :value="item.name" />
-                                            </el-select>
-                                        </el-col>
-
-                                        <el-col :span="12">
-                                            <label class="cfg-label">Config Value</label>
-                                            <el-input v-model="config.configValue" placeholder="configValue"
-                                                size="small" style="width: 100%" :disabled="isView" />
-                                        </el-col>
-
-                                        <el-col :span="12">
-                                            <label class="cfg-label">KP</label>
-                                            <el-input v-model="config.configKp" placeholder="configKp" size="small"
-                                                style="width: 100%" :disabled="isView" />
-                                        </el-col>
-
-                                        <el-col :span="12">
-                                            <label class="cfg-label">KI</label>
-                                            <el-input v-model="config.configKi" placeholder="configKi" size="small"
-                                                style="width: 100%" :disabled="isView" />
-                                        </el-col>
-
-                                        <el-col :span="12">
-                                            <label class="cfg-label">KD</label>
-                                            <el-input v-model="config.configKd" placeholder="configKd" size="small"
-                                                style="width: 100%" :disabled="isView" />
-                                        </el-col>
-
-                                        <el-col :span="12">
-                                            <label class="cfg-label">Step</label>
-                                            <el-input v-model="config.configStep" placeholder="configStep" size="small"
-                                                style="width: 100%" :disabled="isView" />
-                                        </el-col>
-
-                                        <el-col :span="12">
-                                            <label class="cfg-label">去重等级</label>
-                                            <el-select v-model="config.dupCheck" placeholder="dupCheck" size="small"
-                                                style="width: 100%" :disabled="isView">
-                                                <el-option label="mini" value="mini" />
-                                                <el-option label="less" value="less" />
-                                                <el-option label="sec" value="sec" />
-                                                <el-option label="pri" value="pri" />
-                                            </el-select>
-                                        </el-col>
-
-                                        <el-col :span="12">
-                                            <label class="cfg-label">erase比例</label>
-                                            <el-input v-model="config.eraseIfa" placeholder="eraseIfa" size="small"
-                                                style="width: 100%" :disabled="isView" />
-                                        </el-col>
-
-                                        <el-col :span="12">
-                                            <label class="cfg-label">点击倍数</label>
-                                            <el-input v-model="config.times" placeholder="点击倍数" size="small"
-                                                style="width: 100%" :disabled="isView" />
-                                        </el-col>
-                                        <el-col :span="12">
-                                            <label class="cfg-label">实时/离线 分配</label>
-                                            <!-- 原选择框 -->
-                                            <el-select v-model="config.distribute" placeholder="distribute" size="small"
-                                                style="width: 100%" :disabled="isView" filterable clearable>
-                                                <el-option v-for="item in distributeList" :key="item.id"
-                                                    :label="item.name" :value="item.id" />
-                                            </el-select>
-                                        </el-col>
-                                    </el-row>
-                                    <el-row :gutter="24">
-                                        <!-- isAuto是Switch开关 如果isAuto自动化开启，则kp:ki:kd:step必填 -->
-                                        <el-col :span="14" style="display: flex; align-items: center;">
-                                            <span>是否开启自动化PID控量：</span>
-                                            <el-switch v-model="config.isAuto" active-value="true"
-                                                inactive-value="false" :disabled="isView" active-text="ON"
-                                                inactive-text="OFF" />
-                                        </el-col>
-                                        <el-col :span="6" v-if="!isView">
-                                            <el-button v-if="index === formulaConfigs.length - 1" type="primary"
-                                                size="small" @click="addFormulaConfig" circle>
-                                                <el-icon>
-                                                    <Plus />
-                                                </el-icon>
-                                            </el-button>
-                                            <el-button v-if="formulaConfigs.length > 1" type="danger" size="small"
-                                                @click="removeFormulaConfig(index)" circle>
-                                                <el-icon>
-                                                    <Minus />
-                                                </el-icon>
-                                            </el-button>
-                                        </el-col>
-                                    </el-row>
-                                </div>
                             </div>
                         </div>
                     </el-form-item>
@@ -161,7 +66,6 @@
 import { ref, watch, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
-import { Plus, Minus } from '@element-plus/icons-vue'
 import { reqCreateOrUpdatFlowConfig } from '@/api/strategyAutoDelivery/flowConfig'
 import { reqFlow } from '@/api/strategyAutoDelivery/flow'
 import { reqManualStrategyList } from '@/api/strategyAutoDelivery/manualStrategy/index'
@@ -187,7 +91,10 @@ const props = defineProps({
         type: Object as () => {
             [key: string]: {
                 label: string
-                options: Array<{ label: string; value: any }>
+                options?: Array<{ label: string; value: any }>
+                optionsKey?: string  // 动态选项的数据源名称
+                filterable?: boolean
+                clearable?: boolean
             }
         },
         default: () => ({})
@@ -259,93 +166,19 @@ const handlePkgConfigChange = (key: string, value: any) => {
     
     flowForm.value.pkgConfig = newConfig
 }
-// 统一强类型，避免 string | undefined
-type BoolString = 'true' | 'false'
-interface FormulaConfig {
-    configName: string
-    configValue: string
-    configKp: string
-    configKi: string
-    configKd: string
-    configStep: string
-    isAuto: BoolString
-    dupCheck: string
-    eraseIfa: string
-    times: number,
-    distribute: number | null
-}
-const emptyConfig = (): FormulaConfig => ({
-    configName: '',
-    configValue: '',
-    configKp: '0.5',
-    configKi: '0.11',
-    configKd: '1',
-    configStep: '1',
-    isAuto: 'false',
-    dupCheck: 'mini',
-    eraseIfa: '0',
-    times: 1.2,
-    distribute: null
-})
-
-const formulaConfigs = ref<FormulaConfig[]>([emptyConfig()])
 
 // 表单验证规则
 const rules = ref<FormRules>({
     pkgName: [{ required: true, message: '请输入pkgName', trigger: 'blur' }],
-    country: [{ required: true, message: '请输入country', trigger: 'blur' }],
-    // 如果isAuto自动化开启，则kp:ki:kd:step必填
-    formulaConfigs: [
-        {
-            validator: (_rule, _value, callback) => {
-                if (formulaConfigs.value.length === 0) {
-                    callback(new Error('至少需要添加一个配置'))
-                    return
-                }
-                if (formulaConfigs.value.some(item => !item.configName.trim())) {
-                    callback(new Error('配置不能为空'))
-                    return
-                }
-                // 出现空格的情况也要报错
-                if (formulaConfigs.value.some(item => item.configName.includes(' ') || item.configValue.includes(' ') || item.configKp.includes(' ') || item.configKi.includes(' ') || item.configKd.includes(' ') || item.configStep.includes(' ') || item.dupCheck.includes(' ') || item.eraseIfa.includes(' ') || item.times.toString().includes(' '))) {
-                    callback(new Error('配置项不能包含空格'))
-                    return
-                }
-                if (formulaConfigs.value.some(item => item.isAuto === 'true' && (!item.configKp || !item.configKi || !item.configKd || !item.configStep || !item.dupCheck || !item.eraseIfa || !item.times))) {
-                    callback(new Error('自动化开启时，kp, ki, kd, step, dupCheck, eraseIfa, times均为必填'))
-                    return
-                }
-                callback()
-            },
-            trigger: 'blur'
-        }
-    ]
+    country: [{ required: true, message: '请输入country', trigger: 'blur' }]
 })
 
-// 动态配置项操作
-const addFormulaConfig = () => {
-    formulaConfigs.value.push(emptyConfig())
-}
-
-const removeFormulaConfig = (index: number) => {
-    formulaConfigs.value.splice(index, 1)
-}
 
 // 表单提交
 const handleSubmit = async () => {
     try {
         const valid = await formRef.value?.validate()
         if (!valid) return
-        // 手动校验公式配置
-        if (formulaConfigs.value.length === 0) {
-            ElMessage.warning('至少需要添加一个配置')
-            return
-        }
-
-        if (formulaConfigs.value.some(item => !item.configName.trim())) {
-            ElMessage.warning('配置不能为空')
-            return
-        }
         console.log('提交前的 pkgConfig:', flowForm.value.pkgConfig)
         console.log('提交前的 pkgConfig 类型:', typeof flowForm.value.pkgConfig)
         // 清理 pkgConfig 对象，移除所有数字索引
@@ -362,11 +195,11 @@ const handleSubmit = async () => {
             id: flowForm.value.id,
             pkgName: flowForm.value.pkgName,
             country: flowForm.value.country,
-            config: formulaConfigs.value.map(item => `${item.configName}:${item.configValue}:${item.configKp}:${item.configKi}:${item.configKd}:${item.configStep}:${item.isAuto}:${item.dupCheck}:${item.eraseIfa}:${item.times}:${item.distribute ?? ''}`).join(','),
             eventType: flowForm.value.eventType,
             pkgConfig: Object.keys(cleanPkgConfig).length > 0 
                 ? JSON.stringify(cleanPkgConfig) 
-                : ''
+                : '',
+            deviceSource:'distribute'
         }
         
         console.log('提交的数据:', submitData)
@@ -401,7 +234,6 @@ const getDistributeList = async () => {
         returnType: 'distribute',// 获取distribute类型列表
         deviceSource: 'offline',// 离线策略
     }
-    debugger
     if (props.form.eventType !== 'all' && props.form.eventType) {
         params.eventType = [props.form.eventType, 'all']
     } else {
@@ -414,32 +246,16 @@ const getDistributeList = async () => {
     distributeList.value = response.data.data
 }
 
-// 解析字符串为规范化配置
-const parseConfigString = (configStr: string): FormulaConfig[] => {
-    if (!configStr) return [emptyConfig()]
-    return configStr.split(',').map(item => {
-        const [configName = '', configValue = '', configKp = '', configKi = '', configKd = '', configStep = '', isAutoRaw = 'false', dupCheck = 'mini', eraseIfa = '0', times = '1.2', distribute = ''] = item.split(':')
-        const isAuto: BoolString = isAutoRaw === 'true' ? 'true' : 'false'
-        // 这里要把 'null'、'undefined' 之类也当成空
-        const normalizedDistribute =
-            distribute && distribute !== 'null' && distribute !== 'undefined'
-                ? Number(distribute)
-                : null
-        return {
-            configName,
-            configValue,
-            configKp,
-            configKi,
-            configKd,
-            configStep,
-            isAuto,
-            dupCheck,
-            eraseIfa,
-            times: Number(times),
-            distribute: normalizedDistribute
-        }
-    })
+// 动态选项映射：根据 optionsKey 返回对应的选项数组
+const getDynamicOptions = (optionsKey: string): Array<{ label: string; value: any }> => {
+    const optionsMap: Record<string, () => Array<{ label: string; value: any }>> = {
+        distributeList: () => distributeList.value.map(item => ({ label: item.name, value: item.id })),
+        flowList: () => flowList.value.map(item => ({ label: item.name, value: item.name })),
+        // 可以继续添加其他动态数据源
+    }
+    return optionsMap[optionsKey]?.() || []
 }
+
 
 // 初始化表单数据时处理 config
 watch(() => props.form, (newVal) => {
@@ -469,12 +285,6 @@ watch(() => props.form, (newVal) => {
     
     console.log('处理后的 pkgConfig:', pkgConfigValue)
     flowForm.value.pkgConfig = pkgConfigValue
-    const cfg = (newVal as any)?.config as string | undefined
-    if (cfg) {
-        formulaConfigs.value = parseConfigString(cfg)
-    } else {
-        formulaConfigs.value = [emptyConfig()]
-    }
     flowForm.value.eventType = newVal.eventType == 'all' ? 'click' : newVal.eventType
     getFlowList()
     getDistributeList()
@@ -490,7 +300,6 @@ const isView = computed(() => props.isView)
 const handleClose = () => {
     dialogVisible.value = false
     formRef.value?.resetFields()  // 新增重置表单
-    formulaConfigs.value = [emptyConfig()] // 重置动态配置项
 }
 
 // 在 model.vue 中添加工具函数
