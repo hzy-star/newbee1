@@ -9,8 +9,11 @@
     <!-- 面包屑动态展示路由与标题 -->
     <el-breadcrumb-item v-for="(item, index) in route.matched" :key="index" @click="handLer" v-show="item.meta.title" :to="item.path">
         <!-- 图标 -->
-         <el-icon>
+         <el-icon v-if="!item.meta.customIcon">
             <component :is="item.meta.icon"></component>
+         </el-icon>
+         <el-icon v-else class="custom-icon-wrapper">
+            <svg-icon :name="item.meta.icon" width="1em" height="1em" />
          </el-icon>
         <!-- 标题 -->
       {{ item.meta.title }}
@@ -38,3 +41,11 @@ export default {
   name: "Breadcrumb",
 }
 </script>
+
+<style scoped>
+.custom-icon-wrapper {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+</style>

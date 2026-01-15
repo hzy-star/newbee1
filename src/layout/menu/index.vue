@@ -3,8 +3,11 @@
         <!--没有子路由-->
         <template v-if="!item.children">
             <el-menu-item :index="item.path" v-if="!item.meta.hidden" @click="goRoute">
-                <el-icon>
+                <el-icon v-if="!item.meta.customIcon">
                     <component :is="item.meta.icon"></component>
+                </el-icon>
+                <el-icon v-else class="custom-icon-wrapper">
+                    <svg-icon :name="item.meta.icon" width="1em" height="1em" />
                 </el-icon>
                 <template #title>
                     <span>{{ item.meta.title }}</span>
@@ -14,8 +17,11 @@
         <!-- 有子路由但是只有一个子路由 -->
         <template v-if="item.children && item.children.length == 1">
             <el-menu-item :index="item.children[0].path" v-if="!item.children[0].meta.hidden" @click="goRoute">
-                <el-icon>
+                <el-icon v-if="!item.children[0].meta.customIcon">
                     <component :is="item.children[0].meta.icon"></component>
+                </el-icon>
+                <el-icon v-else class="custom-icon-wrapper">
+                    <svg-icon :name="item.children[0].meta.icon" width="1em" height="1em" />
                 </el-icon>
                 <template #title>
                     <span>{{ item.children[0].meta.title }}</span>
@@ -25,8 +31,11 @@
         <!-- 有子路由且个数大于一个1 -->
         <el-sub-menu :index="item.path" v-if="item.children && item.children.length > 1">
             <template #title>
-                <el-icon>
+                <el-icon v-if="!item.meta.customIcon">
                     <component :is="item.meta.icon"></component>
+                </el-icon>
+                <el-icon v-else class="custom-icon-wrapper">
+                    <svg-icon :name="item.meta.icon" width="1em" height="1em" />
                 </el-icon>
                 <span>{{ item.meta.title }}</span>
             </template>
@@ -54,4 +63,10 @@ export default {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.custom-icon-wrapper {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+</style>
