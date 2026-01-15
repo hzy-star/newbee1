@@ -17,7 +17,7 @@
                         </el-col>
                         <el-col :span="12">
                             <el-form-item label="事件类型" prop="eventType">
-                                <el-select v-model="flowForm.eventType" placeholder="请选择事件类型">
+                                <el-select v-model="flowForm.eventType" placeholder="请选择事件类型" @change="eventTypeHandle">
                                     <el-option label="点击" value="click" />
                                     <el-option label="展示" value="imp" />
                                 </el-select>
@@ -402,12 +402,13 @@ const flowList = computed(() => {
     )
 })
 
-// 监听事件类型变化，清空所有 configName
-watch(() => flowForm.value.eventType, () => {
-    formulaConfigs.value.forEach(config => {
-        config.configName = ''
-    })
-})
+const eventTypeHandle = () => {
+    if(!isView.value){
+        formulaConfigs.value.forEach(config => {
+            config.configName = ''
+        })
+    }
+}
 // 获取distribute列表
 const distributeList = ref<Array<{ id: number, name: string }>>([])
 const getDistributeList = async () => {
