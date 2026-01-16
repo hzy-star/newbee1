@@ -42,10 +42,14 @@ export default {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .custom-icon-wrapper {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    background: tomato;
+    :deep(div > svg) {
+      margin: 0 !important;
+    }
 }
 </style>

@@ -105,6 +105,86 @@ export const constantRoutes = [
         },
       },
     ],
+  },{
+    path: "/strategyAutoDelivery",
+    component: () => import("@/layout/index.vue"),
+    name: "strategyAutoDelivery",
+    redirect: "/strategyAutoDelivery/algConfig",
+    meta: {
+      title: "算法自动送量平台",
+      icon: "DocumentCopy",
+      hidden: false,
+    },
+    children: [
+      {
+        path: "/strategyAutoDelivery/algConfig",
+        component: () =>
+          import("@/views/strategyAutoDelivery/algConfig/index.vue"),
+        name: "algConfig",
+        meta: {
+          title: "设备筛选模块", // algconfig页面
+          icon: "Coin",
+          hidden: false,
+        },
+      },
+      {
+        path: "/strategyAutoDelivery/parameterModule",
+        component: () =>
+          import("@/views/strategyAutoDelivery/parameterModule/index.vue"),
+        name: "parameterModule",
+        redirect: "/parameterModule/childrenFiles/parameterAssembly",
+        meta: {
+          title: "设备参数模块",
+          icon: "parameter",// SVG 文件名（不带 .svg 扩展名）
+          customIcon: true,// 标记使用自定义图标
+          hidden: false,
+        },
+        children: [
+          {
+            path: "/parameterModule/childrenFiles/parameterAssembly",
+            component: () => import("@/views/strategyAutoDelivery/parameterModule/childrenFiles/parameterAssembly.vue"),
+            name: "parameterAssembly",
+            meta: {
+              title: "参数装配模块",
+              icon: "Document",
+              hidden: false,
+            },
+          },
+          {
+            path: "/parameterModule/childrenFiles/parameterRules",
+            component: () => import("@/views/strategyAutoDelivery/parameterModule/childrenFiles/parameterRules.vue"),
+            name: "parameterRules",
+            meta: {
+              title: "参数规则模块",
+              icon: "Files",
+              hidden: false,
+            },
+          },
+        ],
+      },
+      {
+        path: "/strategyAutoDelivery/washVolume",
+        component: () =>
+          import("@/views/strategyAutoDelivery/washVolume/index.vue"),
+        name: "washVolume",
+        meta: {
+          title: "自动化洗量", // algconfig页面
+          icon: "Brush",
+          hidden: false,
+        },
+      },
+      {
+        path: "/strategyAutoDelivery/otherConfig",
+        component: () =>
+          import("@/views/strategyAutoDelivery/otherConfig/index.vue"),
+        name: "otherConfig",
+        meta: {
+          title: "其他配置", // algconfig页面
+          icon: "Box",
+          hidden: false,
+        },
+      },
+    ],
   },
   {
     path: "/traffic",
@@ -169,87 +249,7 @@ export const constantRoutes = [
       },
     ],
   },
-  {
-    path: "/strategyAutoDelivery",
-    component: () => import("@/layout/index.vue"),
-    name: "strategyAutoDelivery",
-    redirect: "/strategyAutoDelivery/algConfig",
-    meta: {
-      title: "算法平台",
-      icon: "DocumentCopy",
-      hidden: false,
-    },
-    children: [
-      {
-        path: "/strategyAutoDelivery/algConfig",
-        component: () =>
-          import("@/views/strategyAutoDelivery/algConfig/index.vue"),
-        name: "algConfig",
-        meta: {
-          title: "设备筛选模块", // algconfig页面
-          icon: "Coin",
-          hidden: false,
-        },
-      },
-      {
-        path: "/strategyAutoDelivery/parameterModule",
-        component: () =>
-          import("@/views/strategyAutoDelivery/parameterModule/index.vue"),
-        name: "parameterModule",
-        redirect: "/parameterModule/childrenFiles/parameterAssembly",
-        meta: {
-          title: "参数模块",
-          icon: "parameter",// SVG 文件名（不带 .svg 扩展名）
-          customIcon: true,// 标记使用自定义图标
-          hidden: false,
-        },
-        children: [
-          {
-            path: "/parameterModule/childrenFiles/parameterAssembly",
-            component: () => import("@/views/strategyAutoDelivery/parameterModule/childrenFiles/parameterAssembly.vue"),
-            name: "parameterAssembly",
-            meta: {
-              title: "参数装配模块",
-              icon: "Document",
-              hidden: false,
-            },
-          },
-          {
-            path: "/parameterModule/childrenFiles/parameterRules",
-            component: () => import("@/views/strategyAutoDelivery/parameterModule/childrenFiles/parameterRules.vue"),
-            name: "parameterRules",
-            meta: {
-              title: "参数规则模块",
-              icon: "Files",
-              hidden: false,
-            },
-          },
-        ],
-      },
-      {
-        path: "/strategyAutoDelivery/washVolume",
-        component: () =>
-          import("@/views/strategyAutoDelivery/washVolume/index.vue"),
-        name: "washVolume",
-        meta: {
-          title: "自动化洗量", // algconfig页面
-          icon: "Brush",
-          hidden: false,
-        },
-      },
-      {
-        path: "/strategyAutoDelivery/otherConfig",
-        component: () =>
-          import("@/views/strategyAutoDelivery/otherConfig/index.vue"),
-        name: "otherConfig",
-        meta: {
-          title: "其他配置", // algconfig页面
-          icon: "Box",
-          hidden: false,
-        },
-      },
-    ],
-  },
+  
   {
     path: "/docDownload",
     component: () => import("@/layout/index.vue"),
