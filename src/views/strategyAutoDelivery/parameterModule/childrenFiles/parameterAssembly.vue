@@ -133,7 +133,6 @@
       :ftype="selectedFtype"
       :event-type="outerTab"
       :device-source="selectedDeviceSource"
-      :source-type="isSuperAdmin ? 'system' : 'custom'"
       @submit="handleSubmit" 
     />
   </div>
@@ -212,7 +211,6 @@ const handleQuery = async () => {
     const params = {
       ftype: selectedFtype.value,
       eventType: outerTab.value =='all' ?  ('click,imp,all'): (outerTab.value+',all'),
-      sourceType: isSuperAdmin.value ? 'system' : 'custom',
       deviceSource: selectedDeviceSource.value || '',
       pkg: searchKeyword.value || '',
       status: selectedStatus.value || '',

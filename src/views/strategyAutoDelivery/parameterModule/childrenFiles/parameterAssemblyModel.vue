@@ -140,10 +140,6 @@ const props = defineProps({
   status:{
     type:String,
     default:''
-  },
-  sourceType: {
-    type: String,
-    default: 'custom'
   }
 })
 
