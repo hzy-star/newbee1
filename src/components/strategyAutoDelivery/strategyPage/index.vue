@@ -84,7 +84,7 @@
               <el-button size="small" type="danger" plain @click="handleDelete(row)"
                 :disabled="!props.isSuperAdmin">删除</el-button>
               <el-button size="small" type="warning" plain @click="handlePreview(row)">预览</el-button>
-              <el-button size="small" color="#626aef" :dark="isDark" plain @click="handleDownload(row)">下载</el-button>
+              <el-button size="small" color="#626aef" :dark="isDark" plain @click="handleDownload(row.ruleFile)">下载</el-button>
             </template>
           </vxe-column>
         </vxe-table>
@@ -138,9 +138,6 @@
       </template>
     </el-dialog>
 
-    <!-- 通用 CSV 预览组件（可复用） -->
-    <CsvPreviewDialog ref="csvRef" :fetcher="reqDownloadUrl" :maxPreviewLines="Infinity"
-      :style="{ height: '85vh', overflowY: 'auto' }" />
   </div>
 </template>
 
@@ -151,8 +148,7 @@ import { reqStrategyList, reqCreateOrUpdate, reqDeleteStrategy } from '@/api/str
 import type { Strategy } from '@/api/strategyAutoDelivery/strategyPage/type'
 import type { FormInstance, FormRules } from 'element-plus'
 import XEUtils from 'xe-utils'
-import { reqDownloadUrl } from '@/api/docDownload/ossDownload'
-import CsvPreviewDialog from '@/components/CsvPreviewDialog.vue'
+import { handleDownload } from '@/utils/common'
 import { useDark } from '@vueuse/core' // 替代原来的 ~/composables/dark
 import type { VxeSelectEvents } from 'vxe-table'
 import { deleteAlgDataCheck } from '@/utils/common'
@@ -389,7 +385,7 @@ const handleReturnTypeChange = (val: string) => {
 }
 
 // 预览（调用通用组件）
-const csvRef = ref<InstanceType<typeof CsvPreviewDialog> | null>(null)
+const csvRef = ref<InstanceType<any> | null>(null)
 const handlePreview = async (row: Strategy) => {
   // const objectName = String(row.ruleFile || '').trim().replace(/^oss:\/\//, '')
   const objectName = String(row.ruleFile || '').trim()
@@ -398,41 +394,6 @@ const handlePreview = async (row: Strategy) => {
     return
   }
   csvRef.value?.open(objectName, `CSV 预览 - ${row.name || ''}`)
-}
-// 下载
-const handleDownload = async (row: Strategy) => {
-  const objectName = String(row.ruleFile || '').trim()
-  if (!objectName) {
-    ElMessage.warning('规则文件路径为空，无法下载')
-    return
-  }
-  try {
-    // 获取完整响应对象
-    const response = await reqDownloadUrl({ objectName: objectName });
-
-    // 从响应头获取文件名
-    const contentDisposition = response.headers['content-disposition'];
-    const fileNameMatch = contentDisposition.match(/filename="?(.+?)"?(;|$)/);
-    const fileName = fileNameMatch ? fileNameMatch[1] : 'download.csv';
-
-    // 创建下载链接
-    const url = window.URL.createObjectURL(new Blob([response.data]));
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = fileName; // 使用后端返回的文件名
-    link.style.display = 'none';
-
-    // 触发下载
-    document.body.appendChild(link);
-    link.click();
-
-    // 清理资源
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(url);
-  } catch (error) {
-    console.error('Error downloading URL:', error);
-    ElMessage.error('文件路径不存在');
-  }
 }
 // 页面初始化
 onMounted(() => {

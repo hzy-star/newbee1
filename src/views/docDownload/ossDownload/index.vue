@@ -11,7 +11,7 @@
                 <vxe-column field="kvdesc" title="描述" width="30%"></vxe-column>
                 <vxe-column field="Download" title="Download" align="center">
                     <template #default="{ row }">
-                        <svg-icon name="csvDownload" width="20px" height="20px" @click="downloadUrl(row)"
+                        <svg-icon name="csvDownload" width="20px" height="20px" @click="handleDownload(row.v)"
                             title="下载csv文件"></svg-icon>
                     </template>
                 </vxe-column>
@@ -22,9 +22,8 @@
 
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue'
-import type { VxeToolbarInstance, VxeTableInstance } from 'vxe-table'
-import { reqlistByKvGroup, reqDownloadUrl } from '@/api/docDownload/ossDownload'
-import { ElMessage } from 'element-plus'
+import { handleDownload } from '@/utils/common'
+import { reqlistByKvGroup } from '@/api/docDownload/ossDownload'
 
 interface RowVO {
     k: string
@@ -37,9 +36,6 @@ interface RowVO {
 }
 
 
-const toolbarRef = ref<VxeToolbarInstance>()
-const tableRef = ref<VxeTableInstance>()
-
 const loading = ref(false)
 const tableData = ref<RowVO[]>([])
 
@@ -49,36 +45,6 @@ const queryMethod = async () => {
     await queryList()
     loading.value = false
 }
-// 下载链接
-const downloadUrl = async (row: RowVO) => {
-    try {
-        // 获取完整响应对象
-        const response = await reqDownloadUrl({ objectName: row.v });
-
-        // 从响应头获取文件名
-        const contentDisposition = response.headers['content-disposition'];
-        const fileNameMatch = contentDisposition.match(/filename="?(.+?)"?(;|$)/);
-        const fileName = fileNameMatch ? fileNameMatch[1] : 'download.csv';
-
-        // 创建下载链接
-        const url = window.URL.createObjectURL(new Blob([response.data]));
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = fileName; // 使用后端返回的文件名
-        link.style.display = 'none';
-
-        // 触发下载
-        document.body.appendChild(link);
-        link.click();
-
-        // 清理资源
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
-    } catch (error) {
-        console.error('Error downloading URL:', error);
-        ElMessage.error('文件路径不存在');
-    }
-};
 // 查询接口
 const queryList = async () => {
     try {

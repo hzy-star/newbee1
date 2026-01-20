@@ -1,5 +1,6 @@
 
 import { ElMessage } from 'element-plus'
+import { reqDownloadUrl } from '@/api/docDownload/ossDownload'
 // 使用 default 导出整个对象
 export const toQueryStr = (src: any) => {
   var buffer = [];
@@ -93,4 +94,41 @@ export function deleteAlgDataCheck(data:any,str?:string){
     return false
   }
   return true
+}
+
+
+// 下载csv文件封装
+export async function handleDownload  (_s: any)  {
+  const objectName = String(_s || '').trim()
+  if (!objectName) {
+    ElMessage.warning('规则文件路径为空，无法下载')
+    return
+  }
+  try {
+    // 获取完整响应对象
+    const response = await reqDownloadUrl({ objectName: objectName });
+
+    // 从响应头获取文件名
+    const contentDisposition = response.headers['content-disposition'];
+    const fileNameMatch = contentDisposition.match(/filename="?(.+?)"?(;|$)/);
+    const fileName = fileNameMatch ? fileNameMatch[1] : 'download.csv';
+
+    // 创建下载链接
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName; // 使用后端返回的文件名
+    link.style.display = 'none';
+
+    // 触发下载
+    document.body.appendChild(link);
+    link.click();
+
+    // 清理资源
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error('Error downloading URL:', error);
+    ElMessage.error('文件路径不存在');
+  }
 }
