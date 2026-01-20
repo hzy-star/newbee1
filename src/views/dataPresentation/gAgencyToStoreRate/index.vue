@@ -36,7 +36,7 @@
               </div>
             </template>
           </vxe-column>
-          <vxe-column v-for="col in tableColumns1" :key="col" :field="col" :title="fieldMap[col] || col"></vxe-column>
+          <vxe-column v-for="col in tableColumns1" :key="col" :field="col" :title="fieldMap[col] || col" sortable></vxe-column>
         </vxe-table>
       </div>
     </el-tab-pane>
@@ -70,7 +70,7 @@
             </template>
           </vxe-column>
           <vxe-column v-for="col in tableColumns2" :key="col" :field="col" :title="fieldMap[col] || col"
-            :formatter="formatColumn"></vxe-column>
+            :formatter="formatColumn" sortable></vxe-column>
         </vxe-table>
       </div>
     </el-tab-pane>
