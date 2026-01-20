@@ -15,6 +15,10 @@
           <vxe-option v-for="item in categoryList" :key="item" :label="item" :value="item" />
         </vxe-select>
         <vxe-input v-model="searchKeyword" type="search" placeholder="搜索功能名" clearable size="mini" />
+        <vxe-select v-model="selectedDeviceSource" placeholder="实时/离线" clearable size="mini" @change="handleDeviceSource">
+          <vxe-option label="实时" value="online" />
+          <vxe-option label="离线" value="offline" />
+        </vxe-select>
         <vxe-select v-model="enabledofdisabled" placeholder="启用/禁用" clearable size="mini"
           @change="handleEnabledOfDisabled">
           <vxe-option label="启用" value="enabled" />
@@ -57,6 +61,13 @@
               </el-tag>
             </template>
           </vxe-column>
+          <vxe-column field="deviceSource" title="设备来源" min-width="100" width="80" align="center">
+            <template #default="{ row }">
+                <el-tag v-if="row.deviceSource === 'offline'" type="danger" size="small">离线</el-tag>
+                <el-tag v-else-if="row.deviceSource === 'online'" type="primary" size="small">实时</el-tag>
+                <el-tag v-else type="info" size="small">未知</el-tag>
+              </template>
+          </vxe-column>
           <vxe-column field="description" title="描述" min-width="210">
             <template #default="{ row }">
               <el-tooltip effect="dark" :content="row.description" placement="top">
@@ -69,7 +80,7 @@
               <el-button size="small" type="primary" plain @click="handleView(row)">查看</el-button>
               <el-button size="small" type="success" plain @click="handleEdit(row)">编辑</el-button>
               <el-button size="small" type="warning" plain @click="handleEditContent(row)" v-if="row.sourceType=='custom'">编辑内容</el-button>
-              <el-button size="small" type="warning" plain @click="handlePreview(row)" v-else>预览内容</el-button>
+              <el-button size="small" color="#a59a00" :dark="isDark" plain @click="handlePreview(row)" v-else>预览内容</el-button>
               <el-button size="small" color="#626aef" :dark="isDark" plain @click="handleDownload(row.propertyConfig)">下载</el-button>
               <!-- <el-button size="small" type="danger" plain @click="handleDelete(row)" :disabled="!isSuperAdmin">
                 删除
@@ -100,14 +111,14 @@
         <!-- localContent 类型表单 -->
         <template v-if="isLocalContentType">
           <el-form-item label="功能名称" prop="name">
-            <el-input v-model="formData.name" placeholder="请输入策略名称" :disabled="isView" />
+            <el-input v-model="formData.name" placeholder="请输入功能名称" :disabled="isView" />
           </el-form-item>
 
           <el-form-item label="可用范围" prop="eventType">
             <el-select v-model="formData.eventType" placeholder="请选择可用范围" :disabled="isView">
               <el-option label="点击" value="click" />
               <el-option label="展示" value="imp" />
-              <el-option label="全部" value="all" />
+              <!-- <el-option label="全部" value="all" /> -->
             </el-select>
           </el-form-item>
 
@@ -117,9 +128,15 @@
               <el-option label="禁用" value="disabled" />
             </el-select>
           </el-form-item>
+          <el-form-item label="实时/离线" prop="deviceSource">
+            <el-select v-model="formData.deviceSource" placeholder="实时/离线" :disabled="isView">
+              <el-option label="实时" value="online" />
+              <el-option label="离线" value="offline" />
+            </el-select>
+          </el-form-item>
 
-          <el-form-item label="来源类型" prop="sourceType">
-            <el-select v-model="formData.sourceType" placeholder="请选择来源类型" :disabled="isView || !isSuperAdmin">
+          <el-form-item label="来源类型" prop="sourceType" v-if="isCreate">
+            <el-select v-model="formData.sourceType" placeholder="请选择来源类型" :disabled="isView || !isSuperAdmin" >
               <el-option label="系统内置" value="system" />
               <el-option label="用户自定义" value="custom" />
             </el-select>
@@ -186,6 +203,9 @@
   </div>
   
     <GeneralCsvEditing mode="dialog" v-model:visible="visible" :csv-path="csvPath" title="通用 CSV 编辑" />
+    <!-- 通用 CSV 预览组件（可复用） -->
+    <CsvPreviewDialog ref="csvRef"  :maxPreviewLines="Infinity"
+      :style="{ height: '85vh', overflowY: 'auto' }" />
 </template>
 
 <script setup lang="ts">
@@ -196,6 +216,7 @@ import type { FormInstance, FormRules, UploadFile } from 'element-plus'
 import { localContentConfig, localContentTypes } from '@/utils/constants'
 import GeneralCsvEditing from '@/components/GeneralCsvEditing/index.vue'
 import { handleDownload } from '@/utils/common'
+import CsvPreviewDialog from '@/components/CsvPreviewDialog.vue'
 import { useDark } from '@vueuse/core' // 替代原来的 ~/composables/dark
 import useCookie from '@/store/modules/cookie'
 
@@ -212,6 +233,7 @@ const selectedFtype = ref('')
 const searchKeyword = ref('')
 const enabledofdisabled = ref('')
 const tableData = ref<any[]>([])
+const selectedDeviceSource = ref<string>('')
 
 // 分页
 const pageVO = ref({ currentPage: 1, pageSize: 10, total: 0 })
@@ -238,6 +260,7 @@ const formData = ref<any>({
   eventType: 'click',
   status: 'enabled',
   sourceType: 'custom',
+  deviceSource:'online',
   propertyConfig: '',
   description: ''
 })
@@ -259,12 +282,12 @@ const hasCustomInput = computed(() => hasDelimiterSelected.value && csvText.valu
 const isSystemSource = computed(() => formData.value.sourceType === 'system')
 const isCustomSource = computed(() => formData.value.sourceType === 'custom')
 
-// 上传文件：用户自定义 + 没有选择分隔符 + 非查看模式
-const showFileUpload = computed(() => isCustomSource.value && !hasDelimiterSelected.value && !isView.value)
-// OSS地址：仅系统内置时显示
-const showOssInput = computed(() => isSystemSource.value)
-// 自定义配置：用户自定义 + 没有上传文件 + 非查看模式
-const showCustomInput = computed(() => isCustomSource.value && !hasFileUpload.value && !isView.value)
+// 上传文件：新增模式 + 用户自定义 + 没有选择分隔符 + 非查看模式
+const showFileUpload = computed(() => isCreate.value && isCustomSource.value && !hasDelimiterSelected.value && !isView.value)
+// OSS地址：新增模式 + 系统内置时显示
+const showOssInput = computed(() => isCreate.value && isSystemSource.value)
+// 自定义配置：新增模式 + 用户自定义 + 没有上传文件 + 非查看模式
+const showCustomInput = computed(() => isCreate.value && isCustomSource.value && !hasFileUpload.value && !isView.value)
 
 // 动态 placeholder
 const customInputPlaceholder = computed(() => {
@@ -281,12 +304,13 @@ const formRules = computed<FormRules>(() => {
     ftype: [{ required: true, message: '请选择功能类型', trigger: 'change' }]
   }
   if (isLocalContentType.value) {
-    rules.name = [{ required: true, message: '请输入策略名称', trigger: 'blur' }]
+    rules.name = [{ required: true, message: '请输入功能名称', trigger: 'blur' }]
     rules.eventType = [{ required: true, message: '请选择可用范围', trigger: 'change' }]
     rules.status = [{ required: true, message: '请选择状态', trigger: 'change' }]
+    rules.deviceSource = [{required:true,message:'请选择实时或离线',trigger:'change'}]
     rules.sourceType = [{ required: true, message: '请选择来源类型', trigger: 'change' }]
     if (!hasFileUpload.value && !hasCustomInput.value) {
-      rules.propertyConfig = [{ required: true, message: '请输入内容', trigger: 'blur' }]
+      rules.propertyConfig = [{ required: true, message: '请输入oss内容', trigger: 'blur' }]
     }
   } else {
     rules.propertyConfig = [{ required: true, message: '请输入配置内容', trigger: 'blur' }]
@@ -316,6 +340,7 @@ const buildBaseData = () => ({
   ftype: formData.value.ftype,
   eventType: formData.value.eventType,
   sourceType: formData.value.sourceType,
+  deviceSource:formData.value.deviceSource,
   propertyConfig: formData.value.propertyConfig,
   status: formData.value.status,
   lastUpdateUser: useCookies.username,
@@ -338,6 +363,7 @@ const resetForm = () => {
     eventType: outerTab.value === 'all' ? 'click' : outerTab.value,
     status: 'enabled',
     sourceType: isSuperAdmin.value ? 'system' : 'custom',
+    deviceSource:'online',
     propertyConfig: '',
     description: ''
   }
@@ -373,6 +399,7 @@ const handleQuery = async () => {
     const params: any = {
       ftype: selectedFtype.value,
       eventType: outerTab.value === 'all' ? 'click,imp,all' : `${outerTab.value},all`,
+      deviceSource:selectedDeviceSource.value || '',
       sourceType: isSuperAdmin.value ? 'system' : 'custom',
       status: enabledofdisabled.value || '',
       page: pageVO.value.currentPage,
@@ -396,6 +423,7 @@ const handleTabChange = () => {
 }
 
 const handleFtypeChange = () => handleQuery()
+const handleDeviceSource = () => handleQuery()
 const handleEnabledOfDisabled = () => handleQuery()
 const pageChange = ({ currentPage, pageSize }: any) => {
   pageVO.value.currentPage = currentPage
@@ -448,14 +476,14 @@ const handleFileRemove = (_: UploadFile, list: UploadFile[]) => {
 // ==================== CRUD 操作 ====================
 const handleAdd = () => {
   resetForm()
-  dialogTitle.value = '新增策略'
+  dialogTitle.value = '新增功能'
   isView.value = false
   dialogVisible.value = true
 }
 
 const handleView = (row: any) => {
   formData.value = { ...row }
-  dialogTitle.value = '查看策略'
+  dialogTitle.value = '查看功能'
   isView.value = true
   dialogVisible.value = true
   csvFileList.value = []
@@ -466,7 +494,7 @@ const handleView = (row: any) => {
 
 const handleEdit = (row: any) => {
   formData.value = { ...row }
-  dialogTitle.value = '编辑策略'
+  dialogTitle.value = '编辑功能'
   isView.value = false
   dialogVisible.value = true
   csvFileList.value = []
@@ -492,7 +520,7 @@ const handleEditContent = (row: any) => {
 }
 const handleDelete = async (row: any) => {
   try {
-    await ElMessageBox.confirm(`确定删除策略: ${row.name} ?`, '提示', {
+    await ElMessageBox.confirm(`确定删除功能: ${row.name} ?`, '提示', {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
       type: 'warning'
@@ -560,6 +588,7 @@ const handleSubmit = async () => {
         ftype: formData.value.ftype,
         propertyConfig: formData.value.propertyConfig,
         sourceType: formData.value.sourceType,
+        deviceSource:formData.value.deviceSource,
         lastUpdateUser: useCookies.username
       })
       handleSubmitResult(res)

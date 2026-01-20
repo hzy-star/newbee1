@@ -137,6 +137,9 @@
         </el-button>
       </template>
     </el-dialog>
+    <!-- 通用 CSV 预览组件（可复用） -->
+    <CsvPreviewDialog ref="csvRef"  :maxPreviewLines="Infinity"
+      :style="{ height: '85vh', overflowY: 'auto' }" />
 
   </div>
 </template>
@@ -148,6 +151,7 @@ import { reqStrategyList, reqCreateOrUpdate, reqDeleteStrategy } from '@/api/str
 import type { Strategy } from '@/api/strategyAutoDelivery/strategyPage/type'
 import type { FormInstance, FormRules } from 'element-plus'
 import XEUtils from 'xe-utils'
+import CsvPreviewDialog from '@/components/CsvPreviewDialog.vue'
 import { handleDownload } from '@/utils/common'
 import { useDark } from '@vueuse/core' // 替代原来的 ~/composables/dark
 import type { VxeSelectEvents } from 'vxe-table'

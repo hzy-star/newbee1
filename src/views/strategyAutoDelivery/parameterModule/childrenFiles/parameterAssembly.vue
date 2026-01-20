@@ -65,7 +65,7 @@
                 <span v-else class="tag tag-default">全部</span>
               </template>
           </vxe-column>
-          <vxe-column field="deviceSource" title="实时离线" min-width="100" width="80" align="center">
+          <vxe-column field="deviceSource" title="设备来源" min-width="100" width="80" align="center">
             <template #default="{ row }">
                 <el-tag v-if="row.deviceSource === 'offline'" type="danger" size="small">离线</el-tag>
                 <el-tag v-else-if="row.deviceSource === 'online'" type="primary" size="small">实时</el-tag>
@@ -101,7 +101,7 @@
             <template #default="{ row }">
               <el-button size="small" type="primary" plain @click="handleView(row)">查看</el-button>
               <el-button size="small" type="success" plain @click="handleEdit(row)">编辑</el-button>
-              <el-button size="small" type="danger" plain @click="handleDelete(row)" :disabled="!isSuperAdmin">删除</el-button>
+              <!-- <el-button size="small" type="danger" plain @click="handleDelete(row)" :disabled="!isSuperAdmin">删除</el-button> -->
             </template>
           </vxe-column>
         </vxe-table>
