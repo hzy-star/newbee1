@@ -15,7 +15,8 @@
           <vxe-option v-for="item in categoryList" :key="item" :label="item" :value="item" />
         </vxe-select>
         <vxe-input v-model="searchKeyword" type="search" placeholder="搜索功能名" clearable size="mini" />
-        <vxe-select v-model="selectedDeviceSource" placeholder="实时/离线" clearable size="mini" @change="handleDeviceSource">
+        <vxe-select v-model="selectedDeviceSource" placeholder="实时/离线" clearable size="mini"
+          @change="handleDeviceSource">
           <vxe-option label="实时" value="online" />
           <vxe-option label="离线" value="offline" />
         </vxe-select>
@@ -63,10 +64,10 @@
           </vxe-column>
           <vxe-column field="deviceSource" title="设备来源" min-width="100" width="80" align="center">
             <template #default="{ row }">
-                <el-tag v-if="row.deviceSource === 'offline'" type="danger" size="small">离线</el-tag>
-                <el-tag v-else-if="row.deviceSource === 'online'" type="primary" size="small">实时</el-tag>
-                <el-tag v-else type="info" size="small">未知</el-tag>
-              </template>
+              <el-tag v-if="row.deviceSource === 'offline'" type="danger" size="small">离线</el-tag>
+              <el-tag v-else-if="row.deviceSource === 'online'" type="primary" size="small">实时</el-tag>
+              <el-tag v-else type="info" size="small">未知</el-tag>
+            </template>
           </vxe-column>
           <vxe-column field="description" title="描述" min-width="210">
             <template #default="{ row }">
@@ -79,9 +80,12 @@
             <template #default="{ row }">
               <el-button size="small" type="primary" plain @click="handleView(row)">查看</el-button>
               <el-button size="small" type="success" plain @click="handleEdit(row)">编辑</el-button>
-              <el-button size="small" type="warning" plain @click="handleEditContent(row)" v-if="row.sourceType=='custom'">编辑内容</el-button>
-              <el-button size="small" color="#a59a00" :dark="isDark" plain @click="handlePreview(row)" v-else>预览内容</el-button>
-              <el-button size="small" color="#626aef" :dark="isDark" plain @click="handleDownload(row.propertyConfig)">下载</el-button>
+              <el-button size="small" type="warning" plain @click="handleEditContent(row)"
+                v-if="row.sourceType == 'custom' && isLocalContentType">编辑内容</el-button>
+              <el-button size="small" color="#a59a00" :dark="isDark" plain @click="handlePreview(row)"
+                v-if="row.sourceType == 'system' && isLocalContentType">预览内容</el-button>
+              <el-button size="small" color="#626aef" :dark="isDark" plain
+                @click="handleDownload(row.propertyConfig)" v-if="isLocalContentType">下载</el-button>
               <!-- <el-button size="small" type="danger" plain @click="handleDelete(row)" :disabled="!isSuperAdmin">
                 删除
               </el-button> -->
@@ -136,7 +140,7 @@
           </el-form-item>
 
           <el-form-item label="来源类型" prop="sourceType" v-if="isCreate">
-            <el-select v-model="formData.sourceType" placeholder="请选择来源类型" :disabled="isView || !isSuperAdmin" >
+            <el-select v-model="formData.sourceType" placeholder="请选择来源类型" :disabled="isView || !isSuperAdmin">
               <el-option label="系统内置" value="system" />
               <el-option label="用户自定义" value="custom" />
             </el-select>
@@ -188,9 +192,44 @@
 
         <!-- 非 localContent 类型 -->
         <template v-else>
+          <el-form-item label="功能名称" prop="name">
+            <el-input v-model="formData.name" placeholder="请输入功能名称" :disabled="isView" />
+          </el-form-item>
+
+          <el-form-item label="可用范围" prop="eventType">
+            <el-select v-model="formData.eventType" placeholder="请选择可用范围" :disabled="isView">
+              <el-option label="点击" value="click" />
+              <el-option label="展示" value="imp" />
+              <!-- <el-option label="全部" value="all" /> -->
+            </el-select>
+          </el-form-item>
+
+          <el-form-item label="状态" prop="status">
+            <el-select v-model="formData.status" placeholder="启用/禁用" :disabled="isView">
+              <el-option label="启用" value="enabled" />
+              <el-option label="禁用" value="disabled" />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="实时/离线" prop="deviceSource">
+            <el-select v-model="formData.deviceSource" placeholder="实时/离线" :disabled="isView">
+              <el-option label="实时" value="online" />
+              <el-option label="离线" value="offline" />
+            </el-select>
+          </el-form-item>
+
+          <el-form-item label="来源类型" prop="sourceType" v-if="isCreate">
+            <el-select v-model="formData.sourceType" placeholder="请选择来源类型" :disabled="isView || !isSuperAdmin">
+              <el-option label="系统内置" value="system" />
+              <el-option label="用户自定义" value="custom" />
+            </el-select>
+          </el-form-item>
+
           <el-form-item label="配置内容" prop="propertyConfig">
             <el-input v-model="formData.propertyConfig" type="textarea" :rows="10" placeholder="请输入配置内容"
               :disabled="isView" />
+          </el-form-item>
+          <el-form-item label="描述">
+            <el-input v-model="formData.description" type="textarea" placeholder="请输入描述" :disabled="isView" />
           </el-form-item>
         </template>
       </el-form>
@@ -201,11 +240,10 @@
       </template>
     </el-dialog>
   </div>
-  
-    <GeneralCsvEditing mode="dialog" v-model:visible="visible" :csv-path="csvPath" title="通用 CSV 编辑" />
-    <!-- 通用 CSV 预览组件（可复用） -->
-    <CsvPreviewDialog ref="csvRef"  :maxPreviewLines="Infinity"
-      :style="{ height: '85vh', overflowY: 'auto' }" />
+
+  <GeneralCsvEditing mode="dialog" v-model:visible="visible" :csv-path="csvPath" title="通用 CSV 编辑" />
+  <!-- 通用 CSV 预览组件（可复用） -->
+  <CsvPreviewDialog ref="csvRef" :maxPreviewLines="Infinity" :style="{ height: '85vh', overflowY: 'auto' }" />
 </template>
 
 <script setup lang="ts">
@@ -260,13 +298,13 @@ const formData = ref<any>({
   eventType: 'click',
   status: 'enabled',
   sourceType: 'custom',
-  deviceSource:'online',
+  deviceSource: 'online',
   propertyConfig: '',
   description: ''
 })
 
 // ==================== 计算属性 ====================
-const isLocalContentType = computed(() => localContentTypes.includes(formData.value.ftype))
+const isLocalContentType = computed(() => localContentTypes.includes(selectedFtype.value))
 const isCreate = computed(() => !formData.value.id)
 const hasFileUpload = computed(() => csvFileList.value.length > 0)
 const hasOssInput = computed(() => {
@@ -307,10 +345,10 @@ const formRules = computed<FormRules>(() => {
     rules.name = [{ required: true, message: '请输入功能名称', trigger: 'blur' }]
     rules.eventType = [{ required: true, message: '请选择可用范围', trigger: 'change' }]
     rules.status = [{ required: true, message: '请选择状态', trigger: 'change' }]
-    rules.deviceSource = [{required:true,message:'请选择实时或离线',trigger:'change'}]
+    rules.deviceSource = [{ required: true, message: '请选择实时或离线', trigger: 'change' }]
     rules.sourceType = [{ required: true, message: '请选择来源类型', trigger: 'change' }]
     if (!hasFileUpload.value && !hasCustomInput.value) {
-      rules.propertyConfig = [{ required: true, message: '请输入oss内容', trigger: 'blur' }]
+      rules.propertyConfig = [{ required: true, message: '请输入内容', trigger: 'blur' }]
     }
   } else {
     rules.propertyConfig = [{ required: true, message: '请输入配置内容', trigger: 'blur' }]
@@ -340,7 +378,7 @@ const buildBaseData = () => ({
   ftype: formData.value.ftype,
   eventType: formData.value.eventType,
   sourceType: formData.value.sourceType,
-  deviceSource:formData.value.deviceSource,
+  deviceSource: formData.value.deviceSource,
   propertyConfig: formData.value.propertyConfig,
   status: formData.value.status,
   lastUpdateUser: useCookies.username,
@@ -363,7 +401,7 @@ const resetForm = () => {
     eventType: outerTab.value === 'all' ? 'click' : outerTab.value,
     status: 'enabled',
     sourceType: isSuperAdmin.value ? 'system' : 'custom',
-    deviceSource:'online',
+    deviceSource: 'online',
     propertyConfig: '',
     description: ''
   }
@@ -399,7 +437,7 @@ const handleQuery = async () => {
     const params: any = {
       ftype: selectedFtype.value,
       eventType: outerTab.value === 'all' ? 'click,imp,all' : `${outerTab.value},all`,
-      deviceSource:selectedDeviceSource.value || '',
+      deviceSource: selectedDeviceSource.value || '',
       sourceType: isSuperAdmin.value ? 'system' : 'custom',
       status: enabledofdisabled.value || '',
       page: pageVO.value.currentPage,
@@ -515,8 +553,8 @@ const handlePreview = async (row: any) => {
 }
 // 编辑内容
 const handleEditContent = (row: any) => {
-    csvPath.value = row.propertyConfig // 你的业务里拿到的地址oss://ym-east-data/data/ym_push/zxw_test/rank/flowAlgIMP.csv
-    visible.value = true
+  csvPath.value = row.propertyConfig // 你的业务里拿到的地址oss://ym-east-data/data/ym_push/zxw_test/rank/flowAlgIMP.csv
+  visible.value = true
 }
 const handleDelete = async (row: any) => {
   try {
@@ -582,15 +620,9 @@ const handleSubmit = async () => {
         ElMessage.warning('请输入 OSS 地址、上传文件或输入自定义配置')
       }
     } else {
+
       // 非 localContent 类型
-      const res: any = await reqCreateOrUpdate({
-        id: formData.value.id,
-        ftype: formData.value.ftype,
-        propertyConfig: formData.value.propertyConfig,
-        sourceType: formData.value.sourceType,
-        deviceSource:formData.value.deviceSource,
-        lastUpdateUser: useCookies.username
-      })
+      const res: any = await reqCreateOrUpdate(buildBaseData())
       handleSubmitResult(res)
     }
   } catch (error: any) {
