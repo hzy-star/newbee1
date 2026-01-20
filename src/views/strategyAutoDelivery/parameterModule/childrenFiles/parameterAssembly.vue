@@ -248,7 +248,7 @@ const handleAdd = () => {
     pkg: '',
     country: '',
     eventType: outerTab.value === 'all' ? 'click' : outerTab.value,
-    deviceSource: selectedDeviceSource.value || '',
+    deviceSource: selectedDeviceSource.value || 'online',
     status:selectedStatus.value || '',
     functionTypes: []
   }
