@@ -112,40 +112,41 @@
           </el-select>
         </el-form-item>
 
-        <!-- localContent 类型表单 -->
+        <!-- 公共表单项 -->
+        <el-form-item label="功能名称" prop="name">
+          <el-input v-model="formData.name" placeholder="请输入功能名称" :disabled="isView" />
+        </el-form-item>
+
+        <el-form-item label="可用范围" prop="eventType">
+          <el-select v-model="formData.eventType" placeholder="请选择可用范围" :disabled="isView">
+            <el-option label="点击" value="click" />
+            <el-option label="展示" value="imp" />
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="状态" prop="status">
+          <el-select v-model="formData.status" placeholder="启用/禁用" :disabled="isView">
+            <el-option label="启用" value="enabled" />
+            <el-option label="禁用" value="disabled" />
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="实时/离线" prop="deviceSource">
+          <el-select v-model="formData.deviceSource" placeholder="实时/离线" :disabled="isView">
+            <el-option label="实时" value="online" />
+            <el-option label="离线" value="offline" />
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="来源类型" prop="sourceType" v-if="isCreate">
+          <el-select v-model="formData.sourceType" placeholder="请选择来源类型" :disabled="isView || !isSuperAdmin">
+            <el-option label="系统内置" value="system" />
+            <el-option label="用户自定义" value="custom" />
+          </el-select>
+        </el-form-item>
+
+        <!-- localContent 类型特有表单项 -->
         <template v-if="isLocalContentType">
-          <el-form-item label="功能名称" prop="name">
-            <el-input v-model="formData.name" placeholder="请输入功能名称" :disabled="isView" />
-          </el-form-item>
-
-          <el-form-item label="可用范围" prop="eventType">
-            <el-select v-model="formData.eventType" placeholder="请选择可用范围" :disabled="isView">
-              <el-option label="点击" value="click" />
-              <el-option label="展示" value="imp" />
-              <!-- <el-option label="全部" value="all" /> -->
-            </el-select>
-          </el-form-item>
-
-          <el-form-item label="状态" prop="status">
-            <el-select v-model="formData.status" placeholder="启用/禁用" :disabled="isView">
-              <el-option label="启用" value="enabled" />
-              <el-option label="禁用" value="disabled" />
-            </el-select>
-          </el-form-item>
-          <el-form-item label="实时/离线" prop="deviceSource">
-            <el-select v-model="formData.deviceSource" placeholder="实时/离线" :disabled="isView">
-              <el-option label="实时" value="online" />
-              <el-option label="离线" value="offline" />
-            </el-select>
-          </el-form-item>
-
-          <el-form-item label="来源类型" prop="sourceType" v-if="isCreate">
-            <el-select v-model="formData.sourceType" placeholder="请选择来源类型" :disabled="isView || !isSuperAdmin">
-              <el-option label="系统内置" value="system" />
-              <el-option label="用户自定义" value="custom" />
-            </el-select>
-          </el-form-item>
-
           <!-- 上传文件 -->
           <el-form-item label="上传文件" v-if="showFileUpload">
             <div class="csv-input-wrapper">
@@ -184,54 +185,18 @@
               </div>
             </div>
           </el-form-item>
-
-          <el-form-item label="描述">
-            <el-input v-model="formData.description" type="textarea" placeholder="请输入描述" :disabled="isView" />
-          </el-form-item>
         </template>
 
-        <!-- 非 localContent 类型 -->
-        <template v-else>
-          <el-form-item label="功能名称" prop="name">
-            <el-input v-model="formData.name" placeholder="请输入功能名称" :disabled="isView" />
-          </el-form-item>
+        <!-- 非 localContent 类型特有表单项 -->
+        <el-form-item v-else label="配置内容" prop="propertyConfig">
+          <el-input v-model="formData.propertyConfig" type="textarea" :rows="10" placeholder="请输入配置内容"
+            :disabled="isView" />
+        </el-form-item>
 
-          <el-form-item label="可用范围" prop="eventType">
-            <el-select v-model="formData.eventType" placeholder="请选择可用范围" :disabled="isView">
-              <el-option label="点击" value="click" />
-              <el-option label="展示" value="imp" />
-              <!-- <el-option label="全部" value="all" /> -->
-            </el-select>
-          </el-form-item>
-
-          <el-form-item label="状态" prop="status">
-            <el-select v-model="formData.status" placeholder="启用/禁用" :disabled="isView">
-              <el-option label="启用" value="enabled" />
-              <el-option label="禁用" value="disabled" />
-            </el-select>
-          </el-form-item>
-          <el-form-item label="实时/离线" prop="deviceSource">
-            <el-select v-model="formData.deviceSource" placeholder="实时/离线" :disabled="isView">
-              <el-option label="实时" value="online" />
-              <el-option label="离线" value="offline" />
-            </el-select>
-          </el-form-item>
-
-          <el-form-item label="来源类型" prop="sourceType" v-if="isCreate">
-            <el-select v-model="formData.sourceType" placeholder="请选择来源类型" :disabled="isView || !isSuperAdmin">
-              <el-option label="系统内置" value="system" />
-              <el-option label="用户自定义" value="custom" />
-            </el-select>
-          </el-form-item>
-
-          <el-form-item label="配置内容" prop="propertyConfig">
-            <el-input v-model="formData.propertyConfig" type="textarea" :rows="10" placeholder="请输入配置内容"
-              :disabled="isView" />
-          </el-form-item>
-          <el-form-item label="描述">
-            <el-input v-model="formData.description" type="textarea" placeholder="请输入描述" :disabled="isView" />
-          </el-form-item>
-        </template>
+        <!-- 描述（公共） -->
+        <el-form-item label="描述">
+          <el-input v-model="formData.description" type="textarea" placeholder="请输入描述" :disabled="isView" />
+        </el-form-item>
       </el-form>
 
       <template #footer v-if="!isView">

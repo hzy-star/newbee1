@@ -31,7 +31,7 @@
         </el-col>
       </el-row>
 
-      <el-form-item label="flow配置" prop="functionTypes">
+      <el-form-item label="功能配置" prop="functionTypes">
         <div class="function-configs-container">
           <div class="function-configs">
             <div v-for="(config, index) in form.functionTypes" :key="index" class="function-config-item">
