@@ -159,7 +159,7 @@ const getFunctionOptions = async () => {
       : form.value.eventType
     const params = {
       ftype: props.ftype,
-      eventType: eventType,
+      eventType: eventType=='click' ? 'click,all':'imp,all',
       deviceSource: form.value.deviceSource || ''
     }
     

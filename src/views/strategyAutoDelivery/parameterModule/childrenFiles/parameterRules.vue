@@ -121,6 +121,7 @@
           <el-select v-model="formData.eventType" placeholder="请选择可用范围" :disabled="isView">
             <el-option label="点击" value="click" />
             <el-option label="展示" value="imp" />
+            <el-option label="全部" value="all" />
           </el-select>
         </el-form-item>
 
@@ -363,7 +364,7 @@ const resetForm = () => {
   formData.value = {
     name: '',
     ftype: selectedFtype.value,
-    eventType: outerTab.value === 'all' ? 'click' : outerTab.value,
+    eventType: outerTab.value,
     status: 'enabled',
     sourceType: isSuperAdmin.value ? 'system' : 'custom',
     deviceSource: 'online',
