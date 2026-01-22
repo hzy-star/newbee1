@@ -54,7 +54,7 @@
               </el-tag>
             </template>
           </vxe-column>
-          <vxe-column field="eventType" title="可用范围" min-width="50" width="80" align="center">
+          <vxe-column field="eventType" title="事件类型" min-width="50" width="80" align="center">
             <template #default="{ row }">
                 <span v-if="row.eventType === 'click'" class="tag tag-click">
                   点击

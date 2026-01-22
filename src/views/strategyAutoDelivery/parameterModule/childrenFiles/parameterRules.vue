@@ -66,7 +66,7 @@
             <template #default="{ row }">
               <el-tag v-if="row.deviceSource === 'offline'" type="danger" size="small">离线</el-tag>
               <el-tag v-else-if="row.deviceSource === 'online'" type="primary" size="small">实时</el-tag>
-              <el-tag v-else type="info" size="small">未知</el-tag>
+              <el-tag v-else type="warning" size="small">全部</el-tag>
             </template>
           </vxe-column>
           <vxe-column field="description" title="描述" min-width="210">
@@ -136,6 +136,7 @@
           <el-select v-model="formData.deviceSource" placeholder="实时/离线" :disabled="isView">
             <el-option label="实时" value="online" />
             <el-option label="离线" value="offline" />
+            <el-option label="全部" value="all" />
           </el-select>
         </el-form-item>
 

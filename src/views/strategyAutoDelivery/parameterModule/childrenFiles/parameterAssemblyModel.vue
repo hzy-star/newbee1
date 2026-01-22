@@ -160,7 +160,7 @@ const getFunctionOptions = async () => {
     const params = {
       ftype: props.ftype,
       eventType: eventType=='click' ? 'click,all':'imp,all',
-      deviceSource: form.value.deviceSource || '',
+      deviceSource: form.value.deviceSource == 'online' ? "online,all" : "offline,all",
       status:'enabled'
     }
     
