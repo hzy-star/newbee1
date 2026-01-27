@@ -50,4 +50,5 @@ export interface  FormDataType {
     taskStatus: string;
     buttonType?: string;
     proxyType: string;
+    ifaAudience:number[];
 };

@@ -14,8 +14,24 @@
             <div style="height: 90%;">
                 <vxe-table :data="strategyList" border round style="width: 100%" size="small" stripe height="auto" :scroll-y="{ enabled: true, gt: 10 }" :column-config="{ resizable: true }">
                 <vxe-column field="xh" type="seq" align="center" title="序号" width="5%"></vxe-column>
-                <vxe-column field="pkgName" title="pkg" min-width="20" width="360" align="center" />
-                <vxe-column field="country" title="国家" min-width="20" width="320" align="center" />
+                <vxe-column field="pkgName" title="pkg" min-width="20" width="360" align="center">
+                    <template #default="{row}">
+                        <el-tooltip :content="row.pkgName" placement="top" :disabled="!row.pkgName">
+                            <div class="cell-ellipsis-2" @click="handleModelEdit('pkg',row)">
+                                {{ row.pkgName }}
+                            </div>
+                        </el-tooltip>
+                    </template>
+                </vxe-column>
+                <vxe-column field="country" title="国家" min-width="20" width="320" align="center">
+                    <template #default="{row}">
+                        <el-tooltip :content="row.country" placement="top" :disabled="!row.country">
+                            <div class="cell-ellipsis-2" @click="handleModelEdit('country',row)">
+                                {{ row.country }}
+                            </div>
+                        </el-tooltip>
+                    </template>
+                </vxe-column>
                 <vxe-column field="eventType" title="事件类型" min-width="50" width="80" align="center">
                     <template #default="{ row }">
                         <span v-if="row.eventType === 'click'" class="tag tag-click">
@@ -72,15 +88,23 @@
             @submit="handleSubmit" />
         <!-- 监控弹窗 设置宽高 -->
         <MonitorModel v-model="monitorVisible" :data="monitorData" :style="{ height: '90vh', overflowY: 'auto' }" />
+        <!-- 公共抽屉组件 -->
+        <PublicDrawer 
+            v-model="drawerVisible" 
+            :type="drawerType" 
+            :row="drawerRow" 
+            @save="handleDrawerSave" 
+        />
     </div>
 </template>
 
 <script lang="ts" setup>
 import { ref,watch,onMounted ,computed} from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { reqFlowConfig, reqDeleteFlowConfig } from '@/api/strategyAutoDelivery/flowConfig/index';
+import { reqFlowConfig, reqDeleteFlowConfig, reqCreateOrUpdatFlowConfig } from '@/api/strategyAutoDelivery/flowConfig/index';
 import ConfigModel from './model.vue'
 import MonitorModel from './monitorModel.vue'
+import PublicDrawer from '@/components/publicDrawer/index.vue'
 import XEUtils from 'xe-utils'
 import { ThresholdPinia } from '@/store/strategyAutoDelivery/threshold'
 import { reqManualStrategyList } from '@/api/strategyAutoDelivery/manualStrategy/index'
@@ -432,6 +456,33 @@ const getDistributeList = async () => {
     distributeList.value = response.data.data.map((item:any) => ({ label: item.name, value: item.id }))
     console.log(distributeList.value)
 }
+// 抽屉相关
+const drawerVisible = ref(false)
+const drawerType = ref<'pkg' | 'country'>('pkg')
+const drawerRow = ref<any>({})
+
+const handleModelEdit = (type: 'pkg' | 'country', row: any) => {
+    drawerType.value = type
+    drawerRow.value = { ...row }
+    drawerVisible.value = true
+}
+
+// 抽屉保存回调
+const handleDrawerSave = async (updatedRow: any) => {
+    try {
+        const response: any = await reqCreateOrUpdatFlowConfig(updatedRow)
+        if (response?.code === 200 || response?.success === true) {
+            ElMessage.success('保存成功')
+            getStrategyFlowConfigsList()
+        } else {
+            ElMessage.error(response?.errMsg || '保存失败')
+        }
+    } catch (error) {
+        console.error('保存失败:', error)
+        ElMessage.error('保存失败')
+    }
+}
+
 // 组件挂载时获取列表
 onMounted(() => {
     // getStrategyFlowConfigsList()
@@ -440,6 +491,16 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
+.cell-ellipsis-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: break-all;
+    cursor: pointer;
+}
+
 .strategy-page {
     height: $base-alg-platform-height;
 

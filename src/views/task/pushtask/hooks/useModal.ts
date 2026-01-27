@@ -13,6 +13,7 @@ export default function useModal(tableRef: any, findAllHooks: (type: boolean) =>
 
     const handleModals = async (formData: FormDataType): Promise<void> => {
         const { buttonType, ...resformData } = formData;
+        console.log(resformData)
         let taskInfo = buildTaskInfo(resformData);
         const params = new URLSearchParams();
         let res = ref<string>('');
@@ -83,8 +84,8 @@ export default function useModal(tableRef: any, findAllHooks: (type: boolean) =>
                 noipuadup: resformData.noipuadup ? (resformData.noipuadup).toString() : '',
             }),
             audiences: JSON.stringify({
-                // ifaAudience: ['', resformData.ifaAudience || '1'],
-                ifaAudience: null,
+                ifaAudience: ['', ...resformData.ifaAudience.map(String) || '1'],
+                // ifaAudience: null,
                 optionFilterText: '',
             }),
             autoTrafficFilter: [
@@ -109,7 +110,7 @@ export default function useModal(tableRef: any, findAllHooks: (type: boolean) =>
             ),
             ifadupcheck: `${resformData.ifadupcheck ? resformData.ifadupcheck + ':' : ''}${resformData.checkservice || ''}`,
             id: taskStore.selectedIds.join(',') || '',
-            // ifaAudience: resformData.ifaAudience || ',1',
+            ifaAudience: ',' + (resformData.ifaAudience.join(',') || '1')
         };
     };
 

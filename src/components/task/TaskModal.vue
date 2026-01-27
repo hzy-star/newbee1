@@ -395,11 +395,11 @@
                 </div>
                 <div class="form-item">
                     <div class="form-item-label">设备受众</div>
-                    <el-select v-model="selectedAudience" :max-collapse-tags="4" multiple collapse-tags
+                    <el-select v-model="formData.ifaAudience" :max-collapse-tags="4" multiple collapse-tags
                         collapse-tags-tooltip placeholder="Select" style="width: 240px" filterable clearable>
                         <!-- 动态添加其他选项 -->
                         <el-option v-for="item in audienceListRes" :key="item.id" :label="item.name"
-                            :value="item.name" />
+                            :value="item.id" />
                     </el-select>
                 </div>
             </div>
@@ -426,7 +426,6 @@ import { sciToDecimalString } from '@/utils/common'
 import { ElMessage } from 'element-plus';
 const thresholdStore = ThresholdPinia()
 const audienceListRes = ref<any[]>([])
-const selectedAudience = ref<string[]>([])
 const props = defineProps({
     modelValue: Boolean,
     title: String,
@@ -496,7 +495,8 @@ const formData = ref<FormDataType>({
     eraseifa: false,
     noipuadup: false,
     taskStatus: '',
-    proxyType: '' // 新增代理类型字段
+    proxyType: '', // 新增代理类型字段
+    ifaAudience: [] as number[]
 })
 
 const handleClose = () => {
@@ -526,6 +526,23 @@ const resTask = ref({
     },
     autoFilter: {} as AutoFilters
 })
+
+// 解析 audiences JSON 字符串，提取 ifaAudience 数组（过滤空字符串，转为数字）
+const parseIfaAudience = (audiences: string | undefined): number[] => {
+    if (!audiences) return []
+    try {
+        const parsed = JSON.parse(audiences)
+        if (parsed.ifaAudience && Array.isArray(parsed.ifaAudience)) {
+            // 过滤空字符串，转为数字
+            return parsed.ifaAudience
+                .filter((v: string) => v !== '')
+                .map((v: string) => Number(v))
+        }
+    } catch (e) {
+        console.error('解析 audiences 失败:', e)
+    }
+    return []
+}
 // 清空表单数据
 const resetData = () => {
     formData.value = {
@@ -571,7 +588,8 @@ const resetData = () => {
         eraseifa: false,
         noipuadup: false,
         taskStatus: '',
-        proxyType: '' // 新增代理类型字段
+        proxyType: '', // 新增代理类型字段
+        ifaAudience: []
     }
     showProxySelector.value = false
 }
@@ -656,7 +674,8 @@ watch(() => props.modelValue, async (newVal) => {
                     noipuadup: String(resTask.value?.attr?.noipuadup) === 'true',
                     // audienceList: [],
                     taskStatus: newData.value.taskStatus || '',
-                    proxyType: newData.value.proxyType || '' // 新增代理类型字段
+                    proxyType: newData.value.proxyType || '', // 新增代理类型字段
+                    ifaAudience: parseIfaAudience(newData.value.audiences)
                 }
 
             } else {
@@ -779,7 +798,6 @@ onMounted(async () => {
     // 弹层打开就调用一次  设备受众列表
     const res = await reqAudienceList()
     audienceListRes.value = res.data || []
-    selectedAudience.value = []
 
     // 加载 scorePolicy 选项
     scorePolicyOptions.value = await reqScorePolicy()
