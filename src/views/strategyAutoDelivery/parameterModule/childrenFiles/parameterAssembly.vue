@@ -42,7 +42,7 @@
           <vxe-column field="xh" type="seq" align="center" title="序号" width="60"></vxe-column>
           <vxe-column field="pkg" title="pkg" min-width="150" align="center">
             <template #default="{ row }">
-              <el-tooltip :content="row.pkgName" placement="top" :disabled="!row.pkgName">
+              <el-tooltip :content="row.pkg" placement="top" :disabled="!row.pkg">
                 <div class="cell-ellipsis-2" @click="handleModelEdit('pkg', row)">
                   {{ row.pkg }}
                 </div>
@@ -415,6 +415,15 @@ onMounted(() => {
 }
 
 
+.cell-ellipsis-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: break-all;
+    cursor: pointer;
+}
 .config-container {
   padding: 8px;
 }

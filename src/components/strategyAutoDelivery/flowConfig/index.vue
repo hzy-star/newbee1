@@ -180,6 +180,7 @@ const getOptionLabel = (key: string | number,value:any): string | null => {
 // 获取FlowConfig列表
 const getStrategyFlowConfigsList = async () => {
     try {
+        await getDistributeList()   //为了确保pkg配置中，id正确匹配，特意多一层调用。
         const response = await reqFlowConfig({eventType: (props.mode == 'click' ? 'click' : props.mode == 'imp' ? 'imp' : 'click,imp'),deviceSource:'distribute' })
         strategyList.value = response.data || []
         strategyListBackUp.value = response.data || []
