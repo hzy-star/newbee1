@@ -130,6 +130,7 @@ const typeLabel = computed(() => props.type === 'pkg' ? 'PKG' : '国家')
 const fieldKey = computed(() => props.type === 'pkg' ? 'pkgName' : 'country')
 
 const filteredTableData = computed(() => {
+  debugger
   if (!searchKeyword.value) return tableData.value
   const keyword = searchKeyword.value.toLowerCase()
   return tableData.value.filter(item => 
@@ -146,6 +147,7 @@ const generateUid = () => `${Date.now()}_${Math.random().toString(36).slice(2, 9
 
 // 初始化表格数据
 const initTableData = () => {
+  debugger
   const fieldValue = props.row[fieldKey.value] || ''
   if (!fieldValue) {
     tableData.value = []

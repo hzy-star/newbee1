@@ -37,10 +37,29 @@
     <!-- 表格 -->
     <div class="table-container">
       <div class="table-wrapper">
-        <vxe-table :data="tableData" border round stripe height="100%" :scroll-y="{ enabled: true, gt: 10 }" :column-config="{ resizable: true }">
+        <vxe-table :data="tableData" border round stripe height="100%" :scroll-y="{ enabled: true, gt: 10 }"
+          :column-config="{ resizable: true }">
           <vxe-column field="xh" type="seq" align="center" title="序号" width="60"></vxe-column>
-          <vxe-column field="pkg" title="pkg" min-width="150"  align="center" />
-          <vxe-column field="country" title="国家" min-width="100" align="center" />
+          <vxe-column field="pkg" title="pkg" min-width="150" align="center">
+            <template #default="{ row }">
+              <el-tooltip :content="row.pkgName" placement="top" :disabled="!row.pkgName">
+                <div class="cell-ellipsis-2" @click="handleModelEdit('pkg', row)">
+                  {{ row.pkg }}
+                </div>
+              </el-tooltip>
+            </template>
+          </vxe-column>
+          <vxe-column field="country" title="国家" min-width="100" align="center">
+            <template #default="{ row }">
+              <el-tooltip :content="row.country" placement="top" :disabled="!row.country">
+                <div class="cell-ellipsis-2" @click="handleModelEdit('country', row)">
+                  {{ row.country }}
+                </div>
+              </el-tooltip>
+            </template>
+          </vxe-column>
+
+
           <vxe-column field="os" title="系统" min-width="80" width="80" align="center">
             <template #default="{ row }">
               <span>{{ row.os || '-' }}</span>
@@ -56,23 +75,23 @@
           </vxe-column>
           <vxe-column field="eventType" title="事件类型" min-width="50" width="80" align="center">
             <template #default="{ row }">
-                <span v-if="row.eventType === 'click'" class="tag tag-click">
-                  点击
-                </span>
-                <span v-else-if="row.eventType === 'imp'" class="tag tag-imp">
-                  展示
-                </span>
-                <span v-else class="tag tag-default">全部</span>
-              </template>
+              <span v-if="row.eventType === 'click'" class="tag tag-click">
+                点击
+              </span>
+              <span v-else-if="row.eventType === 'imp'" class="tag tag-imp">
+                展示
+              </span>
+              <span v-else class="tag tag-default">全部</span>
+            </template>
           </vxe-column>
           <vxe-column field="deviceSource" title="设备来源" min-width="100" width="80" align="center">
             <template #default="{ row }">
-                <el-tag v-if="row.deviceSource === 'offline'" type="danger" size="small">离线</el-tag>
-                <el-tag v-else-if="row.deviceSource === 'online'" type="primary" size="small">实时</el-tag>
-                <el-tag v-else type="info" size="small">未知</el-tag>
-              </template>
+              <el-tag v-if="row.deviceSource === 'offline'" type="danger" size="small">离线</el-tag>
+              <el-tag v-else-if="row.deviceSource === 'online'" type="primary" size="small">实时</el-tag>
+              <el-tag v-else type="info" size="small">未知</el-tag>
+            </template>
           </vxe-column>
-          <vxe-column field="lastUpdateUser" title="最后更新用户" min-width="100"  width="110" align="center" />
+          <vxe-column field="lastUpdateUser" title="最后更新用户" min-width="100" width="110" align="center" />
           <vxe-column field="config" title="config" align="center" class-name="config-col" min-width="300">
             <template #default="{ row }">
               <div v-if="row.functionTypes && row.functionTypes.length > 0" class="config-container">
@@ -87,7 +106,8 @@
                     <div class="config-cell">
                       <span class="config-label">号段</span>
                       <el-tooltip :content="`${item.start}-${item.end}`" placement="top">
-                        <span class="config-value text-ellipsis" style="color: red;">{{ item.start }}-{{ item.end }}</span>
+                        <span class="config-value text-ellipsis" style="color: red;">{{ item.start }}-{{ item.end
+                          }}</span>
                       </el-tooltip>
                     </div>
                   </div>
@@ -109,14 +129,9 @@
 
       <!-- 分页 -->
       <div class="pagination-wrapper">
-        <vxe-pager 
-          v-model:currentPage="pageVO.currentPage" 
-          v-model:pageSize="pageVO.pageSize" 
-          :total="pageVO.total"
-          :pageSizes="[10, 20, 50, 100]"
-          :layouts="['Total','Sizes','PrevPage', 'Number', 'NextPage',  'FullJump', ]"
-          @page-change="pageChange"
-        />
+        <vxe-pager v-model:currentPage="pageVO.currentPage" v-model:pageSize="pageVO.pageSize" :total="pageVO.total"
+          :pageSizes="[10, 20, 50, 100]" :layouts="['Total', 'Sizes', 'PrevPage', 'Number', 'NextPage', 'FullJump',]"
+          @page-change="pageChange" />
         <!-- 调试信息 -->
         <!-- <div style="margin-top: 10px; font-size: 12px; color: #999;">
           当前页: {{ pageVO.currentPage }} | 每页: {{ pageVO.pageSize }} | 总数: {{ pageVO.total }}
@@ -125,16 +140,10 @@
     </div>
 
     <!-- 新增/编辑弹窗 -->
-    <AssemblyModel 
-      v-model="dialogVisible" 
-      :title="dialogTitle" 
-      :form="currentForm" 
-      :is-view="isView"
-      :ftype="selectedFtype"
-      :event-type="outerTab"
-      :device-source="selectedDeviceSource"
-      @submit="handleSubmit" 
-    />
+    <AssemblyModel v-model="dialogVisible" :title="dialogTitle" :form="currentForm" :is-view="isView"
+      :ftype="selectedFtype" :event-type="outerTab" :device-source="selectedDeviceSource" @submit="handleSubmit" />
+    <!-- 公共抽屉组件 -->
+    <PublicDrawer v-model="drawerVisible" :type="drawerType" :row="drawerRow" @save="handleDrawerSave" />
   </div>
 </template>
 
@@ -143,7 +152,8 @@ import { ref, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { reqCateGory, reqPageList } from '@/api/strategyAutoDelivery/parameterModule/parameterAssembly/index'
 import AssemblyModel from './parameterAssemblyModel.vue'
-
+import PublicDrawer from '@/components/publicDrawer/index.vue'
+import { reqCreateOrUpdate } from '@/api/strategyAutoDelivery/parameterModule/parameterAssembly/index'
 // 引入 cookie store 获取用户角色
 import useCookie from "@/store/modules/cookie"
 const useCookies = useCookie()
@@ -210,7 +220,7 @@ const handleQuery = async () => {
   try {
     const params = {
       ftype: selectedFtype.value,
-      eventType: outerTab.value =='all' ?  ('click,imp,all'): (outerTab.value+',all'),
+      eventType: outerTab.value == 'all' ? ('click,imp,all') : (outerTab.value + ',all'),
       deviceSource: selectedDeviceSource.value || '',
       pkg: searchKeyword.value || '',
       status: selectedStatus.value || '',
@@ -243,13 +253,13 @@ const handleTabChange = () => {
 
 // 新增
 const handleAdd = () => {
-    debugger
+  debugger
   currentForm.value = {
     pkg: '',
     country: '',
     eventType: outerTab.value === 'all' ? 'click' : outerTab.value,
     deviceSource: selectedDeviceSource.value || 'online',
-    status:selectedStatus.value || '',
+    status: selectedStatus.value || '',
     functionTypes: []
   }
   dialogTitle.value = '新增配置'
@@ -302,6 +312,36 @@ const pageChange = ({ currentPage, pageSize }: any) => {
   handleQuery()
 }
 
+// 抽屉相关
+const drawerVisible = ref(false)
+const drawerType = ref<'pkg' | 'country'>('pkg')
+const drawerRow = ref<any>({})
+
+const handleModelEdit = (type: 'pkg' | 'country', row: any) => {
+  drawerType.value = type
+  if(type === 'pkg'){
+    row.pkgName = row.pkg
+  }
+  drawerRow.value = { ...row }
+  drawerVisible.value = true
+}
+// 抽屉保存回调
+const handleDrawerSave = async (updatedRow: any) => {
+    try {
+        updatedRow.pkg = updatedRow.pkgName
+        delete updatedRow.pkgName;
+        const response: any = await reqCreateOrUpdate(updatedRow)
+        if (response?.code === 200 || response?.success === true) {
+            ElMessage.success('保存成功')
+            handleQuery()
+        } else {
+            ElMessage.error(response?.errMsg || '保存失败')
+        }
+    } catch (error) {
+        console.error('保存失败:', error)
+        ElMessage.error('保存失败')
+    }
+}
 onMounted(() => {
   getCategoryList()
 })
@@ -316,15 +356,18 @@ onMounted(() => {
 
   .type-tabs {
     flex-shrink: 0;
+
     :deep(.el-tabs__header) {
       padding: 0 5px;
       margin-bottom: 10px;
       border-bottom: 1px solid #ebeef5;
     }
+
     :deep(.el-tabs__item) {
       padding: 0 16px;
       font-size: 14px;
     }
+
     :deep(.el-tabs__item.is-active) {
       font-weight: 500;
     }
@@ -390,9 +433,10 @@ onMounted(() => {
 }
 
 .config-item:hover {
-    background: #f5f8ff;
-    border-color: #e3e8f5;
+  background: #f5f8ff;
+  border-color: #e3e8f5;
 }
+
 .config-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
