@@ -209,7 +209,9 @@ const props = defineProps<{
     flow: string
     country: string // 可能为 'all' 或 'US,TT,AS'
     config: string,
-    pkgConfig: string | null | undefined
+    pkgConfig: string | null | undefined,
+    eventType:string,
+    deviceSource:string
   }>
 }>()
 
@@ -431,6 +433,8 @@ async function fetchHistory() {
       endTime: endTime.value,
       country: countryParam,
       // unifiedValue:true
+      eventType:props?.data?.eventType,
+      abmodel:props?.data?.deviceSource
     }
     const objPkgConfig = props.data?.pkgConfig ? JSON.parse(props.data?.pkgConfig || '{}') : {}
     console.log(Object.keys(objPkgConfig));
