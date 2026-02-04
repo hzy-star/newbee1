@@ -401,6 +401,10 @@ const renderChart = (model: string, data: ChartData) => {
     chart.setOption({
         tooltip: {
             trigger: "axis",
+            appendToBody: true, //tooltip 会渲染到 body 下，层级最高，不会被 div 的 overflow 裁剪
+            confine: true,  //让 tooltip 限制在图表区域内，不会超出屏幕
+            enterable: true,    //让鼠标可以进入 tooltip 进行滚动操作。
+            extraCssText: 'max-height: 60vh; overflow-y: auto;',    //tooltip 最大高度 60vh，超出部分可以滚动查看
             formatter: (params: any) => {
                 if (!params || !params.length) return "";
                 let result = `<div style="font-weight:bold;margin-bottom:5px;">${params[0].axisValue}</div>`;
