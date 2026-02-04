@@ -132,3 +132,22 @@ export async function handleDownload  (_s: any)  {
     ElMessage.error('文件路径不存在');
   }
 }
+
+
+/**
+ * 四舍五入保留指定位小数
+ * 如果是整数，直接返回整数
+ */
+export function roundIfNeeded(value:number, digits = 0) {
+  if (typeof value !== 'number' || !isFinite(value)) {
+    return NaN;
+  }
+
+  // 是整数，直接返回
+  if (Number.isInteger(value)) {
+    return value;
+  }
+
+  const factor = Math.pow(10, digits);
+  return Math.round((value + Number.EPSILON) * factor) / factor;
+}

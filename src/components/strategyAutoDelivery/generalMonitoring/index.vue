@@ -43,7 +43,7 @@
         <div class="flow-filter-bar">
             <div class="flow-filter-left">
                 <span class="filter-label">Flow 过滤：</span>
-                <el-select v-model="selectedFlows" multiple collapse-tags collapse-tags-tooltip
+                <el-select v-model="selectedFlows" multiple collapse-tags collapse-tags-tooltip clearable 
                     placeholder="选择要显示的 Flow" style="width: 300px" @change="handleFlowFilterChange">
                     <el-option v-for="flow in flowOptions" :key="flow" :label="flow" :value="flow" />
                 </el-select>
@@ -74,6 +74,7 @@
 import { ref, watch, computed, nextTick, onBeforeUnmount } from "vue";
 import { ElMessage } from "element-plus";
 import * as echarts from "echarts";
+import { roundIfNeeded } from '@/utils/common'
 import {
     reqPkgMatchCountry,
     reqDataList,
@@ -181,8 +182,8 @@ const initDefaultTime = () => {
     const today = new Date();
     const endDate = new Date(today);
     const startDate = new Date(today);
-    endDate.setDate(today.getDate() - 1);
-    startDate.setDate(today.getDate() - 7);
+    endDate.setDate(today.getDate());
+    startDate.setDate(today.getDate() - 6);
 
     const formatDate = (d: Date) => d.toISOString().split("T")[0];
 
@@ -385,7 +386,7 @@ const renderChart = (model: string, data: ChartData) => {
                 itemStyle: { color: flowColorMap[flow] },
                 lineStyle: {
                     color: flowColorMap[flow],
-                    width: 1, //图表线条粗细
+                    width: 1.5, //图表线条粗细
                 },
                 symbol: metricSymbolMap[metric],
                 symbolSize: 6,  //线条上的图标大小
@@ -404,7 +405,7 @@ const renderChart = (model: string, data: ChartData) => {
             appendToBody: true, //tooltip 会渲染到 body 下，层级最高，不会被 div 的 overflow 裁剪
             confine: true,  //让 tooltip 限制在图表区域内，不会超出屏幕
             enterable: true,    //让鼠标可以进入 tooltip 进行滚动操作。
-            extraCssText: 'max-height: 60vh; overflow-y: auto;',    //tooltip 最大高度 60vh，超出部分可以滚动查看
+            extraCssText: 'max-height: 35vh; overflow-y: auto;',    //tooltip 最大高度 60vh，超出部分可以滚动查看
             formatter: (params: any) => {
                 if (!params || !params.length) return "";
                 let result = `<div style="font-weight:bold;margin-bottom:5px;">${params[0].axisValue}</div>`;
@@ -412,7 +413,7 @@ const renderChart = (model: string, data: ChartData) => {
                     const s = series[item.seriesIndex];
                     result += `<div style="display:flex;align-items:center;margin:3px 0;">
                         <span style="display:inline-block;width:10px;height:10px;background:${item.color};border-radius:50%;margin-right:5px;"></span>
-                        <span><b>${s._flowName}</b><i style="font-size:12px;">(${s._metricName})</i>: ${item.value}</span>
+                        <span><b>${s._flowName}</b><i style="font-size:12px;">(${s._metricName})</i>: ${roundIfNeeded(item.value,4)}</span>
                     </div>`;
                 });
                 return result;
@@ -634,7 +635,7 @@ onBeforeUnmount(() => {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 5px;
-    max-height: calc(100vh - 300px);
+    max-height: calc(100vh - 320px);
     overflow-y: auto;
     overflow-x: hidden;
 }
