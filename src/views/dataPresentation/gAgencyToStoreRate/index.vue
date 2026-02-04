@@ -1,4 +1,5 @@
 <template>
+  <!-- 商店到达率 查询页面 -->
   <el-tabs v-model="activeTab" class="tabs">
     <!-- Tab 1 -->
     <el-tab-pane label="summary" name="tab1" class="tabs-1">

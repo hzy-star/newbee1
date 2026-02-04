@@ -12,7 +12,7 @@
             </p>
             <!-- FlowConfig列表表格 -->
             <div style="height: 90%;">
-                <vxe-table :data="strategyList" border round style="width: 100%" size="small" stripe height="auto" :scroll-y="{ enabled: true, gt: 10 }" :column-config="{ resizable: true }">
+                <vxe-table ref="tableRef" :data="strategyList" border round style="width: 100%" size="small" stripe height="auto" :scroll-y="{ enabled: true, gt: 10 }" :column-config="{ resizable: true }">
                 <vxe-column field="xh" type="seq" align="center" title="序号" width="5%"></vxe-column>
                 <vxe-column field="pkgName" title="pkg" min-width="20" width="160" align="center" >
                     <template #default="{row}">
@@ -111,7 +111,7 @@
                                     </div>
                                     <div class="config-cell config-text-cell">
                                         <span class="config-label">点击倍数</span>
-                                        <el-tooltip :content="item.times" placement="top">
+                                        <el-tooltip :content="String(item.times)" placement="top">
                                             <span class="config-value text-ellipsis">{{ item.times }}</span>
                                         </el-tooltip>
                                     </div>
@@ -143,11 +143,12 @@
                         <span v-else>-</span>
                     </template>
                 </vxe-column>
-                <vxe-column title="操作" width="200" fixed="right" align="center">
+                <vxe-column title="操作" width="250" fixed="right" align="center">
                     <template #default="{ row }">
                         <el-button size="small" type="primary" plain @click="handleView(row)">查看</el-button>
                         <el-button size="small" type="success" plain @click="handleEditFlowConfig(row)">编辑</el-button>
                         <el-button size="small" type="danger" plain @click="handleDelete(row)" :disabled="!props.isSuperAdmin">删除</el-button>
+                        <el-button size="small" type="warning" plain @click="handleMonitoring(row,'alg_monitor_new')">监控</el-button>
                     </template>
                 </vxe-column>
             </vxe-table>
@@ -165,11 +166,17 @@
             :row="drawerRow" 
             @save="handleDrawerSave" 
         />
+        <!-- 新的监控 -->
+         <GeneralMonitoring 
+          v-model="isMonitoringModel"
+          :model="isabmodel"
+          :row="isRow"
+          />
     </div>
 </template>
 
 <script lang="ts" setup>
-import { ref,watch,onMounted ,computed} from 'vue';
+import { ref,watch,onMounted ,computed, nextTick} from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { reqFlowConfig, reqDeleteFlowConfig, reqCreateOrUpdatFlowConfig } from '@/api/strategyAutoDelivery/flowConfig/index';
 import PublicDrawer from '@/components/publicDrawer/index.vue'
@@ -178,6 +185,7 @@ import MonitorModel from './monitorModel.vue'
 import XEUtils from 'xe-utils'
 import { CircleCheck, CircleClose } from '@element-plus/icons-vue' // 新增：图标
 import { ThresholdPinia } from '@/store/strategyAutoDelivery/threshold'
+import GeneralMonitoring from "@/components/strategyAutoDelivery/generalMonitoring/index.vue";
 const thresholdStore = ThresholdPinia()
 
 // 获取父级传递的 isSuperAdmin，mode 属性
@@ -186,6 +194,7 @@ const props = defineProps<{
   mode: 'click' | 'imp' | 'all'
 }>()
 // 响应式数据
+const tableRef = ref<any>(null)
 const strategyList = ref<any[]>([])
 const strategyListBackUp = ref<any[]>([])
 const dialogVisible = ref(false)
@@ -480,6 +489,17 @@ const handleDrawerSave = async (updatedRow: any) => {
         console.error('保存失败:', error)
         ElMessage.error('保存失败')
     }
+}
+
+// 新的监控代码
+const isMonitoringModel = ref(false)
+const isabmodel = ref<string>('')
+const isRow = ref<any>({})
+
+const handleMonitoring = (row:any,abmodel:string)=>{
+    isMonitoringModel.value = true
+    isabmodel.value = abmodel
+    isRow.value = {...row}
 }
 // 组件挂载时获取列表
 onMounted(() => {

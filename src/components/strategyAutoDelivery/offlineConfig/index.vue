@@ -143,11 +143,12 @@
                         <span v-else>-</span>
                     </template>
                 </vxe-column>
-                <vxe-column title="操作" width="200" fixed="right" align="center">
+                <vxe-column title="操作" width="250" fixed="right" align="center">
                     <template #default="{ row }">
                         <el-button size="small" type="primary" plain @click="handleView(row)">查看</el-button>
                         <el-button size="small" type="success" plain @click="handleEditFlowConfig(row)">编辑</el-button>
                         <el-button size="small" type="danger" plain @click="handleDelete(row)" :disabled="!props.isSuperAdmin">删除</el-button>
+                        <el-button size="small" type="warning" plain @click="handleMonitoring(row,'alg_monitor_new')">监控</el-button>
                     </template>
                 </vxe-column>
             </vxe-table>
@@ -165,6 +166,12 @@
             :row="drawerRow" 
             @save="handleDrawerSave" 
         />
+        <!-- 新的监控 -->
+         <GeneralMonitoring 
+          v-model="isMonitoringModel"
+          :model="isabmodel"
+          :row="isRow"
+          />
     </div>
 </template>
 
@@ -178,6 +185,7 @@ import PublicDrawer from '@/components/publicDrawer/index.vue'
 import XEUtils from 'xe-utils'
 import { CircleCheck, CircleClose } from '@element-plus/icons-vue' // 新增：图标
 import { ThresholdPinia } from '@/store/strategyAutoDelivery/threshold'
+import GeneralMonitoring from "@/components/strategyAutoDelivery/generalMonitoring/index.vue";
 const thresholdStore = ThresholdPinia()
 
 // 获取父级传递的 isSuperAdmin，mode 属性
@@ -481,6 +489,16 @@ const handleDrawerSave = async (updatedRow: any) => {
     }
 }
 
+// 新的监控代码
+const isMonitoringModel = ref(false)
+const isabmodel = ref<string>('')
+const isRow = ref<any>({})
+
+const handleMonitoring = (row:any,abmodel:string)=>{
+    isMonitoringModel.value = true
+    isabmodel.value = abmodel
+    isRow.value = {...row}
+}
 // 组件挂载时获取列表
 onMounted(() => {
     // getStrategyFlowConfigsList()

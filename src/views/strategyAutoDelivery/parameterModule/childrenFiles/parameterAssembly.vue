@@ -107,7 +107,7 @@
                       <span class="config-label">号段</span>
                       <el-tooltip :content="`${item.start}-${item.end}`" placement="top">
                         <span class="config-value text-ellipsis" style="color: red;">{{ item.start }}-{{ item.end
-                          }}</span>
+                        }}</span>
                       </el-tooltip>
                     </div>
                   </div>
@@ -121,6 +121,7 @@
             <template #default="{ row }">
               <el-button size="small" type="primary" plain @click="handleView(row)">查看</el-button>
               <el-button size="small" type="success" plain @click="handleEdit(row)">编辑</el-button>
+              <el-button size="small" type="warning" plain @click="handleMonitoring(row, 'alg_proxy_new')">监控</el-button>
               <!-- <el-button size="small" type="danger" plain @click="handleDelete(row)" :disabled="!isSuperAdmin">删除</el-button> -->
             </template>
           </vxe-column>
@@ -144,6 +145,8 @@
       :ftype="selectedFtype" :event-type="outerTab" :device-source="selectedDeviceSource" @submit="handleSubmit" />
     <!-- 公共抽屉组件 -->
     <PublicDrawer v-model="drawerVisible" :type="drawerType" :row="drawerRow" @save="handleDrawerSave" />
+    <!-- 新的监控 -->
+    <GeneralMonitoring v-model="isMonitoringModel" :model="isabmodel" :row="isRow" />
   </div>
 </template>
 
@@ -153,6 +156,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { reqCateGory, reqPageList } from '@/api/strategyAutoDelivery/parameterModule/parameterAssembly/index'
 import AssemblyModel from './parameterAssemblyModel.vue'
 import PublicDrawer from '@/components/publicDrawer/index.vue'
+import GeneralMonitoring from "@/components/strategyAutoDelivery/generalMonitoring/index.vue";
 import { reqCreateOrUpdate } from '@/api/strategyAutoDelivery/parameterModule/parameterAssembly/index'
 // 引入 cookie store 获取用户角色
 import useCookie from "@/store/modules/cookie"
@@ -319,7 +323,7 @@ const drawerRow = ref<any>({})
 
 const handleModelEdit = (type: 'pkg' | 'country', row: any) => {
   drawerType.value = type
-  if(type === 'pkg'){
+  if (type === 'pkg') {
     row.pkgName = row.pkg
   }
   drawerRow.value = { ...row }
@@ -327,20 +331,30 @@ const handleModelEdit = (type: 'pkg' | 'country', row: any) => {
 }
 // 抽屉保存回调
 const handleDrawerSave = async (updatedRow: any) => {
-    try {
-        updatedRow.pkg = updatedRow.pkgName
-        delete updatedRow.pkgName;
-        const response: any = await reqCreateOrUpdate(updatedRow)
-        if (response?.code === 200 || response?.success === true) {
-            ElMessage.success('保存成功')
-            handleQuery()
-        } else {
-            ElMessage.error(response?.errMsg || '保存失败')
-        }
-    } catch (error) {
-        console.error('保存失败:', error)
-        ElMessage.error('保存失败')
+  try {
+    updatedRow.pkg = updatedRow.pkgName
+    delete updatedRow.pkgName;
+    const response: any = await reqCreateOrUpdate(updatedRow)
+    if (response?.code === 200 || response?.success === true) {
+      ElMessage.success('保存成功')
+      handleQuery()
+    } else {
+      ElMessage.error(response?.errMsg || '保存失败')
     }
+  } catch (error) {
+    console.error('保存失败:', error)
+    ElMessage.error('保存失败')
+  }
+}
+// 新的监控代码
+const isMonitoringModel = ref(false)
+const isabmodel = ref<string>('')
+const isRow = ref<any>({})
+
+const handleMonitoring = (row:any,abmodel:string)=>{
+    isMonitoringModel.value = true
+    isabmodel.value = abmodel
+    isRow.value = {...row,pkgName : row.pkg}
 }
 onMounted(() => {
   getCategoryList()
@@ -416,14 +430,15 @@ onMounted(() => {
 
 
 .cell-ellipsis-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    word-break: break-all;
-    cursor: pointer;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-all;
+  cursor: pointer;
 }
+
 .config-container {
   padding: 8px;
 }
