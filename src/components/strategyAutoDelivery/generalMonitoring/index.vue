@@ -50,13 +50,37 @@
             </div>
             <div class="flow-legend" v-if="flowOptions.length > 0">
                 <span class="legend-title">Flow 图例：</span>
-                <div class="legend-items">
-                    <div v-for="(flow, index) in flowOptions" :key="flow" class="legend-item">
-                        <span class="legend-color" :style="{
-                            backgroundColor: flowColors[index % flowColors.length],
-                        }"></span>
-                        <span class="legend-name">{{ flow }}</span>
+                <div class="legend-items-wrapper" :class="{ 'show-dropdown': showLegendDropdown }">
+                    <div class="legend-items" ref="legendItemsRef">
+                        <div v-for="(flow, index) in flowOptions" :key="flow" 
+                            class="legend-item" 
+                            :class="{ 'legend-item-disabled': !selectedFlows.includes(flow) }"
+                            @click="toggleFlowSelection(flow)">
+                            <span class="legend-color" :style="{
+                                backgroundColor: flowColors[index % flowColors.length],
+                                opacity: selectedFlows.includes(flow) ? 1 : 0.3
+                            }"></span>
+                            <span class="legend-name">{{ flow }}</span>
+                        </div>
                     </div>
+                    <el-dropdown v-if="showLegendDropdown" trigger="click" class="legend-dropdown">
+                        <el-button size="small" type="primary" link>
+                            更多 <el-icon><ArrowDown /></el-icon>
+                        </el-button>
+                        <template #dropdown>
+                            <el-dropdown-menu>
+                                <el-dropdown-item v-for="(flow, index) in flowOptions" :key="flow" @click="toggleFlowSelection(flow)">
+                                    <div class="dropdown-item-content">
+                                        <span class="legend-color" :style="{
+                                            backgroundColor: flowColors[index % flowColors.length],
+                                            opacity: selectedFlows.includes(flow) ? 1 : 0.3
+                                        }"></span>
+                                        <span :class="{ 'text-disabled': !selectedFlows.includes(flow) }">{{ flow }}</span>
+                                    </div>
+                                </el-dropdown-item>
+                            </el-dropdown-menu>
+                        </template>
+                    </el-dropdown>
                 </div>
             </div>
         </div>
@@ -72,6 +96,7 @@
 
 <script lang="ts" setup>
 import { ref, watch, computed, nextTick, onBeforeUnmount } from "vue";
+import { ArrowDown } from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
 import * as echarts from "echarts";
 import { roundIfNeeded } from '@/utils/common'
@@ -150,6 +175,8 @@ const countryOptions = ref<string[]>([]);
 const flowOptions = ref<string[]>([]);
 const selectedFlows = ref<string[]>([]);
 const chartDataCache = ref<Record<string, ChartData>>({});
+const legendItemsRef = ref<HTMLElement | null>(null);
+const showLegendDropdown = ref(false);
 
 const eventTypeTag = computed(() =>
     props.row?.eventType === "click"
@@ -298,6 +325,8 @@ const handleSearch = async () => {
         renderAllCharts();
         // 创建 ResizeObserver 监听图表容器
         setupResizeObserver();
+        // 检查图例是否需要下拉框
+        checkLegendOverflow();
     } catch {
         ElMessage.error("查询数据失败");
     } finally {
@@ -306,6 +335,31 @@ const handleSearch = async () => {
 };
 
 const handleFlowFilterChange = () => renderAllCharts();
+
+// 点击图例切换 flow 显示
+const toggleFlowSelection = (flow: string) => {
+    const index = selectedFlows.value.indexOf(flow);
+    if (index > -1) {
+        // 如果只剩一个选中的，不允许取消
+        if (selectedFlows.value.length > 1) {
+            selectedFlows.value.splice(index, 1);
+        }
+    } else {
+        selectedFlows.value.push(flow);
+    }
+    renderAllCharts();
+};
+
+// 检查图例是否需要显示下拉框
+const checkLegendOverflow = () => {
+    nextTick(() => {
+        if (legendItemsRef.value) {
+            const el = legendItemsRef.value;
+            // 检查是否超出2行高度 (每行约24px，2行约48px，加上间距约56px)
+            showLegendDropdown.value = el.scrollHeight > 56;
+        }
+    });
+};
 
 const renderAllCharts = () => {
     modelList.forEach((model) => {
@@ -471,6 +525,7 @@ const resetAllData = () => {
     selectedFlows.value = [];
     chartDataCache.value = {};
     isFullscreen.value = false;
+    showLegendDropdown.value = false;
     // 销毁图表实例
     Object.values(chartInstances.value).forEach((c) => c?.dispose());
     chartInstances.value = {};
@@ -576,7 +631,7 @@ onBeforeUnmount(() => {
 
     .flow-legend {
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         padding: 8px 12px;
         background: #fff;
         border: 1px solid #e4e7ed;
@@ -585,17 +640,34 @@ onBeforeUnmount(() => {
 
         .legend-title {
             color: #909399;
-            font-size: 13px;
+            font-size: 12px;
             margin-right: 12px;
             flex-shrink: 0;
+            line-height: 22px;
+        }
+
+        .legend-items-wrapper {
+            display: flex;
+            align-items: flex-start;
+            flex: 1;
+            min-width: 0;
+            
+            &.show-dropdown {
+                .legend-items {
+                    max-height: 52px;
+                    overflow: hidden;
+                }
+            }
         }
 
         .legend-items {
             display: flex;
-            flex-wrap: nowrap;
-            gap: 12px;
-            overflow-x: auto;
-            height: 35px;
+            flex-wrap: wrap;
+            gap: 8px;
+            width: 100%;
+            height: 40px;
+            max-height: none;
+            overflow-y: auto;
 
             &::-webkit-scrollbar {
                 height: 4px;
@@ -614,20 +686,54 @@ onBeforeUnmount(() => {
         .legend-item {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
             flex-shrink: 0;
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 3px;
+            transition: all 0.2s;
+
+            &:hover {
+                background: #f0f2f5;
+            }
+
+            &.legend-item-disabled {
+                opacity: 0.5;
+            }
 
             .legend-color {
-                width: 14px;
-                height: 14px;
+                width: 12px;
+                height: 12px;
                 border-radius: 2px;
+                transition: opacity 0.2s;
             }
 
             .legend-name {
-                font-size: 12px;
+                font-size: 11px;
                 color: #606266;
             }
         }
+
+        .legend-dropdown {
+            flex-shrink: 0;
+            margin-left: 8px;
+        }
+    }
+}
+
+.dropdown-item-content {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    .legend-color {
+        width: 12px;
+        height: 12px;
+        border-radius: 2px;
+    }
+
+    .text-disabled {
+        opacity: 0.5;
     }
 }
 
