@@ -86,8 +86,15 @@
         </div>
 
         <div class="charts-container" v-loading="loading">
-            <div v-for="model in modelList" :key="model" class="chart-wrapper">
-                <h3>{{ modelTitleMap[model] }}</h3>
+            <div v-for="model in modelList" :key="model" class="chart-wrapper" 
+                :class="{ 'chart-fullscreen': fullscreenChart === model }">
+                <div class="chart-header">
+                    <h3>{{ modelTitleMap[model] }}</h3>
+                    <el-icon class="fullscreen-icon" @click="toggleChartFullscreen(model)">
+                        <ScaleToOriginal v-if="fullscreenChart === model" />
+                        <FullScreen v-else />
+                    </el-icon>
+                </div>
                 <div :ref="(el) => setChartRef(el, model)" class="chart-box"></div>
             </div>
         </div>
@@ -96,7 +103,7 @@
 
 <script lang="ts" setup>
 import { ref, watch, computed, nextTick, onBeforeUnmount } from "vue";
-import { ArrowDown } from "@element-plus/icons-vue";
+import { ArrowDown, FullScreen, ScaleToOriginal } from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
 import * as echarts from "echarts";
 import { roundIfNeeded } from '@/utils/common'
@@ -177,6 +184,7 @@ const selectedFlows = ref<string[]>([]);
 const chartDataCache = ref<Record<string, ChartData>>({});
 const legendItemsRef = ref<HTMLElement | null>(null);
 const showLegendDropdown = ref(false);
+const fullscreenChart = ref<string | null>(null);
 
 const eventTypeTag = computed(() =>
     props.row?.eventType === "click"
@@ -361,6 +369,20 @@ const checkLegendOverflow = () => {
     });
 };
 
+// 切换单个图表全屏
+const toggleChartFullscreen = async (model: string) => {
+    if (fullscreenChart.value === model) {
+        fullscreenChart.value = null;
+    } else {
+        fullscreenChart.value = model;
+    }
+    await nextTick();
+    // 调整图表大小
+    if (chartInstances.value[model]) {
+        chartInstances.value[model].resize();
+    }
+};
+
 const renderAllCharts = () => {
     modelList.forEach((model) => {
         if (chartDataCache.value[model]) {
@@ -440,26 +462,25 @@ const renderChart = (model: string, data: ChartData) => {
                 itemStyle: { color: flowColorMap[flow] },
                 lineStyle: {
                     color: flowColorMap[flow],
-                    width: 1.5, //图表线条粗细
+                    width: 1.5,
                 },
                 symbol: metricSymbolMap[metric],
-                symbolSize: 6,  //线条上的图标大小
+                symbolSize: 6,
                 _flowName: flow,
                 _metricName: getMetricLabel(metric),
             });
         });
     });
 
-    // legend 数据使用中文名称
     const legendData = metricKeys.map((metric) => getMetricLabel(metric));
 
     chart.setOption({
         tooltip: {
             trigger: "axis",
-            appendToBody: true, //tooltip 会渲染到 body 下，层级最高，不会被 div 的 overflow 裁剪
-            confine: true,  //让 tooltip 限制在图表区域内，不会超出屏幕
-            enterable: true,    //让鼠标可以进入 tooltip 进行滚动操作。
-            extraCssText: 'max-height: 35vh; overflow-y: auto;',    //tooltip 最大高度 60vh，超出部分可以滚动查看
+            appendToBody: true,
+            confine: true,
+            enterable: true,
+            extraCssText: 'max-height: 35vh; overflow-y: auto;',
             formatter: (params: any) => {
                 if (!params || !params.length) return "";
                 let result = `<div style="font-weight:bold;margin-bottom:5px;">${params[0].axisValue}</div>`;
@@ -526,6 +547,7 @@ const resetAllData = () => {
     chartDataCache.value = {};
     isFullscreen.value = false;
     showLegendDropdown.value = false;
+    fullscreenChart.value = null;
     // 销毁图表实例
     Object.values(chartInstances.value).forEach((c) => c?.dispose());
     chartInstances.value = {};
@@ -753,13 +775,47 @@ onBeforeUnmount(() => {
     background: #fff;
     min-width: 0;
     overflow: hidden;
+    position: relative;
+
+    .chart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+    }
 
     h3 {
-        margin: 0 0 8px 0;
+        margin: 0;
         font-size: 13px;
         color: #303133;
         border-left: 3px solid #409eff;
         padding-left: 8px;
+    }
+
+    .fullscreen-icon {
+        cursor: pointer;
+        font-size: 16px;
+        color: #909399;
+        transition: color 0.2s;
+
+        &:hover {
+            color: #409eff;
+        }
+    }
+
+    &.chart-fullscreen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 3000;
+        border-radius: 0;
+        padding: 20px;
+
+        .chart-box {
+            height: calc(100vh - 80px);
+        }
     }
 }
 

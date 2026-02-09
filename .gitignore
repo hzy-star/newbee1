@@ -28,3 +28,7 @@ dist-ssr
 /mock/
 # Exclude build-time generated version file
 # /public/version.txt
+
+# LLM context files (local only)
+llms.txt
+REQUIREMENTS_LOG.md
