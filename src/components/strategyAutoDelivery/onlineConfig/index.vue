@@ -85,8 +85,8 @@
                                     <!-- Flow -->
                                     <div class="config-cell flow-cell">
                                         <span class="config-label">Flow</span>
-                                        <el-tooltip :content="item.flowName" placement="top">
-                                            <span class="config-value text-ellipsis">{{ item.flowName }}</span>
+                                        <el-tooltip :content="item.flowName" placement="top" >
+                                            <span class="config-value text-ellipsis flow-link" @click="handleFlowTree(item.flowName,row.id)">{{ item.flowName }}</span>
                                         </el-tooltip>
                                     </div>
 
@@ -172,6 +172,13 @@
           :model="isabmodel"
           :row="isRow"
           />
+        <!-- Flow树形结构弹窗 -->
+        <GeneralTree
+          v-model="flowTreeVisible"
+          :flowName="flowTreeName"
+          :id="flowTreeId"
+          @leafClick="handleLeafClick"
+        />
     </div>
 </template>
 
@@ -186,6 +193,7 @@ import XEUtils from 'xe-utils'
 import { CircleCheck, CircleClose } from '@element-plus/icons-vue' // 新增：图标
 import { ThresholdPinia } from '@/store/strategyAutoDelivery/threshold'
 import GeneralMonitoring from "@/components/strategyAutoDelivery/generalMonitoring/index.vue";
+import GeneralTree from "@/components/strategyAutoDelivery/generalTree/index.vue";
 const thresholdStore = ThresholdPinia()
 
 // 获取父级传递的 isSuperAdmin，mode 属性
@@ -501,6 +509,24 @@ const handleMonitoring = (row:any,abmodel:string)=>{
     isabmodel.value = abmodel
     isRow.value = {...row}
 }
+
+// 点击flowName查看树形结构
+const flowTreeVisible = ref(false)
+const flowTreeName = ref('')
+const flowTreeId = ref(0)
+
+const handleFlowTree = (flowName: string, id: number) => {
+    console.log(flowName, id)
+    flowTreeName.value = flowName
+    flowTreeId.value = id
+    flowTreeVisible.value = true
+}
+
+// 叶子节点点击回调
+const handleLeafClick = (nodeData: any) => {
+    console.log('叶子节点点击:', nodeData)
+}
+
 // 组件挂载时获取列表
 onMounted(() => {
     getStrategyFlowConfigsList()
@@ -621,6 +647,12 @@ onMounted(() => {
     color: #0b22f2;
     // font-size: 15px;
     // font-weight: 600;
+}
+.flow-link {
+    cursor: pointer;
+    &:hover {
+        text-decoration: underline;
+    }
 }
 .blueSpan {
     color: #007bff;
