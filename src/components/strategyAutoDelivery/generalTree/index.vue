@@ -11,7 +11,7 @@
     <div class="tree-container" ref="chartContainer">
       <!-- 空数据提示 -->
       <div v-if="isEmpty" class="empty-state">
-        <div class="empty-icon">🌳</div>
+        <div class="empty-icon">🎄</div>
         <div class="empty-title">暂无数据</div>
         <div class="empty-desc">当前 Flow 没有可展示的树形结构</div>
       </div>
