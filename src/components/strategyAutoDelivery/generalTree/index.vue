@@ -9,7 +9,14 @@
     class="cool-dialog"
   >
     <div class="tree-container" ref="chartContainer">
-      <div ref="chartRef" class="chart-area"></div>
+      <!-- 空数据提示 -->
+      <div v-if="isEmpty" class="empty-state">
+        <div class="empty-icon">🌳</div>
+        <div class="empty-title">暂无数据</div>
+        <div class="empty-desc">当前 Flow 没有可展示的树形结构</div>
+      </div>
+      
+      <div v-show="!isEmpty" ref="chartRef" class="chart-area"></div>
       
       <!-- 顶部工具栏 -->
       <div class="toolbar">
@@ -79,6 +86,9 @@ const visible = ref(false);
 const chartRef = ref<HTMLElement>();
 const chartContainer = ref<HTMLElement>();
 let chartInstance: echarts.ECharts | null = null;
+
+// 空数据状态
+const isEmpty = ref(false);
 
 // 气泡确认框状态
 const popconfirmVisible = ref(false);
@@ -350,10 +360,14 @@ const fetchTreeData = async () => {
   try {
     const res = await reqTreeDataList({ flow: props.flowName, configId: props.id });
     if (res.success && res.data) {
+      isEmpty.value = false;
       initChart(res.data);
+    } else {
+      isEmpty.value = true;
     }
   } catch (error) {
     console.error('获取树形数据失败:', error);
+    isEmpty.value = true;
   }
 };
 
@@ -508,6 +522,7 @@ watch(() => props.modelValue, (val) => {
   } else {
     chartInstance?.dispose();
     chartInstance = null;
+    isEmpty.value = false;
     document.removeEventListener('click', closePopconfirm);
     document.removeEventListener('fullscreenchange', handleFullscreenChange);
     // 退出时如果还在全屏则退出
@@ -588,6 +603,33 @@ onUnmounted(() => {
   height: 70vh;
   position: relative;
   z-index: 1;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 70vh;
+  color: #64748b;
+  
+  .empty-icon {
+    font-size: 64px;
+    margin-bottom: 16px;
+    opacity: 0.6;
+  }
+  
+  .empty-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 8px;
+  }
+  
+  .empty-desc {
+    font-size: 14px;
+    color: #94a3b8;
+  }
 }
 
 .toolbar {
