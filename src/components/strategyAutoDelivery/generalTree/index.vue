@@ -59,12 +59,15 @@
           <el-button size="small" type="primary" @click="handlePreview">
             <span>👁️ 预览</span>
           </el-button>
-          <el-button size="small" @click="handleDownload">
+          <el-button size="small" @click="handleDownload(currentNodeData?.ruleFile)">
             <span>⬇️ 下载</span>
           </el-button>
         </div>
       </div>
     </div>
+    <!-- 通用 CSV 预览组件（可复用） -->
+    <CsvPreviewDialog ref="csvRef"  :maxPreviewLines="Infinity"
+      :style="{ height: '85vh', overflowY: 'auto' }" />
   </el-dialog>
 </template>
 
@@ -73,6 +76,9 @@ import { ref, watch, onUnmounted, nextTick } from 'vue';
 import * as echarts from 'echarts';
 import { FullScreen, Close } from '@element-plus/icons-vue';
 import { reqTreeDataList } from "@/api/strategyAutoDelivery/generalTree/index";
+import CsvPreviewDialog from '@/components/CsvPreviewDialog.vue'
+import { ElMessage } from 'element-plus'
+import { handleDownload } from '@/utils/common'
 
 const props = defineProps<{
   modelValue: boolean;
@@ -486,16 +492,18 @@ const initChart = (treeData: any) => {
 };
 
 // 预览
+// 预览（调用通用组件）
+const csvRef = ref<InstanceType<any> | null>(null)
 const handlePreview = () => {
-  console.log('预览 URL:', currentNodeData.value?.ruleFile);
   popconfirmVisible.value = false;
+  const objectName = String(currentNodeData.value?.ruleFile || '').trim()
+  if (!objectName) {
+    ElMessage.warning('规则文件路径为空，无法预览')
+    return
+  }
+  csvRef.value?.open(objectName, `CSV 预览 - ${currentNodeData.value?.name || ''}`)
 };
 
-// 下载
-const handleDownload = () => {
-  console.log('下载 URL:', currentNodeData.value?.ruleFile);
-  popconfirmVisible.value = false;
-};
 
 // 点击其他地方关闭气泡
 const closePopconfirm = (e: MouseEvent) => {
