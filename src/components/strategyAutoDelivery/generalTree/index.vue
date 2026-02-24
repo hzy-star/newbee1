@@ -496,12 +496,13 @@ const initChart = (treeData: any) => {
 const csvRef = ref<InstanceType<any> | null>(null)
 const handlePreview = () => {
   popconfirmVisible.value = false;
+  console.log(currentNodeData.value)
   const objectName = String(currentNodeData.value?.ruleFile || '').trim()
   if (!objectName) {
     ElMessage.warning('规则文件路径为空，无法预览')
     return
   }
-  csvRef.value?.open(objectName, `CSV 预览 - ${currentNodeData.value?.name || ''}`)
+  csvRef.value?.open(objectName, `CSV 预览 - ${currentNodeData.value?.displayName || ''}`)
 };
 
 
