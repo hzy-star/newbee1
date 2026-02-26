@@ -361,6 +361,18 @@ export const constantRoutes = [
           hidden: false,
         },
       },
+      // offer 查询页面
+      {
+        path: "/dataPresentation/offerInquiry",
+        component: () =>
+          import("@/views/dataPresentation/offerInquiry/index.vue"),
+        name: "offerInquiry",
+        meta: {
+          title: "OfferInquiry",
+          icon: "Search",
+          hidden: false,
+        },
+      },
       {
         path: "/dataPresentation/blackWhiteList",
         component: () =>
