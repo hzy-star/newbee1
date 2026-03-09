@@ -14,6 +14,7 @@
           <vxe-option label="FLAG" value="flag" />
           <vxe-option label="SCORE" value="score" />
           <vxe-option label="S2S" value="s2s" />
+          <vxe-option label="RTA" value="rta" />
           <vxe-option label="DISTRIBUTE" value="distribute" />
         </vxe-select>
         <vxe-select v-model="deviceSourceOption" type="search" placeholder="实时/离线" clearable size="mini"
@@ -42,6 +43,9 @@
               </span>
               <span v-else-if="row.returnType === 's2s'" class="tag tag-s2s">
                 S2S
+              </span>
+              <span v-else-if="row.returnType === 'rta'" class="tag tag-rta">
+                RTA
               </span>
               <span v-else-if="row.returnType === 'json'" class="tag tag-json">
                 JSON
@@ -107,6 +111,7 @@
             <el-option label="FLAG" value="flag" />
             <el-option label="SCORE" value="score" />
             <el-option label="S2S" value="s2s" />
+            <el-option label="RTA" value="rta" />
             <el-option label="DISTRIBUTE" value="distribute" />
           </el-select>
         </el-form-item>

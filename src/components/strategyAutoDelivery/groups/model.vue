@@ -18,6 +18,7 @@
           <el-option label="RANK" value="rank" />
           <el-option label="FLAG" value="flag" />
           <el-option label="SCORE" value="score" />
+          <el-option label="RTA" value="rta" />
         </el-select>
       </el-form-item>
       <el-form-item label="事件类型" prop="eventType">
@@ -41,11 +42,11 @@
 
       <el-form-item label="公式" prop="formula">
         <el-select v-model="formData.formula" :disabled="isView">
-          <el-option label="and" value="and" :disabled="formData.returnType != 'flag'" />
-          <el-option label="or" value="or" :disabled="formData.returnType != 'flag'" />
-          <el-option label="min" value="min" :disabled="formData.returnType === 'flag'" />
-          <el-option label="max" value="max" :disabled="formData.returnType === 'flag'" />
-          <el-option label="avg" value="avg" :disabled="formData.returnType === 'flag'" />
+          <el-option label="and" value="and" :disabled="formData.returnType != 'flag' && formData.returnType != 'rta'" />
+          <el-option label="or" value="or" :disabled="formData.returnType != 'flag' && formData.returnType != 'rta'" />
+          <el-option label="min" value="min" :disabled="formData.returnType === 'flag' || formData.returnType === 'rta'" />
+          <el-option label="max" value="max" :disabled="formData.returnType === 'flag' || formData.returnType === 'rta'" />
+          <el-option label="avg" value="avg" :disabled="formData.returnType === 'flag' || formData.returnType === 'rta'" />
         </el-select>
       </el-form-item>
 
@@ -433,7 +434,7 @@ onMounted(() => {
 })
 
 const returnTypeHand = (val: string) => {
-  formData.value.formula = val === 'flag' ? 'and' : 'min'
+  formData.value.formula = (val === 'flag' || val === 'rta') ? 'and' : 'min'
   clearStrategySelections()
 }
 

@@ -14,6 +14,7 @@
                     <vxe-option label="FLAG" value="flag" />
                     <vxe-option label="SCORE" value="score" />
                     <vxe-option label="S2S" value="s2s" />
+                    <vxe-option label="RTA" value="rta" />
                     <vxe-option label="DISTRIBUTE" value="distribute" />
                     <vxe-option label="JSON" value="json" />
                     <vxe-option label="SQL" value="sql" />
@@ -56,6 +57,9 @@
                         </span>
                         <span v-else-if="row.returnType === 's2s'" class="tag tag-s2s">
                             S2S
+                        </span>
+                        <span v-else-if="row.returnType === 'rta'" class="tag tag-rta">
+                            RTA
                         </span>
                         <span v-else-if="row.returnType === 'distribute'" class="tag tag-distribute tag-xlong">
                             DISTRIBUTE
@@ -154,6 +158,7 @@
                         <el-option label="FLAG" value="flag" />
                         <el-option label="SCORE" value="score" />
                         <el-option label="S2S" value="s2s" />
+                        <el-option label="RTA" value="rta" />
                         <el-option label="DISTRIBUTE" value="distribute" />
                         <el-option label="JSON" value="json" />
                         <el-option label="SQL" value="sql" />
@@ -783,6 +788,8 @@ const handleSubmit = async () => {
             //     // 编辑时，当前示例直接用现有文本
             //     baseData.ruleFile = formData.value.ruleFile
             // }
+        } else if (rt === 'rta') {
+            console.log('rta')
         } else {
             // 非 json/sql 类型：file 或 csvData
             if (isCreate.value) {

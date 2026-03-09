@@ -59,8 +59,9 @@
                                             <el-icon style="margin-right:4px;display:inline;"><CircleClose /></el-icon>关
                                         </el-tag>
                                     </template>
-
-                                    <!-- ... 其他代码 ... -->
+                                    <template v-else>
+                                        <span class="config-value">{{ value }}</span>
+                                    </template>
                                 </div>
   
                         </div>
@@ -194,6 +195,7 @@ import { CircleCheck, CircleClose } from '@element-plus/icons-vue' // 新增：�
 import { ThresholdPinia } from '@/store/strategyAutoDelivery/threshold'
 import GeneralMonitoring from "@/components/strategyAutoDelivery/generalMonitoring/index.vue";
 import GeneralTree from "@/components/strategyAutoDelivery/generalTree/index.vue";
+import { RTA_NAMES, RTA_OPTIONS } from '@/utils/constants' // 添加这一行导入常量
 const thresholdStore = ThresholdPinia()
 
 // 获取父级传递的 isSuperAdmin，mode 属性
@@ -220,6 +222,10 @@ const kvMap = ref({
       { label: '开', value: true },
       { label: '关', value: false }
     ]
+  },
+  rtaName: {
+    label: 'RTA',
+    options: RTA_OPTIONS
   },
   // 可以添加更多配置
   // otherKey: { label: '其他', options: [...] }

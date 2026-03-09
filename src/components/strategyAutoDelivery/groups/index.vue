@@ -48,6 +48,9 @@
                                     <span v-else-if="row.returnType === 's2s'" class="tag tag-s2s">
                                     S2S
                                     </span>
+                                    <span v-else-if="row.returnType === 'rta'" class="tag tag-rta">
+                                    RTA
+                                    </span>
                                     <span v-else-if="row.returnType === 'json'" class="tag tag-json">
                                     JSON
                                     </span>
@@ -87,6 +90,9 @@
                         </span>
                         <span v-else-if="row.returnType === 's2s'" class="tag tag-s2s">
                         S2S
+                        </span>
+                        <span v-else-if="row.returnType === 'rta'" class="tag tag-rta">
+                        RTA
                         </span>
                         <span v-else-if="row.returnType === 'json'" class="tag tag-json">
                         JSON
@@ -420,6 +426,12 @@ onMounted(() => {
 /* S2S：接口/链路，用紫色 */
 .tag-s2s {
   color: #722ed1;
+  background: #f9f0ff;
+  border-color: #d3adf7;
+}
+/* S2S：接口/链路，用紫色 */
+.tag-rta {
+  color: #0bc3dbb4;
   background: #f9f0ff;
   border-color: #d3adf7;
 }
