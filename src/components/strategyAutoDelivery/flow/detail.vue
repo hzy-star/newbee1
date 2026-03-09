@@ -132,6 +132,9 @@
                                     <span v-else-if="row.returnType === 's2s'" class="tag tag-s2s">
                                         S2S
                                     </span>
+                                    <span v-else-if="row.returnType === 'rta'" class="tag tag-rta">
+                                        RTA
+                                    </span>
                                     <span v-else-if="row.returnType === 'json'" class="tag tag-json">
                                         JSON
                                     </span>
