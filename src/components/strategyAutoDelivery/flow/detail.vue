@@ -17,7 +17,7 @@
             <div class="stats-bar">
                 <div class="stat-item">
                     <span class="stat-label">总流程数:</span>
-                    <span class="stat-value">{{ flows.length }}</span>
+                    <span class="stat-value">{{ filteredFlows.length }}</span>
                 </div>
                 <div class="stat-item">
                     <span class="stat-label">总分组数:</span>
@@ -203,10 +203,10 @@ const status = ref<Status>('idle')
 const flows = ref<any[]>([])
 const flowsData = ref<any[]>([])
 const totalGroups = computed(() =>
-    flows.value.reduce((total, flow) => total + (flow.groups?.length || 0), 0)
+    filteredFlows.value.reduce((total, flow) => total + (flow.groups?.length || 0), 0)
 )
 const totalStrategies = computed(() =>
-    flows.value.reduce((total, flow) => {
+    filteredFlows.value.reduce((total, flow) => {
         return total + flow.groups.reduce((gt: number, g: any) => gt + (g.strategyCount || 0), 0)
     }, 0)
 )
@@ -356,6 +356,7 @@ const props = defineProps<{
     isSuperAdmin: boolean,
     detailOption: string,
     detailDeviceStatus: string,
+    detailFormula: string,
     mode: string
 }>()
 // flowsData 变化或筛选项变化时都重算
@@ -364,21 +365,37 @@ watch([() => props.detailOption, () => props.detailDeviceStatus], applyDetailFil
 // 新增：搜索过滤（支持 Flow 名称、Group 名称、Group 的 tagTexts）
 const filteredFlows = computed(() => {
     const kw = String(props.filterName || '').trim().toLowerCase()
-    if (!kw) return flows.value
+    const formulaVal = String(props.detailFormula || '').trim()
+
+    // 如果没有任何筛选条件，直接返回
+    if (!kw && !formulaVal) return flows.value
+
     const includesKw = (s: any) => String(s ?? '').toLowerCase().includes(kw)
 
     return (flows.value || []).reduce<any[]>((acc, flow) => {
+        const allGroups = flow.groups || []
+
+        // 公式筛选：只要 flow 中有任意一个 group 的 formula 匹配，就保留整个 flow 的所有 groups
+        if (formulaVal) {
+            const hasFormulaMatch = allGroups.some((g: any) => g?.formula === formulaVal)
+            if (!hasFormulaMatch) return acc
+        }
+
+        if (!kw) {
+            acc.push(flow)
+            return acc
+        }
+
         const flowMatch = includesKw(flow.name)
         // 命中 group：组名或 tagTexts 任意一个包含关键字
-        const matchedGroups = (flow.groups || []).filter((g: any) => {
+        const matchedGroups = allGroups.filter((g: any) => {
             const nameHit = includesKw(g?.name)
             const tagHit = Array.isArray(g?.tagTexts) && g.tagTexts.some((t: string) => includesKw(t))
             return nameHit || tagHit
         })
 
         if (flowMatch) {
-            // 命中 Flow 名：保留该 Flow 全部分组
-            acc.push({ ...flow, groups: flow.groups })
+            acc.push(flow)
         } else if (matchedGroups.length > 0) {
             // 未命中 Flow 名但命中分组/标签：仅保留命中的分组
             acc.push({ ...flow, groups: matchedGroups })
@@ -409,7 +426,8 @@ const handleCopy = (flow: any) => emit('copy', flow)
 <style lang="scss" scoped>
 .dashboard-container {
     padding: 20px;
-    min-height: 100vh;
+    height: 100%;
+    overflow: auto;
 
     .loading-wrapper {
         padding: 30px;

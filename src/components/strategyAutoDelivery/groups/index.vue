@@ -19,6 +19,23 @@
                     <vxe-option label="启用" value="enabled" />
                     <vxe-option label="禁用" value="disabled" />
                 </vxe-select>
+                <vxe-select v-model="returnTypeOption" type="search" placeholder="返回类型" clearable size="mini"
+                    @change="handleReturnType">
+                    <vxe-option label="RANK" value="rank" />
+                    <vxe-option label="FLAG" value="flag" />
+                    <vxe-option label="SCORE" value="score" />
+                    <vxe-option label="S2S" value="s2s" />
+                    <vxe-option label="RTA" value="rta" />
+                    <vxe-option label="DISTRIBUTE" value="distribute" />
+                </vxe-select>
+                <vxe-select v-model="formulaOption" type="search" placeholder="公式" clearable size="mini"
+                    @change="handleFormula">
+                    <vxe-option label="and" value="and" />
+                    <vxe-option label="or" value="or" />
+                    <vxe-option label="min" value="min" />
+                    <vxe-option label="max" value="max" />
+                    <vxe-option label="avg" value="avg" />
+                </vxe-select>
             </p>
             <!-- Group列表表格 -->
             <vxe-table :data="strategyList" border round style="width: 100%" size="small" height="90%"
@@ -53,6 +70,9 @@
                                     </span>
                                     <span v-else-if="row.returnType === 'json'" class="tag tag-json">
                                     JSON
+                                    </span>
+                                    <span v-else-if="row.returnType === 'sql'" class="tag tag-sql">
+                                    SQL
                                     </span>
                                     <span v-else class="tag tag-default">-</span>
                                 </template>
@@ -96,6 +116,9 @@
                         </span>
                         <span v-else-if="row.returnType === 'json'" class="tag tag-json">
                         JSON
+                        </span>
+                        <span v-else-if="row.returnType === 'sql'" class="tag tag-sql">
+                        SQL
                         </span>
                         <span v-else class="tag tag-default">-</span>
                     </template>
@@ -177,6 +200,8 @@ const isView = ref(false)
 const currentGroup = ref<Partial<Groups>>({})
 const deviceSourceOption = ref('online') // 设备来源选项，默认值为 'online'
 const deviceStatus = ref('enabled') // 设备状态选项，默认值为空
+const returnTypeOption = ref('') // 返回类型筛选
+const formulaOption = ref('') // 公式筛选
 
 // 获取Group列表
 const getStrategyGroupsList = async () => {
@@ -194,14 +219,20 @@ const getStrategyGroupsList = async () => {
 const filterName = ref('')
 const applyDeviceSource = (val: string, status: string) => {
   const filterVal = String(filterName.value ?? '').trim().toLowerCase()
+  const returnTypeVal = String(returnTypeOption.value ?? '').trim()
+  const formulaVal = String(formulaOption.value ?? '').trim()
 
   const needSource = val === 'online' || val === 'offline'
   const needStatus = status === 'enabled' || status === 'disabled'
+  const needReturnType = !!returnTypeVal
+  const needFormula = !!formulaVal
 
   // 一次性链式过滤
   let list = strategyListBackUp.value.filter((item: any) => {
     if (needSource && item.deviceSource !== val) return false
     if (needStatus && item.status !== status) return false
+    if (needReturnType && item.returnType !== returnTypeVal) return false
+    if (needFormula && item.formula !== formulaVal) return false
     return true
   })
 
@@ -235,6 +266,14 @@ const handleDeviceSource: VxeSelectEvents.Change = ({ value }) => {
 }
 const handleDeviceStatus: VxeSelectEvents.Change = ({ value }) => {
   applyDeviceSource(String(deviceSourceOption.value || ''), String(value || ''))
+}
+const handleReturnType: VxeSelectEvents.Change = ({ value }) => {
+  returnTypeOption.value = value
+  applyDeviceSource(String(deviceSourceOption.value || ''), String(deviceStatus.value || ''))
+}
+const handleFormula: VxeSelectEvents.Change = ({ value }) => {
+  formulaOption.value = value
+  applyDeviceSource(String(deviceSourceOption.value || ''), String(deviceStatus.value || ''))
 }
 watch(deviceSourceOption, (newVal) => {
   applyDeviceSource(String(newVal || ''), String(deviceStatus.value || ''))
@@ -359,6 +398,8 @@ watch(()=> props.mode,(newVal)=>{
     // 重置筛选条件
     deviceSourceOption.value = 'online'
     deviceStatus.value = 'enabled'
+    returnTypeOption.value = ''
+    formulaOption.value = ''
     filterName.value = ''
     // 清空数据
     strategyList.value = []
@@ -442,6 +483,13 @@ onMounted(() => {
   background: #e6fffb;
   border-color: #87e8de;
 }
+/* sql/格式，用青色 */
+.tag-sql {
+  color: #d4380d;
+  background: #fff2e8;
+  border-color: #ffbb96;
+}
+
 
 /* 默认 / 未知 */
 .tag-default {

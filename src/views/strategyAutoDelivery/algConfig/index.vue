@@ -133,7 +133,7 @@ watch(outerTab,(newVal)=>{
       flex: 1; // 填充剩余空间
       padding: 0 20px; // 左右内边距
       background: #fff; // 白色背景
-      overflow: auto; // 内容溢出时显示滚动条
+      // overflow: auto; // 内容溢出时显示滚动条
     }
   }
 }
