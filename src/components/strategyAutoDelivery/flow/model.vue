@@ -103,11 +103,35 @@
               multiple
               placeholder="选择Groups"
               :disabled="isView"
-              style="width: 100%; margin-top: 10px;"
+              style="width: 100%;"
               filterable
             >
               <el-option v-for="group in strategyList" :key="group.id" :label="group.name" :value="group.id" />
             </el-select>
+            <!-- 拖拽排序区域 -->
+            <div v-if="flowForm.strategyGroupIds && flowForm.strategyGroupIds.length > 1" class="drag-sort-area">
+              <div class="drag-sort-tip">拖拽调整顺序：</div>
+              <draggable
+                v-model="flowForm.strategyGroupIds"
+                :item-key="(el: number) => el"
+                :disabled="isView"
+                class="drag-sort-list"
+                ghost-class="drag-ghost"
+                :animation="200"
+              >
+                <template #item="{ element, index }">
+                  <el-tag
+                    class="drag-sort-tag"
+                    :closable="!isView"
+                    :disable-transitions="true"
+                    @close="removeGroupById(element)"
+                  >
+                    <el-icon class="drag-handle"><Rank /></el-icon>
+                    <span>{{ index + 1 }}. {{ getGroupName(element) }}</span>
+                  </el-tag>
+                </template>
+              </draggable>
+            </div>
           </el-form-item>
 
           <!-- 描述 -->
@@ -129,6 +153,8 @@
 import { ref, watch, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
+import { Rank } from '@element-plus/icons-vue'
+import draggable from 'vuedraggable'
 import { reqCreateOrUpdatFlow,reqCheckFlow } from '@/api/strategyAutoDelivery/flow'
 import type { Flows } from '@/api/strategyAutoDelivery/flow/type'
 import { reqStrategyGroupList } from '@/api/strategyAutoDelivery/groups'
@@ -390,6 +416,18 @@ const applyDeviceFilter = () => {
   }
   strategyList.value = newList
   console.log('应用设备来源过滤，当前列表：', strategyList.value)
+}
+
+// 根据 groupId 获取 group 名称（用于拖拽排序区域显示）
+const getGroupName = (id: number): string => {
+  const group = strategyList.value.find((g: any) => g.id === id)
+  return group ? group.name : String(id)
+}
+
+// 从拖拽排序区域移除某个 group
+const removeGroupById = (id: number) => {
+  if (!flowForm.value.strategyGroupIds) return
+  flowForm.value.strategyGroupIds = flowForm.value.strategyGroupIds.filter((gid: number) => gid !== id)
 }
 
 // 监听设备来源切换：过滤 group 选择，并清理对应的自动公式配置；同时释放 removedAutoGroups 记录
@@ -667,5 +705,38 @@ watch(
 }
 .has-scroll {
   max-height:220px;
+}
+.drag-sort-area {
+  width: 100%;
+  margin-top: 8px;
+}
+.drag-sort-tip {
+  font-size: 12px;
+  color: #909399;
+  margin-bottom: 6px;
+}
+.drag-sort-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.drag-sort-tag {
+  cursor: grab;
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.drag-sort-tag:active {
+  cursor: grabbing;
+}
+.drag-handle {
+  font-size: 14px;
+  color: #909399;
+  cursor: grab;
+}
+.drag-ghost {
+  opacity: 0.4;
+  background: #c8e6c9;
 }
 </style>
