@@ -40,11 +40,15 @@
                                 <el-icon>
                                     <operation />
                                 </el-icon>
-                                {{ flow.name || '-' }}
-                                <span class="span-text"
-                                    :class="flow.deviceSource === 'online' ? 'span-online' : 'span-offline'">{{
-                                    flow.deviceSource === 'online' ? '(实时)' : flow.deviceSource === 'offline' ? '(离线)' :
-                                    '' }}</span>
+                                <el-tooltip :content="flow.name || '-'" placement="top" :disabled="!(flow.name && flow.name.length > 8)">
+                                    <span class="flow-name-text">{{ flow.name || '-' }}</span>
+                                </el-tooltip>
+                            </h2>
+                            <div class="flow-tags">
+                                <el-tag class="span-text" :type="flow.deviceSource === 'online' ? 'success' : 'danger'"
+                                    size="default">
+                                    {{ flow.deviceSource === 'online' ? '实时' : '离线' }}
+                                </el-tag>
                                 <el-tag class="span-text" :type="flow.status === 'enabled' ? 'success' : 'danger'"
                                     size="default">
                                     {{ flow.status === 'enabled' ? '启用' : '禁用' }}
@@ -53,7 +57,11 @@
                                     size="default">
                                     {{ flow.eventType === 'click' ? '点击' : flow.eventType === 'imp' ? '展示' : '全部' }}
                                 </el-tag>
-                            </h2>
+                                <el-tag class="span-text" :type="flow.isusing  ? 'success' : 'danger'"
+                                    size="default">
+                                    {{ flow.isusing ? '使用中' : '未使用' }}
+                                </el-tag>
+                            </div>
                             <div class="flow-meta">
                                 <el-button size="small" type="primary" plain @click="handleView(flow)">查看</el-button>
                                 <el-button size="small" type="success" plain
@@ -495,24 +503,32 @@ const handleCopy = (flow: any) => emit('copy', flow)
                         margin: 0;
                         font-size: 18px;
                         font-weight: 600;
+                        width: 300px;
+                        min-width: 300px;
+                        display: flex;
+                        align-items: center;
 
                         i {
                             margin-right: 8px;
                         }
 
+                        .flow-name-text {
+                            display: inline-block;
+                            max-width: 280px;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            white-space: nowrap;
+                            vertical-align: middle;
+                        }
+
+
+                    }
+                    .flow-tags{
                         .span-text {
                             margin-left: 6px;
                             font-size: 14px;
                             font-weight: normal;
                             margin-right: 5px;
-                        }
-
-                        .span-online {
-                            color: #e4ec0a;
-                        }
-
-                        .span-offline {
-                            color: #e33434;
                         }
                     }
 
