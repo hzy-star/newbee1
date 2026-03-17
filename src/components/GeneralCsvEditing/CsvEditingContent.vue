@@ -1,5 +1,18 @@
 <template>
     <div class="csv-box">
+        <div v-if="!props.isDialog" class="quick_address">
+            <label class="quick_address__label">快捷地址</label>
+            <div class="quick_address__list">
+                <span
+                    v-for="item in quickAddressList"
+                    :key="item.key"
+                    class="quick_address__tag"
+                    @click="onQuickAddressClick(item)"
+                >
+                    {{ item.description }}
+                </span>
+            </div>
+        </div>
         <!-- 顶部：仅 CSV 地址 + 查询表头 -->
         <div class="top-line">
             <label class="top-line__label">CSV地址</label>
@@ -215,12 +228,32 @@ import {
     reqCsvEditQuerySimplifyUrl,
     reqCsvEditAddUrl,
     reqCsvEditReplaceUrl,
-    reqCsvEditDeleteUrl
+    reqCsvEditDeleteUrl,
+    reqGrayConfigTypesUrl
 } from '@/api/docDownload/generalCsvEditing/index.ts'
 import type { VxeTableInstance } from 'vxe-table'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 const csvDisabled = ref(false)
+
+interface QuickAddressItem {
+    key: string
+    description: string
+    bucket: string
+    path: string
+    etype: string[]
+}
+
+const quickAddressList = ref<QuickAddressItem[]>([])
+
+const onQuickAddressClick = (item: QuickAddressItem) => {
+    innerPath.value = `oss://${item.bucket}/${item.path}`
+    csvDisabled.value = false
+    resetSearch()
+    tableData.value = []
+    loadHeader()
+}
+
 const clearPath = () => {
     innerPath.value = ''
     csvDisabled.value = false
@@ -694,9 +727,20 @@ const submitBatchDialog = async () => {
         ElMessage.error(batchDialogType.value === 'add' ? '新增失败' : '替换失败')
     }
 }
+
+// 查询快捷地址
+const getGrayConfigUrl = async() => {
+    const res = await reqGrayConfigTypesUrl()
+    if (res) {
+        quickAddressList.value = res
+    }
+}
 onMounted(()=>{
     if(props.isDialog&&props.path){
         loadHeader()
+    }else{
+        // 查询快捷地址
+        getGrayConfigUrl()
     }
 })
 </script>
@@ -711,6 +755,55 @@ onMounted(()=>{
     height: calc(100vh - $base-tabbar-height - 10px);
     box-sizing: border-box;
     font-size: 12px;
+}
+
+/* 快捷地址 */
+.quick_address {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+    column-gap: 8px;
+
+    &__label {
+        font-size: 12px;
+        font-weight: 500;
+        white-space: nowrap;
+    }
+
+    &__list {
+        display: flex;
+        column-gap: 8px;
+        overflow-x: auto;
+        white-space: nowrap;
+        flex: 1;
+
+        &::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background-color: #c0c4cc;
+            border-radius: 2px;
+        }
+    }
+
+    &__tag {
+        display: inline-block;
+        padding: 4px 10px;
+        font-size: 12px;
+        color: #409eff;
+        background-color: #ecf5ff;
+        border: 1px solid #d9ecff;
+        border-radius: 4px;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: all 0.15s;
+
+        &:hover {
+            background-color: #409eff;
+            color: #fff;
+        }
+    }
 }
 
 /* 顶部 */

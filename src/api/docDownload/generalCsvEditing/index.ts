@@ -9,6 +9,7 @@ enum API {
     CSVEDITADD_URL = '/newbee/csvedit/add',  // 1.4 CSV文件内容新增
     CSVEDITREPLACE_URL = '/newbee/csvedit/replace',  //1.5 CSV文件内容替换
     CSVEDITDELETE_URL = '/newbee/csvedit/delete',  //1.6 CSV文件内容删除
+    GRAYCONFIGTYPES_URL = '/newbee/tools/grayConfigTypes',  //自动查询快捷地址
 }
 
 // 暴露接口
@@ -24,3 +25,5 @@ export const reqCsvEditAddUrl = (param: any) => request.post<any, any>(API.CSVED
 export const reqCsvEditReplaceUrl = (param: any) => request.post<any, any>(API.CSVEDITREPLACE_URL, param)
 // CSV文件内容删除
 export const reqCsvEditDeleteUrl = (param: any) => request.post<any, any>(API.CSVEDITDELETE_URL, param)
+// 查询快捷地址
+export const reqGrayConfigTypesUrl = () => request.get<any, any>(API.GRAYCONFIGTYPES_URL)
