@@ -104,6 +104,17 @@ export const constantRoutes = [
           hidden: false,
         },
       },
+      {
+        path: "/task/algtask",
+        component: () => import("@/views/task/algtask/index.vue"),
+        name: "algtask",
+        meta: {
+          title: "算法任务列表",
+          icon: "algtask",
+          customIcon: true,// 标记使用自定义图标
+          hidden: false,
+        },
+      },
     ],
   },{
     path: "/strategyAutoDelivery",

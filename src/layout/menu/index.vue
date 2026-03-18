@@ -10,7 +10,7 @@
                     <svg-icon :name="item.meta.icon" width="1em" height="1em" />
                 </el-icon>
                 <template #title>
-                    <span>{{ item.meta.title }}</span>
+                    <span>{{ t(item.name, item.meta.title) }}</span>
                 </template>
             </el-menu-item>
         </template>
@@ -24,7 +24,7 @@
                     <svg-icon :name="item.children[0].meta.icon" width="1em" height="1em" />
                 </el-icon>
                 <template #title>
-                    <span>{{ item.children[0].meta.title }}</span>
+                    <span>{{ t(item.children[0].name, item.children[0].meta.title) }}</span>
                 </template>
             </el-menu-item>
         </template>
@@ -37,7 +37,7 @@
                 <el-icon v-else class="custom-icon-wrapper">
                     <svg-icon :name="item.meta.icon" width="1em" height="1em" />
                 </el-icon>
-                <span>{{ item.meta.title }}</span>
+                <span>{{ t(item.name, item.meta.title) }}</span>
             </template>
             <Menu :menuList="item.children"></Menu>
         </el-sub-menu>
@@ -46,8 +46,18 @@
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
+import useLayOutSettingStore from '@/store/modules/setting';
+import { getMenuTitle } from '@/utils/menuI18n';
+
 //获取父组件传递过来的全部路由数组
 defineProps(['menuList']);
+
+const settingStore = useLayOutSettingStore();
+
+// 根据当前语言获取菜单标题
+const t = (routeName: string, fallback: string) => {
+    return getMenuTitle(routeName, settingStore.menuLang, fallback);
+}
 
 //获取路由器对象
 let router = useRouter();
@@ -68,5 +78,6 @@ export default {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    font-size: 25px; /* 图标就变成 18px */
 }
 </style>

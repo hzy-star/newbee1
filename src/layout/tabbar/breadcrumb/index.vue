@@ -16,7 +16,7 @@
             <svg-icon :name="item.meta.icon" width="1em" height="1em" />
          </el-icon>
         <!-- 标题 -->
-      {{ item.meta.title }}
+      {{ getMenuTitle(item.name as string, LayOutSettingStore.menuLang, item.meta.title as string) }}
     </el-breadcrumb-item>
   </el-breadcrumb>
 </template>
@@ -24,6 +24,7 @@
 <script lang="ts" setup>
 import { useRoute } from "vue-router";
 import useLayOutSettingStore from "@/store/modules/setting"
+import { getMenuTitle } from '@/utils/menuI18n'
 const LayOutSettingStore = useLayOutSettingStore();
 
 const changeIcon = () => {

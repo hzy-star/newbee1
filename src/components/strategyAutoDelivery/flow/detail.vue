@@ -515,7 +515,6 @@ const handleCopy = (flow: any) => emit('copy', flow)
                         .flow-name-text {
                             display: inline-block;
                             max-width: 280px;
-                            overflow: hidden;
                             text-overflow: ellipsis;
                             white-space: nowrap;
                             vertical-align: middle;

@@ -36,6 +36,17 @@
           inactive-icon="Sunny"
         />
       </el-form-item>
+      <el-form-item label="菜单语言">
+        <el-switch
+          v-model="isEnglish"
+          @change="changeLang"
+          class="mt-2"
+          style="margin-left: 24px"
+          inline-prompt
+          active-text="EN"
+          inactive-text="中"
+        />
+      </el-form-item>
     </el-form>
     <template #reference>
       <el-button size="small" icon="Setting" circle></el-button>
@@ -83,6 +94,11 @@ let $router = useRouter()
 let $route = useRoute()
 //收集开关的数据
 let dark = ref<boolean>(false)
+// 菜单语言开关
+let isEnglish = ref<boolean>(layoutSettingStore.menuLang === 'en')
+const changeLang = () => {
+  layoutSettingStore.menuLang = isEnglish.value ? 'en' : 'zh'
+}
 //刷新按钮点击回调
 // 刷新页面的时候，重新获取cr数据
 const getTaskCr = listTaskCr()
