@@ -74,7 +74,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import listTaskCr from "@/store/common/listTaskCr"
 //获取用户相关的小仓库
@@ -93,7 +93,21 @@ let $router = useRouter()
 //获取路由对向
 let $route = useRoute()
 //收集开关的数据
-let dark = ref<boolean>(false)
+let dark = ref<boolean>(layoutSettingStore.dark)
+
+// 应用暗黑模式（复用逻辑）
+const applyDark = (isDark: boolean) => {
+  const html = document.documentElement
+  html.className = isDark ? 'dark' : ''
+  VxeUI.setTheme(isDark ? 'dark' : 'light')
+}
+
+// 页面加载时恢复暗黑模式状态
+onMounted(() => {
+  if (layoutSettingStore.dark) {
+    applyDark(true)
+  }
+})
 // 菜单语言开关
 let isEnglish = ref<boolean>(layoutSettingStore.menuLang === 'en')
 const changeLang = () => {
@@ -149,11 +163,8 @@ const predefineColors = ref([
 
 //switch开关的chang事件进行暗黑模式的切换
 const changeDark = () => {
-  //获取HTML根节点
-  let html = document.documentElement
-  //判断HTML标签是否有类名dark
-  dark.value ? (html.className = 'dark') : (html.className = '')
-  dark.value ? VxeUI.setTheme('dark') : VxeUI.setTheme('light')
+  layoutSettingStore.dark = dark.value
+  applyDark(dark.value)
 }
 
 //主题颜色的设置

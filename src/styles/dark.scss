@@ -1,0 +1,107 @@
+// 暗黑模式全局样式覆盖
+// 当 html.dark 时，覆盖所有硬编码的白色背景和浅色边框
+
+// CSS 变量定义，方便统一管理
+:root {
+  --app-bg-color: #f5f5f5;
+  --app-card-bg: #fff;
+  --app-border-color: #e6e6e6;
+  --app-text-color: #303133;
+  --app-text-secondary: #606266;
+  --app-shadow: rgba(0, 0, 0, 0.08);
+}
+
+html.dark {
+  --app-bg-color: #1d1e1f;
+  --app-card-bg: #1d1e1f;
+  --app-border-color: #414243;
+  --app-text-color: #e5eaf3;
+  --app-text-secondary: #a3a6ad;
+  --app-shadow: rgba(0, 0, 0, 0.3);
+
+  background-color: #141414;
+  color: var(--app-text-color);
+
+  // ========== 滚动条 ==========
+  ::-webkit-scrollbar-track {
+    background-color: #1d1e1f;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #4c4d4f;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #636466;
+  }
+
+  // ========== 布局 ==========
+  .layout_tabbar {
+    border-bottom-color: var(--app-border-color) !important;
+    background-color: var(--app-card-bg);
+  }
+  .layout_main {
+    background-color: var(--app-bg-color);
+  }
+
+  // ========== 通用白色背景覆盖 ==========
+  // 覆盖各页面/组件中硬编码的 background: #fff / white
+  .loading-wrapper,
+  .flow-section,
+  .card,
+  .toolbar,
+  .dialog,
+  .monitor-chart-wrapper {
+    background-color: var(--app-card-bg) !important;
+    color: var(--app-text-color);
+  }
+
+  // 表格奇偶行
+  .odd-row {
+    background-color: var(--app-card-bg) !important;
+  }
+
+  // 底部操作栏（CSV编辑、洗量弹窗等）
+  .footer-bar,
+  .dialog-footer {
+    background-color: var(--app-card-bg) !important;
+    border-top-color: var(--app-border-color) !important;
+  }
+
+  // 按钮 plain 样式
+  .btn--plain {
+    background-color: var(--app-card-bg) !important;
+    border-color: var(--app-border-color) !important;
+    color: var(--app-text-color) !important;
+  }
+
+  // popconfirm 弹出框
+  .custom-popconfirm {
+    background: var(--app-card-bg) !important;
+    border-color: var(--app-border-color) !important;
+  }
+
+  // ========== Element Plus 补丁 ==========
+  // el-card / el-dialog 等已由 element-plus dark css-vars 处理
+  // 但部分自定义弹窗/抽屉可能需要补充
+  .el-drawer,
+  .el-dialog {
+    background-color: var(--el-bg-color) !important;
+  }
+
+  // el-popover
+  .el-popover {
+    background-color: var(--el-bg-color) !important;
+    border-color: var(--app-border-color) !important;
+  }
+
+  // ========== 标签样式适配 ==========
+  .tag-rank { background: #1a3a5c; color: #6cb4ee; border-color: #2a5a8c; }
+  .tag-score { background: #1a3a2a; color: #6dd490; border-color: #2a6a4a; }
+  .tag-flag { background: #3a2a0a; color: #f0a040; border-color: #6a4a1a; }
+  .tag-s2s, .tag-rta { background: #2a1a4a; color: #b88ae8; border-color: #4a2a7a; }
+  .tag-json { background: #0a3a3a; color: #40d0d8; border-color: #1a5a5a; }
+  .tag-distribute { background: #3a0a2a; color: #f080c0; border-color: #6a1a4a; }
+  .tag-sql { background: #3a1a0a; color: #f08060; border-color: #6a3a1a; }
+  .tag-default { background: #1a3a2a; color: #6dd490; border-color: #2a6a4a; }
+  .tag-click { background: #1a3a5c; color: #6cb4ee; border-color: #2a5a8c; }
+  .tag-imp { background: #3a2a0a; color: #f0a040; border-color: #6a4a1a; }
+}
