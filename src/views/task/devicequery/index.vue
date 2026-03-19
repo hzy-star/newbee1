@@ -60,6 +60,7 @@
 
                     <div class="query-button">
                         <el-button type="primary" @click="handleQuery">查询</el-button>
+                        <el-button type="success" @click="handleExport" :loading="exporting" :disabled="totalItems === 0">导出</el-button>
                     </div>
                 </div>
             </el-form>
@@ -138,7 +139,7 @@ const formData = reactive<QueryForm>({
 const tableData = ref<TableDataItem[]>([])
 const totalItems = ref(0)
 const currentSorts = ref<SortItem[]>([])
-
+const exporting = ref(false)
 const sortConfig = ref<VxeTablePropTypes.SortConfig>({
     multiple: true,
     chronological: true
@@ -200,6 +201,70 @@ const handleQuery = async () => {
     } catch (error) {
         console.error('查询失败:', error)
         ElMessage.error('查询失败')
+    }
+}
+
+// 导出数据
+const handleExport = async () => {
+    if (totalItems.value === 0) {
+        ElMessage.warning('没有数据可导出')
+        return
+    }
+    if (formData.groupby.length === 0) {
+        ElMessage.warning('请至少选择一个分组方式！')
+        return
+    }
+
+    exporting.value = true
+    try {
+        // 导出 limit 直接用 total + 200 作为余量，确保拿全
+        const exportLimit = totalItems.value + 200
+        const params = {
+            ...buildQueryParams(),
+            page: 1,
+            limit: exportLimit,
+        }
+        const data = await reqRtaData(params)
+        const rows: any[] = data.data || []
+
+        if (rows.length === 0) {
+            ElMessage.warning('查询到的导出数据为空')
+            return
+        }
+
+        // 获取列头（排除 id）
+        const headers = Object.keys(rows[0]).filter(k => k !== 'id')
+
+        // 构建 CSV 内容，处理含逗号/引号/换行的值
+        const escapeCsv = (val: any) => {
+            const str = String(val ?? '')
+            if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+                return `"${str.replace(/"/g, '""')}"`
+            }
+            return str
+        }
+
+        const csvLines = [
+            headers.map(escapeCsv).join(','),
+            ...rows.map(row => headers.map(h => escapeCsv(row[h])).join(','))
+        ]
+        const csvContent = '\uFEFF' + csvLines.join('\n') // BOM 头保证 Excel 中文不乱码
+
+        // 下载文件
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+        const url = URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.href = url
+        link.download = `rta_data_${formData.rta_name}_${formData.baseDate || 'all'}.csv`
+        link.click()
+        URL.revokeObjectURL(url)
+
+        ElMessage.success(`导出成功，共 ${rows.length} 条数据`)
+    } catch (error) {
+        console.error('导出失败:', error)
+        ElMessage.error('导出失败')
+    } finally {
+        exporting.value = false
     }
 }
 
