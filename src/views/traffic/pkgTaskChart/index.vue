@@ -17,8 +17,8 @@
                     <div class="form-item">
                         <div class="form-item-label">Event Type</div>
                         <el-select v-model="FormData.etype" placeholder="Select event type" style="width: 100%;">
-                            <el-option label="Impression" value="imp"></el-option>
                             <el-option label="Click" value="click"></el-option>
+                            <el-option label="Impression" value="imp"></el-option>
                         </el-select>
                     </div>
                 </el-col>
@@ -435,7 +435,7 @@ onMounted(async () => {
     baseDate.value = [yesterday, today];
     FormData.start_day = formatDate(yesterday);
     FormData.end_day = formatDate(today);
-    FormData.etype = 'imp'; // Default event type
+    FormData.etype = 'click'; // Default event type
 
     // Auto-load chart on mount
     await ShowChart();

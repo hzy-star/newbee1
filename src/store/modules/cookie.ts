@@ -47,7 +47,17 @@ const useCookie = defineStore("setCookie", {
       // 清除权限按钮
       const Permission = rolePermission()
       Permission.setBtnShow('');
-      localStorage.clear();
+      // 只清除业务相关的 localStorage，保留 SettingStore（菜单语言、暗黑模式等用户偏好）
+      const preserveKeys = ['SettingStore']
+      const preserved: Record<string, string> = {}
+      preserveKeys.forEach(key => {
+        const val = localStorage.getItem(key)
+        if (val !== null) preserved[key] = val
+      })
+      localStorage.clear()
+      Object.entries(preserved).forEach(([key, val]) => {
+        localStorage.setItem(key, val)
+      })
       this.clearAllCookies(); // 清除所有本地储存的cookie
     },
     // 获取用户信息(新)

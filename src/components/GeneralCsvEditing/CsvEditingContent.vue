@@ -1,14 +1,18 @@
 <template>
     <div class="csv-box">
         <div v-if="!props.isDialog" class="quick_address">
-            <label class="quick_address__label">快捷地址</label>
+            <label class="quick_address__label">
+                快捷地址
+                <a class="quick_address__help" href="https://janzlz0n1f.feishu.cn/docx/W3XVdFdkDobRkgxHtMQchRDbnLf"
+                    target="_blank" rel="noopener noreferrer" title="帮助文档">
+                    <el-icon :size="14">
+                        <QuestionFilled />
+                    </el-icon>
+                </a>
+            </label>
             <div class="quick_address__list">
-                <span
-                    v-for="item in quickAddressList"
-                    :key="item.key"
-                    class="quick_address__tag"
-                    @click="onQuickAddressClick(item)"
-                >
+                <span v-for="item in quickAddressList" :key="item.key" class="quick_address__tag"
+                    @click="onQuickAddressClick(item)">
                     {{ item.description }}
                 </span>
             </div>
@@ -222,7 +226,7 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, ref, computed, watch,onMounted } from 'vue'
+import { reactive, ref, computed, watch, onMounted } from 'vue'
 import {
     reqCsvEditHeaderUrl,
     reqCsvEditQuerySimplifyUrl,
@@ -729,16 +733,16 @@ const submitBatchDialog = async () => {
 }
 
 // 查询快捷地址
-const getGrayConfigUrl = async() => {
+const getGrayConfigUrl = async () => {
     const res = await reqGrayConfigTypesUrl()
     if (res) {
         quickAddressList.value = res
     }
 }
-onMounted(()=>{
-    if(props.isDialog&&props.path){
+onMounted(() => {
+    if (props.isDialog && props.path) {
         loadHeader()
-    }else{
+    } else {
         // 查询快捷地址
         getGrayConfigUrl()
     }
@@ -768,6 +772,22 @@ onMounted(()=>{
         font-size: 12px;
         font-weight: 500;
         white-space: nowrap;
+        display: inline-flex;
+        align-items: center;
+        gap: 2px;
+        min-width: 70px;
+    }
+
+    &__help {
+        color: #409eff;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        line-height: 1;
+
+        &:hover {
+            color: #337ecc;
+        }
     }
 
     &__list {
@@ -817,6 +837,7 @@ onMounted(()=>{
         font-size: 12px;
         font-weight: 500;
         white-space: nowrap;
+        min-width: 70px;
     }
 
     &__input {

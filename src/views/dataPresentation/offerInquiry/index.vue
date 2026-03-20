@@ -39,12 +39,12 @@
                     <vxe-column field="platform" title="Platform" min-width="80" />
                     <vxe-column field="s2s" title="S2S" min-width="60" />
                     <vxe-column field="dailyClick" title="DailyClick" min-width="60" :visible="false"/>
-                    <vxe-column field="minuteClick" title="MinuteClick" min-width="100" :visible="false"/>
+                    <vxe-column field="minuteClick" title="MinuteClick" min-width="100" />
                     <vxe-column field="status" title="Status" min-width="80" />
-                    <vxe-column field="comments" title="Comments" min-width="80" />
-                    <vxe-column field="manualClick" title="ManualClick" min-width="80" />
-                    <vxe-column field="manualImp" title="ManualImp" min-width="80" />
-                    <vxe-column field="clickCap" title="ClickCap" min-width="100" :visible="false" />
+                    <vxe-column field="comments" title="Comments" min-width="80" :visible="false"/>
+                    <vxe-column field="manualClick" title="ManualClick" min-width="80" :visible="false"/>
+                    <vxe-column field="manualImp" title="ImpCap" min-width="80" />
+                    <vxe-column field="clickCap" title="ClickCap" min-width="100"  />
                     <vxe-column field="pkgCategory" title="Category" min-width="100" :visible="false"/>
                     <vxe-column field="updated" title="Updated" min-width="160" fixed="right"/>
                     <vxe-column field="created" title="Created" min-width="160" fixed="right"/>
