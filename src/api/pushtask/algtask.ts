@@ -8,4 +8,4 @@ enum API {
 }
 // algo-task列表
 export const reqPkgTaskUrl = (params?: Record<string, any>) => engineRequest.get<any, any>(API.PKGTASKLIST_URL, { params })
-export const reqPkgTaskRunnerUrl = (id: number | string) => engineRequest.get<any, any>(API.PKGTASKRUNNER_URL, { params: { id } })
+export const reqPkgTaskRunnerUrl = (id: any) => engineRequest.get<any, any>(API.PKGTASKRUNNER_URL, { params: { id } })

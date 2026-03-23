@@ -117,15 +117,7 @@
         </div>
 
         <!-- 历史记录弹窗 -->
-        <el-dialog v-model="historyVisible" :title="`历史记录 [${historyRow?.id ?? ''}]`" width="70%" top="8vh"
-            :close-on-click-modal="false" destroy-on-close>
-            <vxe-table border round size="small" height="400"
-                :data="historyData" :loading="historyLoading" >
-                <vxe-column type="seq" title="#" width="60" align="center" />
-                <vxe-column v-for="col in historyColumns" :key="col.field" :field="col.field" :title="col.title"
-                    :min-width="col.minWidth || 120"  align="center" />
-            </vxe-table>
-        </el-dialog>
+         <AlgHistoryTaskTable v-model="showHistoryModal" :title="historyTitle" :historyId="String(historyId)" />
     </div>
 </template>
 
@@ -134,7 +126,8 @@ import { ref, onMounted } from 'vue'
 import dayjs from 'dayjs'
 import { Clock } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
-import { reqPkgTaskUrl, reqPkgTaskRunnerUrl } from '@/api/pushtask/algtask'
+import { reqPkgTaskUrl } from '@/api/pushtask/algtask'
+import AlgHistoryTaskTable from '@/components/task/AlgTask/AlgTaskHistory.vue'
 
 // ---------- 搜索 ----------
 const searchForm = ref({
@@ -195,39 +188,16 @@ const parseConfigs = (configs: string | null | undefined): Record<string, any> |
 }
 
 // ---------- 历史记录 ----------
-const historyVisible = ref(false)
-const historyLoading = ref(false)
-const historyRow = ref<any>(null)
-const historyData = ref<any[]>([])
+const showHistoryModal = ref<boolean>(false)
+const historyTitle = ref<string>('')
+const historyId = ref<string>('')
 
-const historyColumns = [
-    { field: 'id', title: 'id', minWidth: 80 },
-    { field: 'pkgTaskId', title: 'pkgTaskId', minWidth: 100 },
-    { field: 'status', title: 'status', minWidth: 80 },
-    { field: 'succCount', title: 'succCount', minWidth: 100 },
-    { field: 'sendCount', title: 'sendCount', minWidth: 100 },
-    { field: 'validCount', title: 'validCount', minWidth: 100 },
-    { field: 'message', title: 'message', minWidth: 160 },
-]
+
 
 const openHistory = async (row: any) => {
-    historyRow.value = row
-    historyVisible.value = true
-    historyLoading.value = true
-    try {
-        const res = await reqPkgTaskRunnerUrl(row.id)
-        if (res?.success) {
-            historyData.value = res.data || []
-        } else {
-            ElMessage.error(res?.message || '查询历史记录失败')
-            historyData.value = []
-        }
-    } catch {
-        ElMessage.error('查询历史记录失败')
-        historyData.value = []
-    } finally {
-        historyLoading.value = false
-    }
+    showHistoryModal.value = true
+    historyTitle.value = `TaskDetail [${row.id}]`
+    historyId.value = row.id
 }
 
 onMounted(() => {

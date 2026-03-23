@@ -14,6 +14,7 @@ export default function autoRunningStatus() {
         { label: '程序关闭', value: '-5' },
         { label: '启动失败', value: '-6' },
         { label: '点击失败', value: '-7' },
+        { label: '点击失败', value: '-8' },
         { label: '没有需要发送的offer', value: '-9' }
     ]  
     // 过滤条件
