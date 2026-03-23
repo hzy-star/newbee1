@@ -100,7 +100,7 @@
                     <div class="config-cell">
                       <span class="config-label">功能名</span>
                       <el-tooltip :content="item.name" placement="top">
-                        <span class="config-value text-ellipsis">{{ item.name }}</span>
+                        <span class="config-value text-ellipsis" style="cursor: pointer" @click="handleclick(item.ftid)">{{ item.name }}</span>
                       </el-tooltip>
                     </div>
                     <div class="config-cell">
@@ -147,17 +147,21 @@
     <PublicDrawer v-model="drawerVisible" :type="drawerType" :row="drawerRow" @save="handleDrawerSave" />
     <!-- 新的监控 -->
     <GeneralMonitoring v-model="isMonitoringModel" :model="isabmodel" :row="isRow" />
+    <!-- 通用 CSV 预览组件（可复用） -->
+    <CsvPreviewDialog ref="csvRef"  :maxPreviewLines="Infinity"
+    :style="{ height: '85vh', overflowY: 'auto' }" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { reqCateGory, reqPageList } from '@/api/strategyAutoDelivery/parameterModule/parameterAssembly/index'
+import { reqCateGory, reqPageList,reqGetId } from '@/api/strategyAutoDelivery/parameterModule/parameterAssembly/index'
 import AssemblyModel from './parameterAssemblyModel.vue'
 import PublicDrawer from '@/components/publicDrawer/index.vue'
 import GeneralMonitoring from "@/components/strategyAutoDelivery/generalMonitoring/index.vue";
 import { reqCreateOrUpdate } from '@/api/strategyAutoDelivery/parameterModule/parameterAssembly/index'
+import CsvPreviewDialog from '@/components/CsvPreviewDialog.vue'
 // 引入 cookie store 获取用户角色
 import useCookie from "@/store/modules/cookie"
 const useCookies = useCookie()
@@ -355,6 +359,26 @@ const handleMonitoring = (row:any,abmodel:string)=>{
     isMonitoringModel.value = true
     isabmodel.value = abmodel
     isRow.value = {...row,pkgName : row.pkg}
+}
+
+// 预览（调用通用组件）
+const csvRef = ref<InstanceType<any> | null>(null)
+// 点击功能名打开预览界面
+const handleclick = async (ftid: number) => {
+  // 前端判断当前选中的是proxy，才能调用查看接口
+  if (selectedFtype.value == 'proxy') {
+    const res = await reqGetId(ftid)
+    if (res.success && res.data) {
+
+      const objectName = String(res.data.propertyConfig || '').trim()
+      if (!objectName) {
+        ElMessage.warning('规则文件路径为空，无法预览')
+        return
+      }
+      csvRef.value?.open(objectName, `CSV 预览 - ${res.data.name || ''}`)
+    }
+  }
+
 }
 onMounted(() => {
   getCategoryList()

@@ -52,7 +52,7 @@
                                     <span class="kvmap_css_span" :title="String(kvLabelMap[key] || key)">{{ kvLabelMap[key] || key }}:</span>
                                     <!-- 只要有值，就显示 options 中 value 为 true 的 label -->
                                     <template v-if="value && getOptionLabel(key,value)">
-                                        <el-tag type="success" size="small" effect="plain">{{ getOptionLabel(key,value) }}</el-tag>
+                                        <el-tag type="success" size="small" effect="plain" style="cursor: pointer" @click="handleclick(getOptionLabel(key,value,true),key,value)">{{ getOptionLabel(key,value) }}</el-tag>
                                     </template>
                                     <!-- 如果没有值或没有匹配的 options -->
                                     <template v-else>
@@ -95,6 +95,9 @@
             :row="drawerRow" 
             @save="handleDrawerSave" 
         />
+        <!-- 通用 CSV 预览组件（可复用） -->
+        <CsvPreviewDialog ref="csvRef"  :maxPreviewLines="Infinity"
+        :style="{ height: '85vh', overflowY: 'auto' }" />
     </div>
 </template>
 
@@ -108,6 +111,7 @@ import PublicDrawer from '@/components/publicDrawer/index.vue'
 import XEUtils from 'xe-utils'
 import { ThresholdPinia } from '@/store/strategyAutoDelivery/threshold'
 import { reqManualStrategyList } from '@/api/strategyAutoDelivery/manualStrategy/index'
+import CsvPreviewDialog from '@/components/CsvPreviewDialog.vue'
 import { CircleCheck, ArrowDown, ArrowUp } from '@element-plus/icons-vue'
 const thresholdStore = ThresholdPinia()
 
@@ -132,7 +136,7 @@ const toggleExpand = (rowId: number) => {
 }
 
 // 提前声明 distributeList，供 kvMap 使用
-const distributeList = ref<Array<{ label: string; value: any }>>([])
+const distributeList = ref<Array<{ label: string; value: any,ruleFile?:boolean }>>([])
 
 // 封装键值对
 // kvMap 包含显示名称和选项配置
@@ -166,17 +170,32 @@ const kvLabelMap = computed(() => {
 })
 
 // 根据 key 从 kvMap 的 options 中获取 value 为 true 的 label
-const getOptionLabel = (key: string | number,value:any): string | null => {
+const getOptionLabel = (key: string | number,value:any,type?:boolean): string | any => {
     debugger
   const keyStr = String(key)
   const config = kvMap.value[keyStr as keyof typeof kvMap.value]
   if (config && config.options) {
     const option = config.options.find(opt => opt.value === value)
-    return option ? option.label : null
+    if(type){
+        return option ? option.ruleFile : null
+    }else{
+        return option ? option.label : null
+    }
+    
   }
   return null
 }
-
+// 预览（调用通用组件）
+const csvRef = ref<InstanceType<any> | null>(null)
+const handleclick = (file:any,key: string | number,value:any)=>{
+    console.log(file)
+  const objectName = String(file || '').trim()
+  if (!objectName) {
+    ElMessage.warning('规则文件路径为空，无法预览')
+    return
+  }
+  csvRef.value?.open(objectName, `CSV 预览 - ${getOptionLabel(key,value) || ''}`)
+}
 // 获取FlowConfig列表
 const getStrategyFlowConfigsList = async () => {
     try {
@@ -454,7 +473,8 @@ const getDistributeList = async () => {
         params.eventType = ['click', 'imp', 'all']
     // }
     const response: any = await reqManualStrategyList({ ...params })
-    distributeList.value = response.data.data.map((item:any) => ({ label: item.name, value: item.id }))
+    debugger
+    distributeList.value = response.data.data.map((item:any) => ({ label: item.name, value: item.id,ruleFile:item.ruleFile }))
     console.log(distributeList.value)
 }
 // 抽屉相关
