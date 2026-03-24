@@ -151,13 +151,21 @@ const metricNameMap: Record<string, string> = {
     imps: "展示数",
     imp_convs: "展示转化数",
     events: "事件数",
-    cer: "事件达成率 CER * 10^4",
+    cer: "事件达成率 CER",
     er: "事件触发率 ER",
-    cr: "转化率 CR * 10^4",
+    cr: "转化率 CR",
     ir: "转化率 IR",
     d1r: "次留率",
     oog_rate: "OOG率",
-    roi:"ROI * 10^3"
+    roi: "ROI"
+};
+
+// 需要转为百分比显示的指标（原始值为比率，如 0.001234 -> 0.1234%）
+const percentMetrics = new Set(['cer', 'er', 'cr', 'ir', 'd1r', 'oog_rate', 'roi']);
+
+// 将原始值转为百分比数值（用于图表绘制）
+const toPercentNum = (value: number) => {
+    return parseFloat((value * 100).toFixed(6));
 };
 
 // 获取指标中文名称
@@ -457,10 +465,14 @@ const renderChart = (model: string, data: ChartData) => {
     const series: any[] = [];
     filteredFlows.forEach((flow) => {
         metricKeys.forEach((metric) => {
+            const isPercent = percentMetrics.has(metric);
             series.push({
                 name: getMetricLabel(metric),
                 type: "line",
-                data: xAxisData.map((day) => data[flow][day]?.[metric] ?? 0),
+                data: xAxisData.map((day) => {
+                    const raw = data[flow][day]?.[metric] ?? 0;
+                    return isPercent ? toPercentNum(raw) : raw;
+                }),
                 itemStyle: { color: flowColorMap[flow] },
                 lineStyle: {
                     color: flowColorMap[flow],
@@ -468,8 +480,20 @@ const renderChart = (model: string, data: ChartData) => {
                 },
                 symbol: metricSymbolMap[metric],
                 symbolSize: 6,
+                label: {
+                    show: true,
+                    position: 'top',
+                    fontSize: 10,
+                    formatter: (params: any) => {
+                        if (isPercent) {
+                            return params.value.toFixed(6) + '%';
+                        }
+                        return roundIfNeeded(params.value, 4);
+                    },
+                },
                 _flowName: flow,
                 _metricName: getMetricLabel(metric),
+                _isPercent: isPercent,
             });
         });
     });
@@ -504,7 +528,7 @@ const renderChart = (model: string, data: ChartData) => {
                     const s = series[item.seriesIndex];
                     result += `<div style="display:flex;align-items:center;margin:3px 0;">
                         <span style="display:inline-block;width:10px;height:10px;background:${item.color};border-radius:50%;margin-right:5px;"></span>
-                        <span><b>${s._flowName}</b><i style="font-size:12px;">(${s._metricName})</i>: ${roundIfNeeded(item.value,4)}</span>
+                        <span><b>${s._flowName}</b><i style="font-size:12px;">(${s._metricName})</i>: ${s._isPercent ? roundIfNeeded(item.value, 6) + '%' : roundIfNeeded(item.value, 4)}</span>
                     </div>`;
                 });
                 return result;
