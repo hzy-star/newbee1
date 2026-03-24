@@ -512,7 +512,8 @@ const saveRowDialog = async () => {
     const payload: any = {
         path: innerPath.value,
         newRows: [newRow],
-        filters
+        filters,
+        singleRow:true
     }
 
     try {
@@ -547,7 +548,7 @@ const deleteSingleRow = async (rowIndex: number) => {
         headerKeys.value.forEach((key, idx) => {
             filters[key] = [row[idx] ?? '']
         })
-        const payload: any = { path: innerPath.value, filters }
+        const payload: any = { path: innerPath.value, filters,singleRow:true }
         try {
             const res = await reqCsvEditDeleteUrl(payload)
             if (res?.code !== 200) {
