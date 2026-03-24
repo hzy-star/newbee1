@@ -165,7 +165,7 @@ const percentMetrics = new Set(['cer', 'er', 'cr', 'ir', 'd1r', 'oog_rate', 'roi
 
 // 将原始值转为百分比数值（用于图表绘制）
 const toPercentNum = (value: number) => {
-    return parseFloat((value * 100).toFixed(6));
+    return parseFloat((value / 100).toFixed(6));
 };
 
 // 获取指标中文名称
