@@ -382,7 +382,7 @@ const isDialogFieldDisabled = (field: string) => {
 const thresholdList = ref<StrategyThreshold[]>([])
 // 监听 dataUpdated 状态
 watch(() => thresholdStore.dataUpdated, (newVal) => {
-    debugger
+    
     if (newVal) {
         // 重置状态，避免重复触发
         if (thresholdStore.ThresholdList.length === 0 && thresholdStore.dataUpdated === false) {

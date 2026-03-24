@@ -473,7 +473,7 @@ const handleDataeye = async() => {
 }
 // 监听父组件 mode 变化，刷新列表
 watch(() => props.mode, () => {
-    debugger
+    
     filterName.value = ''
     strategyList.value = []
     strategyListBackUp.value = []

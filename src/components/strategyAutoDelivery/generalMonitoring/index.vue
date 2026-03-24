@@ -321,7 +321,9 @@ const handleSearch = async () => {
         });
 
         flowOptions.value = Array.from(allFlows);
-        selectedFlows.value = [...flowOptions.value];
+        // 默认只选中 base# 开头的 flow
+        const baseFlows = flowOptions.value.filter(f => f.startsWith('base#'));
+        selectedFlows.value = baseFlows.length > 0 ? baseFlows : [...flowOptions.value];
 
         results.forEach((res, i) => {
             if (res.success && res.data) {
@@ -474,6 +476,20 @@ const renderChart = (model: string, data: ChartData) => {
 
     const legendData = metricKeys.map((metric) => getMetricLabel(metric));
 
+    // 根据 model 类型决定默认选中的 legend
+    const legendSelected: Record<string, boolean> = {};
+    if (model === 'standard') {
+        // 常规量监控：默认只选中"点击数"
+        legendData.forEach((name) => {
+            legendSelected[name] = name === metricNameMap['clicks'];
+        });
+    } else if (model === 'metric') {
+        // 指标监控：默认只选中"转化率 CR * 10^4"
+        legendData.forEach((name) => {
+            legendSelected[name] = name === metricNameMap['cr'];
+        });
+    }
+
     chart.setOption({
         tooltip: {
             trigger: "axis",
@@ -498,6 +514,7 @@ const renderChart = (model: string, data: ChartData) => {
             type: "scroll",
             top: 0,
             data: legendData,
+            selected: legendSelected,
         },
         grid: {
             left: "3%",

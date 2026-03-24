@@ -171,7 +171,7 @@ const kvLabelMap = computed(() => {
 
 // 根据 key 从 kvMap 的 options 中获取 value 为 true 的 label
 const getOptionLabel = (key: string | number,value:any,type?:boolean): string | any => {
-    debugger
+    
   const keyStr = String(key)
   const config = kvMap.value[keyStr as keyof typeof kvMap.value]
   if (config && config.options) {
@@ -451,7 +451,7 @@ const handleDataeye = async() => {
 }
 // 监听父组件 mode 变化，刷新列表
 watch(() => props.mode, () => {
-    debugger
+    
     filterName.value = ''
     strategyList.value = []
     strategyListBackUp.value = []
@@ -473,7 +473,7 @@ const getDistributeList = async () => {
         params.eventType = ['click', 'imp', 'all']
     // }
     const response: any = await reqManualStrategyList({ ...params })
-    debugger
+    
     distributeList.value = response.data.data.map((item:any) => ({ label: item.name, value: item.id,ruleFile:item.ruleFile }))
     console.log(distributeList.value)
 }

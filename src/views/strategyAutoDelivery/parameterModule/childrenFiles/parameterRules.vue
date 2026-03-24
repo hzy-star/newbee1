@@ -575,7 +575,7 @@ const handleSubmit = async () => {
           }
           payload.csvData = csvData
         }
-        debugger
+        
         if (!isCreate.value) {
           payload.data.ruleFile = formData.value.ruleFile || ''
         }

@@ -151,7 +151,7 @@ const functionOptions = ref<any[]>([])
 // 获取功能名选项
 const getFunctionOptions = async () => {
   if (!props.ftype) return
-  debugger
+  
   try {
     // 如果 eventType 是 undefined 或 'all'，默认使用 'click'
     const eventType = form.value.eventType === 'all' || !form.value.eventType 

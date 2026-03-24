@@ -395,7 +395,7 @@ const flowList = computed(() => {
     if (!eventType || eventType === 'all') {
         return allFlowList.value
     }
-    debugger
+    
     // 过滤出匹配当前 eventType 或 'all' 的 flow
     return allFlowList.value.filter(item => 
         (item as any).eventType === eventType || (item as any).eventType === 'all'
@@ -420,7 +420,7 @@ const getDistributeList = async () => {
         returnType: 'distribute',// 获取distribute类型列表
         deviceSource: 'offline',// 离线策略
     }
-    debugger
+    
     if (props.form.eventType !== 'all' && props.form.eventType) {
         params.eventType = [props.form.eventType, 'all']
     } else {

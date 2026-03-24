@@ -107,7 +107,7 @@ const handleQuery = async () => {
     let params: any = {
         metrics: ['recordCount']  // 默认添加 metrics
     };
-    debugger
+    
     // 添加日期范围参数，如果日期为空则不传
     if (propFrom.value.dateTime[0] && propFrom.value.dateTime[1]) {
         params.startDate = moment(propFrom.value.dateTime[0]).format('YYYY-MM-DD'); // 格式化日期

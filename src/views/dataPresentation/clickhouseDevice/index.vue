@@ -130,7 +130,7 @@ const handleQuery = async () => {
     params.range = propFrom.value.range;
     let deviceData = await reqPullDeviceUrl(params);
     tableDataList.value = deviceData.data;
-    debugger
+    
     if (deviceData.code == 200) {
         const fieldPriority:FieldPriority = {
             'recordCount': 1,  // 最高优先级

@@ -135,7 +135,7 @@ const confirmAdduser = async () => {
             role: form.role,
             accessCode: form.accessCode || ''
         };
-        debugger
+        
         let res;
         if (isEditMode.value) {
             // 编辑
@@ -178,7 +178,7 @@ const handleDelete = async (user: UserInfo) => {
             cancelButtonText: '取消',
             type: 'warning',
         });
-        debugger
+        
         const data = await reqDelUser({ id: user.id });  // 修改这里
         if (data.code === 200) {  // 修改这里
             ElMessage.success('删除成功');

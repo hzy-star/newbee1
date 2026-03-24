@@ -473,7 +473,7 @@ async function fetchHistory() {
         selectedCountries.value = selectedCountries.value.filter(c => countryOptions.value.includes(c))
       }
     } else {
-      debugger
+      
       // 指定 pkgName：仅展示该 pkg 的国家
       const optCountries = getCountriesFromMap(data.optionalCountryMap, effectivePkg)
       countryOptions.value = Array.isArray(optCountries) ? optCountries : []
@@ -518,7 +518,7 @@ async function fetchHistory() {
 // 渲染三个图表
 function renderCharts(flowTraceData: FlowTraceData) {
   if (!chart1 || !chart2 || !chart3) return
-  debugger
+  
   // 聚合所有时间点（根据当前选中国家）
   const chosen = selectedCountries.value
   const timeSet = new Set<string>()

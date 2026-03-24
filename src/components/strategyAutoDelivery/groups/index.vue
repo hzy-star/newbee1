@@ -280,7 +280,7 @@ watch(deviceSourceOption, (newVal) => {
 }, { immediate: true })
 // 添加Group
 const handleAddGroup = () => {
-    debugger
+    
     currentGroup.value = { operator: 'big', returnType:'rank',status: 'enabled', cutoff: 0,groupType: 'normal', deviceSource: 'online',eventType:props.mode} // 默认操作符
     // currentGroup.value = { operator: 'big', returnType:'rank',status: 'enabled', cutoff: 0} // 默认操作符
     dialogTitle.value = '新增Group'

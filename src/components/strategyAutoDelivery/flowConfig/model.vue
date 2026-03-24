@@ -240,7 +240,7 @@ const getDistributeList = async () => {
 
 // 动态选项映射：根据 optionsKey 返回对应的选项数组
 const getDynamicOptions = (optionsKey: string): Array<{ label: string; value: any }> => {
-    debugger
+    
     const optionsMap: Record<string, () => Array<{ label: string; value: any }>> = {
         distributeList: () => distributeList.value.map(item => ({ label: item.name, value: item.id }))
         // 可以继续添加其他动态数据源

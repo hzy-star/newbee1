@@ -270,7 +270,7 @@ const handleSave = (type: string) => {
 }
 // 新增
 const handleNew = (type: string) => {
-    debugger
+    
     if(props.btnType === 'batchEdit'){
         // formData.value中新增一个batchCreate=1字段
         formData.value.batchCreate = 1

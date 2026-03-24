@@ -348,7 +348,7 @@ const onDialogReplace = (row:string) => {
             ElMessage.error('比例必须是0-1之间的数字')
             return
         }
-        debugger
+        
         const listDto = {
             etype: dialogForm.etype,
             listtype: dialogForm.listtype,

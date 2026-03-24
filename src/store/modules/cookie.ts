@@ -63,7 +63,7 @@ const useCookie = defineStore("setCookie", {
     // 获取用户信息(新)
     async getUserInfoNew() {
       let res = await reqGetUserInfo();
-      debugger
+      
       this.username = res.data.name;
       this.userRole = res.data.role;
       // 获取权限按钮

@@ -18,7 +18,6 @@ enum API {
 
 // 查询所有用户
 export const reqQueryall = async () => {
-    debugger
   const  data  = await request.get<any,QueryAllUsersResponse>(API.GETUSER_URL);
   console.log(data, '查询所有用户');
   

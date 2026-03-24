@@ -404,7 +404,6 @@ const getGroupsList = async () => {
 
 // 设备来源过滤 + 清理不合法选择
 const applyDeviceFilter = () => {
-  debugger
   const ds = flowForm.value.deviceSource    //设备来源 实时/离线
   const eventType = flowForm.value.eventType  //事件类型 点击/展示/全部
   const list = ds ? allStrategies.value.filter((s: any) => s.deviceSource === ds) : allStrategies.value

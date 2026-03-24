@@ -11,7 +11,6 @@ import { ElMessage } from 'element-plus';
 const useCookies = useCookie(pinia)
 // 全局前置守卫
 router.beforeEach(async (to: any, from: any, next: any) => {
-    debugger
     document.title = setting.title + '-' + to.meta.title
     NProgress.start()
     const cookie = useCookies.getCookie()

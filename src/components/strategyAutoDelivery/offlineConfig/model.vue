@@ -421,7 +421,7 @@ const getDistributeList = async () => {
         returnType: 'distribute',// 获取distribute类型列表
         deviceSource: 'offline',// 离线策略
     }
-    debugger
+    
     if (props.form.eventType !== 'all' && props.form.eventType) {
         params.eventType = [props.form.eventType, 'all']
     } else {

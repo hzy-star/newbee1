@@ -127,7 +127,7 @@ const parseFilters = (row: any) => {
     try {
         const result = [];
         const filters = JSON.parse(row.filters || '{}');
-        debugger
+        
         Object.entries(filters).forEach(([key, value]) => {
             if (typeof value === 'string' && value.startsWith('{')) {
                 try {

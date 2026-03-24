@@ -389,7 +389,7 @@ const handleSubmit = async () => {
 watch(
   () => props.form,
   (newVal: any) => {
-    debugger
+    
     formData.value = {
       operator: 'big',
       returnType: 'rank',

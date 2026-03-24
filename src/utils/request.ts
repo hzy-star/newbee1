@@ -53,7 +53,7 @@ function setupInterceptors(instance: typeof request) {
           background: 'rgba(0, 0, 0, 0.7)',
         });
       }
-      debugger
+      
       // 设置 Content-Type
       if (config.data instanceof FormData) {
         // 如果是 FormData 类型，让浏览器自动设置 Content-Type
